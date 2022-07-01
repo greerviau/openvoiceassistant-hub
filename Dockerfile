@@ -11,6 +11,7 @@ RUN pip3 install -r tmp/requirements.txt --timeout 60
 
 FROM base AS development
 
+RUN apt-get update && apt-get install -y git
 RUN useradd -ms /bin/bash user
 
 FROM base as deployment
