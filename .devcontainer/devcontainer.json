@@ -1,0 +1,14 @@
+{
+    "name:": "openvoiceassistant-hub",
+    "context": "..",
+    "dockerfile": "../Dockerfile",
+    "build": { "target": "development" },
+    "settings": {},
+    "extensions": [
+        "ms-python.python",
+        "ms-python.vscode-pylance"
+    ],
+    "forwardPorts": [],
+    "runArgs": ["--network=host"],
+    "containerUser": "user"
+}
