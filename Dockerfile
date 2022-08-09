@@ -1,8 +1,9 @@
-FROM ubuntu:20.04 as base
+FROM nvidia/cuda:11.7.0-runtime-ubuntu20.04 as base
 ENV DEBIAN_FRONTEND=noninteractive
 
 RUN apt-get update && apt-get install -y \
-    python3 python3-pip nginx wget git bash
+    python3 python3-pip nginx wget git bash \
+    systemd
 
 COPY ./requirements.txt /tmp/requirements.txt
 RUN pip3 install --upgrade pip "setuptools<58.0.0"
