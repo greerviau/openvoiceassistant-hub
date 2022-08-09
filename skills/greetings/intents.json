@@ -1,0 +1,38 @@
+{
+    "intentions": [
+        {
+            "tag":"greeting",
+            "patterns":[
+                "hello", 
+                "hi",
+                "hey there", 
+                "howdy", 
+                "good morning",
+                "good afternoon",
+                "good evening", 
+                "good to see you",
+                "whats up"
+            ]
+        },
+        {
+            "tag":"goodbye",
+            "patterns":[
+                "goodbye",
+                "bye bye",
+                "cya", 
+                "see ya", 
+                "see you later", 
+                "see ya later", 
+                "i am leaving", 
+                "have a good day", 
+                "bye",
+                "im going out",
+                "im heading out",
+                "ill see ya later",
+                "im gonna go",
+                "im going to go",
+                "im going to head out"
+            ]
+        }
+    ]
+}
