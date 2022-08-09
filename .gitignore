@@ -153,4 +153,8 @@ cython_debug/
 
 grad_tts/checkpts
 grad_tts/out
-vosk-model-en-us-0.22
+grad_tts/model/monotonic_align/model
+grad_tts/model/monotonic_align/build
+grad_tts/model/monotonic_align/core.c
+vosk-model*
+active_skills.json
