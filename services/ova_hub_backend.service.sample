@@ -1,0 +1,10 @@
+[Unit]
+Description=openvoiceassistant hub frontend
+After=multi-user.target
+
+[Service]
+ExecStart={$pwd}/scripts/start_backend.sh
+User=user
+
+[Install]
+WantedBy=multi-user.target
