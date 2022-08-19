@@ -160,3 +160,4 @@ vosk-model*
 active_skills.json
 intent_model/intent_model.h5
 intent_model/vocab.p
+/envs
