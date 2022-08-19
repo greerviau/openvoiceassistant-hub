@@ -12,7 +12,6 @@ word2number
 nltk
 spacy
 Cython
-tensorflow
 torch
 matplotlib
 einops
