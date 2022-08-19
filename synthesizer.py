@@ -20,6 +20,8 @@ HIFIGAN_CONFIG = './grad_tts/checkpts/hifigan-config.json'
 HIFIGAN_CHECKPT = './grad_tts/checkpts/hifigan.pt'
 GRADTTS_CHECKPT = './grad_tts/checkpts/grad_2250.pt'
 
+CUDA = torch.cuda.is_available()
+
 class Synthesizer:
     def __init__(self):
         self.timesteps = 10
@@ -31,16 +33,26 @@ class Synthesizer:
                             params.enc_kernel, params.enc_dropout, params.window_size,
                             params.n_feats, params.dec_dim, params.beta_min, params.beta_max, params.pe_scale)
 
-        self.generator.load_state_dict(torch.load(GRADTTS_CHECKPT, map_location=lambda loc, storage: loc))
-        _ = self.generator.cuda().eval()
+        if CUDA:
+            self.generator = self.generator.cuda()
+            self.generator.load_state_dict(torch.load(GRADTTS_CHECKPT))
+        else:
+            self.generator.load_state_dict(torch.load(GRADTTS_CHECKPT, map_location='cpu'))
+
+        self.generator.eval()
+
         print(f'Number of parameters: {self.generator.nparams}')
 
         print('Initializing HiFi-GAN...')
         with open(HIFIGAN_CONFIG) as f:
             h = AttrDict(json.load(f))
         self.vocoder = HiFiGAN(h)
-        self.vocoder.load_state_dict(torch.load(HIFIGAN_CHECKPT, map_location=lambda loc, storage: loc)['generator'])
-        _ = self.vocoder.cuda().eval()
+        if CUDA:
+            self.vocoder = self.vocoder.cuda()
+            self.vocoder.load_state_dict(torch.load(HIFIGAN_CHECKPT)['generator'])
+        else:
+            self.vocoder.load_state_dict(torch.load(HIFIGAN_CHECKPT, map_location='cpu')['generator'])
+        self.vocoder.eval()
         self.vocoder.remove_weight_norm()
 
         self.cmu = cmudict.CMUDict('./grad_tts/resources/cmu_dictionary')
@@ -48,16 +60,21 @@ class Synthesizer:
     def synthesize_text(self, text):
         with torch.no_grad():
             seq = text_to_sequence(text, dictionary=self.cmu)
-            x = torch.LongTensor(intersperse(seq, len(symbols))).cuda()[None]
-            x_lengths = torch.LongTensor([x.shape[-1]]).cuda()
+            x = torch.LongTensor(intersperse(seq, len(symbols)))
+            if CUDA:
+                x = x.cuda()
+            x = x[None]
+            x_lengths = torch.LongTensor([x.shape[-1]])
+            if CUDA:
+                x_lengths = x_lengths.cuda()
             
             t = dt.datetime.now()
             y_enc, y_dec, attn = self.generator.forward(x, x_lengths, n_timesteps=self.timesteps, temperature=1.5,
                                                     stoc=False, spk=None, length_scale=0.91)
             t = (dt.datetime.now() - t).total_seconds()
-            print(f'Grad-TTS RTF: {t * 22050 / (y_dec.shape[-1] * 256)}')
+            #print(f'Grad-TTS RTF: {t * 22050 / (y_dec.shape[-1] * 256)}')
 
             audio = (self.vocoder.forward(y_dec).cpu().squeeze().clamp(-1, 1).numpy() * 32768).astype(np.int16)
 
-            write(f'./output.wav', 22050, audio)
+            #write(f'./output.wav', 22050, audio)
             return audio
