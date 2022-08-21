@@ -1,7 +1,7 @@
 {
     "intentions": [
         {
-            "tag":"greeting",
+            "tag":"hello",
             "patterns":[
                 "hello", 
                 "hi",
@@ -9,9 +9,31 @@
                 "howdy", 
                 "good morning",
                 "good afternoon",
-                "good evening", 
-                "good to see you",
-                "whats up"
+                "good evening",
+                "good night",
+                "goodnight"
+            ]
+        },
+        {
+            "tag":"how_are_you",
+            "patterns":[
+                "how are you",
+                "how are things",
+                "how you doing today",
+                "how are things going",
+                "are you doing ok",
+                "are you ok",
+                "are you doing good"
+            ]
+        },
+        {
+            "tag":"whats_up",
+            "patterns":[
+                "whats up",
+                "what is up",
+                "whats up with you",
+                "what is up with you",
+                "what are you up to"
             ]
         },
         {
