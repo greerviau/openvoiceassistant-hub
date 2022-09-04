@@ -151,13 +151,18 @@ cython_debug/
 #  option (not recommended) you can uncomment the following to ignore the entire idea folder.
 #.idea/
 
-grad_tts/checkpts
-grad_tts/out
-grad_tts/model/monotonic_align/model
-grad_tts/model/monotonic_align/build
-grad_tts/model/monotonic_align/core.c
-vosk-model*
-active_skills.json
-intent_model/intent_model.h5
-intent_model/vocab.p
+backend/config.json
+backend/active_skills.json
+
+backend/services/synthesizer/grad_tts/checkpts
+backend/services/synthesizer/grad_tts/out
+backend/services/synthesizer/grad_tts/model/monotonic_align/model
+backend/services/synthesizer/grad_tts/model/monotonic_align/build
+backend/services/synthesizer/grad_tts/model/monotonic_align/core.c
+
+backend/services/speech_recog/vosk_model*
+
+backend/services/classifier/intent_model/intent_model.h5
+backend/services/classifier/intent_model/vocab.p
+
 /envs
