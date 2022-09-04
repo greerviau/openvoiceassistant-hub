@@ -8,7 +8,7 @@ import requests
 from src.models import *
 from utils.audio import audio_data_to_b64, wave_file_from_b64_encoded
 from utils.nlp import clean_text, NLExtractor
-from services.speech_recog import SpeechRecog
+from services.transcriber import Transcriber
 from services.classifier import Classifier
 from services.nlp_extractor import NLPExtractor
 from services.skill_manager import SkillManager
@@ -20,7 +20,7 @@ CONFIG = load_config()
     
 title = CONFIG['title']
 engage_delay = CONFIG['engage_delay']
-vosk_model = CONFIG['services']['speech_recog']['vosk']['model_folder']
+transcriber_config = CONFIG['services']['transcriber']
 
 intent_model = CONFIG['services']['classifier']['model_file']
 vocab_file = CONFIG['services']['classifier']['vocab_file']
@@ -36,7 +36,7 @@ active_skills = CONFIG['services']['skill_manager']['active_skills']
 
 nodes = CONFIG['nodes']
 
-recog = SpeechRecog(vosk_model)
+transcriber = Transcriber(CONFIG['services']['transcriber'])
 classifier = Classifier(intent_model, vocab_file)
 nl_extractor = NLPExtractor()
 skill_manager = SkillManager(active_skills)

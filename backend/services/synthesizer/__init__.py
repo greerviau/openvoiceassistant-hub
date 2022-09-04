@@ -16,17 +16,22 @@ from services.synthesizer.grad_tts.utils import intersperse
 from services.synthesizer.grad_tts.hifi_gan.env import AttrDict
 from services.synthesizer.grad_tts.hifi_gan.models import Generator as HiFiGAN
 
+HIFI_MODEL_FILE = './services/synthesizer/grad_tts/checkpts/hifigan.pt'
+HIFI_CONFIG = './services/synthesizer/grad_tts/checkpts/hifigan-config.json'
+CMU_DICT = './services/synthesizer/grad_tts/resources/cmu_dictionary'
+
 class Synthesizer:
-    def __init__(self, use_ai, use_cuda, model_file, hifi_model_file, hifi_config, cmu_dict):
+    def __init__(self, use_ai, use_cuda, model_file):
         self.AI = use_ai
-        self.CUDA = use_cuda
+        self.cuda_available = torch.cuda.is_available()
+        self.CUDA = use_cuda and self.cuda_available
         if self.AI:
-            self.init_gradtts( model_file, hifi_model_file, hifi_config, cmu_dict)
+            self.init_gradtts( model_file)
     
     def init_pyttsx(self):
         self.engine = pyttsx3.init()
     
-    def init_gradtts(self, model_file, hifi_model_file, hifi_config, cmu_dict):
+    def init_gradtts(self, model_file):
         self.timesteps = 10
     
         print('Initializing Grad-TTS...')
@@ -47,18 +52,18 @@ class Synthesizer:
         print(f'Number of parameters: {self.generator.nparams}')
 
         print('Initializing HiFi-GAN...')
-        with open(hifi_config) as f:
+        with open(HIFI_CONFIG) as f:
             h = AttrDict(json.load(f))
         self.vocoder = HiFiGAN(h)
         if self.CUDA:
             self.vocoder = self.vocoder.cuda()
-            self.vocoder.load_state_dict(torch.load(hifi_model_file)['generator'])
+            self.vocoder.load_state_dict(torch.load(HIFI_MODEL_FILE)['generator'])
         else:
-            self.vocoder.load_state_dict(torch.load(hifi_model_file, map_location='cpu')['generator'])
+            self.vocoder.load_state_dict(torch.load(HIFI_MODEL_FILE, map_location='cpu')['generator'])
         self.vocoder.eval()
         self.vocoder.remove_weight_norm()
 
-        self.cmu = cmudict.CMUDict(cmu_dict)
+        self.cmu = cmudict.CMUDict(CMU_DICT)
 
     def synth_with_ai(self, text):
          with torch.no_grad():

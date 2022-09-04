@@ -3,11 +3,11 @@ import json
 
 SetLogLevel(0)
 
-class SpeechRecog:
+class Vosk:
     def __init__(self, model_name):
         self.vosk_model = Model(model_name)
 
-    def recog_audio(self, wave_file, samplerate):
+    def transcribe(self, wave_file, samplerate):
         rec = KaldiRecognizer(self.vosk_model, samplerate)
         res = None
         while True:

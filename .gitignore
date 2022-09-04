@@ -160,7 +160,7 @@ backend/services/synthesizer/grad_tts/model/monotonic_align/model
 backend/services/synthesizer/grad_tts/model/monotonic_align/build
 backend/services/synthesizer/grad_tts/model/monotonic_align/core.c
 
-backend/services/speech_recog/vosk_model*
+backend/services/transcriber/vosk/vosk_model*
 
 backend/services/classifier/intent_model/intent_model.h5
 backend/services/classifier/intent_model/vocab.p

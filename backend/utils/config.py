@@ -20,9 +20,6 @@ DEFAULT_CONFIG = {
                 "use_ai": False,
                 "use_cuda": False,
                 "model_file": "",
-                "hifi_model_file": "./services/synthesizer/grad_tts/checkpts/hifigan.pt",
-                "hifi_config": "./services/synthesizer/grad_tts/checkpts/hifigan-config.json",
-                "cmu_dict": "./services/synthesizer/grad_tts/resources/cmu_dictionary"
             },
             "skill_manager": {
                 "active_skills": {
