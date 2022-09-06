@@ -1,6 +1,5 @@
 """ from https://github.com/keithito/tacotron """
-
-from services.synthesizer.grad_tts.text import cmudict
+from . import cmudict
 
 _pad        = '_'
 _punctuation = '!\'(),.:;? '

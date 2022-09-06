@@ -1,29 +1,34 @@
-def weather(context):
-    command = context['command']
-    addr = context['addr'] if 'addr' in context else ''
+class Weather:
 
-    context['response'] = 'Not implemented'
+    def weather(self, context):
+        command = context['command']
+        addr = context['addr'] if 'addr' in context else ''
 
-def sky(context):
-    command = context['command']
-    addr = context['addr'] if 'addr' in context else ''
+        context['response'] = 'Not implemented'
 
-    context['response'] = 'Not implemented'
+    def sky(self, context):
+        command = context['command']
+        addr = context['addr'] if 'addr' in context else ''
 
-def air(context):
-    command = context['command']
-    addr = context['addr'] if 'addr' in context else ''
+        context['response'] = 'Not implemented'
 
-    context['response'] = 'Not implemented'
+    def air(self, context):
+        command = context['command']
+        addr = context['addr'] if 'addr' in context else ''
 
-def temperature(context):
-    command = context['command']
-    addr = context['addr'] if 'addr' in context else ''
+        context['response'] = 'Not implemented'
 
-    context['response'] = 'Not implemented'
+    def temperature(self, context):
+        command = context['command']
+        addr = context['addr'] if 'addr' in context else ''
 
-def ocean(context):
-    command = context['command']
-    addr = context['addr'] if 'addr' in context else ''
+        context['response'] = 'Not implemented'
 
-    context['response'] = 'Not implemented'
+    def ocean(self, context):
+        command = context['command']
+        addr = context['addr'] if 'addr' in context else ''
+
+        context['response'] = 'Not implemented'
+
+def build_skill(config):
+    return Weather()

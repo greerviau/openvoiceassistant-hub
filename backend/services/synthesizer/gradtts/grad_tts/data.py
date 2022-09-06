@@ -12,14 +12,14 @@ import numpy as np
 import torch
 import torchaudio as ta
 
-from services.synthesizer.grad_tts.text import text_to_sequence, cmudict
-from services.synthesizer.grad_tts.text.symbols import symbols
-from services.synthesizer.grad_tts.utils import parse_filelist, intersperse
-from services.synthesizer.grad_tts.model.utils import fix_len_compatibility
-from services.synthesizer.grad_tts.params import seed as random_seed
+from .text import text_to_sequence, cmudict
+from .text.symbols import symbols
+from .utils import parse_filelist, intersperse
+from .model.utils import fix_len_compatibility
+from .params import seed as random_seed
 
 import sys
-from services.synthesizer.grad_tts.hifi_gan.meldataset import mel_spectrogram
+from .hifi_gan.meldataset import mel_spectrogram
 
 
 class TextMelDataset(torch.utils.data.Dataset):

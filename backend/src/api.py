@@ -7,7 +7,8 @@ import requests
 
 from src.models import *
 from utils.audio import audio_data_to_b64, wave_file_from_b64_encoded
-from utils.nlp import clean_text, NLExtractor
+from utils.nlp import clean_text
+from services.node_manager import NodeManager
 from services.transcriber import Transcriber
 from services.classifier import Classifier
 from services.nlp_extractor import NLPExtractor
@@ -20,27 +21,14 @@ CONFIG = load_config()
     
 title = CONFIG['title']
 engage_delay = CONFIG['engage_delay']
-transcriber_config = CONFIG['services']['transcriber']
 
-intent_model = CONFIG['services']['classifier']['model_file']
-vocab_file = CONFIG['services']['classifier']['vocab_file']
-
-use_ai = CONFIG['services']['synthesizer']['use_ai']
-use_cuda = CONFIG['services']['synthesizer']['use_cuda']
-synth_model = CONFIG['services']['synthesizer']['model_file']
-hifi_model = CONFIG['services']['synthesizer']['hifi_model_file']
-hifi_config = CONFIG['services']['synthesizer']['hifi_config']
-cmu_dict = CONFIG['services']['synthesizer']['cmu_dict']
-
-active_skills = CONFIG['services']['skill_manager']['active_skills']
-
-nodes = CONFIG['nodes']
+node_manager = NodeManager(CONFIG['services']['node_manager'])
 
 transcriber = Transcriber(CONFIG['services']['transcriber'])
-classifier = Classifier(intent_model, vocab_file)
+classifier = Classifier(CONFIG['services']['classifier'])
 nl_extractor = NLPExtractor()
-skill_manager = SkillManager(active_skills)
-synth = Synthesizer(use_ai, use_cuda, synth_model, hifi_model, hifi_config, cmu_dict)
+skill_manager = SkillManager(CONFIG['services']['skill_manager'])
+synth = Synthesizer(CONFIG['services']['synthesizer'])
 
 router = APIRouter(
     prefix="/api"
@@ -73,9 +61,8 @@ async def put_skill(skill: str):
                 skill_config = json.load(open(skill_config_path))
             else:
                 skill_config = {}
-            skill_manager.set_skill_config(skill, skill_config)
+            skill_manager.add_skill(skill, skill_config)
 
-            CONFIG['services']['skill_manager']['active_skills'] = skill_manager.active_skills
             save_config(CONFIG)
 
             return skill_config
@@ -96,11 +83,11 @@ async def get_available_skills():
 
 @router.get('/skills/active')
 async def get_active_skills():
-    return skill_manager.list_active_skills()
+    return skill_manager.list_imported_skills()
 
 @router.get('/skills/config/{skill}')
 async def get_skill_config(skill: str):
-    if skill_manager.skill_is_active(skill):
+    if skill_manager.is_skill_imported(skill):
         raise HTTPException(
                     status_code=404,
                     detail='Skill not imported',
@@ -110,20 +97,20 @@ async def get_skill_config(skill: str):
 
 @router.put('/skills/config/')
 async def put_skill_config(skill: str):
-    if skill not in active_skills:
+    if skill not in skill_manager.imported_skills:
         raise HTTPException(
                     status_code=404,
                     detail='Skill not imported',
                     headers={'X-Error': 'There goes my error'})
     else:
-        return active_skills[skill]
+        return skill_manager.get_skill_config(skill)
 
 # NODES
 
 @router.get('/node/status')
 async def get_node_status():
     node_status = {}
-    for node_id, values in nodes.items():
+    for node_id, values in node_manager.nodes.items():
         address = values['address']
         try:
             resp = requests.get(address+'/status')
@@ -138,8 +125,8 @@ async def get_node_status():
 
 @router.get('/node/status/{node_id}')
 async def get_node_status(node_id: str):
-    if node_id in nodes:
-        return nodes[node_id]
+    if node_id in node_manager.nodes:
+        return node_manager.get_node_config(node_id)
     else:
         raise HTTPException(
                     status_code=404,
@@ -166,7 +153,7 @@ async def respond_to_audio(data: RespondToAudio = None):
     context = {}
 
     wave_file = wave_file_from_b64_encoded(audio_file)
-    command = recog.recog_audio(wave_file, samplerate)
+    command = transcriber.transcribe(wave_file, samplerate)
 
     delta_time = time_sent - last_time_engaged
 
@@ -189,14 +176,14 @@ async def respond_to_audio(data: RespondToAudio = None):
 
             nl_extractor.extract_from_command(cleaned_command)
 
-            skill_manager.skill_response(context)
+            skill_manager.skill_action(context)
 
             response = context['response']
             print(f'Response: {response}')
 
             if response:
             
-                audio = synth.synthesize_text(' '+response+' ')  # The space ensures the first word will be pronounced
+                audio = synth.synthesize(' '+response+' ')  # The space ensures the first word will be pronounced
                 audio_base64 = audio_data_to_b64(audio)
 
                 context['audio_data'] = audio_base64

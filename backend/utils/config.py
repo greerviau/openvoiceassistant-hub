@@ -11,15 +11,20 @@ DEFAULT_CONFIG = {
                 "vocab_file": "",
                 "model_file": ""
             },
-            "speech_recog": {
-                "vosk": {
+            "transcriber": {
+                "algorithms": ["vosk", "wave2vec"],
+                "algorithm": "vosk",
+                "config": {
                     "model_folder": "./services/speech_recog/vosk_model"
                 }
             },
             "synthesizer": {
-                "use_ai": False,
-                "use_cuda": False,
-                "model_file": "",
+                "algorithms": ["pyttsx", "gradtts"],
+                "algorithm": "gradtts",
+                "config": {
+                    "use_cuda": True,
+                    "model_file": "./services/synthesizer/grad_tts/checkpts/grad_2250.pt"
+                }
             },
             "skill_manager": {
                 "active_skills": {

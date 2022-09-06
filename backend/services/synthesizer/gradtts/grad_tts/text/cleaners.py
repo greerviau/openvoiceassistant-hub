@@ -2,7 +2,7 @@
 
 import re
 from unidecode import unidecode
-from services.synthesizer.grad_tts.text.numbers import normalize_numbers
+from .numbers import normalize_numbers
 
 
 _whitespace_re = re.compile(r'\s+')

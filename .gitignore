@@ -152,13 +152,12 @@ cython_debug/
 #.idea/
 
 backend/config.json
-backend/active_skills.json
 
-backend/services/synthesizer/grad_tts/checkpts
-backend/services/synthesizer/grad_tts/out
-backend/services/synthesizer/grad_tts/model/monotonic_align/model
-backend/services/synthesizer/grad_tts/model/monotonic_align/build
-backend/services/synthesizer/grad_tts/model/monotonic_align/core.c
+backend/services/synthesizer/gradtts/grad_tts/checkpts
+backend/services/synthesizer/gradtts/grad_tts/out
+backend/services/synthesizer/gradtts/grad_tts/model/monotonic_align/model
+backend/services/synthesizer/gradtts/grad_tts/model/monotonic_align/build
+backend/services/synthesizer/gradtts/grad_tts/model/monotonic_align/core.c
 
 backend/services/transcriber/vosk/vosk_model*
 

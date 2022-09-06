@@ -10,7 +10,7 @@ import math
 import torch
 from einops import rearrange
 
-from services.synthesizer.grad_tts.model.base import BaseModule
+from .base import BaseModule
 
 
 class Mish(BaseModule):
