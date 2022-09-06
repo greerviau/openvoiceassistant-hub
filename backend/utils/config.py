@@ -5,8 +5,12 @@ DEFAULT_CONFIG = {
         "wake_word": "computer",
         "title": "",
         "engage_delay": 30,
-        "nodes": {},
         "services": {
+            "nodes_manager": {
+                "nodes": {
+                    
+                }
+            },
             "classifier": {
                 "vocab_file": "",
                 "model_file": ""
