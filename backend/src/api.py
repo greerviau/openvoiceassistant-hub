@@ -8,6 +8,7 @@ import requests
 from src.models import *
 from utils.audio import audio_data_to_b64, wave_file_from_b64_encoded
 from utils.nlp import clean_text
+from services.config_manager import ConfigManager
 from services.node_manager import NodeManager
 from services.transcriber import Transcriber
 from services.classifier import Classifier
@@ -15,20 +16,18 @@ from services.nlp_extractor import NLPExtractor
 from services.skill_manager import SkillManager
 from services.synthesizer import Synthesizer
 
-from utils.config import config_exists, load_config, save_config
-
-CONFIG = load_config()
+config_manager = ConfigManager()
     
-title = CONFIG['title']
-engage_delay = CONFIG['engage_delay']
+title = config_manager.get('title')
+engage_delay = config_manager.get('engage_delay')
 
-node_manager = NodeManager(CONFIG['services']['node_manager'])
+node_manager = NodeManager(config_manager)
 
-transcriber = Transcriber(CONFIG['services']['transcriber'])
-classifier = Classifier(CONFIG['services']['classifier'])
+transcriber = Transcriber(config_manager)
+classifier = Classifier(config_manager)
 nl_extractor = NLPExtractor()
-skill_manager = SkillManager(CONFIG['services']['skill_manager'])
-synth = Synthesizer(CONFIG['services']['synthesizer'])
+skill_manager = SkillManager(config_manager)
+synth = Synthesizer(config_manager)
 
 router = APIRouter(
     prefix="/api"
@@ -62,8 +61,6 @@ async def put_skill(skill: str):
             else:
                 skill_config = {}
             skill_manager.add_skill(skill, skill_config)
-
-            save_config(CONFIG)
 
             return skill_config
         else:

@@ -1,0 +1,4 @@
+{
+    "use_cuda": true,
+    "model_file": "./services/synthesizer/grad_tts/checkpts/grad_2250.pt"
+}
