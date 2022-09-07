@@ -1,8 +1,9 @@
 import importlib
 
 class SkillManager:
-    def __init__(self, config: dict):
-        self.imported_skills = config['imported_skills']
+    def __init__(self, config_manager):
+        self.config_manager = config_manager
+        self.imported_skills = self.config_manager.get('skill_manager', 'imported_skills')
         self.skill_imports = {}
         for skill, config in self.imported_skills.items():
             print('Importing ', skill)
@@ -11,6 +12,8 @@ class SkillManager:
     def add_skill(self, skill, config):
         if skill not in self.imported_skills:
             self.imported_skills[skill] = config
+            self.config_manager.set('skill_manager', 'imported_skills', skill, value=config)
+
 
     def update_skill(self, skill, config):
         if skill in self.imported_skills:
