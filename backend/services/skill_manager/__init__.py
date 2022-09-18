@@ -1,8 +1,11 @@
 import importlib
+import os
 
 class SkillManager:
     def __init__(self, config_manager):
         self.config_manager = config_manager
+        self.skills_dir = f'{os.getcwd()}/skills'
+        self.available_skills = os.listdir(self.skills_dir)
         self.imported_skills = self.config_manager.get('skill_manager', 'imported_skills')
         self.skill_imports = {}
         for skill, config in self.imported_skills.items():
@@ -24,6 +27,9 @@ class SkillManager:
 
     def is_skill_imported(self, skill):
         return skill in self.imported_skills
+
+    def skill_exists(self, skill):
+        return skill in self.available_skills
 
     def list_imported_skills(self):
         return list(self.imported_skills.keys())
