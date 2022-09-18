@@ -8,52 +8,39 @@ import requests
 from src.models import *
 from utils.audio import audio_data_to_b64, wave_file_from_b64_encoded
 from utils.nlp import clean_text
-from services.config_manager import ConfigManager
-from services.node_manager import NodeManager
+
+from managers.config_manager import ConfigManager
+from managers.node_manager import NodeManager
+from managers.skill_manager import SkillManager
+
 from services.transcriber import Transcriber
 from services.classifier import Classifier
 from services.nlp_extractor import NLPExtractor
-from services.skill_manager import SkillManager
 from services.synthesizer import Synthesizer
 
 config_manager = ConfigManager()
-    
-title = config_manager.get('title')
-engage_delay = config_manager.get('engage_delay')
-
 node_manager = NodeManager(config_manager)
+skill_manager = SkillManager(config_manager)
 
 transcriber = Transcriber(config_manager)
 classifier = Classifier(config_manager)
 nl_extractor = NLPExtractor()
-skill_manager = SkillManager(config_manager)
 synth = Synthesizer(config_manager)
 
-router = APIRouter(
-    prefix="/api"
-)
+title = config_manager.get('title')
+engage_delay = config_manager.get('engage_delay')
+
+router = APIRouter(prefix="/api")
 
 @router.get('/')
 async def index():
-    return {}
-
-@router.put('/sync')
-async def sync(data: NodeInfo = None):
-    if not data:
-        raise HTTPException(
-                    status_code=404,
-                    detail='command invalid',
-                    headers={'X-Error': 'There goes my error'})
-
-    node_id = data.node_id
-
-    return {}
+    return {"Success"}
 
 # SKILLS
 
 @router.put('/skills')
 async def put_skill(skill: str):
-    if skill_manager.skill_is_active(skill):
+    if skill_manager.is_skill_imported(skill):
         if skill in os.listdir('skills'):
             skill_config_path = f'skills/{skill}/config.json'
             if os.path.exists(skill_config_path):
@@ -103,6 +90,18 @@ async def put_skill_config(skill: str):
         return skill_manager.get_skill_config(skill)
 
 # NODES
+
+@router.put('/node/sync')
+async def sync(data: NodeInfo = None):
+    if not data:
+        raise HTTPException(
+                    status_code=404,
+                    detail='command invalid',
+                    headers={'X-Error': 'No data provided'})
+
+    node_manager.set_node(data.node_id, data)
+
+    return {"Success"}
 
 @router.get('/node/status')
 async def get_node_status():

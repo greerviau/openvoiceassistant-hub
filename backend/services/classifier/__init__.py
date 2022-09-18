@@ -5,9 +5,10 @@ from keras.models import load_model
 from utils.nlp import clean_text, encode_word_vec, pad_sequence
 
 class Classifier:
-    def __init__(self, config):
-        intent_model = config['intent_model']
-        vocab_file = config['vocab_file']
+    def __init__(self, config_manager):
+        self.config_manager = config_manager
+        intent_model = config_manager.get('services', 'classifier', 'model_file')
+        vocab_file = config_manager.get('services', 'classifier', 'vocab_file')
         self.intent_model = load_model(intent_model)
         self.word_to_int, self.int_to_label, self.seq_length = pickle.load(open(vocab_file, 'rb'))
         self.CONF_THRESH = 85
