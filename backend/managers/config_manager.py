@@ -6,11 +6,6 @@ DEFAULT_CONFIG = {
         "title": "",
         "engage_delay": 30,
         "services": {
-            "nodes_manager": {
-                "nodes": {
-                    
-                }
-            },
             "classifier": {
                 "vocab_file": "",
                 "model_file": ""
@@ -22,11 +17,17 @@ DEFAULT_CONFIG = {
             "synthesizer": {
                 "algorithms": ["pyttsx", "gradtts"],
                 "algorithm": "gradtts",
-            },
+            }
+        },
+        "managers": {
             "skill_manager": {
                 "imported_skills": {
-                    "datetime": {},
                     "greetings": {}
+                }
+            },
+            "node_manager": {
+                "nodes": {
+                    
                 }
             }
         }
@@ -34,6 +35,7 @@ DEFAULT_CONFIG = {
 
 class ConfigManager:
     def __init__(self):
+        self.loc = os.path.realpath(os.path.dirname(__file__))
         self.config_path = f'{os.getcwd()}/config.json'
         self.config = {}
         self.load_config()
@@ -47,11 +49,10 @@ class ConfigManager:
     def set(self, *keys, value=None):
         if value is None:
             raise RuntimeError
-        dic = self.config.copy()
+        d = self.config
         for key in keys[:-1]:
-            dic = dic.setdefault(key, {})
-        dic[keys[-1]] = value
-        self.config = dic
+            d = d.setdefault(key, {})
+        d[keys[-1]] = value
         self.save_config()
         
     def config_exists(self):
@@ -64,6 +65,6 @@ class ConfigManager:
     def load_config(self) -> dict:
         if not os.path.exists(self.config_path):
             self.config = DEFAULT_CONFIG
-            self.save_config(self.config)
+            self.save_config()
         else:
             self.config = json.load(open(self.config_path, 'r'))

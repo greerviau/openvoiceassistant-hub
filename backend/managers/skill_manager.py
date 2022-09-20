@@ -6,7 +6,7 @@ class SkillManager:
         self.config_manager = config_manager
         self.skills_dir = f'{os.getcwd()}/skills'
         self.available_skills = os.listdir(self.skills_dir)
-        self.imported_skills = self.config_manager.get('skill_manager', 'imported_skills')
+        self.imported_skills = self.config_manager.get('managers', 'skill_manager', 'imported_skills')
         self.skill_imports = {}
         for skill, config in self.imported_skills.items():
             print('Importing ', skill)
@@ -15,7 +15,7 @@ class SkillManager:
     def add_skill(self, skill, config):
         if skill not in self.imported_skills:
             self.imported_skills[skill] = config
-            self.config_manager.set('skill_manager', 'imported_skills', skill, value=config)
+            self.config_manager.set('managers', 'skill_manager', 'imported_skills', skill, value=config)
 
 
     def update_skill(self, skill, config):

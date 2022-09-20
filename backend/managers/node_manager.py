@@ -1,11 +1,11 @@
 class NodeManager:
     def __init__(self, config_manager):
         self.config_manager = config_manager
-        self.nodes = config_manager.get('nodes')
+        self.nodes = config_manager.get('managers', 'node_manager', 'nodes')
 
     def set_node(self, node_id, config):
         self.nodes[node_id] = config
-        self.config_manager.set('nodes', node_id, value=config)
+        self.config_manager.set('managers', 'node_manager', 'nodes', node_id, value=config)
     
     def node_exists(self, node_id):
         return node_id in self.nodes

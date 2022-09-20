@@ -1,92 +1,92 @@
 import os
 import json 
 import sys
-sys.path.append(os.path.join(os.path.dirname(__file__), '..'))
-from utils.nlp_utils import clean_text, encode_word_vec, pad_sequence
+from utils.nlp import clean_text, encode_word_vec, pad_sequence
 import numpy as np
 
-def load_data():
-    active_skills = json.load(open('../active_skills.json'))
-    compiled_data = []
-    for skill in active_skills:
-        intents = json.load(open(os.path.join('../skills', skill, 'intents.json')))['intentions']
-        for intent in intents:
-            tag = intent['tag']
-            patterns = intent['patterns']
-            compiled_data.extend([[f'{skill}-{tag}', clean_text(pattern)] for pattern in patterns])
-    compiled_data = np.array(compiled_data)
-    return compiled_data[:,1], compiled_data[:,0]
+def train_classifier(imported_skill):
 
-from keras.models import Sequential, load_model
-from keras.layers import Dense, LSTM, Dropout
-from keras.layers.embeddings import Embedding
-from sklearn.preprocessing import OneHotEncoder
-import pickle
+    def load_data(imported_skill):
+        compiled_data = []
+        for skill in imported_skill:
+            intents = json.load(open(os.path.join('../skills', skill, 'intents.json')))['intentions']
+            for intent in intents:
+                tag = intent['tag']
+                patterns = intent['patterns']
+                compiled_data.extend([[f'{skill}-{tag}', clean_text(pattern)] for pattern in patterns])
+        compiled_data = np.array(compiled_data)
+        return compiled_data[:,1], compiled_data[:,0]
 
-# fix random seed for reproducibility
-np.random.seed(7)
-max_length = 10
-embedding_dim = 100
+    from keras.models import Sequential, load_model
+    from keras.layers import Dense, LSTM, Dropout
+    from keras.layers.embeddings import Embedding
+    from sklearn.preprocessing import OneHotEncoder
+    import pickle
 
-X, y = load_data()
+    # fix random seed for reproducibility
+    np.random.seed(7)
+    max_length = 10
+    embedding_dim = 100
 
-labels = list(set(y))
-label_to_int = dict((l, i) for i, l in enumerate(labels))
-int_to_label = dict((i, l) for i, l in enumerate(labels))
+    X, y = load_data()
 
-raw_text = ' '.join(X)
-words = sorted(list(set(raw_text.split())))
-word_to_int = dict((c, i+1) for i, c in enumerate(words))
-int_to_word = dict((i+1, c) for i, c in enumerate(words))
-word_to_int['BLANK'] = 0
-int_to_word[0] = 'BLANK'
+    labels = list(set(y))
+    label_to_int = dict((l, i) for i, l in enumerate(labels))
+    int_to_label = dict((i, l) for i, l in enumerate(labels))
 
-n_vocab = len(word_to_int)
-n_labels = len(labels)
+    raw_text = ' '.join(X)
+    words = sorted(list(set(raw_text.split())))
+    word_to_int = dict((c, i+1) for i, c in enumerate(words))
+    int_to_word = dict((i+1, c) for i, c in enumerate(words))
+    word_to_int['BLANK'] = 0
+    int_to_word[0] = 'BLANK'
 
-print('Word vocab size: ', n_vocab)
-print('Word to int: ', word_to_int)
-print('Number of total labels: ', n_labels)
-print('Labels: ', labels)
+    n_vocab = len(word_to_int)
+    n_labels = len(labels)
 
-data_X = []
-data_y = []
-for text, label in zip(X, y):
-    encoded = encode_word_vec(text, word_to_int)
-    padded = pad_sequence(encoded, max_length)
-    data_X.append(padded)
-    data_y.append([label_to_int[label]])
+    print('Word vocab size: ', n_vocab)
+    print('Word to int: ', word_to_int)
+    print('Number of total labels: ', n_labels)
+    print('Labels: ', labels)
 
-X = np.array(data_X)
-onehot_encoder = OneHotEncoder(sparse=False)
-y = onehot_encoder.fit_transform(data_y)
-y = np.array(y)
+    data_X = []
+    data_y = []
+    for text, label in zip(X, y):
+        encoded = encode_word_vec(text, word_to_int)
+        padded = pad_sequence(encoded, max_length)
+        data_X.append(padded)
+        data_y.append([label_to_int[label]])
 
-print(X[0], y[0])
+    X = np.array(data_X)
+    onehot_encoder = OneHotEncoder(sparse=False)
+    y = onehot_encoder.fit_transform(data_y)
+    y = np.array(y)
 
-model = Sequential()
-model.add(Embedding(n_vocab, embedding_dim, input_length=max_length))
-model.add(LSTM(32))
-model.add(Dropout(0.2))
-model.add(Dense(n_labels, activation='softmax'))
-model.compile(loss='categorical_crossentropy', optimizer='adam', metrics=['accuracy'])
-print(model.summary())
-model.fit(X, y, epochs=30, batch_size=16)
+    print(X[0], y[0])
 
-scores = model.evaluate(X, y, verbose=0)
-print("Accuracy: %.2f%%" % (scores[1]*100))
+    model = Sequential()
+    model.add(Embedding(n_vocab, embedding_dim, input_length=max_length))
+    model.add(LSTM(32))
+    model.add(Dropout(0.2))
+    model.add(Dense(n_labels, activation='softmax'))
+    model.compile(loss='categorical_crossentropy', optimizer='adam', metrics=['accuracy'])
+    print(model.summary())
+    model.fit(X, y, epochs=30, batch_size=16)
 
-model.save('intent_model.h5')
-pickle.dump([word_to_int, int_to_label, max_length], open('vocab.p', 'wb'))
+    scores = model.evaluate(X, y, verbose=0)
+    print("Accuracy: %.2f%%" % (scores[1]*100))
 
-model = load_model('intent_model.h5')
-word_to_int, int_to_label, max_length = pickle.load(open('vocab.p', 'rb'))
+    model.save('intent_model.h5')
+    pickle.dump([word_to_int, int_to_label, max_length], open('vocab.p', 'wb'))
 
-while True:
-    test = input('you: ')
-    cleaned = clean_text(test)
-    encoded = encode_word_vec(cleaned, word_to_int)
-    padded = pad_sequence(encoded, max_length)
-    prediction = model.predict(np.array([padded]))[0]
-    argmax = np.argmax(prediction)
-    print(f'intent: {int_to_label[argmax]} - conf: {round(float(prediction[argmax])*100, 3)}%\n')
+    model = load_model('intent_model.h5')
+    word_to_int, int_to_label, max_length = pickle.load(open('vocab.p', 'rb'))
+
+    while True:
+        test = input('you: ')
+        cleaned = clean_text(test)
+        encoded = encode_word_vec(cleaned, word_to_int)
+        padded = pad_sequence(encoded, max_length)
+        prediction = model.predict(np.array([padded]))[0]
+        argmax = np.argmax(prediction)
+        print(f'intent: {int_to_label[argmax]} - conf: {round(float(prediction[argmax])*100, 3)}%\n')

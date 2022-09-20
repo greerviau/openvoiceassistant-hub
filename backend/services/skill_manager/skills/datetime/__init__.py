@@ -1,2 +1,0 @@
-def init(config):
-    pass
