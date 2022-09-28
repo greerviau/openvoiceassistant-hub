@@ -32,3 +32,6 @@ class Weather:
 
 def build_skill(config):
     return Weather()
+
+def default_config():
+    return {}

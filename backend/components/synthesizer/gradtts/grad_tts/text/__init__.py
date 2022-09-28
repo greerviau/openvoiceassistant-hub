@@ -1,8 +1,8 @@
 """ from https://github.com/keithito/tacotron """
 
 import re
-from services.synthesizer.grad_tts.text import cleaners
-from services.synthesizer.grad_tts.text.symbols import symbols
+from . import cleaners
+from .symbols import symbols
 
 
 _symbol_to_id = {s: i for i, s in enumerate(symbols)}

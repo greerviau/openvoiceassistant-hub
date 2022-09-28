@@ -1,5 +1,9 @@
 from pydantic import BaseModel
 
+class SkillConfig(BaseModel):
+    skill_id: str
+    config: dict
+
 class RespondToAudio(BaseModel):
     audio_file: str
     samplerate: int

@@ -6,6 +6,8 @@ import torch
 
 from scipy.io.wavfile import write
 
+from backend.config import Configuration
+
 from .grad_tts import params as params
 from .grad_tts.model import GradTTS
 from .grad_tts.text import text_to_sequence, cmudict
@@ -19,7 +21,7 @@ HIFI_MODEL_FILE = './services/synthesizer/grad_tts/checkpts/hifigan.pt'
 HIFI_CONFIG = './services/synthesizer/grad_tts/checkpts/hifigan-config.json'
 CMU_DICT = './services/synthesizer/grad_tts/resources/cmu_dictionary'
 
-class GradTTS:
+class Gradtts:
     def __init__(self, use_cuda, model_file):
         self.cuda_available = torch.cuda.is_available()
         self.CUDA = use_cuda and self.cuda_available
@@ -77,9 +79,15 @@ class GradTTS:
             audio = (self.vocoder.forward(y_dec).cpu().squeeze().clamp(-1, 1).numpy() * 32768).astype(np.int16)
 
             #write(f'./output.wav', 22050, audio)
-            return audio
+            return audio.to_bytes(), 22050, audio.dtype.itemsize
 
-def build_engine(config):
-    use_cuda = config['use_cuda']
-    model_file = config['model_file']
-    return GradTTS(use_cuda, model_file)
+def build_engine(config: Configuration):
+    use_cuda = config.get('components', 'synthesizer', 'config', 'use_cuda')
+    model_file = config.get('components', 'synthesizer', 'config', 'model_file')
+    return Gradtts(use_cuda, model_file)
+
+def default_config():
+    return {
+        "use_cuda": False,
+        "model_file": ""
+    }

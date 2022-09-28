@@ -1,15 +1,15 @@
 import os
 import json 
 import sys
-from utils.nlp import clean_text, encode_word_vec, pad_sequence
+from backend.utils.nlp import clean_text, encode_word_vec, pad_sequence
 import numpy as np
 
-def train_classifier(imported_skill):
+def train_classifier(imported_skills, skills_dir, model_dump):
 
-    def load_data(imported_skill):
+    def load_data(imported_skills, skills_dir):
         compiled_data = []
-        for skill in imported_skill:
-            intents = json.load(open(os.path.join('../skills', skill, 'intents.json')))['intentions']
+        for skill in imported_skills:
+            intents = json.load(open(os.path.join(skills_dir, skill, 'intents.json')))['intentions']
             for intent in intents:
                 tag = intent['tag']
                 patterns = intent['patterns']
@@ -76,11 +76,15 @@ def train_classifier(imported_skill):
     scores = model.evaluate(X, y, verbose=0)
     print("Accuracy: %.2f%%" % (scores[1]*100))
 
-    model.save('intent_model.h5')
-    pickle.dump([word_to_int, int_to_label, max_length], open('vocab.p', 'wb'))
+    model_dir = os.path.join(model_dump, 'intent_model.h5')
+    vocab_dir = os.path.join(model_dump, 'intent_vocab.p')
 
-    model = load_model('intent_model.h5')
-    word_to_int, int_to_label, max_length = pickle.load(open('vocab.p', 'rb'))
+    model.save()
+    pickle.dump([word_to_int, int_to_label, max_length], open(vocab_dir, 'wb'))
+
+    '''
+    model = load_model(model_dir)
+    word_to_int, int_to_label, max_length = pickle.load(open(vocab_dir, 'rb'))
 
     while True:
         test = input('you: ')
@@ -90,3 +94,4 @@ def train_classifier(imported_skill):
         prediction = model.predict(np.array([padded]))[0]
         argmax = np.argmax(prediction)
         print(f'intent: {int_to_label[argmax]} - conf: {round(float(prediction[argmax])*100, 3)}%\n')
+    '''

@@ -6,4 +6,4 @@
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
 # MIT License for more details.
 
-from services.synthesizer.grad_tts.model.tts import GradTTS
+from .tts import GradTTS

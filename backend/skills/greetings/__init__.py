@@ -40,3 +40,6 @@ class Greetings:
 
 def build_skill(config):
     return Greetings()
+
+def default_config():
+    return {}
