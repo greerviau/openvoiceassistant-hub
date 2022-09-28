@@ -153,15 +153,9 @@ cython_debug/
 
 backend/config.json
 
-backend/services/synthesizer/gradtts/grad_tts/checkpts
-backend/services/synthesizer/gradtts/grad_tts/out
 backend/services/synthesizer/gradtts/grad_tts/model/monotonic_align/model
 backend/services/synthesizer/gradtts/grad_tts/model/monotonic_align/build
 backend/services/synthesizer/gradtts/grad_tts/model/monotonic_align/core.c
 
-backend/services/transcriber/vosk/vosk_model*
-
-backend/services/classifier/intent_model/intent_model.h5
-backend/services/classifier/intent_model/vocab.p
-
 /envs
+/backend/model_dump
