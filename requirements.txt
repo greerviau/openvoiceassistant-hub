@@ -4,6 +4,7 @@ uvicorn
 wave
 vosk
 keras
+tensorflow
 numpy
 sklearn
 pandas
@@ -20,3 +21,7 @@ Unidecode
 librosa
 scipy
 tqdm
+dataclasses_json
+wget
+pyttsx3
+pydub
