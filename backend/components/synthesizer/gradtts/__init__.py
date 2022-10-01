@@ -22,7 +22,7 @@ HIFI_CONFIG = './services/synthesizer/grad_tts/checkpts/hifigan-config.json'
 CMU_DICT = './services/synthesizer/grad_tts/resources/cmu_dictionary'
 
 class Gradtts:
-    def __init__(self, use_cuda, model_file):
+    def __init__(self, use_cuda: bool, model_file: str):
         self.cuda_available = torch.cuda.is_available()
         self.CUDA = use_cuda and self.cuda_available
 
@@ -59,7 +59,7 @@ class Gradtts:
 
         self.cmu = cmudict.CMUDict(CMU_DICT)
 
-    def synthesize(self, text):
+    def synthesize(self, text: str):
          with torch.no_grad():
             seq = text_to_sequence(text, dictionary=self.cmu)
             x = torch.LongTensor(intersperse(seq, len(symbols)))
