@@ -3,8 +3,6 @@ pydantic
 uvicorn
 wave
 vosk
-keras
-tensorflow
 sklearn
 pandas
 rake_nltk
