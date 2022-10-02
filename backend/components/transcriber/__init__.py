@@ -1,6 +1,7 @@
 import importlib
 import json
 import os
+import typing
 
 from backend.config import Configuration
 from backend.utils.audio import wave_file_from_b64_encoded
@@ -23,7 +24,7 @@ class Transcriber:
     def transcribe(self, wave_file, samplerate):
         return self.engine.transcribe(wave_file, samplerate)
 
-    def run_stage(self, context: dict):
+    def run_stage(self, context: typing.Dict):
         af = context['audio_file']
         sr = context['samplerate']
         wave_file = wave_file_from_b64_encoded(af)

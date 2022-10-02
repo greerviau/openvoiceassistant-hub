@@ -1,5 +1,6 @@
 import asyncio
 import os
+import typing
 
 from backend.config import Configuration
 from backend.node_manager import NodeManager
@@ -40,7 +41,7 @@ class OpenVoiceAssistant:
         for component_id in COMPONENTS.keys():
             self.launch_component(component_id)
 
-    def run_pipeline(self, *stages: list[str], context: dict = None): # TODO better typing
+    def run_pipeline(self, *stages: typing.List[str], context: typing.Dict = None): # TODO better typing
         if context is None:
             context = {}
 

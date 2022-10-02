@@ -1,5 +1,7 @@
 import os
 import json
+import typing
+
 '''
 import dataclasses
 import dataclasses_json
@@ -110,7 +112,7 @@ class Configuration:
         self.config = {}
         self.load_config()
 
-    def get(self, *keys: list[str]):
+    def get(self, *keys: typing.List[str]):
         dic = self.config.copy()
         for key in keys:
             try:
@@ -119,7 +121,7 @@ class Configuration:
                 return None
         return dic
 
-    def setkey(self, *keys: list[str], value=None):
+    def setkey(self, *keys: typing.List[str], value=None):
         if value is None:
             raise RuntimeError
         d = self.config

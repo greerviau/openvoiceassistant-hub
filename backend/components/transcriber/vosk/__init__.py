@@ -9,7 +9,7 @@ from backend.config import Configuration
 SetLogLevel(0)
 
 class Vosk:
-    def __init__(self, model_folder):
+    def __init__(self, model_folder: str):
         self.vosk_model = Model(model_folder)
 
     def transcribe(self, wave_file, samplerate):

@@ -4,7 +4,7 @@ import sys
 from backend.utils.nlp import clean_text, encode_word_vec, pad_sequence
 import numpy as np
 
-def train_classifier(imported_skills, skills_dir, model_dump):
+def train_classifier(imported_skills: str, skills_dir: str, model_dump: str):
 
     def load_data(imported_skills, skills_dir):
         compiled_data = []
@@ -28,7 +28,7 @@ def train_classifier(imported_skills, skills_dir, model_dump):
     max_length = 10
     embedding_dim = 100
 
-    X, y = load_data()
+    X, y = load_data(imported_skills, skills_dir)
 
     labels = list(set(y))
     label_to_int = dict((l, i) for i, l in enumerate(labels))

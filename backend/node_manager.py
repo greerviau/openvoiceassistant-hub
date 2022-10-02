@@ -1,3 +1,5 @@
+import requests
+
 from backend.config import Configuration
 
 class NodeManager:

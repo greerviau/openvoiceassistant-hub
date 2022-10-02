@@ -1,6 +1,10 @@
+import typing
+
+from backend.config import Configuration
+
 class Greetings:
 
-    def hello(self, context):
+    def hello(self, context: typing.Dict):
         command = context['command']
         addr = context['addr'] if 'addr' in context else ''
 
@@ -17,28 +21,28 @@ class Greetings:
             response = f'Hello {addr}'
         context['response'] = response
 
-    def how_are_you(self, context):
+    def how_are_you(self, context: typing.Dict):
         command = context['command']
         addr = context['addr'] if 'addr' in context else ''
 
         response = f'Doing well {addr}'
         context['response'] = response
 
-    def whats_up(self, context):
+    def whats_up(self, context: typing.Dict):
         command = context['command']
         addr = context['addr'] if 'addr' in context else ''
 
         response = f'Not much {addr}'
         context['response'] = response
 
-    def goodbye(self, context):
+    def goodbye(self, context: typing.Dict):
         command = context['command']
         addr = context['addr'] if 'addr' in context else ''
 
         response = f'Goodbye {addr}'
         context['response'] = response
 
-def build_skill(config):
+def build_skill(config: Configuration):
     return Greetings()
 
 def default_config():

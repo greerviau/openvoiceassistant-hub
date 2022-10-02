@@ -35,7 +35,7 @@ class Classifier:
         self.intent_model = load_model(intent_model)
         self.word_to_int, self.int_to_label, self.seq_length = pickle.load(open(vocab_file, 'rb'))
 
-    def predict_intent(self, text):
+    def predict_intent(self, text: str):
         cleaned = clean_text(text)
         encoded = encode_word_vec(cleaned, self.word_to_int)
         padded = pad_sequence(encoded, self.seq_length)

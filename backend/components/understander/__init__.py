@@ -1,3 +1,5 @@
+import typing
+
 from backend.config import Configuration
 from backend.components.understander.classifier import Classifier
 
@@ -22,7 +24,7 @@ class Understander:
     
         return understanding
     
-    def run_stage(self, context: dict):
+    def run_stage(self, context: typing.Dict):
         command = context['command']
         time_sent = context['time_sent']
         last_time_engaged = context['last_time_engaged']
