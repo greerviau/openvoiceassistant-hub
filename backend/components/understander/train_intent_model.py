@@ -79,7 +79,7 @@ def train_classifier(imported_skills: str, skills_dir: str, model_dump: str):
     model_dir = os.path.join(model_dump, 'intent_model.h5')
     vocab_dir = os.path.join(model_dump, 'intent_vocab.p')
 
-    model.save()
+    model.save(model_dir)
     pickle.dump([word_to_int, int_to_label, max_length], open(vocab_dir, 'wb'))
 
     '''
