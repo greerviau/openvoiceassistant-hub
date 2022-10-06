@@ -4,16 +4,10 @@ uvicorn
 wave
 vosk
 sklearn
-pandas
 rake_nltk
 word2number
 nltk
 spacy
-matplotlib
-einops
-inflect
-Unidecode
-librosa
 scipy
 tqdm
 dataclasses_json
