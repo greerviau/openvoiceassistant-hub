@@ -10,8 +10,7 @@ RUN pip3 install --upgrade pip "setuptools<58.0.0"
 
 RUN pip3 install -r tmp/requirements.txt --timeout 60
 
-EXPOSE 80
-EXPOSE 5001
+EXPOSE 5010
 
 FROM base AS development
 
