@@ -75,6 +75,7 @@ DEFAULT_CONFIG = {
         "engage_delay": 30,
         "base_dir": os.path.realpath(os.path.dirname(__file__)),
         "model_dump": f"{os.path.realpath(os.path.dirname(__file__))}/model_dump",
+        "file_dump": f"{os.path.realpath(os.path.dirname(__file__))}/file_dump",
         "components": {
             "transcriber": {
                 "algorithms": ["vosk", "wave2vec"],

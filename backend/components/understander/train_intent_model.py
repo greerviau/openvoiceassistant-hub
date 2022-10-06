@@ -17,9 +17,9 @@ def train_classifier(imported_skills: str, skills_dir: str, model_dump: str):
         compiled_data = np.array(compiled_data)
         return compiled_data[:,1], compiled_data[:,0]
 
-    from keras.models import Sequential, load_model
-    from keras.layers import Dense, LSTM, Dropout
-    from keras.layers.embeddings import Embedding
+    from tensorflow.keras.models import Sequential, load_model
+    from tensorflow.keras.layers import Dense, LSTM, Dropout
+    from tensorflow.keras.layers import Embedding
     from sklearn.preprocessing import OneHotEncoder
     import pickle
 

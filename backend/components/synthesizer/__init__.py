@@ -19,13 +19,18 @@ class Synthesizer:
             self.config.setkey('components', 'synthesizer', 'config', value=self.module.default_config())
 
         self.engine = self.module.build_engine(self.config)
+        
+        self.file_dump = self.config.get('file_dump')
+        os.makedirs(self.file_dump, exist_ok = True)
     
     def run_stage(self, context: typing.Dict):
+        print('Synth Stage')
         response = context['response']
+        print('Response: ', response)
         if not response:
             return RuntimeError('No response to synthesize')
             
-        audio_data, sample_rate, sample_width = self.engine.synthesize(response)
+        audio_data, sample_rate, sample_width = self.engine.synthesize(response, file_dump=self.file_dump)
 
         audio_base64 = audio_data_to_b64(audio_data)
         context['audio_data'] = audio_base64

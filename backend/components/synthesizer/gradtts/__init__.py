@@ -59,7 +59,7 @@ class Gradtts:
 
         self.cmu = cmudict.CMUDict(CMU_DICT)
 
-    def synthesize(self, text: str):
+    def synthesize(self, text: str, file_dump: str = ''):
          with torch.no_grad():
             seq = text_to_sequence(text, dictionary=self.cmu)
             x = torch.LongTensor(intersperse(seq, len(symbols)))

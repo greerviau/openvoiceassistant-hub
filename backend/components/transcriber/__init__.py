@@ -25,6 +25,7 @@ class Transcriber:
         return self.engine.transcribe(wave_file, samplerate)
 
     def run_stage(self, context: typing.Dict):
+        print('Transcribing Stage')
         af = context['audio_file']
         sr = context['samplerate']
         wave_file = wave_file_from_b64_encoded(af)

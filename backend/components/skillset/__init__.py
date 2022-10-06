@@ -52,6 +52,7 @@ class Skillset:
         return skill in self.available_skills
 
     def run_stage(self, context: typing.Dict):  # TODO use TypedDict
+        print('Skill Stage')
         skill = context['skill']
         action = context['action']
         if self.skill_imported(skill):
