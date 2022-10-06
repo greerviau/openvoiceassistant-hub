@@ -11,7 +11,7 @@ def train_classifier(imported_skills: str, skills_dir: str, model_dump: str):
         for skill in imported_skills:
             intents = json.load(open(os.path.join(skills_dir, skill, 'intents.json')))['intentions']
             for intent in intents:
-                tag = intent['tag']
+                tag = intent['action']
                 patterns = intent['patterns']
                 compiled_data.extend([[f'{skill}-{tag}', clean_text(pattern)] for pattern in patterns])
         compiled_data = np.array(compiled_data)
