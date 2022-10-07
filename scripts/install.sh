@@ -1,6 +1,6 @@
 #!/bin/bash
 
-apt install -y ffmpeg sed espeak
+apt install -y python3-pip nginx wget git bash systemd ffmpeg espeak libespeak-dev sed npm
 
 CWD=$(pwd)
 
@@ -9,6 +9,8 @@ echo $CWD
 python3 -m venv $CWD/env/hub
 
 source $CWD/env/hub/bin/activate
+
+pip3 install -r requirements.txt
 
 python3 -m spacy download en_core_web_sm
 
