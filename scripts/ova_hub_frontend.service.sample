@@ -3,8 +3,9 @@ Description=openvoiceassistant hub frontend
 After=multi-user.target
 
 [Service]
-ExecStart={$pwd}/scripts/start_frontend.sh
-User=user
+WorkingDirectory=OVAPATH
+ExecStart=/bin/bash OVAPATH/scripts/start_frontend.sh
+User=USER
 
 [Install]
 WantedBy=multi-user.target
