@@ -1,5 +1,6 @@
 import os
 import pickle
+import typing
 import numpy as np
 from keras.models import load_model
 from backend.utils.nlp import clean_text, encode_word_vec, pad_sequence
@@ -35,7 +36,7 @@ class Classifier:
         self.intent_model = load_model(intent_model)
         self.word_to_int, self.int_to_label, self.seq_length = pickle.load(open(vocab_file, 'rb'))
 
-    def predict_intent(self, text: str):
+    def predict_intent(self, text: str) -> typing.Tuple[str, str, float]:
         cleaned = clean_text(text)
         encoded = encode_word_vec(cleaned, self.word_to_int)
         padded = pad_sequence(encoded, self.seq_length)

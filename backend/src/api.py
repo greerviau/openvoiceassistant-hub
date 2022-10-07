@@ -118,11 +118,11 @@ def create_app(ova: OpenVoiceAssistant):
         context = {}
 
         context['audio_file'] = data.audio_file
-        context['samplerate'] = int(data.samplerate)
+        context['samplerate'] = data.samplerate
         context['callback'] = data.callback
         context['node_id'] = data.node_id
-        context['time_sent'] = float(data.time_sent)
-        context['last_time_engaged'] = float(data.last_time_engaged)
+        context['time_sent'] = data.time_sent
+        context['last_time_engaged'] = data.last_time_engaged
 
         ova.run_pipeline('transcriber','understander', 'skillset', 'synthesizer', context=context)
 

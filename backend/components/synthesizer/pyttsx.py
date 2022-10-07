@@ -1,6 +1,7 @@
 import pyttsx3
 import pydub
 import os
+import typing
 from backend.config import Configuration
 
 class Pyttsx:
@@ -14,8 +15,8 @@ class Pyttsx:
         
         return audio_seg.raw_data, audio_seg.frame_rate, audio_seg.sample_width
 
-def build_engine(config: Configuration):
+def build_engine(config: Configuration) -> Pyttsx:
     return Pyttsx()
 
-def default_config():
+def default_config() -> typing.Dict:
     return {}

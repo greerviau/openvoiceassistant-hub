@@ -1,10 +1,8 @@
 import json
 import datetime as dt
 import numpy as np
-
 import torch
-
-from scipy.io.wavfile import write
+import typing
 
 from backend.config import Configuration
 
@@ -81,12 +79,12 @@ class Gradtts:
             #write(f'./output.wav', 22050, audio)
             return audio.to_bytes(), 22050, audio.dtype.itemsize
 
-def build_engine(config: Configuration):
+def build_engine(config: Configuration) -> GradTTS:
     use_cuda = config.get('components', 'synthesizer', 'config', 'use_cuda')
     model_file = config.get('components', 'synthesizer', 'config', 'model_file')
     return Gradtts(use_cuda, model_file)
 
-def default_config():
+def default_config() -> typing.Dict:
     return {
         "use_cuda": False,
         "model_file": ""

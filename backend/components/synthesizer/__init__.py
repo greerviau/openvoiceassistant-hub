@@ -28,7 +28,7 @@ class Synthesizer:
         response = context['response']
         print('Response: ', response)
         if not response:
-            return RuntimeError('No response to synthesize')
+            raise RuntimeError('No response to synthesize')
             
         audio_data, sample_rate, sample_width = self.engine.synthesize(response, file_dump=self.file_dump)
 

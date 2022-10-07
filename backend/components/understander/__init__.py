@@ -11,9 +11,8 @@ class Understander:
         self.wake_word = self.config.get('wake_word')
         self.engage_delay = self.config.get('engage_delay')
 
-    def understand(self, command: str):
+    def understand(self, command: str) -> typing.Tuple[str, str, float]:
         skill, action, conf = self.classifier.predict_intent(command)
-        understanding = {}
         
         print(f'Skill: {skill}')
         print(f'Action: {action}')

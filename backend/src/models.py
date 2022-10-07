@@ -9,8 +9,8 @@ class RespondToAudio(BaseModel):
     samplerate: int
     callback: str
     node_id: str
-    last_time_engaged: str
-    time_sent: str
+    last_time_engaged: float
+    time_sent: float
 
 class NodeInfo(BaseModel):
     ip: str

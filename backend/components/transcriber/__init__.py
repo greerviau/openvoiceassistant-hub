@@ -21,7 +21,7 @@ class Transcriber:
 
         self.engine = self.module.build_engine(self.config)
 
-    def transcribe(self, wave_file, samplerate):
+    def transcribe(self, wave_file, samplerate) -> str:
         return self.engine.transcribe(wave_file, samplerate)
 
     def run_stage(self, context: typing.Dict):

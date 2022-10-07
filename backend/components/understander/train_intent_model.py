@@ -1,8 +1,13 @@
 import os
-import json 
-import sys
+import json
+import pickle
 from backend.utils.nlp import clean_text, encode_word_vec, pad_sequence
 import numpy as np
+
+from tensorflow.keras.models import Sequential
+from tensorflow.keras.layers import Dense, LSTM, Dropout
+from tensorflow.keras.layers import Embedding
+from sklearn.preprocessing import OneHotEncoder
 
 def train_classifier(imported_skills: str, skills_dir: str, model_dump: str):
 
@@ -16,12 +21,7 @@ def train_classifier(imported_skills: str, skills_dir: str, model_dump: str):
                 compiled_data.extend([[f'{skill}-{tag}', clean_text(pattern)] for pattern in patterns])
         compiled_data = np.array(compiled_data)
         return compiled_data[:,1], compiled_data[:,0]
-
-    from tensorflow.keras.models import Sequential, load_model
-    from tensorflow.keras.layers import Dense, LSTM, Dropout
-    from tensorflow.keras.layers import Embedding
-    from sklearn.preprocessing import OneHotEncoder
-    import pickle
+    
 
     # fix random seed for reproducibility
     np.random.seed(7)
@@ -81,17 +81,3 @@ def train_classifier(imported_skills: str, skills_dir: str, model_dump: str):
 
     model.save(model_dir)
     pickle.dump([word_to_int, int_to_label, max_length], open(vocab_dir, 'wb'))
-
-    '''
-    model = load_model(model_dir)
-    word_to_int, int_to_label, max_length = pickle.load(open(vocab_dir, 'rb'))
-
-    while True:
-        test = input('you: ')
-        cleaned = clean_text(test)
-        encoded = encode_word_vec(cleaned, word_to_int)
-        padded = pad_sequence(encoded, max_length)
-        prediction = model.predict(np.array([padded]))[0]
-        argmax = np.argmax(prediction)
-        print(f'intent: {int_to_label[argmax]} - conf: {round(float(prediction[argmax])*100, 3)}%\n')
-    '''
