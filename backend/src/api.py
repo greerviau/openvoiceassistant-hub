@@ -1,5 +1,6 @@
 import fastapi
 from fastapi.encoders import jsonable_encoder
+from fastapi.openapi.utils import get_openapi
 
 from backend.ova import OpenVoiceAssistant
 from backend.src.models import *
@@ -128,8 +129,25 @@ def create_app(ova: OpenVoiceAssistant):
 
         return context
 
-    
     app = fastapi.FastAPI()
+
     app.include_router(router)
+
+    def custom_openapi():
+        if app.openapi_schema:
+            return app.openapi_schema
+        openapi_schema = get_openapi(
+            title="Open Voice Assistant HUB",
+            version="0.0.1",
+            description="API Schema for Open Voice Assistant HUB",
+            routes=app.routes,
+        )
+        openapi_schema["info"]["x-logo"] = {
+            "url": "https://fastapi.tiangolo.com/img/logo-margin/logo-teal.png"
+        }
+        app.openapi_schema = openapi_schema
+        return app.openapi_schema
+
+    app.openapi = custom_openapi
 
     return app
