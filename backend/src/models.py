@@ -4,11 +4,13 @@ class SkillConfig(BaseModel):
     skill_id: str
     config: dict
 
-class RespondToAudio(BaseModel):
+class Respond(BaseModel):
     audio_file: str
+    text_command: str
     samplerate: int
     callback: str
     node_id: str
+    engage: bool
     last_time_engaged: float
     time_sent: float
 

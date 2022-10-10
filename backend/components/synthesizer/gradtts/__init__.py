@@ -1,4 +1,5 @@
 import json
+import os
 import datetime as dt
 import numpy as np
 import torch
@@ -15,12 +16,11 @@ from .grad_tts.utils import intersperse
 from .grad_tts.hifi_gan.env import AttrDict
 from .grad_tts.hifi_gan.models import Generator as HiFiGAN
 
-HIFI_MODEL_FILE = './services/synthesizer/grad_tts/checkpts/hifigan.pt'
-HIFI_CONFIG = './services/synthesizer/grad_tts/checkpts/hifigan-config.json'
-CMU_DICT = './services/synthesizer/grad_tts/resources/cmu_dictionary'
+HIFI_CONFIG = os.path.join(os.path.realpath(os.path.dirname(__file__)), 'grad_tts/resources/hifigan-config.json')
+CMU_DICT = os.path.join(os.path.realpath(os.path.dirname(__file__)), 'grad_tts/resources/cmu_dictionary')
 
 class Gradtts:
-    def __init__(self, use_cuda: bool, model_file: str):
+    def __init__(self, use_cuda: bool, model_file: str, hifi_model: str):
         self.cuda_available = torch.cuda.is_available()
         self.CUDA = use_cuda and self.cuda_available
 
@@ -49,9 +49,9 @@ class Gradtts:
         self.vocoder = HiFiGAN(h)
         if self.CUDA:
             self.vocoder = self.vocoder.cuda()
-            self.vocoder.load_state_dict(torch.load(HIFI_MODEL_FILE)['generator'])
+            self.vocoder.load_state_dict(torch.load(hifi_model)['generator'])
         else:
-            self.vocoder.load_state_dict(torch.load(HIFI_MODEL_FILE, map_location='cpu')['generator'])
+            self.vocoder.load_state_dict(torch.load(hifi_model, map_location='cpu')['generator'])
         self.vocoder.eval()
         self.vocoder.remove_weight_norm()
 
@@ -77,15 +77,17 @@ class Gradtts:
             audio = (self.vocoder.forward(y_dec).cpu().squeeze().clamp(-1, 1).numpy() * 32768).astype(np.int16)
 
             #write(f'./output.wav', 22050, audio)
-            return audio.to_bytes(), 22050, audio.dtype.itemsize
+            return audio.tobytes(), 22050, audio.dtype.itemsize
 
 def build_engine(config: Configuration) -> GradTTS:
     use_cuda = config.get('components', 'synthesizer', 'config', 'use_cuda')
     model_file = config.get('components', 'synthesizer', 'config', 'model_file')
-    return Gradtts(use_cuda, model_file)
+    hifi_model_file = config.get('components', 'synthesizer', 'config', 'hifi_model_file')
+    return Gradtts(use_cuda, model_file, hifi_model_file)
 
 def default_config() -> typing.Dict:
     return {
         "use_cuda": False,
-        "model_file": ""
+        "model_file": "",
+        "hifi_model_file": ""
     }

@@ -2,16 +2,16 @@ import importlib
 import json
 import os
 import typing
+import time
 
 from backend.config import Configuration
 from backend.utils.audio import wave_file_from_b64_encoded
-from backend.utils.nlp import clean_text
 
 class Transcriber:
     def __init__(self, config: Configuration):
         self.config = config
 
-        self.algo = self.config.get('components', 'transcriber', 'algorithm').lower()
+        self.algo = self.config.get('components', 'transcriber', 'algorithm')
         self.module = importlib.import_module(f'backend.components.transcriber.{self.algo}')
         
         try:
@@ -28,14 +28,18 @@ class Transcriber:
         print('Transcribing Stage')
         af = context['audio_file']
         sr = context['samplerate']
+        
+        start = time.time()
+
         wave_file = wave_file_from_b64_encoded(af)
+
         command = self.transcribe(wave_file, sr)
+        
+        context['time_to_understand'] = time.time() - start
 
         if not command:
             raise RuntimeError('No command to process')
-            
+        
         context['command'] = command
-        cleaned_command = clean_text(command)
-        context['cleaned_command'] = cleaned_command
 
-        print(f'Command: {cleaned_command}')
+        print(f'Command: {command}')

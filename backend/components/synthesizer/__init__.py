@@ -2,6 +2,7 @@ import importlib
 import json
 import os
 import typing
+import time
 
 from backend.utils.audio import audio_data_to_b64
 from backend.config import Configuration
@@ -29,10 +30,14 @@ class Synthesizer:
         print('Response: ', response)
         if not response:
             raise RuntimeError('No response to synthesize')
+
+        start = time.time()
             
         audio_data, sample_rate, sample_width = self.engine.synthesize(response, file_dump=self.file_dump)
 
         audio_base64 = audio_data_to_b64(audio_data)
+
+        context['time_to_synthesize'] = time.time() - start
         context['audio_data'] = audio_base64
         context['sample_rate'] = sample_rate
         context['sample_width'] = sample_width

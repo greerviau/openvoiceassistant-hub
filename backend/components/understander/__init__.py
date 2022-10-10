@@ -1,7 +1,9 @@
 import typing
+import time
 
 from backend.config import Configuration
 from backend.components.understander.classifier import Classifier
+from backend.utils.nlp import clean_text
 
 class Understander:
     def __init__(self, config: Configuration):
@@ -23,13 +25,20 @@ class Understander:
     def run_stage(self, context: typing.Dict):
         print('Understanding Stage')
         command = context['command']
+        engage = context['engage']
+        cleaned_command = clean_text(command)
+        context['cleaned_command'] = cleaned_command
+
         time_sent = context['time_sent']
         last_time_engaged = context['last_time_engaged']
 
         delta_time = time_sent - last_time_engaged
 
-        if self.wake_word in command or delta_time < self.engage_delay:
-            skill, action, conf = self.understand(command)
+        start = time.time()
+
+        if engage or self.wake_word in cleaned_command or delta_time < self.engage_delay:
+            skill, action, conf = self.understand(cleaned_command)
+            context['time_to_understand'] = time.time() - start
             context['skill'] = skill
             context['action'] = action
             context['conf'] = conf

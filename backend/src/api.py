@@ -114,7 +114,7 @@ def create_app(ova: OpenVoiceAssistant):
     # RESPOND
 
     @router.post('/respond/audio')
-    async def respond_to_audio(data: RespondToAudio):
+    async def respond_to_audio(data: Respond):
 
         context = {}
 
@@ -122,10 +122,27 @@ def create_app(ova: OpenVoiceAssistant):
         context['samplerate'] = data.samplerate
         context['callback'] = data.callback
         context['node_id'] = data.node_id
+        context['engage'] = False
         context['time_sent'] = data.time_sent
         context['last_time_engaged'] = data.last_time_engaged
 
         ova.run_pipeline('transcriber','understander', 'skillset', 'synthesizer', context=context)
+
+        return context
+
+    @router.post('/respond/text')
+    async def respond_to_text(data: Respond):
+
+        context = {}
+
+        context['command'] = data.text_command
+        context['callback'] = data.callback
+        context['node_id'] = data.node_id
+        context['engage'] = data.engage
+        context['time_sent'] = data.time_sent
+        context['last_time_engaged'] = data.last_time_engaged
+
+        ova.run_pipeline('understander', 'skillset', 'synthesizer', context=context)
 
         return context
 

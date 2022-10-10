@@ -11,7 +11,7 @@ DEFAULT_CONFIG = {
         "file_dump": f"{os.path.realpath(os.path.dirname(__file__))}/file_dump",
         "components": {
             "transcriber": {
-                "algorithms": ["vosk", "wave2vec"],
+                "algorithms": ["Vosk", "Whisper", "Wave2Vec"],
                 "algorithm": "vosk"
             },
             "understander": {

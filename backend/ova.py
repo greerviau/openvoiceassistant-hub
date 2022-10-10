@@ -1,6 +1,6 @@
-import asyncio
 import os
 import typing
+import time
 
 from backend.config import Configuration
 from backend.node_manager import NodeManager
@@ -45,5 +45,9 @@ class OpenVoiceAssistant:
         if context is None:
             context = {}
 
+        start = time.time()
+
         for stage in stages:
             self.get_component(stage).run_stage(context)
+
+        context['time_to_run_pipeline'] = time.time() - start
