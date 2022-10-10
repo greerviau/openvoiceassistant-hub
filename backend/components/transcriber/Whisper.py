@@ -8,14 +8,17 @@ class Whisper:
         self.model = whisper.load_model(model_size)
 
     def transcribe(self, wave_file, samplerate):
-        sample_freq = wave_file.getframerate()
-        n_samples = wave_file.getnframes()
-        n_channels = wave_file.getnchannels()
-        signal_wave = wave_file.readframes(n_samples)
+        if not isinstance(wave_file, str):
+            sample_freq = wave_file.getframerate()
+            n_samples = wave_file.getnframes()
+            n_channels = wave_file.getnchannels()
+            signal_wave = wave_file.readframes(n_samples)
 
-        signal_array = np.frombuffer(signal_wave, dtype=np.int16).astype(np.float32) / 32768.0
+            signal_array = np.frombuffer(signal_wave, dtype=np.int16).astype(np.float32) / 32768.0
 
-        result = self.model.transcribe(signal_array)
+            result = self.model.transcribe(signal_array)
+        else:
+            result = self.model.transcribe(wave_file)
 
         return result["text"]
 

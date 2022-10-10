@@ -31,7 +31,7 @@ class Transcriber:
         
         start = time.time()
 
-        wave_file = wave_file_from_b64_encoded(af)
+        wave_file = wave_file_from_b64_encoded(af, save=True)
 
         command = self.transcribe(wave_file, sr)
         
