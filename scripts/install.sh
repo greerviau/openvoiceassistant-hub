@@ -12,7 +12,11 @@ source $CWD/env/hub/bin/activate
 
 pip3 install -r requirements.txt
 
-python3 $CWD/backend/components/synthesizer/gradtts/grad_tts/model/monitonic_align/setup.py build_ext --inplace
+cd $CWD/backend/components/synthesizer/gradtts/grad_tts/model/monotonic_align/
+
+python3 setup.py build_ext --inplace
+
+cd $CWD
 
 python3 -m spacy download en_core_web_sm
 
