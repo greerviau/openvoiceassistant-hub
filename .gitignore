@@ -153,9 +153,11 @@ cython_debug/
 
 backend/config.json
 
-backend/services/synthesizer/gradtts/grad_tts/model/monotonic_align/model
-backend/services/synthesizer/gradtts/grad_tts/model/monotonic_align/build
-backend/services/synthesizer/gradtts/grad_tts/model/monotonic_align/core.c
+backend/components/synthesizer/gradtts/grad_tts/model/monotonic_align/model
+backend/components/synthesizer/gradtts/grad_tts/model/monotonic_align/build
+backend/components/synthesizer/gradtts/grad_tts/model/monotonic_align/core.c
 
-/envs
-/backend/model_dump
+envs/
+env/
+backend/model_dump
+backend/file_dump
