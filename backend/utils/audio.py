@@ -16,7 +16,10 @@ def wave_file_from_b64_encoded(audio_file, save=False):
     wf.setframerate(self.RATE)
     wf.writeframes(audio_data)
 
-    return wf
+    if not save:
+        return wf
+    else:
+        return 'command.wav'
 
 def audio_data_to_b64(audio_data):
     audio_base64 = base64.b64encode(audio_data)
