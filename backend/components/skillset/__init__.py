@@ -1,6 +1,7 @@
 import importlib
 import os
 import typing
+import time
 
 from backend.config import Configuration
 import backend.skills as skills
@@ -55,9 +56,13 @@ class Skillset:
         print('Skill Stage')
         skill = context['skill']
         action = context['action']
+
+        start = time.time()
+
         if self.skill_imported(skill):
             method = getattr(self.skill_imports[skill], action)
             method(context)
+            context['time_to_action'] = time.time() - start
 
     def __import_skill(self, skill: str, config: typing.Dict):  # TODO use TypedDict
         if self.skill_exists(skill):
