@@ -13,7 +13,7 @@ class Whisper:
         n_channels = wave_file.getnchannels()
         signal_wave = wave_file.readframes(n_samples)
 
-        signal_array = np.frombuffer(signal_wave, dtype=np.int16)
+        signal_array = np.frombuffer(signal_wave, dtype=np.int16).astype(np.float32) / 32768.0
 
         result = self.model.transcribe(signal_array)
 
