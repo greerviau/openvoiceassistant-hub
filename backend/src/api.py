@@ -118,9 +118,11 @@ def create_app(ova: OpenVoiceAssistant):
 
         context = {}
 
-        context['audio_file'] = data.audio_file
-        context['samplerate'] = data.samplerate
-        context['callback'] = data.callback
+        context['command_audio_data_str'] = data.command_audio_data_str
+        context['command_audio_sample_rate'] = data.command_audio_sample_rate
+        context['command_audio_sample_width'] = data.command_audio_sample_width
+        context['command_audio_channels'] = data.command_audio_channels
+        context['node_callback'] = data.node_callback
         context['node_id'] = data.node_id
         context['engage'] = False
         context['time_sent'] = data.time_sent
@@ -135,8 +137,8 @@ def create_app(ova: OpenVoiceAssistant):
 
         context = {}
 
-        context['command'] = data.text_command
-        context['callback'] = data.callback
+        context['command'] = data.command_text
+        context['node_callback'] = data.node_callback
         context['node_id'] = data.node_id
         context['engage'] = data.engage
         context['time_sent'] = data.time_sent

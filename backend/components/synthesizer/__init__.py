@@ -4,7 +4,7 @@ import os
 import typing
 import time
 
-from backend.utils.audio import audio_data_to_b64
+from backend.utils.audio import wave_file_from_audio_data
 from backend.config import Configuration
 
 class Synthesizer:
@@ -35,9 +35,17 @@ class Synthesizer:
             
         audio_data, sample_rate, sample_width = self.engine.synthesize(response, file_dump=self.file_dump)
 
-        audio_base64 = audio_data_to_b64(audio_data)
+        wave_file_from_audio_data(
+            audio_data=audio_data, 
+            sample_rate=sample_rate,
+            sample_width=sample_width, 
+            channels=1, 
+            wave_file='response.wav'
+        )
+
+        audio_str = audio_data.hex()
 
         context['time_to_synthesize'] = time.time() - start
-        context['audio_data'] = audio_base64
-        context['sample_rate'] = sample_rate
-        context['sample_width'] = sample_width
+        context['response_audio_data_str'] = audio_str
+        context['response_sample_rate'] = sample_rate
+        context['response_sample_width'] = sample_width

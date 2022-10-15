@@ -5,7 +5,7 @@ import typing
 import time
 
 from backend.config import Configuration
-from backend.utils.audio import wave_file_from_b64_encoded
+from backend.utils.audio import wave_file_from_audio_data
 
 class Transcriber:
     def __init__(self, config: Configuration):
@@ -26,16 +26,26 @@ class Transcriber:
 
     def run_stage(self, context: typing.Dict):
         print('Transcribing Stage')
-        af = context['audio_file']
-        sr = context['samplerate']
+        ad_str = context['command_audio_data_str']
+        sr = context['command_audio_sample_rate']
+        sw = context['command_audio_sample_width']
+        c = context['command_audio_channels']
+
+        ad = bytes.fromhex(ad_str)
         
         start = time.time()
 
-        wave_file = wave_file_from_b64_encoded(af, save=True)
+        wave_file = wave_file_from_audio_data(
+            audio_data=ad, 
+            sample_rate=sr, 
+            sample_width=sw, 
+            channels=c,
+            wave_file='command.wav'
+        )
 
         command = self.transcribe(wave_file, sr)
         
-        context['time_to_understand'] = time.time() - start
+        context['time_to_transcribe'] = time.time() - start
 
         if not command:
             raise RuntimeError('No command to process')

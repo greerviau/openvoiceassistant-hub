@@ -30,8 +30,6 @@ DEFAULT_CONFIG = {
             }
         },
         "managers": {
-            "component_manager": {
-            },
             "node_manager": {
                 "nodes": {}
             }
