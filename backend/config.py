@@ -12,7 +12,7 @@ DEFAULT_CONFIG = {
         "components": {
             "transcriber": {
                 "algorithms": ["Vosk", "Whisper", "Wave2Vec"],
-                "algorithm": "vosk"
+                "algorithm": "Vosk"
             },
             "understander": {
                 "vocab_file": "",

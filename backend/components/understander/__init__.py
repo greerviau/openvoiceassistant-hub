@@ -13,6 +13,8 @@ class Understander:
         self.wake_word = self.config.get('wake_word')
         self.engage_delay = self.config.get('engage_delay')
 
+        self.conf_thresh = self.config.get('components', 'understander', 'conf_thresh')
+
     def understand(self, command: str) -> typing.Tuple[str, str, float]:
         skill, action, conf = self.classifier.predict_intent(command)
         
@@ -25,6 +27,7 @@ class Understander:
     def run_stage(self, context: typing.Dict):
         print('Understanding Stage')
         command = context['command']
+
         engage = context['engage']
         cleaned_command = clean_text(command)
         context['cleaned_command'] = cleaned_command
@@ -42,6 +45,9 @@ class Understander:
             context['skill'] = skill
             context['action'] = action
             context['conf'] = conf
+            
+            if conf < self.conf_thresh:
+                raise RuntimeError('Not confident in skill')
         else:
             raise RuntimeError('Command does not engage')
 

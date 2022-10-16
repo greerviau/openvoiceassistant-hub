@@ -24,6 +24,13 @@ class NodeManager:
         if self.node_exists(node_id):
             return self.nodes[node_id]
         raise RuntimeError('Node does not exist')
+        
+    def get_all_node_status(self):
+        node_status = {}
+        for node_id in self.get_node_ids():
+            node_status[node_id] = self.get_node_status(node_id)
+
+        return node_status
 
     def get_node_status(self, node_id: str):
         try:
@@ -32,17 +39,10 @@ class NodeManager:
             raise RuntimeError('Node does not exist')
         address = config['address']
         try:
-            resp = requests.get(address+'/status')
+            resp = requests.get(address+'/status', timeout=2)
             if resp.status_code == 200:
                 return 'online'
             else:
                 raise
         except:
             return 'offline'
-        
-    def get_node_status(self):
-        node_status = {}
-        for node_id in self.get_node_ids():
-            node_status[node_id] = self.get_node_status(node_id)
-
-        return node_status

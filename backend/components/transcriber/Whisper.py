@@ -1,24 +1,24 @@
 import whisper
 import numpy as np
+import typing
+import wave
+import os
 
 from backend.config import Configuration
+from backend.utils.audio import create_numpy_waveform, resample_waveform
 
 class Whisper:
     def __init__(self, model_size: str):
         self.model = whisper.load_model(model_size)
 
-    def transcribe(self, wave_file, samplerate):
-        if not isinstance(wave_file, str):
-            sample_freq = wave_file.getframerate()
-            n_samples = wave_file.getnframes()
-            n_channels = wave_file.getnchannels()
-            signal_wave = wave_file.readframes(n_samples)
+    def transcribe(self, audio_data: bytes, samplerate: int, samplewidth: int, channels: int, file_path: str):
 
-            signal_array = np.frombuffer(signal_wave, dtype=np.int16).astype(np.float32) / 32768.0
+        waveform = create_numpy_waveform(audio_data)
 
-            result = self.model.transcribe(signal_array)
-        else:
-            result = self.model.transcribe(wave_file)
+        if samplerate != 16000:
+            waveform = resample_waveform(waveform, samplerate, 16000)
+
+        result = self.model.transcribe(waveform)
 
         return result["text"]
 

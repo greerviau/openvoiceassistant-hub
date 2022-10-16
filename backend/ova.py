@@ -3,6 +3,8 @@ import typing
 import time
 
 from backend.config import Configuration
+from backend.schemas import Context
+from backend.enums import PipelineStages
 from backend.node_manager import NodeManager
 
 from backend.components.skillset import Skillset
@@ -11,10 +13,10 @@ from backend.components.transcriber import Transcriber
 from backend.components.synthesizer import Synthesizer
 
 COMPONENTS = {
-    'transcriber': Transcriber,
-    'understander': Understander,
-    'skillset': Skillset,
-    'synthesizer': Synthesizer
+    PipelineStages.Transcribe: Transcriber,
+    PipelineStages.Understand: Understander,
+    PipelineStages.Skillset: Skillset,
+    PipelineStages.Synthesize: Synthesizer
 }
 
 class OpenVoiceAssistant:
@@ -24,16 +26,16 @@ class OpenVoiceAssistant:
         
         self.launch_all_components()    
 
-    def component_exists(self, component_id: str):
+    def component_exists(self, component_id: PipelineStages):
         return component_id in self.components
 
-    def get_component(self, component_id: str):
+    def get_component(self, component_id: PipelineStages):
         if self.component_exists(component_id):
             return self.components[component_id]
         else:
             return None
 
-    def launch_component(self, component_id: str):
+    def launch_component(self, component_id: PipelineStages):
         self.components[component_id] = COMPONENTS[component_id](self.config)
 
     def launch_all_components(self):
@@ -41,8 +43,8 @@ class OpenVoiceAssistant:
         for component_id in COMPONENTS.keys():
             self.launch_component(component_id)
 
-    def run_pipeline(self, *stages: typing.List[str], context: typing.Dict = None): # TODO better typing
-        if context is None:
+    def run_pipeline(self, *stages: typing.List[PipelineStages], context: Context = None):
+        if not context:
             context = {}
 
         start = time.time()
