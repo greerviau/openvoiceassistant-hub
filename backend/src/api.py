@@ -18,7 +18,14 @@ def create_app(ova: OpenVoiceAssistant):
 
     @router.get('/component/config/{component_id}')
     async def get_component_config(component_id: str):
-        return ova.config
+        config = ova.config.get('components', component_id)
+        if config:
+            return config
+        else:
+            raise fastapi.HTTPException(
+                        status_code=404,
+                        detail=repr(err),
+                        headers={'X-Error': 'component does not exist'})
 
     # SKILLS
 
