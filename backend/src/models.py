@@ -24,7 +24,9 @@ class RespondText(BaseModel):
     time_sent: float
 
 class NodeInfo(BaseModel):
+    node_id: str
+    node_name: str
     ip: str
     port: int
     address: str
-    node_id: str
+    mic_index: int
