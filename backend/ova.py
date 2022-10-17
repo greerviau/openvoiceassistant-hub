@@ -4,7 +4,7 @@ import time
 
 from backend.config import Configuration
 from backend.schemas import Context
-from backend.enums import PipelineStages
+from backend.enums import PipelineStages, Components, pipeline_to_component
 from backend.node_manager import NodeManager
 
 from backend.components.skillset import Skillset
@@ -13,10 +13,10 @@ from backend.components.transcriber import Transcriber
 from backend.components.synthesizer import Synthesizer
 
 COMPONENTS = {
-    PipelineStages.Transcribe: Transcriber,
-    PipelineStages.Understand: Understander,
-    PipelineStages.Skillset: Skillset,
-    PipelineStages.Synthesize: Synthesizer
+    Components.Transcriber: Transcriber,
+    Components.Understander: Understander,
+    Components.Skillset: Skillset,
+    Components.Synthesizer: Synthesizer
 }
 
 class OpenVoiceAssistant:
@@ -26,16 +26,16 @@ class OpenVoiceAssistant:
         
         self.launch_all_components()    
 
-    def component_exists(self, component_id: PipelineStages):
+    def component_exists(self, component_id: Components):
         return component_id in self.components
 
-    def get_component(self, component_id: PipelineStages):
+    def get_component(self, component_id: Components):
         if self.component_exists(component_id):
             return self.components[component_id]
         else:
             return None
 
-    def launch_component(self, component_id: PipelineStages):
+    def launch_component(self, component_id: Components):
         self.components[component_id] = COMPONENTS[component_id](self.config)
 
     def launch_all_components(self):
@@ -50,6 +50,7 @@ class OpenVoiceAssistant:
         start = time.time()
 
         for stage in stages:
-            self.get_component(stage).run_stage(context)
+            component = pipeline_to_component[stage]
+            self.get_component(component).run_stage(context)
 
         context['time_to_run_pipeline'] = time.time() - start

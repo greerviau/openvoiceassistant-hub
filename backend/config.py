@@ -2,6 +2,8 @@ import os
 import json
 import typing
 
+from backend.enums import Components
+
 DEFAULT_CONFIG = {
         "wake_word": "computer",
         "title": "",
@@ -10,21 +12,21 @@ DEFAULT_CONFIG = {
         "model_dump": f"{os.path.realpath(os.path.dirname(__file__))}/model_dump",
         "file_dump": f"{os.path.realpath(os.path.dirname(__file__))}/file_dump",
         "components": {
-            "transcriber": {
+            Components.Transcriber.value: {
                 "algorithms": ["Vosk", "Whisper", "Wave2Vec"],
                 "algorithm": "Vosk"
             },
-            "understander": {
+            Components.Understander.value: {
                 "vocab_file": "",
                 "model_file": "",
                 "conf_thresh": 85
             },
-            "skillset": {
+            Components.Skillset.value: {
                 "imported_skills": {
                     "greetings": {}
                 }
             },
-            "synthesizer": {
+            Components.Synthesizer.value: {
                 "algorithms": ["pyttsx", "gradtts"],
                 "algorithm": "pyttsx"
             }

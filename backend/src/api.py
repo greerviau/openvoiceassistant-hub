@@ -4,7 +4,7 @@ from fastapi.openapi.utils import get_openapi
 
 from backend.ova import OpenVoiceAssistant
 from backend.src.models import *
-from backend.enums import PipelineStages
+from backend.enums import PipelineStages, Components
 
 def create_app(ova: OpenVoiceAssistant):
 
@@ -14,20 +14,26 @@ def create_app(ova: OpenVoiceAssistant):
     async def index():
         return {"Success"}
 
+    # COMPONENTS
+
+    @router.get('/component/config/{component_id}')
+    async def get_component_config(component_id: str):
+        return ova.config
+
     # SKILLS
 
     @router.get('/skills/available')
     async def get_available_skills():
-        return ova.get_component(PipelineStages.Skillset).available_skills
+        return ova.get_component(Components.Skillset).available_skills
 
     @router.get('/skills/active')
     async def get_active_skills():
-        return ova.get_component(PipelineStages.Skillset).imported_skills
+        return ova.get_component(Components.Skillset).imported_skills
 
     @router.get('/skills/config/{skill_id}')
     async def get_skill_config(skill_id: str):
         try:
-            return ova.get_component(PipelineStages.Skillset).get_skill_config(skill_id)
+            return ova.get_component(Components.Skillset).get_skill_config(skill_id)
         except RuntimeError as err:
             raise fastapi.HTTPException(
                         status_code=404,
@@ -35,9 +41,9 @@ def create_app(ova: OpenVoiceAssistant):
                         headers={'X-Error': f'{err}'})
 
     @router.get('/skills/default_config/{skill_id}')
-    async def get_skill_config(skill_id: str):
+    async def get_skill_default_config(skill_id: str):
         try:
-            return ova.get_component(PipelineStages.Skillset).get_skill_config(skill_id)
+            return ova.get_component(Components.Skillset).get_skill_config(skill_id)
         except RuntimeError as err:
             raise fastapi.HTTPException(
                         status_code=404,
@@ -47,17 +53,17 @@ def create_app(ova: OpenVoiceAssistant):
     @router.post('/skills/{skill_id}')
     async def post_skill(skill_id: str):
         try:
-            ova.get_component(PipelineStages.Skillset).add_skill(skill_id)
+            ova.get_component(Components.Skillset).add_skill(skill_id)
         except RuntimeError as err:
             raise fastapi.HTTPException(
                         status_code=404,
                         detail=repr(err),
                         headers={'X-Error': f'{err}'})
 
-    @router.post('/skills/')
-    async def post_skill(data: SkillConfig):
+    @router.post('/skills/config')
+    async def post_skill_config(data: SkillConfig):
         try:
-            ova.get_component(PipelineStages.Skillset).add_skill_config(data.skill_id, data.config)
+            ova.get_component(Components.Skillset).add_skill_config(data.skill_id, data.config)
         except RuntimeError as err:
             raise fastapi.HTTPException(
                         status_code=404,
@@ -67,7 +73,7 @@ def create_app(ova: OpenVoiceAssistant):
     @router.put('/skills/config/')
     async def put_skill_config(data: SkillConfig):
         try:
-            ova.get_component(PipelineStages.Skillset).update_skill_config(data.skill_id, data.config)
+            ova.get_component(Components.Skillset).update_skill_config(data.skill_id, data.config)
         except RuntimeError as err:
             raise fastapi.HTTPException(
                         status_code=404,
@@ -77,7 +83,7 @@ def create_app(ova: OpenVoiceAssistant):
     # NODES
 
     @router.put('/node/sync')
-    async def sync(data: NodeInfo = None):
+    async def node_sync(data: NodeInfo = None):
         if not data:
             raise fastapi.HTTPException(
                         status_code=404,
@@ -112,7 +118,7 @@ def create_app(ova: OpenVoiceAssistant):
                         headers={'X-Error': f'{err}'})
 
     @router.get('/node/config/{node_id}')
-    async def get_node_status(node_id: str):
+    async def get_node_config(node_id: str):
         try:
             return ova.node_manager.get_node_config(node_id)
         except RuntimeError as err:
@@ -123,7 +129,7 @@ def create_app(ova: OpenVoiceAssistant):
 
     # SYNTHESIZE
     @router.get('/synthesize/text/{text}')
-    async def respond_to_text(text: str):
+    async def synthesize_text(text: str):
         context = {}
         context['response'] = text
 

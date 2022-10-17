@@ -1,2 +1,1 @@
-def default_config():
-    return {}
+from .device import default_config

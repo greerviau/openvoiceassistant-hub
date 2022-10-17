@@ -1,8 +1,1 @@
-class Datetime:
-    pass
-
-def build_skill(config):
-    return Datetime()
-
-def default_config():
-    return {}
+from .datetime import Datetime, build_skill, default_config
