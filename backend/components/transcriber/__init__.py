@@ -7,6 +7,7 @@ import wave
 
 from backend.config import Configuration
 from backend.schemas import Context
+from backend.utils.audio import save_wave
 
 class Transcriber:
     def __init__(self, config: Configuration):
@@ -34,6 +35,8 @@ class Transcriber:
         ad = bytes.fromhex(ad_str)
 
         wave_file_path = os.path.join(self.file_dump, 'command.wav')
+
+        save_wave(wave_file_path, ad, sr, sw, c)
         
         start = time.time()
 
