@@ -1,3 +1,4 @@
+import typing
 import fastapi
 from fastapi.encoders import jsonable_encoder
 from fastapi.openapi.utils import get_openapi
@@ -10,7 +11,7 @@ def create_app(ova: OpenVoiceAssistant):
 
     router = fastapi.APIRouter(prefix="/api")
 
-    @router.get('/')
+    @router.get('')
     async def index():
         return {"Success"}
 
@@ -23,8 +24,8 @@ def create_app(ova: OpenVoiceAssistant):
             return config
         else:
             raise fastapi.HTTPException(
-                        status_code=404,
-                        detail=repr(err),
+                        status_code=400,
+                        detail='component does not exist',
                         headers={'X-Error': 'component does not exist'})
 
     # SKILLS
@@ -43,7 +44,7 @@ def create_app(ova: OpenVoiceAssistant):
             return ova.get_component(Components.Skillset).get_skill_config(skill_id)
         except RuntimeError as err:
             raise fastapi.HTTPException(
-                        status_code=404,
+                        status_code=400,
                         detail=repr(err),
                         headers={'X-Error': f'{err}'})
 
@@ -53,7 +54,7 @@ def create_app(ova: OpenVoiceAssistant):
             return ova.get_component(Components.Skillset).get_skill_config(skill_id)
         except RuntimeError as err:
             raise fastapi.HTTPException(
-                        status_code=404,
+                        status_code=400,
                         detail=repr(err),
                         headers={'X-Error': f'{err}'})
 
@@ -63,46 +64,31 @@ def create_app(ova: OpenVoiceAssistant):
             ova.get_component(Components.Skillset).add_skill(skill_id)
         except RuntimeError as err:
             raise fastapi.HTTPException(
-                        status_code=404,
+                        status_code=400,
                         detail=repr(err),
                         headers={'X-Error': f'{err}'})
 
-    @router.post('/skills/config')
-    async def post_skill_config(data: SkillConfig):
+    @router.post('/skills/config/{skill_id}')
+    async def post_skill_config(skill_id: str, config: typing.Dict):
         try:
-            ova.get_component(Components.Skillset).add_skill_config(data.skill_id, data.config)
+            ova.get_component(Components.Skillset).add_skill_config(skill_id, config)
         except RuntimeError as err:
             raise fastapi.HTTPException(
-                        status_code=404,
+                        status_code=400,
                         detail=repr(err),
                         headers={'X-Error': f'{err}'})
                         
-    @router.put('/skills/config/')
-    async def put_skill_config(data: SkillConfig):
+    @router.put('/skills/config/{skill_id}')
+    async def put_skill_config(skill_id: str, config: typing.Dict):
         try:
-            ova.get_component(Components.Skillset).update_skill_config(data.skill_id, data.config)
+            ova.get_component(Components.Skillset).update_skill_config(skill_id, config)
         except RuntimeError as err:
             raise fastapi.HTTPException(
-                        status_code=404,
+                        status_code=400,
                         detail=repr(err),
                         headers={'X-Error': f'{err}'})
 
     # NODES
-
-    @router.put('/node/sync')
-    async def node_sync(data: NodeInfo = None):
-        if not data:
-            raise fastapi.HTTPException(
-                        status_code=404,
-                        detail='command invalid',
-                        headers={'X-Error': 'No data provided'})
-        try:
-            ova.node_manager.update_node_config(data.node_id, jsonable_encoder(data))
-        except Exception as err:
-            raise fastapi.HTTPException(
-                        status_code=404,
-                        detail=repr(err),
-                        headers={'X-Error': f'{err}'})
 
     @router.get('/node/status')
     async def get_node_status():
@@ -110,17 +96,17 @@ def create_app(ova: OpenVoiceAssistant):
             return ova.node_manager.get_all_node_status()
         except RuntimeError as err:
             raise fastapi.HTTPException(
-                        status_code=404,
+                        status_code=400,
                         detail=repr(err),
                         headers={'X-Error': f'{err}'})
 
     @router.get('/node/status/{node_id}')
     async def get_node_status(node_id: str):
         try:
-            return ova.node_manager.get_node_status()
+            return ova.node_manager.get_node_status(node_id)
         except RuntimeError as err:
             raise fastapi.HTTPException(
-                        status_code=404,
+                        status_code=400,
                         detail=repr(err),
                         headers={'X-Error': f'{err}'})
 
@@ -130,9 +116,65 @@ def create_app(ova: OpenVoiceAssistant):
             return ova.node_manager.get_node_config(node_id)
         except RuntimeError as err:
             raise fastapi.HTTPException(
-                        status_code=404,
+                        status_code=400,
                         detail=repr(err),
                         headers={'X-Error': f'{err}'})
+
+    @router.put('/node/config')
+    async def put_node_config(node_config: NodeConfig):
+        if not node_config:
+            raise fastapi.HTTPException(
+                        status_code=400,
+                        detail='No config provided',
+                        headers={'X-Error': 'No config provided'})
+        try:
+            ova.node_manager.update_node_config(node_config.node_id, jsonable_encoder(node_config), sync_down=True)
+        except Exception as err:
+            raise fastapi.HTTPException(
+                        status_code=400,
+                        detail=repr(err),
+                        headers={'X-Error': f'{err}'})
+
+    @router.put('/node/sync')
+    async def put_node_config(node_config: NodeConfig):
+        if not node_config:
+            raise fastapi.HTTPException(
+                        status_code=400,
+                        detail='No config provided',
+                        headers={'X-Error': 'No config provided'})
+        try:
+            ova.node_manager.update_node_config(node_config.node_id, jsonable_encoder(node_config), sync_down=False)
+        except Exception as err:
+            raise fastapi.HTTPException(
+                        status_code=400,
+                        detail=repr(err),
+                        headers={'X-Error': f'{err}'})
+
+    # TRANSCRIBE
+    @router.post('/transcribe/audio/')
+    async def transcribe_audio(data: TranscribeAudio):
+        context = {}
+        context['command_audio_data_str'] = data.command_audio_data_str
+        context['command_audio_sample_rate'] = data.command_audio_sample_rate
+        context['command_audio_sample_width'] = data.command_audio_sample_width
+        context['command_audio_channels'] = data.command_audio_channels
+
+        ova.run_pipeline(PipelineStages.Transcribe, context=context)
+
+        return context
+
+    # UNDERSTAND
+    @router.get('/understand/text/{text}')
+    async def understand_text(text: str):
+        context = {}
+        context['command'] = text
+        context['engage'] = True
+        context['time_sent'] = 0.0
+        context['last_time_engaged'] = 0.0
+
+        ova.run_pipeline(PipelineStages.Understand, context=context)
+
+        return context
 
     # SYNTHESIZE
     @router.get('/synthesize/text/{text}')
@@ -142,7 +184,13 @@ def create_app(ova: OpenVoiceAssistant):
 
         ova.run_pipeline(PipelineStages.Synthesize, context=context)
 
-        return context
+        response_file_path = context['response_file_path']
+
+        def iterfile():
+            with open(response_file_path, mode="rb") as file_like: 
+                yield from file_like 
+
+        return fastapi.responses.StreamingResponse(iterfile(), media_type="audio/wav")
 
     # RESPOND
 

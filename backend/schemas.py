@@ -20,6 +20,7 @@ class Context(typing.TypedDict):
     response_audio_data_str: str
     response_sample_rate: str
     response_sample_width: str
+    response_file_path: str
     skill: str
     action: str
     conf: float

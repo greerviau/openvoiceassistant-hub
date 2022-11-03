@@ -1,6 +1,7 @@
 import os
 import json
 import pickle
+import typing
 from backend.utils.nlp import clean_text, encode_word_vec, pad_sequence
 import numpy as np
 
@@ -9,26 +10,24 @@ from tensorflow.keras.layers import Dense, LSTM, Dropout
 from tensorflow.keras.layers import Embedding
 from sklearn.preprocessing import OneHotEncoder
 
-def train_classifier(imported_skills: str, skills_dir: str, model_dump: str):
+def load_training_data(imported_skills: typing.Dict, skills_dir: str):
+    compiled_data = []
+    for skill in imported_skills:
+        intents = json.load(open(os.path.join(skills_dir, skill, 'intents.json')))['intentions']
+        for intent in intents:
+            tag = intent['action']
+            patterns = intent['patterns']
+            compiled_data.extend([[f'{skill}-{tag}', clean_text(pattern)] for pattern in patterns])
+    compiled_data = np.array(compiled_data)
+    return compiled_data[:,1], compiled_data[:,0]
 
-    def load_data(imported_skills, skills_dir):
-        compiled_data = []
-        for skill in imported_skills:
-            intents = json.load(open(os.path.join(skills_dir, skill, 'intents.json')))['intentions']
-            for intent in intents:
-                tag = intent['action']
-                patterns = intent['patterns']
-                compiled_data.extend([[f'{skill}-{tag}', clean_text(pattern)] for pattern in patterns])
-        compiled_data = np.array(compiled_data)
-        return compiled_data[:,1], compiled_data[:,0]
-    
+def train_classifier(X: typing.List, y: typing.List, model_dump: str):
+    print('Training classifier')
 
     # fix random seed for reproducibility
     np.random.seed(7)
     max_length = 10
     embedding_dim = 100
-
-    X, y = load_data(imported_skills, skills_dir)
 
     labels = list(set(y))
     label_to_int = dict((l, i) for i, l in enumerate(labels))
@@ -67,11 +66,11 @@ def train_classifier(imported_skills: str, skills_dir: str, model_dump: str):
     model = Sequential()
     model.add(Embedding(n_vocab, embedding_dim, input_length=max_length))
     model.add(LSTM(32))
-    model.add(Dropout(0.2))
+    #model.add(Dropout(0.2))
     model.add(Dense(n_labels, activation='softmax'))
     model.compile(loss='categorical_crossentropy', optimizer='adam', metrics=['accuracy'])
     print(model.summary())
-    model.fit(X, y, epochs=30, batch_size=16)
+    model.fit(X, y, epochs=25, batch_size=16)
 
     scores = model.evaluate(X, y, verbose=0)
     print("Accuracy: %.2f%%" % (scores[1]*100))

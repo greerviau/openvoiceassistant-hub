@@ -6,6 +6,8 @@
                 "hello", 
                 "hi",
                 "hey there", 
+                "hello there",
+                "hi there",
                 "howdy", 
                 "good morning",
                 "good afternoon",
@@ -30,6 +32,7 @@
             "action":"whats_up",
             "patterns":[
                 "whats up",
+                "whats up there",
                 "what is up",
                 "whats up with you",
                 "what is up with you",

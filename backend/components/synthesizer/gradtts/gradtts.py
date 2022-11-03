@@ -20,9 +20,8 @@ HIFI_CONFIG = os.path.join(os.path.realpath(os.path.dirname(__file__)), 'grad_tt
 CMU_DICT = os.path.join(os.path.realpath(os.path.dirname(__file__)), 'grad_tts/resources/cmu_dictionary')
 
 class Gradtts:
-    def __init__(self, use_cuda: bool, model_file: str, hifi_model: str):
-        self.cuda_available = torch.cuda.is_available()
-        self.CUDA = use_cuda and self.cuda_available
+    def __init__(self, model_file: str, hifi_model: str):
+        self.CUDA = torch.cuda.is_available()
 
         self.timesteps = 10
     
@@ -80,14 +79,12 @@ class Gradtts:
             return audio.tobytes(), 22050, audio.dtype.itemsize
 
 def build_engine(config: Configuration) -> GradTTS:
-    use_cuda = config.get('components', 'synthesizer', 'config', 'use_cuda')
     model_file = config.get('components', 'synthesizer', 'config', 'model_file')
     hifi_model_file = config.get('components', 'synthesizer', 'config', 'hifi_model_file')
-    return Gradtts(use_cuda, model_file, hifi_model_file)
+    return Gradtts(model_file, hifi_model_file)
 
 def default_config() -> typing.Dict:
     return {
-        "use_cuda": False,
         "model_file": "",
         "hifi_model_file": ""
     }

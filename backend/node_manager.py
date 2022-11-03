@@ -7,10 +7,15 @@ class NodeManager:
         self.config = config
         self.nodes = config.get('managers', 'node_manager', 'nodes')
 
-    def update_node_config(self, node_id: str, config: dict):   # TODO use TypedDict
+    def update_node_config(self, node_id: str, config: dict, sync_down: bool=False):
+        if sync_down:
+            node_api_url = config['node_api_url']
+            resp = requests.put(f'{node_api_url}/config', json=config)
+            if resp.status_code != 200:
+                raise RuntimeError('Faied to update node config')
         self.nodes[node_id] = config
         self.config.setkey('managers', 'node_manager', 'nodes', node_id, value=config)
-    
+
     def node_exists(self, node_id: str):
         return node_id in self.nodes
     
@@ -37,7 +42,7 @@ class NodeManager:
             config = self.nodes[node_id]
         except:
             raise RuntimeError('Node does not exist')
-        address = config['address']
+        address = config['node_api_url']
         try:
             resp = requests.get(address+'/status', timeout=2)
             if resp.status_code == 200:

@@ -8,6 +8,7 @@ import wave
 from backend.config import Configuration
 from backend.schemas import Context
 from backend.utils.audio import save_wave
+from backend.utils.nlp import clean_text
 
 class Transcriber:
     def __init__(self, config: Configuration):
@@ -17,6 +18,8 @@ class Transcriber:
         self.module = importlib.import_module(f'backend.components.transcriber.{self.algo}')
 
         self.file_dump = self.config.get('file_dump')
+
+        self.wake_word = self.config.get('wake_word')
         
         try:
             self.config.get('components', 'transcriber', 'config')
@@ -48,5 +51,14 @@ class Transcriber:
             raise RuntimeError('No command')
         
         context['command'] = command
-
         print(f'Command: {command}')
+
+        cleaned_command = clean_text(command)
+        context['cleaned_command'] = cleaned_command
+        print(f'Cleaned Command: {cleaned_command}')
+
+        if 'engage' in context:
+            engage = context['engage']
+            
+        context['engage'] = engage or self.wake_word in cleaned_command
+        
