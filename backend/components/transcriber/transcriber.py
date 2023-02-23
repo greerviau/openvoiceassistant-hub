@@ -5,28 +5,26 @@ import typing
 import time
 import wave
 
-from backend.config import Configuration
+from backend import config
 from backend.schemas import Context
 from backend.utils.audio import save_wave
 from backend.utils.nlp import clean_text
 
 class Transcriber:
-    def __init__(self, config: Configuration):
-        self.config = config
-
-        self.algo = self.config.get('components', 'transcriber', 'algorithm')
+    def __init__(self):
+        self.algo = config.get('components', 'transcriber', 'algorithm')
         self.module = importlib.import_module(f'backend.components.transcriber.{self.algo}')
 
-        self.file_dump = self.config.get('file_dump')
+        self.file_dump = config.get('file_dump')
 
-        self.wake_word = self.config.get('wake_word')
+        self.wake_word = config.get('wake_word')
         
         try:
-            self.config.get('components', 'transcriber', 'config')
+            config.get('components', 'transcriber', 'config')
         except:
-            self.config.setkey('components', 'transcriber', 'config', value=self.module.default_config())
+            config.setkey('components', 'transcriber', 'config', value=self.module.default_config())
 
-        self.engine = self.module.build_engine(self.config)
+        self.engine = self.module.build_engine()
 
     def run_stage(self, context: Context):
         print('Transcribing Stage')

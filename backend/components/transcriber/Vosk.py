@@ -5,7 +5,7 @@ import wget
 import zipfile
 import wave
 
-from backend.config import Configuration
+from backend import config
 from backend.utils.audio import create_wave
 
 SetLogLevel(0)
@@ -41,7 +41,7 @@ class Vosk:
 
         return command
 
-def build_engine(config: Configuration):
+def build_engine():
     model_path = config.get('components', 'transcriber', 'config', 'model_path')
     if not model_path:
         model_dump = config.get('model_dump')

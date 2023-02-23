@@ -2,7 +2,7 @@ import os
 import typing
 import time
 
-from backend.config import Configuration
+from backend import config
 from backend.schemas import Context
 from backend.enums import PipelineStages, Components, pipeline_to_component
 from backend.node_manager import NodeManager
@@ -21,8 +21,7 @@ COMPONENTS = {
 
 class OpenVoiceAssistant:
     def __init__(self):
-        self.config = Configuration()
-        self.node_manager = NodeManager(self.config)
+        self.node_manager = NodeManager()
         
         self.launch_all_components()    
 
@@ -36,7 +35,7 @@ class OpenVoiceAssistant:
             return None
 
     def launch_component(self, component_id: Components):
-        self.components[component_id] = COMPONENTS[component_id](self.config)
+        self.components[component_id] = COMPONENTS[component_id](config)
 
     def launch_all_components(self):
         self.components = {}

@@ -5,7 +5,7 @@ import numpy as np
 import torch
 import typing
 
-from backend.config import Configuration
+from backend import config
 
 from .grad_tts import params as params
 from .grad_tts.model import GradTTS
@@ -78,7 +78,7 @@ class Gradtts:
             #write(f'./output.wav', 22050, audio)
             return audio.tobytes(), 22050, audio.dtype.itemsize
 
-def build_engine(config: Configuration) -> GradTTS:
+def build_engine() -> GradTTS:
     model_file = config.get('components', 'synthesizer', 'config', 'model_file')
     hifi_model_file = config.get('components', 'synthesizer', 'config', 'hifi_model_file')
     return Gradtts(model_file, hifi_model_file)

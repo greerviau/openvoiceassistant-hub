@@ -1,6 +1,6 @@
 import typing
 
-from backend.config import Configuration
+from backend import config
 
 class Greetings:
 
@@ -42,7 +42,7 @@ class Greetings:
         response = f'Goodbye {addr}'
         context['response'] = response
 
-def build_skill(config: Configuration):
+def build_skill(config: typing.Dict):
     return Greetings()
 
 def default_config():

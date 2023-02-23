@@ -4,7 +4,7 @@ import typing
 import wave
 import os
 
-from backend.config import Configuration
+from backend import config
 from backend.utils.audio import create_numpy_waveform, resample_waveform
 
 class Whisper:
@@ -22,12 +22,13 @@ class Whisper:
 
         return result["text"]
 
-def build_engine(config: Configuration):
+def build_engine():
     model_size = config.get('components', 'transcriber', 'config', 'model_size')
             
     return Whisper(model_size)
 
 def default_config():
     return {
-        "model_size": "tiny.en"
+        "model_size": "tiny.en",
+        "model_sizes": ["tiny.en", "tiny", "base.en", "base", "small.en", "small", "medium.en", "medium", "large"]
     }

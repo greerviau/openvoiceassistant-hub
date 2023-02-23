@@ -4,25 +4,24 @@ import os
 import typing
 import time
 
+from backend import config
 from backend.utils.audio import save_wave
-from backend.config import Configuration
 from backend.schemas import Context
 
 class Synthesizer:
-    def __init__(self, config: Configuration):
-        self.config = config
+    def __init__(self):
 
-        self.algo = self.config.get('components', 'synthesizer', 'algorithm').lower()
+        self.algo = config.get('components', 'synthesizer', 'algorithm').lower()
         self.module = importlib.import_module(f'backend.components.synthesizer.{self.algo}')
         
-        self.file_dump = self.config.get('file_dump')
+        self.file_dump = config.get('file_dump')
 
         try:
-            self.config.get('components', 'synthesizer', 'config')
+            config.get('components', 'synthesizer', 'config')
         except:
-            self.config.setkey('components', 'synthesizer', 'config', value=self.module.default_config())
+            config.setkey('components', 'synthesizer', 'config', value=self.module.default_config())
 
-        self.engine = self.module.build_engine(self.config)
+        self.engine = self.module.build_engine()
         os.makedirs(self.file_dump, exist_ok = True)
     
     def run_stage(self, context: Context):

@@ -3,7 +3,7 @@ import pickle
 import typing
 import numpy as np
 
-from backend.config import Configuration
+from backend import config
 from keras.models import load_model
 from backend.utils.nlp import clean_text, encode_word_vec, pad_sequence
 

@@ -1,3 +1,5 @@
+import typing
+
 class Weather:
 
     def weather(self, context):
@@ -30,7 +32,7 @@ class Weather:
 
         context['response'] = 'Not implemented'
 
-def build_skill(config):
+def build_skill(config: typing.Dict):
     return Weather()
 
 def default_config():
