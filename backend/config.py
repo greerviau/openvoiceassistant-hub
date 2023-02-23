@@ -43,6 +43,7 @@ config_path = f'{loc}/config.json'
 config = {}
 
 def get(*keys: typing.List[str]):
+    global config
     dic = config.copy()
     for key in keys:
         try:
@@ -52,6 +53,7 @@ def get(*keys: typing.List[str]):
     return dic
 
 def setkey(*keys: typing.List[str], value=None):
+    global config
     if value is None:
         raise RuntimeError
     d = config
@@ -62,14 +64,17 @@ def setkey(*keys: typing.List[str], value=None):
     return value
     
 def config_exists():
+    global config_path
     return os.path.exists(config_path)
 
 def save_config():
+    global config, config_path
     print('Config saved')
     with open(config_path, 'w') as config_file:
         config_file.write(json.dumps(config, indent=4))
 
 def load_config() -> typing.Dict:  # TODO use TypedDict
+    global config, config_path
     print(f'Loading config: {config_path}')
     if not os.path.exists(config_path):
         print('Loading default config')
