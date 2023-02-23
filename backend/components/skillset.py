@@ -18,9 +18,9 @@ class Skillset:
         self.not_imported = list(set(self.available_skills + list(imported_skill_configs.keys())))
 
         self.imported_skills = {}
-        for skill_id, config in imported_skill_configs.items():
+        for skill_id, skill_config in imported_skill_configs.items():
             print('Importing ', skill_id)
-            self.__import_skill(skill_id, config)
+            self.__import_skill(skill_id, skill_config)
 
     def add_skill(self, skill: str):
         if not self.skill_imported(skill):
@@ -34,7 +34,7 @@ class Skillset:
         else:
             raise RuntimeError('Skill is already imported')
 
-    def update_skill_config(self, skill: str, skill_config):
+    def update_skill_config(self, skill: str, skill_config: typing.Dict):
         if self.skill_imported(skill):
             self.__import_skill(skill, skill_config)
         else:
