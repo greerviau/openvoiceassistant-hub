@@ -3,39 +3,37 @@ import time
 import os
 import pickle
 
-from backend.config import Configuration
+from backend import config
 from backend.components.understander.classifier import Classifier
 from backend.components.understander.train_intent_model import train_classifier, load_training_data
 from backend.utils.nlp import clean_text
 from backend.schemas import Context
 
 class Understander:
-    def __init__(self, config: Configuration):
-        self.config = config
-
+    def __init__(self):
         self.load_classifier()
 
-        self.wake_word = self.config.get('wake_word')
-        self.engage_delay = self.config.get('engage_delay')
+        self.wake_word = config.get('wake_word')
+        self.engage_delay = config.get('engage_delay')
 
-        self.conf_thresh = self.config.get('components', 'understander', 'conf_thresh')
+        self.conf_thresh = config.get('components', 'understander', 'conf_thresh')
 
     def load_classifier(self):
-        model_dump = self.config.get('model_dump')
+        model_dump = config.get('model_dump')
 
         print('Loading classifier')
-        intent_model = self.config.get('components', 'understander', 'model_file')
+        intent_model = config.get('components', 'understander', 'model_file')
         if not intent_model:
             intent_model = os.path.join(model_dump, 'intent_model.h5')
-            self.config.setkey('components', 'understander', 'model_file', value=intent_model)
+            config.setkey('components', 'understander', 'model_file', value=intent_model)
 
-        vocab_file = self.config.get('components', 'understander', 'vocab_file')
+        vocab_file = config.get('components', 'understander', 'vocab_file')
         if not vocab_file:
             vocab_file = os.path.join(model_dump, 'intent_vocab.p')
-            self.config.setkey('components', 'understander', 'vocab_file', value=vocab_file)
+            config.setkey('components', 'understander', 'vocab_file', value=vocab_file)
 
-        imported_skills = self.config.get('components', 'skillset', 'imported_skills')
-        skills_dir = os.path.join(self.config.get('base_dir'), 'skills')
+        imported_skills = config.get('components', 'skillset', 'imported_skills')
+        skills_dir = os.path.join(config.get('base_dir'), 'skills')
 
         if not os.path.exists(intent_model) or not os.path.exists(vocab_file):
             print('Classifier model not found')
