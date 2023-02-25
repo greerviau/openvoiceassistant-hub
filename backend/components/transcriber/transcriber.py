@@ -22,7 +22,7 @@ class Transcriber:
         try:
             config.get('components', 'transcriber', 'config')
         except:
-            config.setkey('components', 'transcriber', 'config', value=self.module.default_config())
+            config.set('components', 'transcriber', 'config', value=self.module.default_config())
 
         self.engine = self.module.build_engine()
 

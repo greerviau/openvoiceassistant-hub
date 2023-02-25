@@ -46,7 +46,7 @@ def build_engine():
     if not model_path:
         model_dump = config.get('model_dump')
         model_path = os.path.join(model_dump, 'vosk_model')
-        config.setkey('components', 'transcriber', 'config', 'model_path', value=model_path)
+        config.set('components', 'transcriber', 'config', 'model_path', value=model_path)
         print(f'Loading vosk model: {model_path}')
     if not os.path.exists(model_path):
         print('Vosk model does not exist')

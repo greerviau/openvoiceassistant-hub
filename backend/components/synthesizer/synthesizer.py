@@ -19,7 +19,7 @@ class Synthesizer:
         try:
             config.get('components', 'synthesizer', 'config')
         except:
-            config.setkey('components', 'synthesizer', 'config', value=self.module.default_config())
+            config.set('components', 'synthesizer', 'config', value=self.module.default_config())
 
         self.engine = self.module.build_engine()
         os.makedirs(self.file_dump, exist_ok = True)
