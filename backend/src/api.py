@@ -3,6 +3,7 @@ import fastapi
 from fastapi.encoders import jsonable_encoder
 from fastapi.openapi.utils import get_openapi
 
+from backend import config
 from backend.ova import OpenVoiceAssistant
 from backend.src.models import *
 from backend.enums import PipelineStages, Components
@@ -19,9 +20,9 @@ def create_app(ova: OpenVoiceAssistant):
 
     @router.get('/component/config/{component_id}')
     async def get_component_config(component_id: str):
-        config = ova.config.get('components', component_id)
-        if config:
-            return config
+        component_config = config.get('components', component_id)
+        if component_config:
+            return component_config
         else:
             raise fastapi.HTTPException(
                         status_code=400,
@@ -69,9 +70,9 @@ def create_app(ova: OpenVoiceAssistant):
                         headers={'X-Error': f'{err}'})
 
     @router.post('/skills/config/{skill_id}')
-    async def post_skill_config(skill_id: str, config: typing.Dict):
+    async def post_skill_config(skill_id: str, skill_config: typing.Dict):
         try:
-            ova.get_component(Components.Skillset).add_skill_config(skill_id, config)
+            ova.get_component(Components.Skillset).add_skill_config(skill_id, skill_config)
         except RuntimeError as err:
             raise fastapi.HTTPException(
                         status_code=400,
@@ -79,9 +80,9 @@ def create_app(ova: OpenVoiceAssistant):
                         headers={'X-Error': f'{err}'})
                         
     @router.put('/skills/config/{skill_id}')
-    async def put_skill_config(skill_id: str, config: typing.Dict):
+    async def put_skill_config(skill_id: str, skill_config: typing.Dict):
         try:
-            ova.get_component(Components.Skillset).update_skill_config(skill_id, config)
+            ova.get_component(Components.Skillset).update_skill_config(skill_id, skill_config)
         except RuntimeError as err:
             raise fastapi.HTTPException(
                         status_code=400,
@@ -147,7 +148,7 @@ def create_app(ova: OpenVoiceAssistant):
                 ova.node_manager.add_node_config(node_config.node_id, node_config)
 
             sync_node_config = ova.node_manager.get_node_config(node_config.node_id)
-            sync_node_config["wake_word"] = ova.config.get('wake_word')
+            sync_node_config["wake_word"] = config.get('wake_word')
             return sync_node_config
         
         except Exception as err:
