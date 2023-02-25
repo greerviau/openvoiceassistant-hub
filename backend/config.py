@@ -52,7 +52,7 @@ def get(*keys: typing.List[str]):
             return None
     return dic
 
-def setkey(*keys: typing.List[str], value=None):
+def set(*keys: typing.List[str], value=None):
     global config
     if value is None:
         raise RuntimeError

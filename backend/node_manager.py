@@ -10,14 +10,14 @@ class NodeManager:
     def update_node_config(self, node_id: str, node_config: Dict):
         if self.node_exists(node_id):
             self.nodes[node_id] = node_config
-            config.setkey('managers', 'node_manager', 'nodes', node_id, value=node_config)
+            config.set('managers', 'node_manager', 'nodes', node_id, value=node_config)
         else:
             raise RuntimeError("Node does not exist")
         
     def add_node_config(self, node_id: str, node_config: Dict):
         if not self.node_exists(node_id):
             self.nodes[node_id] = node_config
-            config.setkey('managers', 'node_manager', 'nodes', node_id, value=node_config)
+            config.set('managers', 'node_manager', 'nodes', node_id, value=node_config)
         else:
             raise RuntimeError("Node already exists")
         
