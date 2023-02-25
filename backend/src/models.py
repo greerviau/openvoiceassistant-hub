@@ -31,4 +31,5 @@ class NodeConfig(BaseModel):
     node_api_url: str
     mic_index: int
     min_audio_sample_length: int
-    vad_sensitivity: int
+    audio_sample_buffer_length: float
+    sensitivity: int

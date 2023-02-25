@@ -136,14 +136,20 @@ def create_app(ova: OpenVoiceAssistant):
                         headers={'X-Error': f'{err}'})
 
     @router.put('/node/sync')
-    async def put_node_config(node_config: NodeConfig):
+    async def node_sync(node_config: NodeConfig):
         if not node_config:
             raise fastapi.HTTPException(
                         status_code=400,
                         detail='No config provided',
                         headers={'X-Error': 'No config provided'})
         try:
-            ova.node_manager.update_node_config(node_config.node_id, jsonable_encoder(node_config), sync_down=False)
+            if not ova.node_manager.node_exists(node_config.node_id):
+                ova.node_manager.add_node_config(node_config.node_id, node_config)
+
+            sync_node_config = ova.node_manager.get_node_config(node_config.node_id)
+            sync_node_config["wake_word"] = ova.config.get('wake_word')
+            return sync_node_config
+        
         except Exception as err:
             raise fastapi.HTTPException(
                         status_code=400,
