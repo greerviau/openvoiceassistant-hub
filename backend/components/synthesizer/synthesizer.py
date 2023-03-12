@@ -29,7 +29,7 @@ class Synthesizer:
             module = importlib.import_module(f'backend.components.synthesizer.{algorithm_id}')
             return module.default_config()
         except Exception as e:
-            print(e)
+            print(repr(e))
             raise RuntimeError('Synthesizer algorithm does not exist')
     
     def run_stage(self, context: Context):

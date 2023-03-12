@@ -26,6 +26,14 @@ class Transcriber:
 
         self.engine = self.module.build_engine()
 
+    def get_algorithm_default_config(algorithm_id: str) -> typing.Dict:
+        try:
+            module = importlib.import_module(f'backend.components.transcriber.{algorithm_id}')
+            return module.default_config()
+        except Exception as e:
+            print(repr(e))
+            raise RuntimeError('Transcriber algorithm does not exist')
+
     def run_stage(self, context: Context):
         print('Transcribing Stage')
         ad_str = context['command_audio_data_str']
