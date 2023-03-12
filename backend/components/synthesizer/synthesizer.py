@@ -23,6 +23,14 @@ class Synthesizer:
 
         self.engine = self.module.build_engine()
         os.makedirs(self.file_dump, exist_ok = True)
+
+    def get_algorithm_default_config(algorithm_id: str) -> typing.Dict:
+        try:
+            module = importlib.import_module(f'backend.components.synthesizer.{algorithm_id}')
+            return module.default_config()
+        except Exception as e:
+            print(e)
+            raise RuntimeError('Synthesizer algorithm does not exist')
     
     def run_stage(self, context: Context):
         print('Synth Stage')

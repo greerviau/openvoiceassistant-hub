@@ -18,7 +18,7 @@ def create_app(ova: OpenVoiceAssistant):
 
     # COMPONENTS
 
-    @router.get('/component/config/{component_id}')
+    @router.get('/components/{component_id}/config')
     async def get_component_config(component_id: str):
         component_config = config.get('components', component_id)
         if component_config:
@@ -27,6 +27,26 @@ def create_app(ova: OpenVoiceAssistant):
             raise fastapi.HTTPException(
                         status_code=400,
                         detail='component does not exist',
+                        headers={'X-Error': 'component does not exist'})
+        
+    @router.get('/components/synthesizer/{algorithm_id}/config/default')
+    async def get_synthesizer_default_config(algorithm_id: str):
+        try:
+            return ova.get_component(Components.Synthesizer).get_algorithm_default_config(algorithm_id)
+        except:
+            raise fastapi.HTTPException(
+                        status_code=400,
+                        detail='synthesizer algorithm default config does not exist',
+                        headers={'X-Error': 'component does not exist'})
+        
+    @router.get('/components/transcriber/{algorithm_id}/config/default')
+    async def get_transcriber_default_config(algorithm_id: str):
+        try:
+            return ova.get_component(Components.Transcriber).get_algorithm_default_config(algorithm_id)
+        except:
+            raise fastapi.HTTPException(
+                        status_code=400,
+                        detail='synthesizer algorithm default config does not exist',
                         headers={'X-Error': 'component does not exist'})
 
     # SKILLS
@@ -39,7 +59,7 @@ def create_app(ova: OpenVoiceAssistant):
     async def get_active_skills():
         return ova.get_component(Components.Skillset).imported_skills
 
-    @router.get('/skills/config/{skill_id}')
+    @router.get('/skills/{skill_id}/config')
     async def get_skill_config(skill_id: str):
         try:
             return ova.get_component(Components.Skillset).get_skill_config(skill_id)
@@ -49,10 +69,10 @@ def create_app(ova: OpenVoiceAssistant):
                         detail=repr(err),
                         headers={'X-Error': f'{err}'})
 
-    @router.get('/skills/default_config/{skill_id}')
+    @router.get('/skills/{skill_id}/config/default')
     async def get_skill_default_config(skill_id: str):
         try:
-            return ova.get_component(Components.Skillset).get_skill_config(skill_id)
+            return ova.get_component(Components.Skillset).get_default_skill_config(skill_id)
         except RuntimeError as err:
             raise fastapi.HTTPException(
                         status_code=400,
@@ -69,7 +89,7 @@ def create_app(ova: OpenVoiceAssistant):
                         detail=repr(err),
                         headers={'X-Error': f'{err}'})
 
-    @router.post('/skills/config/{skill_id}')
+    @router.post('/skills/{skill_id}/config')
     async def post_skill_config(skill_id: str, skill_config: typing.Dict):
         try:
             ova.get_component(Components.Skillset).add_skill_config(skill_id, skill_config)
@@ -79,7 +99,7 @@ def create_app(ova: OpenVoiceAssistant):
                         detail=repr(err),
                         headers={'X-Error': f'{err}'})
                         
-    @router.put('/skills/config/{skill_id}')
+    @router.put('/skills/{skill_id}/config')
     async def put_skill_config(skill_id: str, skill_config: typing.Dict):
         try:
             ova.get_component(Components.Skillset).update_skill_config(skill_id, skill_config)
@@ -101,7 +121,7 @@ def create_app(ova: OpenVoiceAssistant):
                         detail=repr(err),
                         headers={'X-Error': f'{err}'})
 
-    @router.get('/node/status/{node_id}')
+    @router.get('/node/{node_id}/status}')
     async def get_node_status(node_id: str):
         try:
             return ova.node_manager.get_node_status(node_id)
@@ -111,7 +131,7 @@ def create_app(ova: OpenVoiceAssistant):
                         detail=repr(err),
                         headers={'X-Error': f'{err}'})
 
-    @router.get('/node/config/{node_id}')
+    @router.get('/node/{node_id}/config')
     async def get_node_config(node_id: str):
         try:
             return ova.node_manager.get_node_config(node_id)
@@ -212,7 +232,7 @@ def create_app(ova: OpenVoiceAssistant):
         context['command_audio_channels'] = data.command_audio_channels
         context['node_callback'] = data.node_callback
         context['node_id'] = data.node_id
-        context['engage'] = False
+        context['engage'] = data.engage
         context['time_sent'] = data.time_sent
         context['last_time_engaged'] = data.last_time_engaged
 

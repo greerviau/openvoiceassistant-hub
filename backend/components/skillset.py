@@ -40,11 +40,15 @@ class Skillset:
         else:
             raise RuntimeError('Skill is not imported')
 
-    def get_skill_config(self, skill: str) -> typing.Dict:
-        if self.skill_imported(skill):
-            return self.imported_skills[skill].config
-        if self.skill_exists(skill):
-            module = importlib.import_module(f'backend.skills.{skill}')
+    def get_skill_config(self, skill_id: str) -> typing.Dict:
+        if self.skill_imported(skill_id):
+            return self.imported_skills[skill_id].config
+        else:
+            return self.get_default_skill_config(skill_id)
+
+    def get_default_skill_config(self, skill_id: str) -> typing.Dict:
+        if self.skill_exists(skill_id):
+            module = importlib.import_module(f'backend.skills.{skill_id}')
             return module.default_config()
         else:
             raise RuntimeError('Skill does not exist')
