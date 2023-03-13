@@ -33,21 +33,23 @@ def create_app(ova: OpenVoiceAssistant):
     async def get_synthesizer_default_config(algorithm_id: str):
         try:
             return ova.get_component(Components.Synthesizer).get_algorithm_default_config(algorithm_id)
-        except:
+        except Exception as e:
+            print(repr(e))
             raise fastapi.HTTPException(
                         status_code=400,
-                        detail='synthesizer algorithm default config does not exist',
-                        headers={'X-Error': 'component does not exist'})
+                        detail='Synthesizer algorithm default config does not exist',
+                        headers={'X-Error': 'Synthesizer algorithm default config does not exist'})
         
     @router.get('/components/transcriber/{algorithm_id}/config/default')
     async def get_transcriber_default_config(algorithm_id: str):
         try:
             return ova.get_component(Components.Transcriber).get_algorithm_default_config(algorithm_id)
-        except:
+        except Exception as e:
+            print(repr(e))
             raise fastapi.HTTPException(
                         status_code=400,
-                        detail='synthesizer algorithm default config does not exist',
-                        headers={'X-Error': 'component does not exist'})
+                        detail='Transcriber algorithm default config does not exist',
+                        headers={'X-Error': 'Transcriber algorithm default config does not exist'})
 
     # SKILLS
 
