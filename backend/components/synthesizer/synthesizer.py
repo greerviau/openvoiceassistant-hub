@@ -24,7 +24,7 @@ class Synthesizer:
         self.engine = self.module.build_engine()
         os.makedirs(self.file_dump, exist_ok = True)
 
-    def get_algorithm_default_config(algorithm_id: str) -> typing.Dict:
+    def get_algorithm_default_config(self, algorithm_id: str) -> typing.Dict:
         try:
             module = importlib.import_module(f'backend.components.synthesizer.{algorithm_id}')
             return module.default_config()

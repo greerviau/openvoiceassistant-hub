@@ -26,7 +26,7 @@ class Transcriber:
 
         self.engine = self.module.build_engine()
 
-    def get_algorithm_default_config(algorithm_id: str) -> typing.Dict:
+    def get_algorithm_default_config(self, algorithm_id: str) -> typing.Dict:
         try:
             module = importlib.import_module(f'backend.components.transcriber.{algorithm_id}')
             return module.default_config()
