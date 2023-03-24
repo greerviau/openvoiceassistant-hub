@@ -6,7 +6,7 @@ import zipfile
 import wave
 
 from backend import config
-from backend.utils.audio import create_wave
+from backend.utils.audio import create_wave, load_wave
 
 SetLogLevel(0)
 
@@ -15,13 +15,15 @@ class Vosk:
         self.vosk_model = Model(model_folder)
 
     def transcribe(self, audio_data: bytes, samplerate: int, samplewidth: int, channels: int, file_path: str):
-
+        '''
         wave_file = create_wave(
             audio_data=audio_data, 
             sample_rate=samplerate, 
             sample_width=samplewidth, 
             channels=channels
         )
+        '''
+        wave_file = load_wave(file_path)
 
         rec = KaldiRecognizer(self.vosk_model, samplerate)
         res = None

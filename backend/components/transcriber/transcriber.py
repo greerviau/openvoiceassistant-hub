@@ -36,20 +36,20 @@ class Transcriber:
 
     def run_stage(self, context: Context):
         print('Transcribing Stage')
-        ad_str = context['command_audio_data_str']
-        sr = context['command_audio_sample_rate']
-        sw = context['command_audio_sample_width']
-        c = context['command_audio_channels']
+        start = time.time()
 
-        ad = bytes.fromhex(ad_str)
+        audio_data_str = context['command_audio_data_str']
+        sample_rate = context['command_audio_sample_rate']
+        sample_width = context['command_audio_sample_width']
+        channels = context['command_audio_channels']
+
+        audio_data = bytes.fromhex(audio_data_str)
 
         wave_file_path = os.path.join(self.file_dump, 'command.wav')
 
-        save_wave(wave_file_path, ad, sr, sw, c)
-        
-        start = time.time()
+        #save_wave(wave_file_path, audio_data, sample_rate, sample_width, channels)
 
-        command = self.engine.transcribe(ad, sr, sw, c, wave_file_path)
+        command = self.engine.transcribe(audio_data, sample_rate, sample_width, channels, wave_file_path)
         
         context['time_to_transcribe'] = time.time() - start
 

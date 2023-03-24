@@ -55,7 +55,7 @@ class NodeManager:
             raise RuntimeError('Node does not exist')
         address = node_config['node_api_url']
         try:
-            resp = requests.get(address+'/status', timeout=2)
+            resp = requests.get(address, timeout=2)
             if resp.status_code == 200:
                 return 'online'
             else:

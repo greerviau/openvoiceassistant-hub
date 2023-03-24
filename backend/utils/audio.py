@@ -1,4 +1,5 @@
 import wave
+import os
 import numpy as np
 import librosa
 from io import BytesIO
@@ -20,6 +21,11 @@ def create_wave(audio_data: bytes, sample_rate: int, sample_width: int, channels
     wf.writeframes(audio_data)
 
     return wf
+
+def load_wave(wave_file_path: str):
+    if not os.path.exists(wave_file_path):
+        raise RuntimeError('Audio file does not exist')
+    return wave.open(wave_file_path, 'rb')
 
 def create_numpy_waveform(audio_data: bytes):
     return np.frombuffer(audio_data, dtype=np.int16).flatten().astype(np.float32) / 32768.0
