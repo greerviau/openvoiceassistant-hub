@@ -45,15 +45,8 @@ class Synthesizer:
             
         audio_data, sample_rate, sample_width = self.engine.synthesize(response, file_path)
 
-        '''
-        save_wave(
-            file_path,
-            audio_data=audio_data, 
-            sample_rate=sample_rate,
-            sample_width=sample_width, 
-            channels=1
-        )
-        '''
+        #save_wave(file_path, audio_data=audio_data, sample_rate=sample_rate, sample_width=sample_width, channels=1)
+       
         audio_str = audio_data.hex()
 
         context['time_to_synthesize'] = time.time() - start

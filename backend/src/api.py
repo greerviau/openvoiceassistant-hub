@@ -188,7 +188,13 @@ def create_app(ova: OpenVoiceAssistant):
         context['command_audio_sample_width'] = data.command_audio_sample_width
         context['command_audio_channels'] = data.command_audio_channels
 
-        ova.run_pipeline(PipelineStages.Transcribe, context=context)
+        try:
+            ova.run_pipeline(PipelineStages.Transcribe, context=context)
+        except Exception as err:
+            raise fastapi.HTTPException(
+                        status_code=400,
+                        detail=repr(err),
+                        headers={'X-Error': f'{err}'})
 
         return context
 
@@ -201,7 +207,13 @@ def create_app(ova: OpenVoiceAssistant):
         context['time_sent'] = 0.0
         context['last_time_engaged'] = 0.0
 
-        ova.run_pipeline(PipelineStages.Understand, context=context)
+        try:
+            ova.run_pipeline(PipelineStages.Understand, context=context)
+        except Exception as err:
+            raise fastapi.HTTPException(
+                        status_code=400,
+                        detail=repr(err),
+                        headers={'X-Error': f'{err}'})
 
         return context
 
@@ -211,7 +223,13 @@ def create_app(ova: OpenVoiceAssistant):
         context = {}
         context['response'] = text
 
-        ova.run_pipeline(PipelineStages.Synthesize, context=context)
+        try:
+            ova.run_pipeline(PipelineStages.Synthesize, context=context)
+        except Exception as err:
+            raise fastapi.HTTPException(
+                        status_code=400,
+                        detail=repr(err),
+                        headers={'X-Error': f'{err}'})
 
         response_file_path = context['response_file_path']
 
@@ -238,13 +256,19 @@ def create_app(ova: OpenVoiceAssistant):
         context['time_sent'] = data.time_sent
         context['last_time_engaged'] = data.last_time_engaged
 
-        ova.run_pipeline(
-            PipelineStages.Transcribe,
-            PipelineStages.Understand,
-            PipelineStages.Skillset,
-            PipelineStages.Synthesize,
-            context=context
-        )
+        try:
+            ova.run_pipeline(
+                PipelineStages.Transcribe,
+                PipelineStages.Understand,
+                PipelineStages.Skillset,
+                PipelineStages.Synthesize,
+                context=context
+            )
+        except Exception as err:
+            raise fastapi.HTTPException(
+                        status_code=400,
+                        detail=repr(err),
+                        headers={'X-Error': f'{err}'})
 
         return context
 
@@ -260,12 +284,18 @@ def create_app(ova: OpenVoiceAssistant):
         context['time_sent'] = data.time_sent
         context['last_time_engaged'] = data.last_time_engaged
 
-        ova.run_pipeline(
-            PipelineStages.Understand,
-            PipelineStages.Skillset,
-            PipelineStages.Synthesize,
-            context=context
-        )
+        try:
+            ova.run_pipeline(
+                PipelineStages.Understand,
+                PipelineStages.Skillset,
+                PipelineStages.Synthesize,
+                context=context
+            )
+        except Exception as err:
+            raise fastapi.HTTPException(
+                        status_code=400,
+                        detail=repr(err),
+                        headers={'X-Error': f'{err}'})
 
         return context
 
