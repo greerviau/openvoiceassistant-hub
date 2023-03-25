@@ -12,7 +12,7 @@ from backend.utils.nlp import clean_text
 
 class Transcriber:
     def __init__(self):
-        self.algo = config.get('components', 'transcriber', 'algorithm')
+        self.algo = config.get('components', 'transcriber', 'algorithm').lower()
         self.module = importlib.import_module(f'backend.components.transcriber.{self.algo}')
 
         self.file_dump = config.get('file_dump')
