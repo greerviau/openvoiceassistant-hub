@@ -1,12 +1,30 @@
 from typing import Dict
+import urlparse
+import requests
+import time
+import threading
 
 class Weather:
 
     def __init__(self, config: Dict):
         self.config = config
-        self.owm_base_url = "http://api.openweathermap.org/data/2.5/weather?"
+        self.owm_base_url = "http://api.openweathermap.org/data/2.5/"
         self.owm_api_key = config["owm_api_key"]
-        self.city = config["city"]
+        lat = config["latitude"]
+        lon = config["longitude"]
+        query = f"onecall?lat={lat}&lon={lon}&appid={self.owm_api_key}&units=metric"
+        self.owm_query_url = urlparse.urljoin(self.owm_base_url, query)
+        self.update_delay_seconds = config["update_delay_seconds"]
+
+        self.weather_data = None
+
+        update_thread = threading.Thread(target=self._weather_thread)
+
+    def _weather_thread(self):
+        while True:
+            response = requests.get(self.owm_query_url)
+            self.weather_data = response
+            time.sleep(self.update_delay_seconds)
 
     def weather(self, context: Dict):
         command = context['command']
@@ -44,5 +62,7 @@ def build_skill(config: Dict):
 def default_config():
     return {
         "owm_api_key": "",
-        "city": ""
+        "latitutde": "",
+        "longitude": "",
+        "update_delay_seconds": 3600
     }
