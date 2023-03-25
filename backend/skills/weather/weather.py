@@ -20,7 +20,8 @@ class Weather:
 
         self.event = threading.Event()
 
-        update_thread = threading.Thread(target=self._weather_thread)
+        weather_thread = threading.Thread(target=self._weather_thread)
+        weather_thread.start()
 
     def _weather_thread(self):
         while not self.event.is_set():
