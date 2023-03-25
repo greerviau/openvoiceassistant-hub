@@ -130,7 +130,7 @@ class Weather:
 
         s = self.weather_data["weather"][0]["main"].lower()
 
-        condition = SKY_MAPPING[s]
+        condition = random.choice(SKY_MAPPING[s])
 
         response = random.choice(RESPONSE_TEMPLATES) % (condition)
 
@@ -157,9 +157,9 @@ class Weather:
         template = random.choice(RESPONSE_TEMPLATES)
 
         if random.choice([0,1]):
-            response = template % feeling
+            response = template % (feeling)
         else:
-            response = template % f"{humidity} percent humidity"
+            response = template % (f"{humidity} percent humidity")
 
         return response
 
@@ -184,9 +184,9 @@ class Weather:
         template = random.choice(RESPONSE_TEMPLATES)
 
         if random.choice([0,1]):
-            response = template % feeling
+            response = template % (feeling)
         else:
-            response = template % f"{temp} degrees"
+            response = template % (f"{temp} degrees")
 
         return response
 
