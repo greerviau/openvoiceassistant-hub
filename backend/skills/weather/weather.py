@@ -20,10 +20,10 @@ class Weather:
 
         self.event = threading.Event()
 
-        update_thread = threading.Thread(target=self._weather_thread, args=(event,))
+        update_thread = threading.Thread(target=self._weather_thread)
 
-    def _weather_thread(self, event: threading.Event):
-        while not event.is_set():
+    def _weather_thread(self):
+        while not self.event.is_set():
             print('Querying OWM')
             response = requests.get(self.owm_query_url)
             print('Weather Data')
