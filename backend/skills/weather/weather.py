@@ -2,6 +2,11 @@ import typing
 
 class Weather:
 
+    def __init__(self, config: typing.Dict):
+        self.owm_base_url = "http://api.openweathermap.org/data/2.5/weather?"
+        self.owm_api_key = config["owm_api_key"]
+        self.city = config["city"]
+
     def weather(self, context):
         command = context['command']
         addr = context['addr'] if 'addr' in context else ''
@@ -33,7 +38,10 @@ class Weather:
         context['response'] = 'Not implemented'
 
 def build_skill(config: typing.Dict):
-    return Weather()
+    return Weather(config)
 
 def default_config():
-    return {}
+    return {
+        "owm_api_key": "",
+        "city": ""
+    }
