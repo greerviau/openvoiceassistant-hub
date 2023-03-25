@@ -60,7 +60,7 @@ class Weather:
         for chunk in data["list"]:
             parsed_chunk = {}
 
-            dt = datetime.strptime(chunk["dt_txt"], "%y-%m-%d %H:%M:%S")
+            dt = datetime.strptime(chunk["dt_txt"], "%Y-%m-%d %H:%M:%S")
 
             parsed_chunk["datetime"] = dt
 
