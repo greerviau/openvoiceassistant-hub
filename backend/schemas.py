@@ -18,8 +18,8 @@ class Context(typing.TypedDict):
     time_to_understand: float
     response: str
     response_audio_data_str: str
-    response_sample_rate: str
-    response_sample_width: str
+    response_audio_sample_rate: str
+    response_audio_sample_width: str
     response_file_path: str
     skill: str
     action: str

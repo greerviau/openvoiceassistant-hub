@@ -51,6 +51,6 @@ class Synthesizer:
 
         context['time_to_synthesize'] = time.time() - start
         context['response_audio_data_str'] = audio_str
-        context['response_sample_rate'] = sample_rate
-        context['response_sample_width'] = sample_width
+        context['response_audio_sample_rate'] = sample_rate
+        context['response_audio_sample_width'] = sample_width
         context['response_file_path'] = file_path
