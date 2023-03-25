@@ -68,7 +68,7 @@ class Skillset:
 
         if self.skill_imported(skill):
             method = getattr(self.imported_skills[skill], action)
-            method(context)
+            context['response'] = method(context)
             context['time_to_action'] = time.time() - start
 
     def __import_skill(self, skill: str, skill_config: typing.Dict):

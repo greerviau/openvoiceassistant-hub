@@ -4,6 +4,7 @@ import requests
 import time
 import threading
 import datetime
+import random
 from typing import Dict
 
 class Weather:
@@ -21,7 +22,7 @@ class Weather:
         query_params = f"lat={lat}&lon={lon}&appid={self.owm_api_key}&units={unit}"
 
         weather_query = f"weather?{query_params}"
-        forecast_query = f"weather?{query_params}"
+        forecast_query = f"forecast?{query_params}"
 
         self.owm_weather_query_url = urllib.parse.urljoin(self.owm_base_url, weather_query)
         self.owm_forecast_query_url = urllib.parse.urljoin(self.owm_base_url, forecast_query)
@@ -63,14 +64,14 @@ class Weather:
 
             parsed_chunk["datetime"] = dt
 
-            parsed_chunk["weather"] = data["weather"]
-            parsed_chunk["temp"] = data["main"]["temp"]
-            parsed_chunk["feels_like"] = data["main"]["feels_like"]
-            parsed_chunk["temp_min"] = data["main"]["temp_min"]
-            parsed_chunk["temp_max"] = data["main"]["temp_max"]
-            parsed_chunk["pressure"] = data["main"]["pressure"]
-            parsed_chunk["humidity"] = data["main"]["humidity"]
-            parsed_chunk["wind_speed"] = data["wind"]["speed"]
+            parsed_chunk["weather"] = chunk["weather"]
+            parsed_chunk["temp"] = chunk["main"]["temp"]
+            parsed_chunk["feels_like"] = chunk["main"]["feels_like"]
+            parsed_chunk["temp_min"] = chunk["main"]["temp_min"]
+            parsed_chunk["temp_max"] = chunk["main"]["temp_max"]
+            parsed_chunk["pressure"] = chunk["main"]["pressure"]
+            parsed_chunk["humidity"] = chunk["main"]["humidity"]
+            parsed_chunk["wind_speed"] = chunk["wind"]["speed"]
 
             parsed["forecast"].append(parsed_chunk)
 
@@ -101,33 +102,61 @@ class Weather:
 
     def weather(self, context: Dict):
         command = context['command']
-        addr = context['addr'] if 'addr' in context else ''
 
-        context['response'] = 'Not implemented'
+        response = "Not implemented"
+
+        return response
 
     def sky(self, context: Dict):
-        command = context['command']
-        addr = context['addr'] if 'addr' in context else ''
+        SKY_MAPPING = {
+            "clouds": [
+                "it looks like its overcast outside", 
+                "Cloudy"
+                ],
+            "rain": [
+                "Raining", 
+                "Rainy"
+                ],
+            "snow": [
+                "Snowing", 
+                "Snowy"
+                ],
+            "clear": [
+                "Clear", 
+                "Sunny"
+                ]
+        }
 
-        context['response'] = 'Not implemented'
+        command = context['command']
+
+        s = self.weather_data["weather"][0]["main"].lower()
+
+        condition = SKY_MAPPING[s]
+
+        response = random.choice(RESPONSE_TEMPLATES) % (condition)
+
+        return response
 
     def air(self, context: Dict):
         command = context['command']
-        addr = context['addr'] if 'addr' in context else ''
 
-        context['response'] = 'Not implemented'
+        response = "Not implemented"
+
+        return response
 
     def temperature(self, context: Dict):
         command = context['command']
-        addr = context['addr'] if 'addr' in context else ''
 
-        context['response'] = 'Not implemented'
+        response = "Not implemented"
+
+        return response
 
     def ocean(self, context: Dict):
         command = context['command']
-        addr = context['addr'] if 'addr' in context else ''
 
-        context['response'] = 'Not implemented'
+        response = "Not implemented"
+
+        return response
 
 def build_skill(config: Dict):
     return Weather(config)

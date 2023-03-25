@@ -22,28 +22,32 @@ class Greetings:
             response = f'Good night {addr}'
         else:
             response = f'Hello {addr}'
-        context['response'] = response
+
+        return response
 
     def how_are_you(self, context: Dict):
         command = context['command']
         addr = context['addr'] if 'addr' in context else ''
 
         response = f'Doing well {addr}'
-        context['response'] = response
+
+        return response
 
     def whats_up(self, context: Dict):
         command = context['command']
         addr = context['addr'] if 'addr' in context else ''
 
         response = f'Not much {addr}'
-        context['response'] = response
+        
+        return response
 
     def goodbye(self, context: Dict):
         command = context['command']
         addr = context['addr'] if 'addr' in context else ''
 
         response = f'Goodbye {addr}'
-        context['response'] = response
+
+        return response
 
 def build_skill(config: Dict):
     return Greetings(config)
