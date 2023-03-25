@@ -32,8 +32,8 @@ Every aspect of the pipeline is customizable, including:
 * GradTTS
 
 ## v0.1.0
-[ ] Logging system
-[ ] Weather skill
-[ ] Datetime skill
-[ ] Homeassistant skill
-[ ] Optimize and improve inference speed
+- [ ] Logging system
+- [ ] Weather skill
+- [ ] Datetime skill
+- [ ] Homeassistant skill
+- [ ] Optimize and improve inference speed
