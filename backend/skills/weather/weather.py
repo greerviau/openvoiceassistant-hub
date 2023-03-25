@@ -18,13 +18,22 @@ class Weather:
 
         self.weather_data = None
 
-        update_thread = threading.Thread(target=self._weather_thread)
+        self.event = threading.Event()
 
-    def _weather_thread(self):
-        while True:
+        update_thread = threading.Thread(target=self._weather_thread, args=(event,))
+
+    def _weather_thread(self, event: threading.Event):
+        while not event.is_set():
+            print('Querying OWM')
             response = requests.get(self.owm_query_url)
+            print('Weather Data')
+            print(response)
             self.weather_data = response
+            print('Waiting...')
             time.sleep(self.update_delay_seconds)
+
+    def __del__(self):
+        self.event.set()
 
     def weather(self, context: Dict):
         command = context['command']
