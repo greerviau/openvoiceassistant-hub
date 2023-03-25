@@ -109,23 +109,20 @@ class Weather:
 
     def sky(self, context: Dict):
         SKY_MAPPING = {
-            "clouds": [
-                "it looks like its overcast outside", 
-                "Cloudy"
-                ],
-            "rain": [
-                "Raining", 
-                "Rainy"
-                ],
-            "snow": [
-                "Snowing", 
-                "Snowy"
-                ],
-            "clear": [
-                "Clear", 
-                "Sunny"
-                ]
+            "clouds": ["Overcast", "Cloudy"],
+            "rain": ["Raining", "Rainy"],
+            "snow": ["Snowing", "Snowy"],
+            "clear": ["Clear", "Sunny"]
         }
+
+        RESPONSE_TEMPLATES = [
+            "It looks like its %s outside",
+            "It is %s outside",
+            "It is %s outside right now",
+            "It is %s right now"
+            "Its currently %s right now"
+            "Its currently %s outside right now"
+        ]
 
         command = context['command']
 
