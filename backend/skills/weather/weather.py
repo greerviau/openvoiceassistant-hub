@@ -62,7 +62,7 @@ def build_skill(config: Dict):
 def default_config():
     return {
         "owm_api_key": "",
-        "latitutde": "",
+        "latitude": "",
         "longitude": "",
         "update_delay_seconds": 3600
     }
