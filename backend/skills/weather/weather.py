@@ -1,5 +1,5 @@
 from typing import Dict
-from urllib.parse import urlparse
+import urllib
 import requests
 import time
 import threading
@@ -13,7 +13,7 @@ class Weather:
         lat = config["latitude"]
         lon = config["longitude"]
         query = f"onecall?lat={lat}&lon={lon}&appid={self.owm_api_key}&units=metric"
-        self.owm_query_url = urlparse.urljoin(self.owm_base_url, query)
+        self.owm_query_url = urllib.parse.urljoin(self.owm_base_url, query)
         self.update_delay_seconds = config["update_delay_seconds"]
 
         self.weather_data = None
