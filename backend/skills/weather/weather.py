@@ -3,7 +3,7 @@ import urllib
 import requests
 import time
 import threading
-import datetime
+from datetime import datetime
 import random
 from typing import Dict
 
@@ -84,14 +84,14 @@ class Weather:
         while not self.event.is_set():
             print('Querying OWM for current weather')
             response = requests.get(self.owm_weather_query_url)
-            print('Weather data')
-            print(response.json())
+            #print('Weather data')
+            #print(response.json())
             self.weather_data = self._parse_weather_data(response.json())
 
             print('Querying OWM for todays forecast')
             response = requests.get(self.owm_forecast_query_url)
-            print('Forecast data')
-            print(response.json())
+            #print('Forecast data')
+            #print(response.json())
             self.forecast_data = self._parse_forecast_data(response.json())
 
             print('Waiting...')
