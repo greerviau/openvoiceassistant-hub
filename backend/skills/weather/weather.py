@@ -104,16 +104,16 @@ class Weather:
         command = context['command']
 
         sky = self.sky(context)
-        humid = self.air(context)
-        temp = self.temperature(context)
+        temp = int(self.weather_data["temp"])
+        humidity = int(self.weather_data["humidity"])
 
-        response = '. '.join([sky, humid, temp])
+        response = f"{sky}. The tempurature is {temp} degrees. The humidity is {humidity} percent."
 
         return response
 
     def sky(self, context: Dict):
         SKY_MAPPING = {
-            "clouds": ["cvercast", "cloudy"],
+            "clouds": ["overcast", "cloudy"],
             "rain": ["raining", "rainy"],
             "snow": ["snowing"],
             "clear": ["clear", "sunny"]
