@@ -1,10 +1,11 @@
-import typing
+from typing import Dict
 
 class Datetime:
-    pass
+    def __init__(self, config: Dict):
+        self.config = config
 
-def build_skill(config: typing.Dictig):
-    return Datetime()
+def build_skill(config: Dict):
+    return Datetime(config)
 
 def default_config():
     return {}
