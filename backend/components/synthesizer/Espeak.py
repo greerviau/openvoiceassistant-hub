@@ -5,7 +5,7 @@ import typing
 
 from backend import config
 
-class Pyttsx:
+class Espeak:
     def __init__(self):
         self.engine = pyttsx3.init()
 
@@ -16,8 +16,8 @@ class Pyttsx:
         
         return audio_seg.raw_data, audio_seg.frame_rate, audio_seg.sample_width
 
-def build_engine() -> Pyttsx:
-    return Pyttsx()
+def build_engine() -> Espeak:
+    return Espeak()
 
 def default_config() -> typing.Dict:
     return {}

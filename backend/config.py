@@ -13,8 +13,8 @@ DEFAULT_CONFIG = {
         "file_dump": f"{os.path.realpath(os.path.dirname(__file__))}/file_dump",
         "components": {
             Components.Transcriber.value: {
-                "algorithms": ["Vosk", "Whisper"],
-                "algorithm": "Vosk"
+                "algorithms": ["Kaldi", "Whisper"],
+                "algorithm": "Kaldi"
             },
             Components.Understander.value: {
                 "vocab_file": "",
@@ -27,8 +27,8 @@ DEFAULT_CONFIG = {
                 }
             },
             Components.Synthesizer.value: {
-                "algorithms": ["pyttsx", "gradtts"],
-                "algorithm": "pyttsx"
+                "algorithms": ["Espeak", "GradTTS"],
+                "algorithm": "Espeak"
             }
         },
         "managers": {

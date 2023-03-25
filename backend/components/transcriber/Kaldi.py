@@ -10,7 +10,7 @@ from backend.utils.audio import create_wave, load_wave
 
 SetLogLevel(0)
 
-class Vosk:
+class Kaldi:
     def __init__(self, model_folder: str):
         self.vosk_model = Model(model_folder)
 
@@ -59,7 +59,7 @@ def build_engine():
             zip_ref.extractall(model_path)
         os.remove('vosk-model-en-us-0.22.zip')
             
-    return Vosk(model_path)
+    return Kaldi(model_path)
 
 def default_config():
     return {
