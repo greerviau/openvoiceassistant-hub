@@ -103,25 +103,27 @@ class Weather:
     def weather(self, context: Dict):
         command = context['command']
 
-        response = "Not implemented"
+        sky = self.sky(context)
+        humid = self.air(context)
+        temp = self.temperature(context)
+
+        response = '. '.join([sky, humid, temp])
 
         return response
 
     def sky(self, context: Dict):
         SKY_MAPPING = {
-            "clouds": ["Overcast", "Cloudy"],
-            "rain": ["Raining", "Rainy"],
-            "snow": ["Snowing", "Snowy"],
-            "clear": ["Clear", "Sunny"]
+            "clouds": ["cvercast", "cloudy"],
+            "rain": ["raining", "rainy"],
+            "snow": ["snowing"],
+            "clear": ["clear", "sunny"]
         }
 
         RESPONSE_TEMPLATES = [
             "It looks like its %s outside",
+            "Today will be %s"
             "It is %s outside",
-            "It is %s outside right now",
-            "It is %s right now"
             "Its currently %s right now"
-            "Its currently %s outside right now"
         ]
 
         command = context['command']
@@ -135,16 +137,56 @@ class Weather:
         return response
 
     def air(self, context: Dict):
+        RESPONSE_TEMPLATES = [
+            "Today will be %s"
+            "It is %s outside",
+            "Its currently %s right now"
+        ]
+
         command = context['command']
 
-        response = "Not implemented"
+        humidity = int(self.weather_data["humidity"])
+
+        feeling = "dry"
+
+        if humidity > 20:
+            feeling = "comfortable"
+            if humidity > 60:
+                feeling = "muggy"
+
+        template = random.choice(RESPONSE_TEMPLATES)
+
+        if random.choice([0,1]):
+            response = template % feeling
+        else:
+            response = template % f"{humidity} percent humidity"
 
         return response
 
     def temperature(self, context: Dict):
+        RESPONSE_TEMPLATES = [
+            "Today will be %s"
+            "It is %s outside",
+            "Its currently %s right now"
+        ]
+
         command = context['command']
 
-        response = "Not implemented"
+        temp = int(self.weather_data["temp"])
+
+        feeling = "cold"
+
+        if temp > 55:
+            feeling = "comfortable"
+            if temp > 80:
+                feeling = "hot"
+
+        template = random.choice(RESPONSE_TEMPLATES)
+
+        if random.choice([0,1]):
+            response = template % feeling
+        else:
+            response = template % f"{temp} degrees"
 
         return response
 

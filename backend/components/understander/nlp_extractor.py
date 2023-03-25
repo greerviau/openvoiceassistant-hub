@@ -234,3 +234,7 @@ class NLPExtractor:
                 obj_desc_tokens.extend(self.generate_left_right_adjectives(tok))
 
         return obj_desc_tokens
+    
+if __name__ == "__main__":
+    nlp_ext = NLPExtractor()
+    nlp_ext.extract_from_command("Play me some led zeppelin")
