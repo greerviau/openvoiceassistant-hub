@@ -76,7 +76,7 @@ class Skillset:
             module = importlib.import_module(f'backend.skills.{skill}')
             if skill_config is None:
                 skill_config = module.default_config()
-                config.set('components', 'skillset', 'imported_skills', skill, value=skill_config)
+            config.set('components', 'skillset', 'imported_skills', skill, value=skill_config)
             self.imported_skills[skill] = module.build_skill(skill_config)
         else:
             raise RuntimeError('Skill does not exist')
