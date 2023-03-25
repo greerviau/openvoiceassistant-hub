@@ -12,7 +12,7 @@ class Weather:
         self.owm_api_key = config["owm_api_key"]
         lat = config["latitude"]
         lon = config["longitude"]
-        query = f"onecall?lat={lat}&lon={lon}&appid={self.owm_api_key}&units=metric"
+        query = f"weather?lat={lat}&lon={lon}&appid={self.owm_api_key}&units=imperial"
         self.owm_query_url = urllib.parse.urljoin(self.owm_base_url, query)
         self.update_delay_seconds = config["update_delay_seconds"]
 
