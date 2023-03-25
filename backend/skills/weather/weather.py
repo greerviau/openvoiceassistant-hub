@@ -1,5 +1,5 @@
 from typing import Dict
-import urlparse
+from urllib.parse import urlparse
 import requests
 import time
 import threading
