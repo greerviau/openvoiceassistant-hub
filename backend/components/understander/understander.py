@@ -25,12 +25,12 @@ class Understander:
         intent_model = config.get('components', 'understander', 'model_file')
         if not intent_model:
             intent_model = os.path.join(model_dump, 'intent_model.h5')
-            config.set('components', 'understander', 'model_file', value=intent_model)
+            config.set('components', 'understander', 'model_file', intent_model)
 
         vocab_file = config.get('components', 'understander', 'vocab_file')
         if not vocab_file:
             vocab_file = os.path.join(model_dump, 'intent_vocab.p')
-            config.set('components', 'understander', 'vocab_file', value=vocab_file)
+            config.set('components', 'understander', 'vocab_file', vocab_file)
 
         imported_skills = config.get('components', 'skillset', 'imported_skills')
         skills_dir = os.path.join(config.get('base_dir'), 'skills')

@@ -11,15 +11,17 @@ from backend.schemas import Context
 class Skillset:
     def __init__(self):
         self.available_skills = [submodule.name for submodule in iter_modules(skills.__path__)]
-        imported_skills = config.get('components', 'skillset', 'imported_skills')
+        self.imported_skills = config.get('components', 'skillset', 'imported_skills')
         self.skill_configs = config.get('components', 'skillset', 'skill_configs')
-        self.not_imported = list(set(self.available_skills + imported_skills))
+        self.not_imported = list(set(self.available_skills + self.imported_skills))
 
         print('Imported Skills')
-        for skill_id in imported_skills:
+        for skill_id in self.imported_skills:
             print(skill_id)
             if skill_id not in self.skill_configs:
-                self.skill_configs[skill_id] = self.get_default_skill_config(skill_id)
+                skill_config = self.get_default_skill_config(skill_id)
+                self.skill_configs[skill_id] = skill_config
+                config.set('components', 'skillset', 'skill_configs', skill_id, skill_config)
 
         self.imported_skill_modules = {}
         for skill_id, skill_config in self.skill_configs.items():
@@ -77,11 +79,13 @@ class Skillset:
 
     def __import_skill(self, skill_id: str, skill_config: typing.Dict):
         if self.skill_exists(skill_id):
+            if skill_id not in self.imported_skills:
+                self.imported_skills.append(skill_id)
+                config.set('components', 'skillset', 'imported_skills', self.imported_skills)
+
             module = importlib.import_module(f'backend.skills.{skill_id}')
             if skill_config is None:
                 skill_config = module.default_config()
             self.imported_skill_modules[skill_id] = module.build_skill(skill_config)
-            config.set('components', 'skillset', 'skill_configs', skill_id, value=skill_config)
-            config.set('components', 'skillset', 'imported_skills', value=list(self.imported_skill_modules.keys()))
         else:
             raise RuntimeError('Skill does not exist')

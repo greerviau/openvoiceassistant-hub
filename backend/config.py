@@ -54,10 +54,10 @@ def get(*keys: typing.List[str]):
             return None
     return dic
 
-def set(*keys: typing.List[str], value=None):
+def set(*keys: typing.List[str]):
     global config
-    if value is None:
-        raise RuntimeError
+    keys = list(keys)
+    value = keys.pop(-1)
     d = config
     for key in keys[:-1]:
         d = d.setdefault(key, {})
