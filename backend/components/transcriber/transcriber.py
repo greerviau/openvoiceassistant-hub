@@ -60,7 +60,9 @@ class Transcriber:
         context['cleaned_command'] = cleaned_command
         print(f'Cleaned Command: {cleaned_command}')
 
-        if 'engage' in context:
+        engaged = False
+
+        if 'engaged' in context:
             engaged = context['engaged']
             
         context['engaged'] = engaged or self.wake_word in cleaned_command
