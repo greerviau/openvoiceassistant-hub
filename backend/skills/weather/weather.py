@@ -121,7 +121,7 @@ class Weather:
 
         RESPONSE_TEMPLATES = [
             "It looks like its %s outside",
-            "Today will be %s"
+            "Today will be %s",
             "It is %s outside",
             "Its currently %s right now"
         ]
@@ -138,7 +138,7 @@ class Weather:
 
     def air(self, context: Dict):
         RESPONSE_TEMPLATES = [
-            "Today will be %s"
+            "Today will be %s",
             "It is %s outside",
             "Its currently %s right now"
         ]
@@ -165,7 +165,7 @@ class Weather:
 
     def temperature(self, context: Dict):
         RESPONSE_TEMPLATES = [
-            "Today will be %s"
+            "Today will be %s",
             "It is %s outside",
             "Its currently %s right now"
         ]
