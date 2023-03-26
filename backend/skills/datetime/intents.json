@@ -1,0 +1,53 @@
+{
+    "intentions": [
+        {
+            "action":"time",
+            "patterns":[
+                "what time is it",
+                "whats the time",
+                "what is the time",
+                "can i get the time",
+                "can you give me the time",
+                "can i have the time",
+                "i need the time",
+                "i need to know what time it is",
+                "tell me what time it is",
+                "tell me what the time is",
+                "tell me the time"
+            ]
+        },
+        {
+            "action":"date",
+            "patterns":[
+                "whats the date",
+                "whats todays date",
+                "what is the date",
+                "what is todays date",
+                "can i get the date",
+                "can you give me the date",
+                "can you give me todays date",
+                "can i have the date",
+                "i need the date",
+                "tell me what date it is",
+                "tell me what the date is",
+                "tell me the date"
+            ]
+        },
+        {
+            "action":"day_of_week",
+            "patterns":[
+                "what day is it today",
+                "what day is it",
+                "what is the day",
+                "what is today",
+                "can i get the day",
+                "can you give me the day",
+                "can i have the day",
+                "i need the day",
+                "tell me what day it is",
+                "tell me what the day is",
+                "tell me the day"
+            ]
+        }
+    ]
+}
