@@ -70,7 +70,7 @@ class Understander:
             context['cleaned_command'] = cleaned_command
             print(f'Cleaned Command: {cleaned_command}')
 
-        engage = context['engage']
+        engaged = context['engaged']
 
         time_sent = context['time_sent']
         last_time_engaged = context['last_time_engaged']
@@ -79,7 +79,7 @@ class Understander:
 
         start = time.time()
 
-        if engage or delta_time < self.engage_delay:
+        if engaged or delta_time < self.engage_delay:
             skill, action, conf = self.understand(cleaned_command)
             context['time_to_understand'] = time.time() - start
             context['skill'] = skill
