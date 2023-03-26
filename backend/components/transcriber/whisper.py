@@ -4,6 +4,7 @@ import typing
 import wave
 import os
 
+from backend.schemas import Context
 from backend import config
 from backend.utils.audio import create_numpy_waveform, resample_waveform
 
@@ -11,12 +12,15 @@ class Whisper:
     def __init__(self, model_size: str):
         self.model = whisper.load_model(model_size)
 
-    def transcribe(self, audio_data: bytes, samplerate: int, samplewidth: int, channels: int, file_path: str):
+    def transcribe(self, context: Context):
+
+        audio_data = context['command_audio_data_bytes']
+        sample_rate = context['command_audio_sample_rate']
 
         waveform = create_numpy_waveform(audio_data)
 
-        if samplerate != 16000:
-            waveform = resample_waveform(waveform, samplerate, 16000)
+        if sample_rate != 16000:
+            waveform = resample_waveform(waveform, sample_rate, 16000)
 
         result = self.model.transcribe(waveform)
 

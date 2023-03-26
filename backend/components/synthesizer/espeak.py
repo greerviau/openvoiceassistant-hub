@@ -4,13 +4,17 @@ import os
 import time
 import typing
 
+from backend.schemas import Context
 from backend import config
 
 class Espeak:
     def __init__(self):
         self.tts_engine = pyttsx3.init()
 
-    def synthesize(self, text: str, file_path: str):
+    def synthesize(self, context: Context):
+        text = context['response']
+        file_path = context['response_audio_file_path']
+
         self.tts_engine.save_to_file(text, file_path)
         self.tts_engine.runAndWait()
         self.tts_engine.stop()

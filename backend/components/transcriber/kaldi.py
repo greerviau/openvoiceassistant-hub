@@ -5,6 +5,7 @@ import wget
 import zipfile
 import wave
 
+from backend.schemas import Context
 from backend import config
 from backend.utils.audio import create_wave, load_wave
 
@@ -14,16 +15,19 @@ class Kaldi:
     def __init__(self, model_folder: str):
         self.vosk_model = Model(model_folder)
 
-    def transcribe(self, audio_data: bytes, samplerate: int, samplewidth: int, channels: int, file_path: str):
-        '''
+    def transcribe(self, context: Context):
+
+        audio_data = context['command_audio_data_bytes']
+        sample_rate = context['command_audio_sample_rate']
+        sample_width = context['command_audio_sample_rate']
+        channels = context['command_audio_channels']
+        
         wave_file = create_wave(
             audio_data=audio_data, 
-            sample_rate=samplerate, 
-            sample_width=samplewidth, 
+            sample_rate=sample_rate, 
+            sample_width=sample_width, 
             channels=channels
         )
-        '''
-        wave_file = load_wave(file_path)
 
         rec = KaldiRecognizer(self.vosk_model, samplerate)
         res = None

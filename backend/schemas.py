@@ -2,14 +2,16 @@ import typing
 
 class Context(typing.TypedDict):
     command_audio_data_str: str
+    command_audio_data_bytes: bytes
     command_audio_sample_rate: int
     command_audio_sample_width: int
     command_audio_channels: int
+    command_audio_file_path: str
     command: str
     cleaned_command: str
     node_callback: str
     node_id: str
-    engage: bool
+    engaged: bool
     time_sent: float
     last_time_engaged: float
     time_to_run_pipeline: float
@@ -18,9 +20,10 @@ class Context(typing.TypedDict):
     time_to_understand: float
     response: str
     response_audio_data_str: str
+    response_audio_data_bytes: bytes
     response_audio_sample_rate: str
     response_audio_sample_width: str
-    response_file_path: str
+    response_audio_file_path: str
     skill: str
     action: str
     conf: float

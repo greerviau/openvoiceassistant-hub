@@ -11,38 +11,42 @@ from backend.schemas import Context
 class Skillset:
     def __init__(self):
         self.available_skills = [submodule.name for submodule in iter_modules(skills.__path__)]
-        imported_skill_configs = config.get('components', 'skillset', 'imported_skills')
-        print('Imported Skills')
-        for skill in imported_skill_configs:
-            print(skill)
-        self.not_imported = list(set(self.available_skills + list(imported_skill_configs.keys())))
+        imported_skills = config.get('components', 'skillset', 'imported_skills')
+        self.skill_configs = config.get('components', 'skillset', 'skill_configs')
+        self.not_imported = list(set(self.available_skills + imported_skills))
 
-        self.imported_skills = {}
-        for skill_id, skill_config in imported_skill_configs.items():
+        print('Imported Skills')
+        for skill_id in imported_skills:
+            print(skill_id)
+            if skill_id not in self.skill_configs:
+                self.skill_configs[skill_id] = self.get_default_skill_config(skill_id)
+
+        self.imported_skill_modules = {}
+        for skill_id, skill_config in self.skill_configs.items():
             print('Importing ', skill_id)
             self.__import_skill(skill_id, skill_config)
 
-    def add_skill(self, skill: str):
-        if not self.skill_imported(skill):
-            self.__import_skill(skill, None)
+    def add_skill(self, skill_id: str):
+        if not self.skill_imported(skill_id):
+            self.__import_skill(skill_id, None)
         else:
             raise RuntimeError('Skill is already imported')
 
-    def add_skill_config(self, skill: str, skill_config: typing.Dict):
-        if not self.skill_imported(skill):
-            self.__import_skill(skill, skill_config)
+    def add_skill_config(self, skill_id: str, skill_config: typing.Dict):
+        if not self.skill_imported(skill_id):
+            self.__import_skill(skill_id, skill_config)
         else:
             raise RuntimeError('Skill is already imported')
 
-    def update_skill_config(self, skill: str, skill_config: typing.Dict):
-        if self.skill_imported(skill):
-            self.__import_skill(skill, skill_config)
+    def update_skill_config(self, skill_id: str, skill_config: typing.Dict):
+        if self.skill_imported(skill_id):
+            self.__import_skill(skill_id, skill_config)
         else:
             raise RuntimeError('Skill is not imported')
 
     def get_skill_config(self, skill_id: str) -> typing.Dict:
         if self.skill_imported(skill_id):
-            return self.imported_skills[skill_id].config
+            return self.skill_configs[skill_id]
         else:
             return self.get_default_skill_config(skill_id)
 
@@ -53,11 +57,11 @@ class Skillset:
         else:
             raise RuntimeError('Skill does not exist')
 
-    def skill_imported(self, skill: str):
-        return skill in self.imported_skills
+    def skill_imported(self, skill_id: str):
+        return skill_id in self.imported_skill_modules
 
-    def skill_exists(self, skill: str):
-        return skill in self.available_skills
+    def skill_exists(self, skill_id: str):
+        return skill_id in self.available_skills
 
     def run_stage(self, context: Context):
         print('Skill Stage')
@@ -67,16 +71,17 @@ class Skillset:
         start = time.time()
 
         if self.skill_imported(skill):
-            method = getattr(self.imported_skills[skill], action)
+            method = getattr(self.imported_skill_modules[skill], action)
             context['response'] = method(context)
             context['time_to_action'] = time.time() - start
 
-    def __import_skill(self, skill: str, skill_config: typing.Dict):
-        if self.skill_exists(skill):
-            module = importlib.import_module(f'backend.skills.{skill}')
+    def __import_skill(self, skill_id: str, skill_config: typing.Dict):
+        if self.skill_exists(skill_id):
+            module = importlib.import_module(f'backend.skills.{skill_id}')
             if skill_config is None:
                 skill_config = module.default_config()
-            config.set('components', 'skillset', 'imported_skills', skill, value=skill_config)
-            self.imported_skills[skill] = module.build_skill(skill_config)
+            self.imported_skill_modules[skill_id] = module.build_skill(skill_config)
+            config.set('components', 'skillset', 'skill_configs', skill_id, value=skill_config)
+            config.set('components', 'skillset', 'imported_skills', value=list(self.imported_skill_modules.keys()))
         else:
             raise RuntimeError('Skill does not exist')

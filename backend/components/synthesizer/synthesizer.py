@@ -11,7 +11,7 @@ from backend.schemas import Context
 class Synthesizer:
     def __init__(self):
 
-        self.algo = config.get('components', 'synthesizer', 'algorithm').lower()
+        self.algo = config.get('components', 'synthesizer', 'algorithm').lower().replace(' ', '_')
         self.module = importlib.import_module(f'backend.components.synthesizer.{self.algo}')
         
         self.file_dump = config.get('file_dump')
@@ -39,11 +39,11 @@ class Synthesizer:
         if not response:
             raise RuntimeError('No response to synthesize')
 
-        file_path = os.path.join(self.file_dump, 'response.wav')
+        context['response_audio_file_path'] = os.path.join(self.file_dump, 'response.wav')
 
         start = time.time()
             
-        audio_data, sample_rate, sample_width = self.engine.synthesize(response, file_path)
+        audio_data, sample_rate, sample_width = self.engine.synthesize(context)
 
         #save_wave(file_path, audio_data=audio_data, sample_rate=sample_rate, sample_width=sample_width, channels=1)
        
@@ -53,4 +53,3 @@ class Synthesizer:
         context['response_audio_data_str'] = audio_str
         context['response_audio_sample_rate'] = sample_rate
         context['response_audio_sample_width'] = sample_width
-        context['response_file_path'] = file_path

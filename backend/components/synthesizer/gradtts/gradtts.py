@@ -5,6 +5,7 @@ import numpy as np
 import torch
 import typing
 
+from backend.schemas import Context
 from backend import config
 
 from .grad_tts import params as params
@@ -56,8 +57,10 @@ class Gradtts:
 
         self.cmu = cmudict.CMUDict(CMU_DICT)
 
-    def synthesize(self, text: str, file_path: str):
-         with torch.no_grad():
+    def synthesize(self, context: Context):
+        text = context['response']
+
+        with torch.no_grad():
             seq = text_to_sequence(text, dictionary=self.cmu)
             x = torch.LongTensor(intersperse(seq, len(symbols)))
             if self.CUDA:

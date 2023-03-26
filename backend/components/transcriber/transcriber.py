@@ -12,7 +12,7 @@ from backend.utils.nlp import clean_text
 
 class Transcriber:
     def __init__(self):
-        self.algo = config.get('components', 'transcriber', 'algorithm').lower()
+        self.algo = config.get('components', 'transcriber', 'algorithm').lower().replace(' ', '_')
         self.module = importlib.import_module(f'backend.components.transcriber.{self.algo}')
 
         self.file_dump = config.get('file_dump')
@@ -39,17 +39,14 @@ class Transcriber:
         start = time.time()
 
         audio_data_str = context['command_audio_data_str']
-        sample_rate = context['command_audio_sample_rate']
-        sample_width = context['command_audio_sample_width']
-        channels = context['command_audio_channels']
 
-        audio_data = bytes.fromhex(audio_data_str)
+        context['command_audio_data_bytes'] = bytes.fromhex(audio_data_str)
 
-        wave_file_path = os.path.join(self.file_dump, 'command.wav')
+        context['command_audio_file_path'] = os.path.join(self.file_dump, 'command.wav')
 
         #save_wave(wave_file_path, audio_data, sample_rate, sample_width, channels)
 
-        command = self.engine.transcribe(audio_data, sample_rate, sample_width, channels, wave_file_path)
+        command = self.engine.transcribe(context)
         
         context['time_to_transcribe'] = time.time() - start
 
@@ -64,7 +61,7 @@ class Transcriber:
         print(f'Cleaned Command: {cleaned_command}')
 
         if 'engage' in context:
-            engage = context['engage']
+            engaged = context['engaged']
             
-        context['engage'] = engage or self.wake_word in cleaned_command
+        context['engaged'] = engaged or self.wake_word in cleaned_command
         

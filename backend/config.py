@@ -13,7 +13,7 @@ DEFAULT_CONFIG = {
         "file_dump": f"{os.path.realpath(os.path.dirname(__file__))}/file_dump",
         "components": {
             Components.Transcriber.value: {
-                "algorithms": ["Kaldi", "Whisper"],
+                "algorithm_choices": ["Kaldi", "Whisper", "On Device"],
                 "algorithm": "Kaldi"
             },
             Components.Understander.value: {
@@ -22,12 +22,14 @@ DEFAULT_CONFIG = {
                 "conf_thresh": 85
             },
             Components.Skillset.value: {
-                "imported_skills": {
-                    "greetings": {}
-                }
+                "imported_skills": [
+                    "greetings",
+                    "datetime"
+                ],
+                "skill_configs": {}
             },
             Components.Synthesizer.value: {
-                "algorithms": ["Espeak", "GradTTS"],
+                "algorithm_choices": ["Espeak", "GradTTS"],
                 "algorithm": "Espeak"
             }
         },

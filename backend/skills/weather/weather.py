@@ -5,6 +5,9 @@ import time
 import threading
 from datetime import datetime
 import random
+from pyowm import OWM
+from pyowm.utils import config
+from pyowm.utils import timestamps
 from typing import Dict
 
 class Weather:
@@ -12,87 +15,19 @@ class Weather:
     def __init__(self, config: Dict):
         self.config = config
 
-        self.owm_base_url = "http://api.openweathermap.org/data/2.5/"
-        self.owm_api_key = config["owm_api_key"]
+        owm_api_key = config["owm_api_key"]
+        self.lat = config["latitude"]
+        self.lon = config["longitude"]
+        self.unit = config["unit"]
 
-        lat = config["latitude"]
-        lon = config["longitude"]
-        unit = config["unit"]
+        owm = OWM(owm_api_key)
+        self.mgr = owm.weather_manager()
 
-        query_params = f"lat={lat}&lon={lon}&appid={self.owm_api_key}&units={unit}"
-
-        weather_query = f"weather?{query_params}"
-        forecast_query = f"forecast?{query_params}"
-
-        self.owm_weather_query_url = urllib.parse.urljoin(self.owm_base_url, weather_query)
-        self.owm_forecast_query_url = urllib.parse.urljoin(self.owm_base_url, forecast_query)
-
-        self.update_delay_seconds = config["update_delay_seconds"]
-
-        self.weather_data = None
-        self.forecast_data = None
-
-        self.event = threading.Event()
-
-        weather_thread = threading.Thread(target=self._weather_thread)
-        weather_thread.start()
-
-    def _parse_weather_data(self, data: Dict):
-        parsed = {}
-
-        parsed["weather"] = data["weather"]
-        parsed["temp"] = data["main"]["temp"]
-        parsed["feels_like"] = data["main"]["feels_like"]
-        parsed["temp_min"] = data["main"]["temp_min"]
-        parsed["temp_max"] = data["main"]["temp_max"]
-        parsed["pressure"] = data["main"]["pressure"]
-        parsed["humidity"] = data["main"]["humidity"]
-        parsed["wind_speed"] = data["wind"]["speed"]
-        parsed["country"] = data["sys"]["country"]
-        parsed["city"] = data["name"]
-
-        return parsed
-
-    def _parse_forecast_data(self, data: Dict):
-        parsed = {}
-        parsed["forecast"] = []
-
-        for chunk in data["list"]:
-            parsed_chunk = {}
-
-            dt = datetime.strptime(chunk["dt_txt"], "%Y-%m-%d %H:%M:%S")
-
-            parsed_chunk["datetime"] = dt
-
-            parsed_chunk["weather"] = chunk["weather"]
-            parsed_chunk["temp"] = chunk["main"]["temp"]
-            parsed_chunk["feels_like"] = chunk["main"]["feels_like"]
-            parsed_chunk["temp_min"] = chunk["main"]["temp_min"]
-            parsed_chunk["temp_max"] = chunk["main"]["temp_max"]
-            parsed_chunk["pressure"] = chunk["main"]["pressure"]
-            parsed_chunk["humidity"] = chunk["main"]["humidity"]
-            parsed_chunk["wind_speed"] = chunk["wind"]["speed"]
-
-            parsed["forecast"].append(parsed_chunk)
-
-        parsed["city"] = data["city"]["name"]
-        parsed["country"] = data["city"]["country"]
-
-        return parsed
+        self.w = None
 
     def _weather_thread(self):
         while not self.event.is_set():
-            print('Querying OWM for current weather')
-            response = requests.get(self.owm_weather_query_url)
-            #print('Weather data')
-            #print(response.json())
-            self.weather_data = self._parse_weather_data(response.json())
-
-            print('Querying OWM for todays forecast')
-            response = requests.get(self.owm_forecast_query_url)
-            #print('Forecast data')
-            #print(response.json())
-            self.forecast_data = self._parse_forecast_data(response.json())
+            self.w = self.mgr.weather_at_coords(lat=self.lat, lon=self.lon).weather
 
             print('Waiting...')
             time.sleep(self.update_delay_seconds)
@@ -104,8 +39,8 @@ class Weather:
         command = context['command']
 
         sky = self.sky(context)
-        temp = int(self.weather_data["temp"])
-        humidity = int(self.weather_data["humidity"])
+        temp = int(self.w.tempurature(self.unit)["temp"])
+        humidity = int(self.w.humidity)
 
         response = f"{sky}. The tempurature is {temp} degrees. The humidity is {humidity} percent."
 
@@ -114,6 +49,7 @@ class Weather:
     def sky(self, context: Dict):
         SKY_MAPPING = {
             "clouds": ["overcast", "cloudy"],
+            "few clouds": ["mostly clear", "scattered clouds"],
             "rain": ["raining", "rainy"],
             "snow": ["snowing"],
             "clear": ["clear", "sunny"]
@@ -128,9 +64,9 @@ class Weather:
 
         command = context['command']
 
-        s = self.weather_data["weather"][0]["main"].lower()
+        status = self.w.detailed_status
 
-        condition = random.choice(SKY_MAPPING[s])
+        condition = random.choice(SKY_MAPPING[status])
 
         response = random.choice(RESPONSE_TEMPLATES) % (condition)
 
@@ -145,7 +81,7 @@ class Weather:
 
         command = context['command']
 
-        humidity = int(self.weather_data["humidity"])
+        humidity = int(self.w.humidity)
 
         feeling = "dry"
 
@@ -172,7 +108,7 @@ class Weather:
 
         command = context['command']
 
-        temp = int(self.weather_data["temp"])
+        temp = int(self.w.tempurature(self.unit)["temp"])
 
         feeling = "cold"
 
@@ -207,5 +143,5 @@ def default_config():
         "longitude": "",
         "update_delay_seconds": 3600,
         "unit": "imperial",
-        "units": ["imperial", "metric"]
+        "unit_choices": ["fahrenheit ", "celsius"]
     }
