@@ -25,6 +25,11 @@ class Weather:
 
         self.w = None
 
+        self.event = threading.Event()
+
+        weather_thread = threading.Thread(target=self._weather_thread)
+        weather_thread.start()
+
     def _weather_thread(self):
         while not self.event.is_set():
             self.w = self.mgr.weather_at_coords(lat=self.lat, lon=self.lon).weather
@@ -139,9 +144,9 @@ def build_skill(config: Dict):
 def default_config():
     return {
         "owm_api_key": "",
-        "latitude": "",
-        "longitude": "",
+        "latitude": 0,
+        "longitude": 0,
         "update_delay_seconds": 3600,
-        "unit": "imperial",
+        "unit": "fahrenheit",
         "unit_choices": ["fahrenheit ", "celsius"]
     }
