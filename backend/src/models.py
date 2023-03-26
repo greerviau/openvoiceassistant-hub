@@ -21,7 +21,7 @@ class RespondText(BaseModel):
     command_text: str = ''
     node_callback: str
     node_id: str
-    engage: bool = False
+    engaged: bool = False
     last_time_engaged: float
     time_sent: float
 

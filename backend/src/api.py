@@ -203,7 +203,7 @@ def create_app(ova: OpenVoiceAssistant):
     async def understand_text(text: str):
         context = {}
         context['command'] = text
-        context['engage'] = True
+        context['engaged'] = True
         context['time_sent'] = 0.0
         context['last_time_engaged'] = 0.0
 
@@ -252,7 +252,7 @@ def create_app(ova: OpenVoiceAssistant):
         context['command_audio_channels'] = data.command_audio_channels
         context['node_callback'] = data.node_callback
         context['node_id'] = data.node_id
-        context['engage'] = data.engage
+        context['engaged'] = data.engaged
         context['time_sent'] = data.time_sent
         context['last_time_engaged'] = data.last_time_engaged
 
@@ -274,7 +274,7 @@ def create_app(ova: OpenVoiceAssistant):
         context['command'] = data.command_text
         context['node_callback'] = data.node_callback
         context['node_id'] = data.node_id
-        context['engage'] = data.engage
+        context['engaged'] = data.engaged
         context['time_sent'] = data.time_sent
         context['last_time_engaged'] = data.last_time_engaged
 
