@@ -19,6 +19,7 @@ class Weather:
         self.lat = config["latitude"]
         self.lon = config["longitude"]
         self.unit = config["unit"]
+        self.update_delay_seconds = config["update_delay_seconds"]
 
         owm = OWM(owm_api_key)
         self.mgr = owm.weather_manager()
