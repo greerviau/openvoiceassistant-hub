@@ -45,10 +45,10 @@ class Weather:
         command = context['command']
 
         sky = self.sky(context)
-        temp = int(self.w.tempurature(self.unit)["temp"])
+        temp = int(self.w.temperature(self.unit)["temp"])
         humidity = int(self.w.humidity)
 
-        response = f"{sky}. The tempurature is {temp} degrees. The humidity is {humidity} percent."
+        response = f"{sky}. The temperature is {temp} degrees. The humidity is {humidity} percent."
 
         return response
 
@@ -114,7 +114,7 @@ class Weather:
 
         command = context['command']
 
-        temp = int(self.w.tempurature(self.unit)["temp"])
+        temp = int(self.w.temperature(self.unit)["temp"])
 
         feeling = "cold"
 
