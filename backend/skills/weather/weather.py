@@ -121,7 +121,7 @@ class Weather:
 
         RESPONSE_TEMPLATES = [
             "It looks like its %s outside",
-            "Today will be %s",
+            "Today it will be %s",
             "It is %s outside",
             "Its currently %s right now"
         ]
