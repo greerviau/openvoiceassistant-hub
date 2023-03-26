@@ -6,21 +6,21 @@ class Datetime:
         self.config = config
 
     def date(self, context: Dict):
-        date = datetime.now.strftime("%B %d, %Y")
+        date = datetime.now().strftime("%B %d, %Y")
 
         response = f"Today is {date}"
 
         return response
 
     def time(self, context: Dict):
-        time = datetime.now.strftime("%H:%M")
+        time = datetime.now().strftime("%H:%M")
 
         response = f"It is {time}"
 
         return response
 
     def day_of_week(self, context: Dict):
-        dow = datetime.now.strftime('%A')
+        dow = datetime.now().strftime('%A')
 
         response = f"It is {dow}"
 
