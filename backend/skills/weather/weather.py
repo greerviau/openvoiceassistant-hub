@@ -55,7 +55,8 @@ class Weather:
     def sky(self, context: Dict):
         SKY_MAPPING = {
             "clouds": ["overcast", "cloudy"],
-            "few clouds": ["mostly clear", "scattered clouds"],
+            "few clouds": ["mostly clear"],
+            "scattered clouds": ["scattered clouds"],
             "rain": ["raining", "rainy"],
             "snow": ["snowing"],
             "clear": ["clear", "sunny"]
