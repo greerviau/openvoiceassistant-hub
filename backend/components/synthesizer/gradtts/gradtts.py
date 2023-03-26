@@ -74,12 +74,14 @@ class Gradtts:
             y_enc, y_dec, attn = self.generator.forward(x, x_lengths, n_timesteps=self.timesteps, temperature=1.5,
                                                     stoc=False, spk=None, length_scale=0.91)
             t = (dt.datetime.now() - t).total_seconds()
-            #print(f'Grad-TTS RTF: {t * 22050 / (y_dec.shape[-1] * 256)}')
 
             audio = (self.vocoder.forward(y_dec).cpu().squeeze().clamp(-1, 1).numpy() * 32768).astype(np.int16)
 
-            #write(f'./output.wav', 22050, audio)
-            return audio.tobytes(), 22050, audio.dtype.itemsize
+            audio_data = audio.tobytes()
+
+            context['response_audio_data_str'] = audio_data.hex()
+            context['response_audio_sample_rate'] = 22050
+            context['response_audio_sample_width'] = audio.dtype.itemsize
 
 def build_engine() -> Gradtts:
     model_file = config.get('components', 'synthesizer', 'config', 'model_file')

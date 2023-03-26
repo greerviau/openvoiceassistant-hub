@@ -19,9 +19,14 @@ class Espeak:
         self.tts_engine.runAndWait()
         self.tts_engine.stop()
         time.sleep(0.2)
-        audio_seg = pydub.AudioSegment.from_file(file_path)
         
-        return audio_seg.raw_data, audio_seg.frame_rate, audio_seg.sample_width
+        audio_seg = pydub.AudioSegment.from_file(file_path)
+
+        audio_data = audio_seg.raw_data
+
+        context['response_audio_data_str'] = audio_data.hex()
+        context['response_audio_sample_rate'] = audio_seg.frame_rate
+        context['response_audio_sample_width'] = audio_seg.sample_width
 
 def build_engine() -> Espeak:
     return Espeak()

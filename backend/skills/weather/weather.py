@@ -48,7 +48,7 @@ class Weather:
         temp = int(self.w.temperature(self.unit)["temp"])
         humidity = int(self.w.humidity)
 
-        response = f"{sky}. The temperature is {temp} degrees. The humidity is {humidity} percent."
+        response = f"{sky}. The temperature is {temp} degrees with a humidity of {humidity} percent."
 
         return response
 
@@ -150,5 +150,5 @@ def default_config():
         "longitude": 0,
         "update_delay_seconds": 3600,
         "unit": "fahrenheit",
-        "unit_choices": ["fahrenheit ", "celsius"]
+        "unit_choices": ["fahrenheit", "celsius"]
     }
