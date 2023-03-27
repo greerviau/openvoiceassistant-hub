@@ -19,7 +19,7 @@ class Transcriber:
         self.file_dump = config.get('file_dump')
         
         try:
-            config.get('components', Components.Transcriber.value, 'config')
+            print(config.get('components', Components.Transcriber.value, 'config'))
         except:
             config.set('components', Components.Transcriber.value, 'config', self.module.default_config())
 
