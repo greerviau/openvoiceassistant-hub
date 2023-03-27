@@ -5,6 +5,7 @@ import typing
 import time
 import wave
 
+from backend.enums import Components
 from backend import config
 from backend.schemas import Context
 from backend.utils.audio import save_wave
@@ -12,17 +13,15 @@ from backend.utils.nlp import clean_text
 
 class Transcriber:
     def __init__(self):
-        self.algo = config.get('components', 'transcriber', 'algorithm').lower().replace(' ', '_')
+        self.algo = config.get('components', Components.Transcriber, 'algorithm').lower().replace(' ', '_')
         self.module = importlib.import_module(f'backend.components.transcriber.{self.algo}')
 
         self.file_dump = config.get('file_dump')
-
-        self.wake_word = config.get('wake_word')
         
         try:
-            config.get('components', 'transcriber', 'config')
+            config.get('components', Components.Transcriber, 'config')
         except:
-            config.set('components', 'transcriber', 'config', self.module.default_config())
+            config.set('components', Components.Transcriber, 'config', self.module.default_config())
 
         self.engine = self.module.build_engine()
 
@@ -59,11 +58,4 @@ class Transcriber:
         cleaned_command = clean_text(command)
         context['cleaned_command'] = cleaned_command
         print(f'Cleaned Command: {cleaned_command}')
-
-        engaged = False
-
-        if 'engaged' in context:
-            engaged = context['engaged']
-            
-        context['engaged'] = engaged or self.wake_word in cleaned_command
         

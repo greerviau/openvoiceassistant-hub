@@ -10,7 +10,7 @@ from tensorflow.keras.layers import Dense, LSTM, Dropout
 from tensorflow.keras.layers import Embedding
 from sklearn.preprocessing import OneHotEncoder
 
-def load_training_data(imported_skills: typing.Dict, skills_dir: str):
+def load_training_data(imported_skills: typing.List, skills_dir: str):
     compiled_data = []
     for skill in imported_skills:
         intents = json.load(open(os.path.join(skills_dir, skill, 'intents.json')))['intentions']

@@ -4,6 +4,7 @@ import os
 import typing
 import time
 
+from backend.enums import Components
 from backend import config
 from backend.utils.audio import save_wave
 from backend.schemas import Context
@@ -11,15 +12,15 @@ from backend.schemas import Context
 class Synthesizer:
     def __init__(self):
 
-        self.algo = config.get('components', 'synthesizer', 'algorithm').lower().replace(' ', '_')
+        self.algo = config.get('components', Components.Synthesizer, 'algorithm').lower().replace(' ', '_')
         self.module = importlib.import_module(f'backend.components.synthesizer.{self.algo}')
         
         self.file_dump = config.get('file_dump')
 
         try:
-            config.get('components', 'synthesizer', 'config')
+            config.get('components', Components.Synthesizer, 'config')
         except:
-            config.set('components', 'synthesizer', 'config', self.module.default_config())
+            config.set('components', Components.Synthesizer, 'config', self.module.default_config())
 
         self.engine = self.module.build_engine()
         os.makedirs(self.file_dump, exist_ok = True)

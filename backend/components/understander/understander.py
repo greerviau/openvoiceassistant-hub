@@ -3,6 +3,7 @@ import time
 import os
 import pickle
 
+from backend.enums import Components
 from backend import config
 from backend.components.understander.classifier import Classifier
 from backend.components.understander.train_intent_model import train_classifier, load_training_data
@@ -16,23 +17,23 @@ class Understander:
         self.wake_word = config.get('wake_word')
         self.engage_delay = config.get('engage_delay')
 
-        self.conf_thresh = config.get('components', 'understander', 'conf_thresh')
+        self.conf_thresh = config.get('components', Components.Understander, 'conf_thresh')
 
     def load_classifier(self):
         model_dump = config.get('model_dump')
 
         print('Loading classifier')
-        intent_model = config.get('components', 'understander', 'model_file')
+        intent_model = config.get('components', Components.Understander, 'model_file')
         if not intent_model:
             intent_model = os.path.join(model_dump, 'intent_model.h5')
-            config.set('components', 'understander', 'model_file', intent_model)
+            config.set('components', Components.Understander, 'model_file', intent_model)
 
-        vocab_file = config.get('components', 'understander', 'vocab_file')
+        vocab_file = config.get('components', Components.Understander, 'vocab_file')
         if not vocab_file:
             vocab_file = os.path.join(model_dump, 'intent_vocab.p')
-            config.set('components', 'understander', 'vocab_file', vocab_file)
+            config.set('components', Components.Understander, 'vocab_file', vocab_file)
 
-        imported_skills = config.get('components', 'skillset', 'imported_skills')
+        imported_skills = config.get('components', Components.Skillset, 'imported_skills')
         skills_dir = os.path.join(config.get('base_dir'), 'skills')
 
         if not os.path.exists(intent_model) or not os.path.exists(vocab_file):
