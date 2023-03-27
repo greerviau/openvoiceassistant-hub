@@ -16,8 +16,7 @@ DEFAULT_CONFIG = {
             "algorithm_choices": [
                 "sounddevice",
                 "pyaudio"
-            ],
-            "transcribe_on_device": True
+            ]
         },
         "playback": {
             "algorithm": "aplay",

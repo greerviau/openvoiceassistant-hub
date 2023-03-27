@@ -173,6 +173,7 @@ def create_app(ova: OpenVoiceAssistant):
             sync_node_config["wake_word"] = config.get('wake_word')
             sync_node_config["recording"] = config.get('recording')
             sync_node_config["playback"] = config.get('playback')
+            sync_node_config["transcribe_on_device"] = config.get('components', Components.Transcriber, 'algorithm') == 'On Device'
             return sync_node_config
         
         except Exception as err:
