@@ -4,6 +4,7 @@ import typing
 import time
 from pkgutil import iter_modules
 
+from backend.enums import Components
 from backend import config
 from backend import skills
 from backend.schemas import Context
@@ -11,8 +12,8 @@ from backend.schemas import Context
 class Skillset:
     def __init__(self):
         self.available_skills = [submodule.name for submodule in iter_modules(skills.__path__)]
-        self.imported_skills = config.get('components', 'skillset', 'imported_skills')
-        self.skill_configs = config.get('components', 'skillset', 'skill_configs')
+        self.imported_skills = config.get('components', Components.Skillset.value, 'imported_skills')
+        self.skill_configs = config.get('components', Components.Skillset.value, 'skill_configs')
         self.not_imported = list(set(self.available_skills + self.imported_skills))
 
         print('Imported Skills')
@@ -21,7 +22,7 @@ class Skillset:
             if skill_id not in self.skill_configs:
                 skill_config = self.get_default_skill_config(skill_id)
                 self.skill_configs[skill_id] = skill_config
-                config.set('components', 'skillset', 'skill_configs', skill_id, skill_config)
+                config.set('components', Components.Skillset.value, 'skill_configs', skill_id, skill_config)
 
         self.imported_skill_modules = {}
         for skill_id, skill_config in self.skill_configs.items():
@@ -81,7 +82,7 @@ class Skillset:
         if self.skill_exists(skill_id):
             if skill_id not in self.imported_skills:
                 self.imported_skills.append(skill_id)
-                config.set('components', 'skillset', 'imported_skills', self.imported_skills)
+                config.set('components', Components.Skillset.value, 'imported_skills', self.imported_skills)
 
             module = importlib.import_module(f'backend.skills.{skill_id}')
             if skill_config is None:

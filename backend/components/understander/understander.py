@@ -17,23 +17,23 @@ class Understander:
         self.wake_word = config.get('wake_word')
         self.engage_delay = config.get('engage_delay')
 
-        self.conf_thresh = config.get('components', Components.Understander, 'conf_thresh')
+        self.conf_thresh = config.get('components', Components.Understander.value, 'conf_thresh')
 
     def load_classifier(self):
         model_dump = config.get('model_dump')
 
         print('Loading classifier')
-        intent_model = config.get('components', Components.Understander, 'model_file')
+        intent_model = config.get('components', Components.Understander.value, 'model_file')
         if not intent_model:
             intent_model = os.path.join(model_dump, 'intent_model.h5')
-            config.set('components', Components.Understander, 'model_file', intent_model)
+            config.set('components', Components.Understander.value, 'model_file', intent_model)
 
-        vocab_file = config.get('components', Components.Understander, 'vocab_file')
+        vocab_file = config.get('components', Components.Understander.value, 'vocab_file')
         if not vocab_file:
             vocab_file = os.path.join(model_dump, 'intent_vocab.p')
-            config.set('components', Components.Understander, 'vocab_file', vocab_file)
+            config.set('components', Components.Understander.value, 'vocab_file', vocab_file)
 
-        imported_skills = config.get('components', Components.Skillset, 'imported_skills')
+        imported_skills = config.get('components', Components.Skillset.value, 'imported_skills')
         skills_dir = os.path.join(config.get('base_dir'), 'skills')
 
         if not os.path.exists(intent_model) or not os.path.exists(vocab_file):
