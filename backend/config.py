@@ -5,12 +5,18 @@ import typing
 from backend.enums import Components
 
 DEFAULT_CONFIG = {
-        "wake_word": "computer",
-        "title": "",
         "engage_delay": 30,
         "base_dir": os.path.realpath(os.path.dirname(__file__)),
         "model_dump": f"{os.path.realpath(os.path.dirname(__file__))}/model_dump",
         "file_dump": f"{os.path.realpath(os.path.dirname(__file__))}/file_dump",
+        "wakeup": {
+            "wake_word": "computer",
+            "algorithm:": "Kaldi",
+            "algorithm_choices": [
+                "Kaldi",
+                "Owaken"
+            ]
+        },
         "recording": {
             "algorithm": "sounddevice",
             "algorithm_choices": [
@@ -31,8 +37,7 @@ DEFAULT_CONFIG = {
                 "algorithm": "Kaldi",
                 "algorithm_choices": [
                     "Kaldi", 
-                    "Whisper", 
-                    "On Device"
+                    "Whisper"
                 ]
             },
             Components.Understander.value: {
