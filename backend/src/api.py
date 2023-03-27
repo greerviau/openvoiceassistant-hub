@@ -171,6 +171,8 @@ def create_app(ova: OpenVoiceAssistant):
 
             sync_node_config = ova.node_manager.get_node_config(node_config.node_id)
             sync_node_config["wake_word"] = config.get('wake_word')
+            sync_node_config["recording"] = config.get('recording')
+            sync_node_config["playback"] = config.get('playback')
             return sync_node_config
         
         except Exception as err:

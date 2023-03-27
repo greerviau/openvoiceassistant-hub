@@ -11,10 +11,30 @@ DEFAULT_CONFIG = {
         "base_dir": os.path.realpath(os.path.dirname(__file__)),
         "model_dump": f"{os.path.realpath(os.path.dirname(__file__))}/model_dump",
         "file_dump": f"{os.path.realpath(os.path.dirname(__file__))}/file_dump",
+        "recording": {
+            "algorithm": "sounddevice",
+            "algorithm_choices": [
+                "sounddevice",
+                "pyaudio"
+            ],
+            "transcribe_on_device": True
+        },
+        "playback": {
+            "algorithm": "aplay",
+            "algorithm_choices": [
+                "aplay",
+                "pyaudio",
+                "pydub"
+            ]
+        },
         "components": {
             Components.Transcriber.value: {
-                "algorithm_choices": ["Kaldi", "Whisper", "On Device"],
-                "algorithm": "Kaldi"
+                "algorithm": "Kaldi",
+                "algorithm_choices": [
+                    "Kaldi", 
+                    "Whisper", 
+                    "On Device"
+                ]
             },
             Components.Understander.value: {
                 "vocab_file": "",
@@ -29,8 +49,11 @@ DEFAULT_CONFIG = {
                 "skill_configs": {}
             },
             Components.Synthesizer.value: {
-                "algorithm_choices": ["Espeak", "GradTTS"],
-                "algorithm": "Espeak"
+                "algorithm": "Espeak",
+                "algorithm_choices": [
+                    "Espeak", 
+                    "GradTTS"
+                ]
             }
         },
         "managers": {
