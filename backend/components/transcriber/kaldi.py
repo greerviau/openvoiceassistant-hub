@@ -19,7 +19,7 @@ class Kaldi:
 
         audio_data = context['command_audio_data_bytes']
         sample_rate = context['command_audio_sample_rate']
-        sample_width = context['command_audio_sample_rate']
+        sample_width = context['command_audio_sample_width']
         channels = context['command_audio_channels']
         
         wave_file = create_wave(
