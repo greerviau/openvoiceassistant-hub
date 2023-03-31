@@ -1,4 +1,5 @@
 from pydantic import BaseModel
+from typing import Dict
 
 class TranscribeAudio(BaseModel):
     command_audio_data_str: str = ''
@@ -30,3 +31,6 @@ class NodeConfig(BaseModel):
     mic_index: int
     speaker_index: int
     vad_sensitivity: int
+    wakeup: Dict
+    recording: Dict
+    playback: Dict
