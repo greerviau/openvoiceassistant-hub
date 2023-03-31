@@ -170,9 +170,7 @@ def create_app(ova: OpenVoiceAssistant):
                 ova.node_manager.add_node_config(node_config.node_id, jsonable_encoder(node_config))
 
             sync_node_config = ova.node_manager.get_node_config(node_config.node_id)
-            sync_node_config["wakeup"] = config.get('wakeup')
-            sync_node_config["recording"] = config.get('recording')
-            sync_node_config["playback"] = config.get('playback')
+            sync_node_config["wake_word"] = config.get('wake_word')
             return sync_node_config
         
         except Exception as err:
@@ -205,7 +203,6 @@ def create_app(ova: OpenVoiceAssistant):
     async def understand_text(text: str):
         context = {}
         context['command'] = text
-        context['engaged'] = True
         context['time_sent'] = 0.0
         context['last_time_engaged'] = 0.0
 
@@ -254,7 +251,6 @@ def create_app(ova: OpenVoiceAssistant):
         context['command_audio_channels'] = data.command_audio_channels
         context['node_callback'] = data.node_callback
         context['node_id'] = data.node_id
-        context['engaged'] = data.engaged
         context['time_sent'] = data.time_sent
         context['last_time_engaged'] = data.last_time_engaged
 
@@ -278,7 +274,6 @@ def create_app(ova: OpenVoiceAssistant):
         context['command'] = data.command_text
         context['node_callback'] = data.node_callback
         context['node_id'] = data.node_id
-        context['engaged'] = data.engaged
         context['time_sent'] = data.time_sent
         context['last_time_engaged'] = data.last_time_engaged
 

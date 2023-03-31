@@ -26,16 +26,13 @@ class Weather:
 
         self.w = None
 
-        self.event = threading.Event()
-
-        weather_thread = threading.Thread(target=self._weather_thread)
-        weather_thread.start()
+        threading.Thread(target=self._weather_thread, daemon=True).start()
 
     def _weather_thread(self):
-        while not self.event.is_set():
+        while True:
+            print('Pulling latest weather data')
             self.w = self.mgr.weather_at_coords(lat=self.lat, lon=self.lon).weather
 
-            print('Waiting...')
             time.sleep(self.update_delay_seconds)
 
     def __del__(self):

@@ -79,16 +79,13 @@ class Understander:
         delta_time = time_sent - last_time_engaged
 
         start = time.time()
-
-        if engaged or delta_time < self.engage_delay:
-            skill, action, conf = self.understand(cleaned_command)
-            context['time_to_understand'] = time.time() - start
-            context['skill'] = skill
-            context['action'] = action
-            context['conf'] = conf
-            
-            if conf < self.conf_thresh:
-                raise RuntimeError('Not confident in skill')
-        else:
-            raise RuntimeError('Command does not engage')
+        
+        skill, action, conf = self.understand(cleaned_command)
+        context['time_to_understand'] = time.time() - start
+        context['skill'] = skill
+        context['action'] = action
+        context['conf'] = conf
+        
+        if conf < self.conf_thresh:
+            raise RuntimeError('Not confident in skill')
 

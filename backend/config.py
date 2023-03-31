@@ -9,33 +9,11 @@ DEFAULT_CONFIG = {
         "base_dir": os.path.realpath(os.path.dirname(__file__)),
         "model_dump": f"{os.path.realpath(os.path.dirname(__file__))}/model_dump",
         "file_dump": f"{os.path.realpath(os.path.dirname(__file__))}/file_dump",
-        "wakeup": {
-            "wake_word": "computer",
-            "algorithm:": "Kaldi",
-            "algorithm_choices": [
-                "Kaldi",
-                "Owaken"
-            ]
-        },
-        "recording": {
-            "algorithm": "sounddevice",
-            "algorithm_choices": [
-                "sounddevice",
-                "pyaudio"
-            ]
-        },
-        "playback": {
-            "algorithm": "aplay",
-            "algorithm_choices": [
-                "aplay",
-                "pyaudio",
-                "pydub"
-            ]
-        },
+        "wake_word": "computer",
         "components": {
             Components.Transcriber.value: {
                 "algorithm": "Kaldi",
-                "algorithm_choices": [
+                "algorithm_options": [
                     "Kaldi", 
                     "Whisper"
                 ]
@@ -54,7 +32,7 @@ DEFAULT_CONFIG = {
             },
             Components.Synthesizer.value: {
                 "algorithm": "Espeak",
-                "algorithm_choices": [
+                "algorithm_options": [
                     "Espeak", 
                     "GradTTS"
                 ]
