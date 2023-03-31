@@ -71,15 +71,13 @@ class Understander:
             context['cleaned_command'] = cleaned_command
             print(f'Cleaned Command: {cleaned_command}')
 
-        engaged = context['engaged']
-
         time_sent = context['time_sent']
         last_time_engaged = context['last_time_engaged']
 
         delta_time = time_sent - last_time_engaged
 
         start = time.time()
-        
+
         skill, action, conf = self.understand(cleaned_command)
         context['time_to_understand'] = time.time() - start
         context['skill'] = skill
