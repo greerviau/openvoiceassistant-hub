@@ -248,3 +248,16 @@ def pad_sequence(encoded, seq_length):
     else:
         padding[:len(encoded)] = encoded
     return padding
+
+def parse_sentence(command: str, sentence: str):
+    tokens = command.split()
+    for piece in sentence.split():
+        if '[' in piece:
+            word = piece.replace('[','').replace(']','')
+            for i, token in enumerate(tokens):
+                if token == word:
+                    tokens = tokens[i:]
+                    break
+        elif '{' in piece:
+        
+        elif '(' in piece:

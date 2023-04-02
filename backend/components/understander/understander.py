@@ -78,7 +78,15 @@ class Understander:
 
         start = time.time()
 
-        skill, action, conf = self.understand(cleaned_command)
+        hub_callback = context['hub_callback']
+        if hub_callback:
+            try:
+                skill, action = hub_callback.split('.')
+                conf = 100
+            except:
+                raise RuntimeError('Failed to parse callback')
+        else:
+            skill, action, conf = self.understand(cleaned_command)
         context['time_to_understand'] = time.time() - start
         context['skill'] = skill
         context['action'] = action

@@ -78,10 +78,10 @@ class Gradtts:
             audio = (self.vocoder.forward(y_dec).cpu().squeeze().clamp(-1, 1).numpy() * 32768).astype(np.int16)
 
             audio_data = audio.tobytes()
+            sample_rate = 22050
+            sample_width = audio.dtype.itemsize
 
-            context['response_audio_data_str'] = audio_data.hex()
-            context['response_audio_sample_rate'] = 22050
-            context['response_audio_sample_width'] = audio.dtype.itemsize
+            return audio_data, sample_rate, sample_width
 
 def build_engine() -> Gradtts:
     model_file = config.get('components', 'synthesizer', 'config', 'model_file')

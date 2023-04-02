@@ -42,6 +42,10 @@ class Synthesizer:
 
         start = time.time()
             
-        self.engine.synthesize(context)
+        audio_data, sample_rate, sample_width = self.engine.synthesize(context)
+
+        context['response_audio_data_hex'] = audio_data.hex()
+        context['response_audio_sample_rate'] = sample_rate
+        context['response_audio_sample_width'] = sample_width
 
         context['time_to_synthesize'] = time.time() - start

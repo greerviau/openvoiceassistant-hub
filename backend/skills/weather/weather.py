@@ -51,7 +51,8 @@ class Weather:
 
     def sky(self, context: Dict):
         SKY_MAPPING = {
-            "clouds": ["overcast", "cloudy"],
+            "clouds": ["cloudy"],
+            "overcast clouds": ["overcast"],
             "few clouds": ["mostly clear"],
             "scattered clouds": ["scattered clouds"],
             "rain": ["raining", "rainy"],
@@ -147,5 +148,5 @@ def default_config():
         "longitude": 0,
         "update_delay_seconds": 3600,
         "unit": "fahrenheit",
-        "unit_choices": ["fahrenheit", "celsius"]
+        "unit_options": ["fahrenheit", "celsius"]
     }

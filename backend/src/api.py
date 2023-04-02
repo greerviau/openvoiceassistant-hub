@@ -205,7 +205,7 @@ def create_app(ova: OpenVoiceAssistant):
     @router.post('/transcribe/audio/')
     async def transcribe_audio(data: TranscribeAudio):
         context = {}
-        context['command_audio_data_str'] = data.command_audio_data_str
+        context['command_audio_data_hex'] = data.command_audio_data_hex
         context['command_audio_sample_rate'] = data.command_audio_sample_rate
         context['command_audio_sample_width'] = data.command_audio_sample_width
         context['command_audio_channels'] = data.command_audio_channels
@@ -267,12 +267,13 @@ def create_app(ova: OpenVoiceAssistant):
 
         context = {}
 
-        context['command_audio_data_str'] = data.command_audio_data_str
+        context['node_id'] = data.node_id
+        context['command_audio_data_hex'] = data.command_audio_data_hex
         context['command_audio_sample_rate'] = data.command_audio_sample_rate
         context['command_audio_sample_width'] = data.command_audio_sample_width
         context['command_audio_channels'] = data.command_audio_channels
         context['node_callback'] = data.node_callback
-        context['node_id'] = data.node_id
+        context['hub_callback'] = data.hub_callback
         context['time_sent'] = data.time_sent
         context['last_time_engaged'] = data.last_time_engaged
 
@@ -293,9 +294,10 @@ def create_app(ova: OpenVoiceAssistant):
 
         context = {}
 
+        context['node_id'] = data.node_id
         context['command'] = data.command_text
         context['node_callback'] = data.node_callback
-        context['node_id'] = data.node_id
+        context['hub_callback'] = data.hub_callback
         context['time_sent'] = data.time_sent
         context['last_time_engaged'] = data.last_time_engaged
 

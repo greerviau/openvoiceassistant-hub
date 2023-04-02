@@ -6,6 +6,7 @@ class Datetime:
     def __init__(self, config: Dict):
         self.config = config
         self.tz = pytz.timezone(config["timezone"])
+        self.format = "%H" if config["24_hour_format"] else "%I"
 
     def date(self, context: Dict):
         date = datetime.now(self.tz).strftime("%B %d, %Y")
@@ -15,7 +16,7 @@ class Datetime:
         return response
 
     def time(self, context: Dict):
-        time = datetime.now(self.tz).strftime("%H:%M")
+        time = datetime.now(self.tz).strftime(f"{self.format}:%M")
 
         response = f"It is {time}"
 
@@ -33,5 +34,6 @@ def build_skill(config: Dict):
 
 def default_config():
     return {
-        "timezone": "US/Eastern"
+        "timezone": "US/Eastern",
+        "24_hour_format": False
     }
