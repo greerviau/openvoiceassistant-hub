@@ -11,7 +11,7 @@ export const Accordion = ({ label, data }) => {
         isOpen={isOpen}
         toggle={toggle}
       />
-      {isOpen && <TextSection data={data.config} />}
+      {isOpen && <TextSection data={data?.config} />}
       <div className="underline"></div>
     </div>
   );

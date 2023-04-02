@@ -25,9 +25,9 @@ const Settings = () => {
             
             <button>Save</button>
             <div>
-                <Accordion label='Transcriber' data={components.transcriber} />
-                <Accordion label='Understander' data={components.understander} />
-                <Accordion label='Synthesizer' data={components.synthesizer} />
+                <Accordion label='Transcriber' data={components?.transcriber} />
+                <Accordion label='Understander' data={components?.understander} />
+                <Accordion label='Synthesizer' data={components?.synthesizer} />
             </div>
         </div>
     );
