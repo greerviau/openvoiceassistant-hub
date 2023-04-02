@@ -15,6 +15,17 @@ def create_app(ova: OpenVoiceAssistant):
     @router.get('')
     async def index():
         return {"Success"}
+    
+    @router.get('/config')
+    async def get_config():
+        c = config.get()
+        if c:
+            return c
+        else:
+            raise fastapi.HTTPException(
+                        status_code=400,
+                        detail='no config',
+                        headers={'X-Error': 'component does not exist'})
 
     # COMPONENTS
 
@@ -28,6 +39,17 @@ def create_app(ova: OpenVoiceAssistant):
                         status_code=400,
                         detail='component does not exist',
                         headers={'X-Error': 'component does not exist'})
+        
+    @router.put('/components/{component_id}/config')
+    async def put_component_config(component_id: str, config: Dict):
+        try:
+            config.set('components', component_id, 'config', config)
+            return config
+        except Exception as e:
+            raise fastapi.HTTPException(
+                        status_code=400,
+                        detail=repr(e),
+                        headers={'X-Error': 'failed to put config'})
         
     @router.get('/components/synthesizer/{algorithm_id}/config/default')
     async def get_synthesizer_default_config(algorithm_id: str):
