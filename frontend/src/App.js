@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import './App.css';
 import { BrowserRouter, Route, Routes } from 'react-router-dom';
 import Sidebar from './components/Sidebar';
@@ -9,6 +9,7 @@ import Settings from './pages/Settings.jsx';
 import Logs from './pages/Logs.jsx';
 
 const App = () => {
+
   return (
     <BrowserRouter>
       <Sidebar>
