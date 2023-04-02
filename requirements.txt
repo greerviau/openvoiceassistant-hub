@@ -118,6 +118,6 @@ Wave==0.0.2
 websockets==10.3
 Werkzeug==2.2.2
 wget==3.2
-whisper @ git+https://github.com/openai/whisper.git@6dea21fd7f7253bfe450f1e2512a0fe47ee2d258
+git+https://github.com/openai/whisper.git@6dea21fd7f7253bfe450f1e2512a0fe47ee2d258
 word2number==1.1
 wrapt==1.14.1
