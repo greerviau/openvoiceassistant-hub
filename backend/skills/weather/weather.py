@@ -35,9 +35,6 @@ class Weather:
 
             time.sleep(self.update_delay_seconds)
 
-    def __del__(self):
-        self.event.set()
-
     def weather(self, context: Dict):
         command = context['command']
 
