@@ -41,10 +41,10 @@ def create_app(ova: OpenVoiceAssistant):
                         headers={'X-Error': 'component does not exist'})
         
     @router.put('/components/{component_id}/config')
-    async def put_component_config(component_id: str, config: Dict):
+    async def put_component_config(component_id: str, component_config: Dict):
         try:
-            config.set('components', component_id, 'config', config)
-            return config
+            config.set('components', component_id, 'config', component_config)
+            return component_config
         except Exception as e:
             raise fastapi.HTTPException(
                         status_code=400,
