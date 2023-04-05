@@ -19,9 +19,11 @@ DEFAULT_CONFIG = {
                 ]
             },
             Components.Understander.value: {
-                "vocab_file": "",
-                "model_file": "",
-                "conf_thresh": 85
+                "algorithm": "fuzzy",
+                "algorithm_options": [
+                    "Fuzzy",
+                    "Neural Intent"
+                ]
             },
             Components.Skillset.value: {
                 "imported_skills": [
