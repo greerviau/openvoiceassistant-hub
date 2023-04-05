@@ -1,0 +1,1 @@
+from .jokes import Jokes, build_skill, default_config
