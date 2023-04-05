@@ -5,8 +5,11 @@ from rake_nltk import Rake
 from word2number import w2n
 from nltk.corpus import stopwords
 import spacy
+from spacy.matcher import Matcher
 
-sp = spacy.load('en_core_web_sm')
+from typing import List
+
+nlp = spacy.load('en_core_web_sm')
 rake = Rake()
 
 STOPWORDS = list(set(stopwords.words('english')))
@@ -198,19 +201,19 @@ def extract_keywords(text):
     return ranked_phrases
 
 def tokenize(text):
-    doc = sp(text)
+    doc = nlp(text)
     return [token.text for token in doc]
 
 def extract_verbs(text):
-    doc = sp(text)
+    doc = nlp(text)
     return [token.text for token in doc if token.pos_ == "VERB"]
     
 def extract_entities(text):
-    doc = sp(text)
+    doc = nlp(text)
     return doc.ents
 
 def extract_noun_chunks(text):
-    doc = sp(text)
+    doc = nlp(text)
     return [chunk.text for chunk in doc.noun_chunks]
 
 '''
@@ -249,15 +252,43 @@ def pad_sequence(encoded, seq_length):
         padding[:len(encoded)] = encoded
     return padding
 
+'''
 def parse_sentence(command: str, sentence: str):
+    def parse_piece(tokens: List[str], piece: str):
+        if '[' in piece:
+            new_piece = piece.replace('[','').replace(']','')
+            key, value = parse_piece(tokens, new_piece)
+            if key is not None:
+                return key, value
+            for i, token in enumerate(tokens):
+                if token == new_piece:
+                    tokens = tokens[i:]
+        elif '(' in piece:
+            new_piece = piece.replace('(','').replace(')','')
+            key, value = parse_piece(tokens, new_piece)
+            if key is not None:
+                return key, value
+            for i, token in enumerate(tokens):
+                if token == new_piece:
+                    tokens = tokens[i:]
+        elif '{' in piece:
+            new_piece = piece.replace('{','').replace('}','')
+            key, value = parse_piece(tokens, new_piece)
+            if key is not None:
+                return key, value
+            for i, token in enumerate(tokens):
+                if token == new_piece:
+                    tokens = tokens[i:]
+
+    parsed = {}
     tokens = command.split()
     for piece in sentence.split():
-        if '[' in piece:
-            word = piece.replace('[','').replace(']','')
-            for i, token in enumerate(tokens):
-                if token == word:
-                    tokens = tokens[i:]
-                    break
-        elif '{' in piece:
-        
-        elif '(' in piece:
+        parse_piece(tokens, piece)
+'''
+
+
+if __name__ == '__main__':
+    c = "Set a timer for 15 minutes"
+    s = "for {time} (hours|minutes|seconds){increment}"
+    #parsed = parse_sentence(c, s)
+    print(parsed)

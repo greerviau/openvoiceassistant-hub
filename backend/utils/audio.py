@@ -2,7 +2,10 @@ import wave
 import os
 import numpy as np
 import librosa
-from io import BytesIO
+import soundfile
+import audioread
+import tempfile
+import io
 
 def save_wave(wave_file: str, audio_data: bytes, sample_rate: int, sample_width: int, channels: int):
 
@@ -14,13 +17,20 @@ def save_wave(wave_file: str, audio_data: bytes, sample_rate: int, sample_width:
 
 def create_wave(audio_data: bytes, sample_rate: int, sample_width: int, channels: int) -> wave.Wave_read:
     
-    wf = wave.open(BytesIO, 'wb')
+    wav_data = convert_to_wav(audio_data, sample_rate, sample_width, channels)
+    wf = wave.open(io.BytesIO(wav_data), 'rb')
+
+    return wf
+
+def convert_to_wav(audio_data: bytes, sample_rate: int, sample_width: int, channels: int) -> bytes:
+    wave_io = io.BytesIO()
+    wf = wave.open(wave_io, 'wb')
     wf.setnchannels(channels)
     wf.setsampwidth(sample_width)
     wf.setframerate(sample_rate)
     wf.writeframes(audio_data)
 
-    return wf
+    return wave_io.getvalue()
 
 def load_wave(wave_file_path: str):
     if not os.path.exists(wave_file_path):
