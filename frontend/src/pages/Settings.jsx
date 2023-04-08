@@ -9,10 +9,10 @@ const Settings = () => {
       fetch('/config').then(
         res => res.json()
       ).then(
-        data => {
-          setData(data)
-          setComponents(data.components)
-          console.log(data)
+        d => {
+          setData(d)
+          setComponents(d.components)
+          console.log(d)
         }
       )
     }, []);

@@ -2,6 +2,8 @@ import React, { useState, useEffect } from 'react';
 import useOpenController from "../useOpenController";
 import JSONInput from 'react-json-editor-ajrm';
 import locale    from 'react-json-editor-ajrm/locale/en';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faChevronDown } from '@fortawesome/free-solid-svg-icons';
 
 export const Accordion = ({ label, data }) => {
   const { isOpen, toggle } = useOpenController(false);
@@ -32,15 +34,7 @@ export const ExpendableColumn = ({ title, options, isOpen, toggle }) => {
         options && <select>{options.map(MakeItem)}</select>
       }
       <button className="expendable-button">
-        <span
-          class="material-symbols-outlined"
-          style={{
-            transform: `rotate(${isOpen ? 180 : 0}deg)`,
-            transition: "all 0.25s",
-          }}
-        >
-          expand_more
-        </span>
+        <FontAwesomeIcon icon={faChevronDown} />
       </button>
     </div>
   );
