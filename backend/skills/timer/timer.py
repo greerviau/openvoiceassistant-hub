@@ -3,6 +3,7 @@ import threading
 import time
 
 from backend import config
+from backend.utils.nlp import ner, try_parse_word_number
 
 class ThreadTimer(threading._Timer):
     started_at = None
@@ -24,7 +25,29 @@ class Timer:
     def start_timer(self, context: Dict):
         command = context['command']
 
-        parse_sentence = "for {time} (minutes|hour|hours){increment}"
+        ents = ner(command)
+
+        response = ""
+
+        if 'TIME' in ents:
+            t = ents['TIME']
+            for inc, m in {'second': 0, 'minute': 60, 'hour': 3600}.items():
+                if inc in t:
+                    d = t.replace(inc, '').strip()
+                    response = f"Setting a timer for {t}"
+                    d = try_parse_word_number(d)
+                    d = d * m
+                    print(d)
+                    self.timer = ThreadTimer(d, self.alert_timer_finished)
+                    self.timer.start()
+            if not response:
+                response = "How long should I set a timer for?"
+                context['hub_callback'] = "timer.start_timer"
+        else:
+            response = "How long should I set a timer for?"
+            context['hub_callback'] = "timer.start_timer"
+
+        return response  
 
     def time_remaining(self, context: Dict):
         command = context['command']
@@ -62,10 +85,7 @@ class Timer:
 
         return response
 
-    def set_timer(self, context: Dict):
-        command = context['command']
-
-        parse_sentence = "[for] {time} (minutes|hour|hours){increment}"
+        return response
 
     def alert_timer_finished(self):
         print('Timer finished')

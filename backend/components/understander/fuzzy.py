@@ -26,7 +26,6 @@ class Fuzzy:
                 patterns = intent['patterns']
                 label = f'{skill}-{tag}'
                 tagged_intents[label] = patterns
-        print(tagged_intents)
         return tagged_intents
 
     def understand(self, context: Context):

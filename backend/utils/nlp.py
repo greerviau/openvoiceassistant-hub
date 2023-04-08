@@ -252,43 +252,19 @@ def pad_sequence(encoded, seq_length):
         padding[:len(encoded)] = encoded
     return padding
 
-'''
-def parse_sentence(command: str, sentence: str):
-    def parse_piece(tokens: List[str], piece: str):
-        if '[' in piece:
-            new_piece = piece.replace('[','').replace(']','')
-            key, value = parse_piece(tokens, new_piece)
-            if key is not None:
-                return key, value
-            for i, token in enumerate(tokens):
-                if token == new_piece:
-                    tokens = tokens[i:]
-        elif '(' in piece:
-            new_piece = piece.replace('(','').replace(')','')
-            key, value = parse_piece(tokens, new_piece)
-            if key is not None:
-                return key, value
-            for i, token in enumerate(tokens):
-                if token == new_piece:
-                    tokens = tokens[i:]
-        elif '{' in piece:
-            new_piece = piece.replace('{','').replace('}','')
-            key, value = parse_piece(tokens, new_piece)
-            if key is not None:
-                return key, value
-            for i, token in enumerate(tokens):
-                if token == new_piece:
-                    tokens = tokens[i:]
+def ner(sentence):
+    doc = nlp(sentence)
 
     parsed = {}
-    tokens = command.split()
-    for piece in sentence.split():
-        parse_piece(tokens, piece)
-'''
+
+    for ent in doc.ents:
+        parsed[ent.label_] = ent.text
+
+    return parsed
 
 
 if __name__ == '__main__':
     c = "Set a timer for 15 minutes"
     s = "for {time} (hours|minutes|seconds){increment}"
-    #parsed = parse_sentence(c, s)
+    parsed = ner(c)
     print(parsed)
