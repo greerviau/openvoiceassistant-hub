@@ -1,5 +1,5 @@
 import pyttsx3
-import pydub
+import wave
 import os
 import time
 import typing
@@ -17,11 +17,11 @@ class Espeak:
         tts_engine.save_to_file(text, file_path)
         tts_engine.runAndWait()
 
-        audio_seg = pydub.AudioSegment.from_file(file_path)
+        audio_seg = wave.open(file_path, 'rb')
 
-        audio_data = audio_seg.raw_data
+        audio_data = audio_seg.readframes(audio_seg.getnframes())
 
-        return audio_data, audio_seg.frame_rate, audio_seg.sample_width
+        return audio_data, audio_seg.getframerate(), audio_seg.getsampwidth()
 
 def build_engine() -> Espeak:
     return Espeak()
