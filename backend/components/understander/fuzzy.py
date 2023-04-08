@@ -35,7 +35,7 @@ class Fuzzy:
         intent = None
         for label, patterns in self.intents.items():
             for pattern in patterns:
-                r = fuzz.ratio(command, pattern)
+                r = fuzz.partial_ratio(command, pattern)
                 if r > conf:
                     conf = r
                     intent = label

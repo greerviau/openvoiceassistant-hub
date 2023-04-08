@@ -5,11 +5,11 @@ import time
 from backend import config
 from backend.utils.nlp import ner, try_parse_word_number
 
-class ThreadTimer(threading._Timer):
+class ThreadTimer(threading.Timer):
     started_at = None
     def start(self):
         self.started_at = time.time()
-        threading._Timer.start(self)
+        threading.Timer.start(self)
     def elapsed(self):
         return time.time() - self.started_at
     def remaining(self):
@@ -22,7 +22,7 @@ class Timer:
 
         self.timer = None
 
-    def start_timer(self, context: Dict):
+    def set_timer(self, context: Dict):
         command = context['command']
 
         ents = ner(command)
@@ -31,13 +31,12 @@ class Timer:
 
         if 'TIME' in ents:
             t = ents['TIME']
-            for inc, m in {'second': 0, 'minute': 60, 'hour': 3600}.items():
+            for inc, m in {'second': 1, 'minute': 60, 'hour': 3600}.items():
                 if inc in t:
-                    d = t.replace(inc, '').strip()
+                    d = t.replace(inc, '').strip().split()[0]
                     response = f"Setting a timer for {t}"
                     d = try_parse_word_number(d)
                     d = d * m
-                    print(d)
                     self.timer = ThreadTimer(d, self.alert_timer_finished)
                     self.timer.start()
             if not response:
@@ -84,11 +83,17 @@ class Timer:
             response = "There is no timer currently running"
 
         return response
+    
+    def stop_timer(self, context: Dict):
+        self.timer.cancel()
+        self.timer = None
 
+        response = "Stopping the timer"
         return response
 
     def alert_timer_finished(self):
         print('Timer finished')
+        self.timer = None
 
 
 def build_skill(config: Dict):

@@ -1,5 +1,6 @@
 import numpy as np
 import string
+import re
 import datetime
 from rake_nltk import Rake
 from word2number import w2n
@@ -55,7 +56,10 @@ def try_parse_word_number(word):
     try:
         return w2n.word_to_num(word)
     except:
-        return None
+        if isinstance(word, int) or isinstance(word, float):
+            return word
+        else:
+            return None
 
 def parse_time(text):
     text = text.lower()

@@ -23,6 +23,14 @@
                 "how much longer on the timer",
                 "what is the time remaining"
             ]
+        },
+        {
+            "action":"stop_timer",
+            "patterns":[
+                "stop the timer",
+                "cancel the timer",
+                "remove the timer"
+            ]
         }
     ]
 }

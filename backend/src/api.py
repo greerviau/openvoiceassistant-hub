@@ -301,19 +301,13 @@ def create_app(ova: OpenVoiceAssistant):
         context['time_sent'] = data.time_sent
         context['last_time_engaged'] = data.last_time_engaged
 
-        try:
-            ova.run_pipeline(
-                PipelineStages.Understand,
-                PipelineStages.Skillset,
-                PipelineStages.Synthesize,
-                context=context
-            )
-        except Exception as err:
-            raise fastapi.HTTPException(
-                        status_code=400,
-                        detail=repr(err),
-                        headers={'X-Error': f'{err}'})
-
+        ova.run_pipeline(
+            PipelineStages.Understand,
+            PipelineStages.Skillset,
+            PipelineStages.Synthesize,
+            context=context
+        )
+        
         return context
 
     app = fastapi.FastAPI()
