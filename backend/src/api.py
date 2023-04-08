@@ -145,7 +145,7 @@ def create_app(ova: OpenVoiceAssistant):
                         detail=repr(err),
                         headers={'X-Error': f'{err}'})
 
-    @router.get('/node/{node_id}/status}')
+    @router.get('/node/{node_id}/status')
     async def get_node_status(node_id: str):
         try:
             return ova.node_manager.get_node_status(node_id)

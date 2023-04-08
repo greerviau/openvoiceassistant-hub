@@ -57,8 +57,13 @@ class NodeManager:
         try:
             resp = requests.get(address, timeout=2)
             if resp.status_code == 200:
-                return 'online'
+                status = 'online'
             else:
                 raise
         except:
-            return 'offline'
+            status = 'offline'
+        
+        return {
+            'name': node_config['node_name'],
+            'status': status
+        }
