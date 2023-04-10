@@ -4,6 +4,7 @@ import json
 from typing import List, Dict
 from rapidfuzz import fuzz
 
+from backend.utils.nlp import clean_text
 from backend.enums import Components
 from backend.schemas import Context
 from backend import config
@@ -14,6 +15,7 @@ class Fuzzy:
         imported_skills = config.get('components', Components.Skillset.value, 'imported_skills')
         skills_dir = os.path.join(config.get('base_dir'), 'skills')
         self.intents = self.load_intents(imported_skills, skills_dir)
+        self.vocab_list = self.load_vocab(self.intents.values())
 
         self.conf_thresh = config.get('components', Components.Understander.value, 'config', 'conf_thresh')
 
@@ -30,12 +32,16 @@ class Fuzzy:
 
     def understand(self, context: Context):
         command = context['cleaned_command']
+
+        encoded_command = self.encode_command(command)
+        context['encoded_command'] = encoded_command
+        print(encoded_command)
         
         conf = 0
         intent = None
         for label, patterns in self.intents.items():
             for pattern in patterns:
-                r = fuzz.partial_ratio(command, pattern)
+                r = fuzz.partial_ratio(encoded_command, pattern)
                 if r > conf:
                     conf = r
                     intent = label
@@ -50,6 +56,24 @@ class Fuzzy:
             raise RuntimeError("Not confident in skill")
     
         return skill, action, conf
+    
+    def load_vocab(self, patterns: List[List[str]]):
+        all_words = []
+        for pattern_list in patterns:
+            all_words.extend(pattern_list)
+        all_words = ' '.join(all_words)
+        unique = []
+        for word in all_words.split():
+            word = clean_text(word)
+            if word not in unique:
+                unique.append(word)
+        return unique
+    
+    def encode_command(self, command: str):
+        for word in command.split():
+            if word not in self.vocab_list:
+                command = command.replace(word, 'BLANK')
+        return command
 
 def build_engine() -> Fuzzy:
     return Fuzzy()
