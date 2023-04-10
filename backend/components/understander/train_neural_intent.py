@@ -2,13 +2,15 @@ import os
 import json
 import pickle
 import typing
-from backend.utils.nlp import clean_text, encode_word_vec, pad_sequence
 import numpy as np
+from typing import List
 
 from tensorflow.keras.models import Sequential
-from tensorflow.keras.layers import Dense, LSTM, Dropout
+from tensorflow.keras.layers import Dense, LSTM
 from tensorflow.keras.layers import Embedding
 from sklearn.preprocessing import OneHotEncoder
+
+from backend.utils.nlp import clean_text, encode_word_vec, pad_sequence
 
 def load_training_data(imported_skills: typing.List, skills_dir: str):
     compiled_data = []
@@ -21,7 +23,8 @@ def load_training_data(imported_skills: typing.List, skills_dir: str):
     compiled_data = np.array(compiled_data)
     return compiled_data[:,1], compiled_data[:,0]
 
-def train_classifier(X: typing.List, y: typing.List, model_dump: str):
+def train_classifier(X: typing.List, y: typing.List, model_file: str, vocab_file: str):
+
     print('Training classifier')
 
     # fix random seed for reproducibility
@@ -47,6 +50,8 @@ def train_classifier(X: typing.List, y: typing.List, model_dump: str):
     print('Word to int: ', word_to_int)
     print('Number of total labels: ', n_labels)
     print('Labels: ', labels)
+
+    pickle.dump([word_to_int, int_to_label, max_length], open(vocab_file, 'wb'))
 
     data_X = []
     data_y = []
@@ -75,8 +80,4 @@ def train_classifier(X: typing.List, y: typing.List, model_dump: str):
     scores = model.evaluate(X, y, verbose=0)
     print("Accuracy: %.2f%%" % (scores[1]*100))
 
-    model_dir = os.path.join(model_dump, 'intent_model.h5')
-    vocab_dir = os.path.join(model_dump, 'intent_vocab.p')
-
-    model.save(model_dir)
-    pickle.dump([word_to_int, int_to_label, max_length], open(vocab_dir, 'wb'))
+    model.save(model_file)

@@ -23,10 +23,10 @@ class NeuralIntent:
         model_dump = config.get('model_dump')
 
         print('Loading classifier')
-        intent_model = config.get('components', Components.Understander.value, 'model_file')
-        if not intent_model:
-            intent_model = os.path.join(model_dump, 'intent_model.h5')
-            config.set('components', Components.Understander.value, 'model_file', intent_model)
+        model_file = config.get('components', Components.Understander.value, 'model_file')
+        if not model_file:
+            model_file = os.path.join(model_dump, 'intent_model.h5')
+            config.set('components', Components.Understander.value, 'model_file', model_file)
 
         vocab_file = config.get('components', Components.Understander.value, 'vocab_file')
         if not vocab_file:
@@ -36,10 +36,10 @@ class NeuralIntent:
         imported_skills = config.get('components', Components.Skillset.value, 'imported_skills')
         skills_dir = os.path.join(config.get('base_dir'), 'skills')
 
-        if not os.path.exists(intent_model) or not os.path.exists(vocab_file):
+        if not os.path.exists(model_file) or not os.path.exists(vocab_file):
             print('Classifier model not found')
             X, y = load_training_data(imported_skills, skills_dir)
-            train_classifier(X, y, model_dump)
+            train_classifier(X, y, model_file, vocab_file)
         else:
             _, int_to_label, _ = pickle.load(open(vocab_file, 'rb'))
             n_labels = len(int_to_label)
@@ -47,9 +47,9 @@ class NeuralIntent:
             labels = list(set(y))
             if len(labels) != n_labels:
                 print('Change to skills detected, retraining classifier')
-                train_classifier(X, y, model_dump)
+                train_classifier(X, y, model_file, vocab_file)
         
-        self.intent_model = load_model(intent_model)
+        self.intent_model = load_model(model_file)
         self.word_to_int, self.int_to_label, self.seq_length = pickle.load(open(vocab_file, 'rb'))
 
         self.conf_thresh = config.get('components', Components.Understander.value, 'config', 'conf_thresh')
