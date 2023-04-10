@@ -9,6 +9,7 @@ class Context(typing.TypedDict):
     command_audio_file_path: str
     command: str
     cleaned_command: str
+    encoded_command: str
     node_callback: str
     node_id: str
     engaged: bool
