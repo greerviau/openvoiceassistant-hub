@@ -1,4 +1,5 @@
 import requests
+import urllib
 from typing import Dict
 
 from backend import config
@@ -67,3 +68,15 @@ class NodeManager:
             'name': node_config['node_name'],
             'status': status
         }
+    
+    def call_node_api(self, verb: str, node_id: str, endpoint: str):
+        if verb not in ['GET', 'POST', 'PUT', 'DELETE']:
+            raise RuntimeError('Invalid api verb')
+        try:
+            node_config = self.nodes[node_id]
+        except:
+            raise RuntimeError('Node does not exist')
+        address = node_config['node_api_url']
+        url = address + endpoint
+        print(url)
+        resp = requests.request(verb, url, timeout=2)
