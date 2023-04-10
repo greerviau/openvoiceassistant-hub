@@ -1,0 +1,14 @@
+{
+    "intentions": [
+        {
+            "action":"equation",
+            "patterns":[
+                "what is BLANK plus BLANK",
+                "what is the squareroot of BLANK",
+                "what is BLANK times BLANK",
+                "what is BLANK minus BLANK",
+                "what is BLANK to the BLANK power"
+            ]
+        }
+    ]
+}
