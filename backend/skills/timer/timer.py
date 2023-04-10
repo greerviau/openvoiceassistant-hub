@@ -17,39 +17,45 @@ class ThreadTimer(threading.Timer):
 
 class Timer:
 
-    def __init__(self, config: Dict):
+    def __init__(self, config: Dict, ova: 'OpenVoiceAssistant'):
+        self.ova = ova
         self.config = config
 
         self.timer = None
+        self.node_id = None
 
     def set_timer(self, context: Dict):
-        command = context['command']
+        command = context['cleaned_command']
 
         ents = ner(command)
 
         response = ""
 
-        if 'TIME' in ents:
-            t = ents['TIME']
-            for inc, m in {'second': 1, 'minute': 60, 'hour': 3600}.items():
-                if inc in t:
-                    d = t.replace(inc, '').strip().split()[0]
-                    response = f"Setting a timer for {t}"
-                    d = try_parse_word_number(d)
-                    d = d * m
-                    self.timer = ThreadTimer(d, self.alert_timer_finished)
-                    self.timer.start()
-            if not response:
+        if not self.timer:
+            if 'TIME' in ents:
+                t = ents['TIME']
+                for inc, m in {'second': 1, 'minute': 60, 'hour': 3600}.items():
+                    if inc in t:
+                        d = t.replace(inc, '').strip().split()[0]
+                        response = f"Setting a timer for {t}"
+                        d = try_parse_word_number(d)
+                        d = d * m
+                        self.timer = ThreadTimer(d, self.alert_timer_finished)
+                        self.node_id = context["node_id"]
+                        self.timer.start()
+                if not response:
+                    response = "How long should I set a timer for?"
+                    context['hub_callback'] = "timer.set_timer"
+            else:
                 response = "How long should I set a timer for?"
-                context['hub_callback'] = "timer.start_timer"
+                context['hub_callback'] = "timer.set_timer"
         else:
-            response = "How long should I set a timer for?"
-            context['hub_callback'] = "timer.start_timer"
+            response = "There is already a timer running"
 
         return response  
 
     def time_remaining(self, context: Dict):
-        command = context['command']
+        command = context['cleaned_command']
 
         if self.timer:
             hours = 0
@@ -85,19 +91,25 @@ class Timer:
         return response
     
     def stop_timer(self, context: Dict):
-        self.timer.cancel()
-        self.timer = None
+        if self.timer:
+            self.timer.cancel()
+            self.ova.node_manager.call_node_api("POST", self.node_id, "/stop_alarm")
+            self.timer = None
+            self.node_id = None
 
-        response = "Stopping the timer"
+            response = "Stopping the timer"
+        else:
+            response = "There is no timer currently running"
+
         return response
 
     def alert_timer_finished(self):
         print('Timer finished')
-        self.timer = None
+        self.ova.node_manager.call_node_api("POST", self.node_id, "/play_alarm")
 
 
-def build_skill(config: Dict):
-    return Timer(config)
+def build_skill(config: Dict, ova: 'OpenVoiceAssistant'):
+    return Timer(config, ova)
 
 def default_config():
     return {}

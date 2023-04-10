@@ -10,7 +10,8 @@ from backend import skills
 from backend.schemas import Context
 
 class Skillset:
-    def __init__(self):
+    def __init__(self, ova: 'OpenVoiceAssistant'):
+        self.ova = ova
         self.available_skills = [submodule.name for submodule in iter_modules(skills.__path__)]
         self.imported_skills = config.get('components', Components.Skillset.value, 'imported_skills')
         self.skill_configs = config.get('components', Components.Skillset.value, 'skill_configs')
@@ -88,7 +89,7 @@ class Skillset:
             if skill_config is None:
                 skill_config = module.default_config()
             try:
-                self.imported_skill_modules[skill_id] = module.build_skill(skill_config)
+                self.imported_skill_modules[skill_id] = module.build_skill(skill_config, self.ova)
             except Exception as e:
                 raise RuntimeError(f'Failed to load {skill_id}')
             self.skill_configs[skill_id] = skill_config

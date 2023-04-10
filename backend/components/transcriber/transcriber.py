@@ -12,7 +12,7 @@ from backend.utils.audio import save_wave
 from backend.utils.nlp import clean_text
 
 class Transcriber:
-    def __init__(self):
+    def __init__(self, ova: 'OpenVoiceAssistant'):
         self.algo = config.get('components', Components.Transcriber.value, 'algorithm').lower().replace(' ', '_')
         self.module = importlib.import_module(f'backend.components.transcriber.{self.algo}')
 

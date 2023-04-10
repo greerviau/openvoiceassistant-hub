@@ -35,7 +35,7 @@ class OpenVoiceAssistant:
             return None
 
     def launch_component(self, component_id: Components):
-        self.components[component_id] = COMPONENTS[component_id]()
+        self.components[component_id] = COMPONENTS[component_id](self)
 
     def launch_all_components(self):
         self.components = {}

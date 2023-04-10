@@ -10,7 +10,7 @@ from backend.utils.audio import save_wave
 from backend.schemas import Context
 
 class Synthesizer:
-    def __init__(self):
+    def __init__(self, ova: 'OpenVoiceAssistant'):
 
         self.algo = config.get('components', Components.Synthesizer.value, 'algorithm').lower().replace(' ', '_')
         self.module = importlib.import_module(f'backend.components.synthesizer.{self.algo}')

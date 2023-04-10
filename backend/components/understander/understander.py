@@ -7,7 +7,7 @@ from backend.utils.nlp import clean_text
 from backend.schemas import Context
 
 class Understander:
-    def __init__(self):
+    def __init__(self, ova: 'OpenVoiceAssistant'):
         self.algo = config.get('components', Components.Understander.value, 'algorithm').lower().replace(' ', '_')
         self.module = importlib.import_module(f'backend.components.understander.{self.algo}')
 
@@ -41,6 +41,7 @@ class Understander:
             try:
                 skill, action = hub_callback.split('.')
                 conf = 100
+                context['hub_callback'] = ''
             except:
                 raise RuntimeError('Failed to parse callback')
         else:

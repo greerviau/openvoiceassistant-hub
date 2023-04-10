@@ -9,6 +9,8 @@
                 "set a BLANK second timer",
                 "start a timer",
                 "start a timer for BLANK hours",
+                "set a timer for BLANK minutes",
+                "set a timer for BLANK seconds",
                 "make a timer for",
                 "make a timer"
             ]

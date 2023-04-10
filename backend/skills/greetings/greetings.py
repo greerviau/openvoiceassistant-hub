@@ -4,11 +4,11 @@ from backend import config
 
 class Greetings:
 
-    def __init__(self, config: Dict):
+    def __init__(self, config: Dict, ova: 'OpenVoiceAssistant'):
         self.config = config
 
     def hello(self, context: Dict):
-        command = context['command']
+        command = context['cleaned_command']
         addr = context['addr'] if 'addr' in context else ''
 
         response = ''
@@ -26,7 +26,7 @@ class Greetings:
         return response
 
     def how_are_you(self, context: Dict):
-        command = context['command']
+        command = context['cleaned_command']
         addr = context['addr'] if 'addr' in context else ''
 
         response = f'Doing well {addr}'
@@ -34,7 +34,7 @@ class Greetings:
         return response
 
     def whats_up(self, context: Dict):
-        command = context['command']
+        command = context['cleaned_command']
         addr = context['addr'] if 'addr' in context else ''
 
         response = f'Not much {addr}'
@@ -42,15 +42,15 @@ class Greetings:
         return response
 
     def goodbye(self, context: Dict):
-        command = context['command']
+        command = context['cleaned_command']
         addr = context['addr'] if 'addr' in context else ''
 
         response = f'Goodbye {addr}'
 
         return response
 
-def build_skill(config: Dict):
-    return Greetings(config)
+def build_skill(config: Dict, ova: 'OpenVoiceAssistant'):
+    return Greetings(config, ova)
 
 def default_config():
     return {}

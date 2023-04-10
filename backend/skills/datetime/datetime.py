@@ -3,7 +3,7 @@ from datetime import datetime
 import pytz
 
 class Datetime:
-    def __init__(self, config: Dict):
+    def __init__(self, config: Dict, ova: 'OpenVoiceAssistant'):
         self.config = config
         self.tz = pytz.timezone(config["timezone"])
         self.format = "%H" if config["24_hour_format"] else "%I"
@@ -29,8 +29,8 @@ class Datetime:
 
         return response
 
-def build_skill(config: Dict):
-    return Datetime(config)
+def build_skill(config: Dict, ova: 'OpenVoiceAssistant'):
+    return Datetime(config, ova)
 
 def default_config():
     return {

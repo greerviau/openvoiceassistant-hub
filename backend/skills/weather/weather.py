@@ -1,18 +1,13 @@
 from typing import Dict
-import urllib
-import requests
 import time
 import threading
-from datetime import datetime
 import random
 from pyowm import OWM
-from pyowm.utils import config
-from pyowm.utils import timestamps
 from typing import Dict
 
 class Weather:
 
-    def __init__(self, config: Dict):
+    def __init__(self, config: Dict, ova: 'OpenVoiceAssistant'):
         self.config = config
 
         owm_api_key = config["owm_api_key"]
@@ -36,7 +31,7 @@ class Weather:
             time.sleep(self.update_delay_seconds)
 
     def weather(self, context: Dict):
-        command = context['command']
+        command = context['cleaned_command']
 
         sky = self.sky(context)
         temp = int(self.w.temperature(self.unit)["temp"])
@@ -61,10 +56,10 @@ class Weather:
             "It looks like its %s outside",
             "Today it will be %s",
             "It is %s outside",
-            "Its currently %s right now"
+            "Its %s right now"
         ]
 
-        command = context['command']
+        command = context['cleaned_command']
 
         status = self.w.detailed_status
 
@@ -81,7 +76,7 @@ class Weather:
             "Its currently %s right now"
         ]
 
-        command = context['command']
+        command = context['cleaned_command']
 
         humidity = int(self.w.humidity)
 
@@ -108,7 +103,7 @@ class Weather:
             "Its currently %s right now"
         ]
 
-        command = context['command']
+        command = context['cleaned_command']
 
         temp = int(self.w.temperature(self.unit)["temp"])
 
@@ -129,14 +124,14 @@ class Weather:
         return response
 
     def ocean(self, context: Dict):
-        command = context['command']
+        command = context['cleaned_command']
 
         response = "Not implemented"
 
         return response
 
-def build_skill(config: Dict):
-    return Weather(config)
+def build_skill(config: Dict, ova: 'OpenVoiceAssistant'):
+    return Weather(config, ova)
 
 def default_config():
     return {
