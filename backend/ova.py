@@ -4,7 +4,7 @@ import time
 
 from backend import config
 from backend.schemas import Context
-from backend.enums import PipelineStages, Components, pipeline_to_component
+from backend.enums import Components
 from backend.node_manager import NodeManager
 
 from backend.components.skillset import Skillset
@@ -42,14 +42,13 @@ class OpenVoiceAssistant:
         for component_id in COMPONENTS.keys():
             self.launch_component(component_id)
 
-    def run_pipeline(self, *stages: typing.List[PipelineStages], context: Context = None):
+    def run_pipeline(self, *stages: typing.List[Components], context: Context = None):
         if not context:
             context = {}
 
         start = time.time()
 
         for stage in stages:
-            component = pipeline_to_component[stage]
-            self.get_component(component).run_stage(context)
+            self.get_component(stage).run_stage(context)
 
         context['time_to_run_pipeline'] = time.time() - start
