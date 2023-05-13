@@ -10,7 +10,7 @@ from backend.schemas import Context
 from backend import config
 
 from backend.enums import Components
-from backend.components.understander.train_neural_intent_model import train_classifier, load_training_data
+from backend.components.understander.train_neural_intent import train_classifier, load_training_data
 from backend.utils.nlp import clean_text, encode_word_vec, pad_sequence
 
 class NeuralIntent:
@@ -23,17 +23,17 @@ class NeuralIntent:
         model_dump = config.get('model_dump')
 
         print('Loading classifier')
-        model_file = config.get('components', Components.Understander.value, 'model_file')
+        model_file = config.get(Components.Understander.value, 'model_file')
         if not model_file:
             model_file = os.path.join(model_dump, 'intent_model.h5')
-            config.set('components', Components.Understander.value, 'model_file', model_file)
+            config.set(Components.Understander.value, 'model_file', model_file)
 
-        vocab_file = config.get('components', Components.Understander.value, 'vocab_file')
+        vocab_file = config.get(Components.Understander.value, 'vocab_file')
         if not vocab_file:
             vocab_file = os.path.join(model_dump, 'intent_vocab.p')
-            config.set('components', Components.Understander.value, 'vocab_file', vocab_file)
+            config.set(Components.Understander.value, 'vocab_file', vocab_file)
 
-        imported_skills = config.get('components', Components.Skillset.value, 'imported_skills')
+        imported_skills = config.get(Components.Skillset.value, 'imported_skills')
         skills_dir = os.path.join(config.get('base_dir'), 'skills')
 
         if not os.path.exists(model_file) or not os.path.exists(vocab_file):
@@ -52,7 +52,7 @@ class NeuralIntent:
         self.intent_model = load_model(model_file)
         self.word_to_int, self.int_to_label, self.seq_length = pickle.load(open(vocab_file, 'rb'))
 
-        self.conf_thresh = config.get('components', Components.Understander.value, 'config', 'conf_thresh')
+        self.conf_thresh = config.get(Components.Understander.value, 'config', 'conf_thresh')
 
     def predict_intent(self, text: str) -> Tuple[str, str, float]:
         cleaned = clean_text(text)

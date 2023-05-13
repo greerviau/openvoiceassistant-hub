@@ -8,11 +8,11 @@ from backend.schemas import Context
 
 class Understander:
     def __init__(self, ova: 'OpenVoiceAssistant'):
-        self.algo = config.get('components', Components.Understander.value, 'algorithm').lower().replace(' ', '_')
+        self.algo = config.get(Components.Understander.value, 'algorithm').lower().replace(' ', '_')
         self.module = importlib.import_module(f'backend.components.understander.{self.algo}')
 
-        if config.get('components', Components.Understander.value, 'config') is None:
-            config.set('components', Components.Understander.value, 'config', self.module.default_config())
+        if config.get(Components.Understander.value, 'config') is None:
+            config.set(Components.Understander.value, 'config', self.module.default_config())
 
         self.engage_delay = config.get('engage_delay')
 
@@ -45,7 +45,12 @@ class Understander:
             except:
                 raise RuntimeError('Failed to parse callback')
         else:
-            skill, action, conf = self.engine.understand(context)
+            try:
+                skill, action, conf = self.engine.understand(context)
+            except RuntimeError:
+                skill = 'DID_NOT_UNDERSTAND'
+                action = ''
+                conf = 100
 
         context['time_to_understand'] = time.time() - start
         context['skill'] = skill

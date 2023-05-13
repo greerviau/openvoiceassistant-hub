@@ -13,13 +13,13 @@ from backend.utils.nlp import clean_text
 
 class Transcriber:
     def __init__(self, ova: 'OpenVoiceAssistant'):
-        self.algo = config.get('components', Components.Transcriber.value, 'algorithm').lower().replace(' ', '_')
+        self.algo = config.get(Components.Transcriber.value, 'algorithm').lower().replace(' ', '_')
         self.module = importlib.import_module(f'backend.components.transcriber.{self.algo}')
 
         self.file_dump = config.get('file_dump')
         
-        if config.get('components', Components.Transcriber.value, 'config') is None:
-            config.set('components', Components.Transcriber.value, 'config', self.module.default_config())
+        if config.get(Components.Transcriber.value, 'config') is None:
+            config.set(Components.Transcriber.value, 'config', self.module.default_config())
 
         self.engine = self.module.build_engine()
 

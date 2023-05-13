@@ -12,13 +12,13 @@ from backend.schemas import Context
 class Synthesizer:
     def __init__(self, ova: 'OpenVoiceAssistant'):
 
-        self.algo = config.get('components', Components.Synthesizer.value, 'algorithm').lower().replace(' ', '_')
+        self.algo = config.get(Components.Synthesizer.value, 'algorithm').lower().replace(' ', '_')
         self.module = importlib.import_module(f'backend.components.synthesizer.{self.algo}')
         
         self.file_dump = config.get('file_dump')
 
-        if config.get('components', Components.Synthesizer.value, 'config') is None:
-            config.set('components', Components.Synthesizer.value, 'config', self.module.default_config())
+        if config.get(Components.Synthesizer.value, 'config') is None:
+            config.set(Components.Synthesizer.value, 'config', self.module.default_config())
 
         self.engine = self.module.build_engine()
         os.makedirs(self.file_dump, exist_ok = True)

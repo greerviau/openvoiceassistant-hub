@@ -10,40 +10,36 @@ DEFAULT_CONFIG = {
         "model_dump": f"{os.path.realpath(os.path.dirname(__file__))}/model_dump",
         "file_dump": f"{os.path.realpath(os.path.dirname(__file__))}/file_dump",
         "wake_word": "computer",
-        "components": {
-            Components.Transcriber.value: {
-                "algorithm": "Kaldi",
-                "algorithm_options": [
-                    "Kaldi", 
-                    "Whisper"
-                ]
-            },
-            Components.Understander.value: {
-                "algorithm": "fuzzy",
-                "algorithm_options": [
-                    "Fuzzy",
-                    "Neural Intent"
-                ]
-            },
-            Components.Skillset.value: {
-                "imported_skills": [
-                    "greetings",
-                    "datetime"
-                ],
-                "skill_configs": {}
-            },
-            Components.Synthesizer.value: {
-                "algorithm": "Espeak",
-                "algorithm_options": [
-                    "Espeak", 
-                    "GradTTS"
-                ]
-            }
+        Components.Transcriber.value: {
+            "algorithm": "Kaldi",
+            "algorithm_options": [
+                "Kaldi", 
+                "Whisper"
+            ]
         },
-        "managers": {
-            "node_manager": {
-                "nodes": {}
-            }
+        Components.Understander.value: {
+            "algorithm": "fuzzy",
+            "algorithm_options": [
+                "Fuzzy",
+                "Neural Intent"
+            ]
+        },
+        Components.Skillset.value: {
+            "imported_skills": [
+                "greetings",
+                "datetime"
+            ],
+            "skill_configs": {}
+        },
+        Components.Synthesizer.value: {
+            "algorithm": "Espeak",
+            "algorithm_options": [
+                "Espeak", 
+                "GradTTS"
+            ]
+        },
+        "node_manager": {
+            "nodes": {}
         }
     }
 

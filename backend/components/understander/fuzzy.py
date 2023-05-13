@@ -12,12 +12,12 @@ from backend import config
 class Fuzzy:
 
     def __init__(self):
-        imported_skills = config.get('components', Components.Skillset.value, 'imported_skills')
+        imported_skills = config.get(Components.Skillset.value, 'imported_skills')
         skills_dir = os.path.join(config.get('base_dir'), 'skills')
         self.intents = self.load_intents(imported_skills, skills_dir)
         self.vocab_list = self.load_vocab(self.intents.values())
 
-        self.conf_thresh = config.get('components', Components.Understander.value, 'config', 'conf_thresh')
+        self.conf_thresh = config.get(Components.Understander.value, 'config', 'conf_thresh')
 
     def load_intents(self, imported_skills: List, skills_dir: str):
         tagged_intents = {}
@@ -35,25 +35,30 @@ class Fuzzy:
 
         encoded_command = self.encode_command(command)
         context['encoded_command'] = encoded_command
-        print(encoded_command)
-        
-        conf = 0
-        intent = None
-        for label, patterns in self.intents.items():
-            for pattern in patterns:
-                r = fuzz.partial_ratio(encoded_command, pattern)
-                if r > conf:
-                    conf = r
-                    intent = label
-        
-        skill, action = intent.split('-')
-        
-        print(f'Skill: {skill}')
-        print(f'Action: {action}')
-        print(f'Conf: {conf}')
+        print("Fuzzy encoding: ", encoded_command)
 
-        if conf < self.conf_thresh:
-            raise RuntimeError("Not confident in skill")
+        if encoded_command == "BLANK":
+            skill = "DID_NOT_UNDERSTAND"
+            action = ""
+            conf = 1000
+        else:
+            conf = 0
+            intent = None
+            for label, patterns in self.intents.items():
+                for pattern in patterns:
+                    r = fuzz.partial_ratio(encoded_command, pattern)
+                    if r > conf:
+                        conf = r
+                        intent = label
+            
+            skill, action = intent.split('-')
+            
+            print(f'Skill: {skill}')
+            print(f'Action: {action}')
+            print(f'Conf: {conf}')
+
+            if conf < self.conf_thresh:
+                raise RuntimeError("Not confident in skill")
     
         return skill, action, conf
     

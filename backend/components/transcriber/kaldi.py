@@ -6,13 +6,15 @@ import zipfile
 import wave
 
 from backend.schemas import Context
+from backend.enums import Components
 from backend import config
 from backend.utils.audio import create_wave, load_wave
 
 SetLogLevel(0)
 
 class Kaldi:
-    def __init__(self, model_lang: str):
+    def __init__(self):
+        model_lang = config.get(Components.Transcriber.value, 'config', 'model_lang')
         self.vosk_model = Model(lang=model_lang)
 
     def transcribe(self, context: Context):
@@ -48,9 +50,7 @@ class Kaldi:
         return command
 
 def build_engine():
-    model_lang = config.get('components', 'transcriber', 'config', 'model_lang')
-            
-    return Kaldi(model_lang)
+    return Kaldi()
 
 def default_config():
     return {

@@ -6,6 +6,7 @@ import torch
 import typing
 
 from backend.schemas import Context
+from backend.enums import Components
 from backend import config
 
 from .grad_tts import params as params
@@ -84,8 +85,8 @@ class Gradtts:
             return audio_data, sample_rate, sample_width
 
 def build_engine() -> Gradtts:
-    model_file = config.get('components', 'synthesizer', 'config', 'model_file')
-    hifi_model_file = config.get('components', 'synthesizer', 'config', 'hifi_model_file')
+    model_file = config.get(Components.Synthesizer.value, 'config', 'model_file')
+    hifi_model_file = config.get(Components.Synthesizer.value, 'config', 'hifi_model_file')
     return Gradtts(model_file, hifi_model_file)
 
 def default_config() -> typing.Dict:
