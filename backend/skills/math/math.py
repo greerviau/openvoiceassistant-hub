@@ -14,12 +14,12 @@ class Math:
 
         math_command = self.remove_words(
             command,
-            ['what', 'is', 'the']
+            ['whats', 'what', 'is', 'the']
         )
 
         res = mathparse.parse(math_command, language='ENG')
 
-        response = command + f" is {round(res, 2)}"
+        response = math_command + f" is {round(res, 2)}"
 
         return response
     
