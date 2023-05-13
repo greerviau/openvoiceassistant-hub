@@ -47,9 +47,10 @@ class Weather:
             "overcast clouds": ["overcast"],
             "few clouds": ["mostly clear"],
             "scattered clouds": ["scattered clouds"],
+            "broken clouds": ["broken clouds"],
             "rain": ["raining", "rainy"],
             "snow": ["snowing"],
-            "clear": ["clear", "sunny"]
+            "clear sky": ["clear", "sunny"]
         }
 
         RESPONSE_TEMPLATES = [
