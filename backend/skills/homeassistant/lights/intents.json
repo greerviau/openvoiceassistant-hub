@@ -1,0 +1,22 @@
+{
+    "intentions": [
+        {
+            "action":"light_on",
+            "patterns":[
+                "turn on the lights",
+                "turn on the BLANK lights",
+                "turn on the light",
+                "turn on the BLANK lights"
+            ]
+        },
+        {
+            "action":"light_off",
+            "patterns":[
+                "turn off the lights",
+                "turn off the BLANK lights",
+                "turn off the light",
+                "turn off the BLANK lights"
+            ]
+        }
+    ]
+}
