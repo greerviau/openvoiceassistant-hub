@@ -3,7 +3,7 @@ import threading
 import time
 
 from backend import config
-from backend.utils.nlp import ner, try_parse_word_number
+from backend.utils.nlp import named_entity_recognition, try_parse_word_number
 
 class ThreadTimer(threading.Timer):
     started_at = None
@@ -27,7 +27,7 @@ class Timer:
     def set_timer(self, context: Dict):
         command = context['cleaned_command']
 
-        ents = ner(command)
+        ents = named_entity_recognition(command)
 
         response = ""
 

@@ -256,7 +256,7 @@ def pad_sequence(encoded, seq_length):
         padding[:len(encoded)] = encoded
     return padding
 
-def ner(sentence):
+def named_entity_recognition(sentence):
     doc = nlp(sentence)
 
     parsed = {}
@@ -268,7 +268,6 @@ def ner(sentence):
 
 
 if __name__ == '__main__':
-    c = "Set a timer for 15 minutes"
-    s = "for {time} (hours|minutes|seconds){increment}"
-    parsed = ner(c)
+    c = "Add eggs to my shopping list"
+    parsed = named_entity_recognition(c)
     print(parsed)

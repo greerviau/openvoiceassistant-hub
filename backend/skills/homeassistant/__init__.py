@@ -1,0 +1,1 @@
+from .homeassistant import default_config

@@ -19,12 +19,14 @@ class ShoppingList:
         return "Not implemented"
 
     def read_shopping_list(self, config: Dict):
-        resp = requests.get(self.shopping_list_api, headers=self.headerse)
+        resp = requests.get(self.shopping_list_api, headers=self.headers)
         if resp.status_code == 200:
             items = resp.json()
             item_names = [item["name"] for item in items]
-            response = f"You have {', '.join(item_names)} on your shopping list"
-            return response
+            if any(item_names):
+                return f"You have {', '.join(item_names)} on your shopping list"
+            else:
+                return "You dont have anything on your shopping list"
         return "I could not access a shopping list"
 
 

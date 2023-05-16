@@ -1,7 +1,7 @@
 from typing import Dict, List
 from mathparse import mathparse
 
-from backend.utils.nlp import ner
+from backend.utils.nlp import named_entity_recognition
 from backend import config
 
 class Math:
