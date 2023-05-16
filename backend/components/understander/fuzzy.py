@@ -22,6 +22,7 @@ class Fuzzy:
     def load_intents(self, imported_skills: List, skills_dir: str):
         tagged_intents = {}
         for skill in imported_skills:
+            skill = skill.replace('.', '/')
             intents = json.load(open(os.path.join(skills_dir, skill, 'intents.json')))['intentions']
             for intent in intents:
                 tag = intent['action']

@@ -12,22 +12,27 @@ from backend.schemas import Context
 class Skillset:
     def __init__(self, ova: 'OpenVoiceAssistant'):
         self.ova = ova
-        self.available_skills = [submodule.name for submodule in iter_modules(skills.__path__)]
+        self.available_skills = []
+        for submodule in iter_modules(skills.__path__):
+            sm = submodule.name
+            nested_modules = [module for module in iter_modules(importlib.import_module(f'backend.skills.{sm}').__path__) if module.ispkg]
+            print(nested_modules)
+            if not any(nested_modules): 
+                self.available_skills.append(sm)
+            else:
+                self.available_skills.extend([f'{sm}.{m.name}' for m in nested_modules])
+        print(self.available_skills)
+        
         self.imported_skills = config.get(Components.Skillset.value, 'imported_skills')
-        self.skill_configs = config.get(Components.Skillset.value, 'skill_configs')
         self.not_imported = list(set(self.available_skills + self.imported_skills))
 
-        print('Imported Skills')
-        for skill_id in self.imported_skills:
-            print(skill_id)
-            if skill_id not in self.skill_configs:
-                skill_config = self.get_default_skill_config(skill_id)
-                self.skill_configs[skill_id] = skill_config
-                config.set(Components.Skillset.value, 'skill_configs', skill_id, skill_config)
-
         self.imported_skill_modules = {}
-        for skill_id, skill_config in self.skill_configs.items():
+
+        for skill_id in self.imported_skills:
             print('Importing ', skill_id)
+            skill_config = config.get(Components.Skillset.value, 'skill_configs', *skill_id.split('.'))
+            if not skill_config: 
+                skill_config = self.get_default_skill_config(skill_id)
             self.__import_skill(skill_id, skill_config)
 
     def add_skill(self, skill_id: str):
@@ -50,7 +55,7 @@ class Skillset:
 
     def get_skill_config(self, skill_id: str) -> typing.Dict:
         if self.skill_imported(skill_id):
-            return self.skill_configs[skill_id]
+            return config.get(Components.Skillset.value, 'skill_configs', *skill_id.split('.'))
         else:
             return self.get_default_skill_config(skill_id)
 
@@ -94,11 +99,13 @@ class Skillset:
             module = importlib.import_module(f'backend.skills.{skill_id}')
             if skill_config is None:
                 skill_config = module.default_config()
+                self.__save_config(skill_id, skill_config)
             try:
                 self.imported_skill_modules[skill_id] = module.build_skill(skill_config, self.ova)
             except Exception as e:
-                raise RuntimeError(f'Failed to load {skill_id}')
-            self.skill_configs[skill_id] = skill_config
-            config.set(Components.Skillset.value, 'skill_configs', self.skill_configs)
+                raise RuntimeError(f'Failed to load {skill_id} | Exception {repr(e)}')
         else:
             raise RuntimeError('Skill does not exist')
+        
+    def __save_config(self, skill_id: str, skill_config: typing.Dict):
+        config.set(Components.Skillset.value, 'skill_configs', *skill_id.split('.'), skill_config)
