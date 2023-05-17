@@ -27,13 +27,13 @@ class Timer:
     def set_timer(self, context: Dict):
         command = context['cleaned_command']
 
-        ents = named_entity_recognition(command)
+        entities = context['pos_info']['ENTITIES']
 
         response = ""
 
         if not self.timer:
-            if 'TIME' in ents:
-                t = ents['TIME']
+            if 'TIME' in entities:
+                t = entities['TIME']
                 for inc, m in {'second': 1, 'minute': 60, 'hour': 3600}.items():
                     if inc in t:
                         d = t.replace(inc, '').strip().split()[0]
