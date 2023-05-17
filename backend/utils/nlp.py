@@ -1,17 +1,14 @@
 import numpy as np
 import string
-import re
 import datetime
-from rake_nltk import Rake
 from word2number import w2n
 from nltk.corpus import stopwords
 import spacy
-from spacy.matcher import Matcher
+from spacy.matcher import DependencyMatcher
 
-from typing import List
+import typing
 
 nlp = spacy.load('en_core_web_sm')
-rake = Rake()
 
 STOPWORDS = list(set(stopwords.words('english')))
 STOPWORDS.extend(['some', 'what'])
@@ -192,33 +189,60 @@ def parse_date(text):
 
     return None, None
 
-def extract_subject(text):
-    kw = rake.extract_keywords_from_text(text)
-    ranked_phrases = rake.get_ranked_phrases()
-    #filter(lambda w: not w in STOPWORDS, ranked_phrases)
-    print(ranked_phrases)
-    return ranked_phrases
+def named_entity_recognition(sentence):
+    doc = nlp(sentence)
 
-def extract_keywords(text):
-    kw = rake.extract_keywords_from_text(text)
-    ranked_phrases = rake.get_ranked_phrases()
-    return ranked_phrases
+    parsed = {}
 
-def tokenize(text):
-    doc = nlp(text)
-    return [token.text for token in doc]
+    for ent in doc.ents:
+        parsed[ent.label_] = ent.text
 
-def extract_verbs(text):
-    doc = nlp(text)
-    return [token.text for token in doc if token.pos_ == "VERB"]
-    
-def extract_entities(text):
-    doc = nlp(text)
-    return doc.ents
+    return parsed
 
-def extract_noun_chunks(text):
-    doc = nlp(text)
-    return [chunk.text for chunk in doc.noun_chunks]
+def information_extraction(sentence):
+    doc = nlp(sentence)
+
+    parsed = {}
+    parsed["SUBJECT"], parsed["OBJECT"], parsed["COMP"] = [], [], []
+
+    for token in doc:
+        #print(f"{token.text} -> {token.dep_}")
+        if (token.dep_=='nsubj'):
+            parsed["SUBJECT"].append(token.text)
+
+        elif (token.dep_=='dobj'):
+            parsed["OBJECT"].append(token.text)
+
+        elif (token.dep_=='compound'):
+            parsed["COMP"].append(token.text)
+
+    parsed["ENTITIES"] = named_entity_recognition(sentence)
+
+    parsed['NOUN_CHUNKS'] = []
+    for chunk in doc.noun_chunks:
+        parsed['NOUN_CHUNKS'].append(chunk.text)
+
+    object_pattern = [
+        {
+            "RIGHT_ID": "target",
+            "RIGHT_ATTRS": {"POS": "NOUN"}
+        },
+        # founded -> subject
+        {
+            "LEFT_ID": "target",
+            "REL_OP": ">",
+            "RIGHT_ID": "modifier",
+            "RIGHT_ATTRS": {"DEP": {"IN": ["amod", "nummod"]}}
+        }
+    ]
+
+    matcher = DependencyMatcher(nlp.vocab)
+    matcher.add("OBJECT", [object_pattern])   
+
+    for match_id, (target, modifier) in matcher(doc):
+        parsed["MOD_OBJECT"] = ' '.join([doc[modifier].text, doc[target].text])
+
+    return parsed
 
 '''
 RELATED TO INTENT CLASSIFICATION
@@ -256,18 +280,7 @@ def pad_sequence(encoded, seq_length):
         padding[:len(encoded)] = encoded
     return padding
 
-def named_entity_recognition(sentence):
-    doc = nlp(sentence)
-
-    parsed = {}
-
-    for ent in doc.ents:
-        parsed[ent.label_] = ent.text
-
-    return parsed
-
-
 if __name__ == '__main__':
-    c = "Add eggs to my shopping list"
-    parsed = named_entity_recognition(c)
+    c = "turn on the kitchen lights"
+    parsed = information_extraction(c)
     print(parsed)

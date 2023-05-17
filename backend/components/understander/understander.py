@@ -5,6 +5,7 @@ from backend.enums import Components
 from backend import config
 from backend.utils.nlp import clean_text
 from backend.schemas import Context
+from backend.utils.nlp import information_extraction
 
 class Understander:
     def __init__(self, ova: 'OpenVoiceAssistant'):
@@ -51,6 +52,8 @@ class Understander:
                 skill = 'DID_NOT_UNDERSTAND'
                 action = ''
                 conf = 100
+
+        context['pos_info'] = information_extraction(cleaned_command)
 
         context['time_to_understand'] = time.time() - start
         context['skill'] = skill
