@@ -45,7 +45,7 @@ class Lights:
     def get_light_id(self, pos_info):
         try:
             light = pos_info["COMP"][0]
-        except KeyError:
+        except:
             return "Please provide a light to turn on"
         
         lights = self.get_lights()

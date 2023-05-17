@@ -5,8 +5,11 @@
             "patterns":[
                 "turn on the lights",
                 "turn on the BLANK lights",
+                "turn on the BLANK BLANK lights",
                 "turn on the light",
-                "turn on the BLANK lights"
+                "turn the BLANKS lights on",
+                "turn the BLANKS BLANK lights on",
+                "turn the lights on"
             ]
         },
         {
@@ -14,8 +17,11 @@
             "patterns":[
                 "turn off the lights",
                 "turn off the BLANK lights",
+                "turn on the BLANK BLANK lights",
                 "turn off the light",
-                "turn off the BLANK lights"
+                "turn the BLANK lights off",
+                "turn the BLANK BLANK lights off",
+                "turn the lights off"
             ]
         }
     ]
