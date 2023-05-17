@@ -28,3 +28,4 @@ class Context(typing.TypedDict):
     skill: str
     action: str
     conf: float
+    pos_info: typing.Dict
