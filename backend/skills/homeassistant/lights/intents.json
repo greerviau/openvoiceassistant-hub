@@ -6,10 +6,14 @@
                 "turn on the lights",
                 "turn on the BLANK lights",
                 "turn on the BLANK BLANK lights",
+                "turn on BLANK lights",
+                "turn on BLANK BLANK lights",
                 "turn on the light",
                 "turn the BLANKS lights on",
                 "turn the BLANKS BLANK lights on",
-                "turn the lights on"
+                "turn the lights on",
+                "turn BLANK lights on",
+                "turn BLANK BLANK lights on"
             ]
         },
         {
@@ -17,11 +21,15 @@
             "patterns":[
                 "turn off the lights",
                 "turn off the BLANK lights",
-                "turn on the BLANK BLANK lights",
+                "turn off the BLANK BLANK lights",
+                "turn off BLANK lights",
+                "turn off BLANK BLANK lights",
                 "turn off the light",
                 "turn the BLANK lights off",
                 "turn the BLANK BLANK lights off",
-                "turn the lights off"
+                "turn the lights off",
+                "turn BLANK lights off",
+                "turn BLANK BLANK lights off"
             ]
         }
     ]
