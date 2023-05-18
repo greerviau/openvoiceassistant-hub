@@ -23,9 +23,9 @@ class Weather:
         ents = context["pos_info"]["ENTITIES"]
         location = ents["GPE"] if "GPE" in ents else ents["PERSON"] if "PERSON" in ents else None
         if location:
-            return self.mgr.weather_at_place(location).weather, f" in {location} "
+            return self.mgr.weather_at_place(location).weather, f"in {location}"
         else:
-            return self.mgr.weather_at_coords(lat=self.lat, lon=self.lon).weather, " "
+            return self.mgr.weather_at_coords(lat=self.lat, lon=self.lon).weather, ""
 
     def weather(self, context: Dict):
         w, loc = self._get_weather(context)
@@ -34,7 +34,7 @@ class Weather:
         temp = int(w.temperature(self.unit)["temp"])
         humidity = int(w.humidity)
 
-        response = f"{sky}. The temperature{loc}is {temp} degrees with a humidity of {humidity} percent."
+        response = f"{sky}. The temperature is {temp} degrees with a humidity of {humidity} percent."
 
         return response
 
@@ -63,7 +63,7 @@ class Weather:
 
         condition = random.choice(SKY_MAPPING[status])
 
-        response = (random.choice(RESPONSE_TEMPLATES) % (condition)) + loc
+        response = (random.choice(RESPONSE_TEMPLATES) % (condition)) + f" {loc}"
 
         return response
 
@@ -88,9 +88,9 @@ class Weather:
         template = random.choice(RESPONSE_TEMPLATES)
 
         if random.choice([0,1]):
-            response = (template % (feeling)) + loc
+            response = (template % (feeling)) + f" {loc}"
         else:
-            response = template % (f"{humidity} percent humidity{loc}")
+            response = template % (f"{humidity} percent humidity") + f" {loc}"
 
         return response
 
@@ -115,9 +115,9 @@ class Weather:
         template = random.choice(RESPONSE_TEMPLATES)
 
         if random.choice([0,1]):
-            response = template % (feeling) + loc
+            response = template % (feeling) + f" {loc}"
         else:
-            response = template % (f"{temp} degrees{loc}")
+            response = template % (f"{temp} degrees") + f" {loc}"
 
         return response
 
