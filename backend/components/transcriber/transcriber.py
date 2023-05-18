@@ -43,7 +43,7 @@ class Transcriber:
 
         #save_wave(wave_file_path, audio_data, sample_rate, sample_width, channels)
 
-        command = self.engine.transcribe(context)
+        command = self.engine.transcribe(context).strip()
         
         context['time_to_transcribe'] = time.time() - start
 
