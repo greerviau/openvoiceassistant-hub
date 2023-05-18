@@ -23,18 +23,18 @@ class Weather:
         ents = context["pos_info"]["ENTITIES"]
         location = ents["GPE"] if "GPE" in ents else ents["PERSON"] if "PERSON" in ents else None
         if location:
-            return self.mgr.weather_at_place(location).weather
+            return self.mgr.weather_at_place(location).weather, f" in {location} "
         else:
-            return self.mgr.weather_at_coords(lat=self.lat, lon=self.lon).weather
+            return self.mgr.weather_at_coords(lat=self.lat, lon=self.lon).weather, " "
 
     def weather(self, context: Dict):
-        w = self._get_weather(context)
+        w, loc = self._get_weather(context)
 
         sky = self.sky(context)
         temp = int(w.temperature(self.unit)["temp"])
         humidity = int(w.humidity)
 
-        response = f"{sky}. The temperature is {temp} degrees with a humidity of {humidity} percent."
+        response = f"{sky}. The temperature{loc}is {temp} degrees with a humidity of {humidity} percent."
 
         return response
 
@@ -57,13 +57,13 @@ class Weather:
             "Its %s right now"
         ]
 
-        w = self._get_weather(context)
+        w, loc = self._get_weather(context)
 
         status = w.detailed_status
 
         condition = random.choice(SKY_MAPPING[status])
 
-        response = random.choice(RESPONSE_TEMPLATES) % (condition)
+        response = (random.choice(RESPONSE_TEMPLATES) % (condition)) + loc
 
         return response
 
@@ -74,7 +74,7 @@ class Weather:
             "Its currently %s right now"
         ]
 
-        w = self._get_weather(context)
+        w, loc = self._get_weather(context)
 
         humidity = int(w.humidity)
 
@@ -88,9 +88,9 @@ class Weather:
         template = random.choice(RESPONSE_TEMPLATES)
 
         if random.choice([0,1]):
-            response = template % (feeling)
+            response = (template % (feeling)) + loc
         else:
-            response = template % (f"{humidity} percent humidity")
+            response = template % (f"{humidity} percent humidity{loc}")
 
         return response
 
@@ -101,7 +101,7 @@ class Weather:
             "Its currently %s right now"
         ]
 
-        w = self._get_weather(context)
+        w, loc = self._get_weather(context)
 
         temp = int(w.temperature(self.unit)["temp"])
 
@@ -115,14 +115,14 @@ class Weather:
         template = random.choice(RESPONSE_TEMPLATES)
 
         if random.choice([0,1]):
-            response = template % (feeling)
+            response = template % (feeling) + loc
         else:
-            response = template % (f"{temp} degrees")
+            response = template % (f"{temp} degrees{loc}")
 
         return response
 
     def ocean(self, context: Dict):
-        w = self._get_weather(context)
+        w, loc = self._get_weather(context)
 
         response = "Not implemented"
 
