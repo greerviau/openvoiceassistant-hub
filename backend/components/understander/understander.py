@@ -53,7 +53,7 @@ class Understander:
                 action = ''
                 conf = 100
 
-        context['pos_info'] = information_extraction(cleaned_command)
+        context['pos_info'] = information_extraction(context['command'])
 
         context['time_to_understand'] = time.time() - start
         context['skill'] = skill
