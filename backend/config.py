@@ -18,7 +18,7 @@ DEFAULT_CONFIG = {
             ]
         },
         Components.Understander.value: {
-            "algorithm": "fuzzy",
+            "algorithm": "Fuzzy",
             "algorithm_options": [
                 "Fuzzy",
                 "Neural Intent"
