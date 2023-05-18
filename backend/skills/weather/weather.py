@@ -19,23 +19,20 @@ class Weather:
         owm = OWM(owm_api_key)
         self.mgr = owm.weather_manager()
 
-        self.w = None
-
-        threading.Thread(target=self._weather_thread, daemon=True).start()
-
-    def _weather_thread(self):
-        while True:
-            print('Pulling latest weather data')
-            self.w = self.mgr.weather_at_coords(lat=self.lat, lon=self.lon).weather
-
-            time.sleep(self.update_delay_seconds)
+    def _get_weather(self, context: Dict):
+        ents = context["pos_info"]["ENTITIES"]
+        location = ents["GPE"] if "GPE" in ents else ents["PERSON"] if "PERSON" in ents else None
+        if location:
+            return self.mgr.weather_at_place(location).weather
+        else:
+            return self.mgr.weather_at_coords(lat=self.lat, lon=self.lon).weather
 
     def weather(self, context: Dict):
-        command = context['cleaned_command']
+        w = self._get_weather(context)
 
         sky = self.sky(context)
-        temp = int(self.w.temperature(self.unit)["temp"])
-        humidity = int(self.w.humidity)
+        temp = int(w.temperature(self.unit)["temp"])
+        humidity = int(w.humidity)
 
         response = f"{sky}. The temperature is {temp} degrees with a humidity of {humidity} percent."
 
@@ -60,9 +57,9 @@ class Weather:
             "Its %s right now"
         ]
 
-        command = context['cleaned_command']
+        w = self._get_weather(context)
 
-        status = self.w.detailed_status
+        status = w.detailed_status
 
         condition = random.choice(SKY_MAPPING[status])
 
@@ -77,9 +74,9 @@ class Weather:
             "Its currently %s right now"
         ]
 
-        command = context['cleaned_command']
+        w = self._get_weather(context)
 
-        humidity = int(self.w.humidity)
+        humidity = int(w.humidity)
 
         feeling = "dry"
 
@@ -104,9 +101,9 @@ class Weather:
             "Its currently %s right now"
         ]
 
-        command = context['cleaned_command']
+        w = self._get_weather(context)
 
-        temp = int(self.w.temperature(self.unit)["temp"])
+        temp = int(w.temperature(self.unit)["temp"])
 
         feeling = "cold"
 
@@ -125,7 +122,7 @@ class Weather:
         return response
 
     def ocean(self, context: Dict):
-        command = context['cleaned_command']
+        w = self._get_weather(context)
 
         response = "Not implemented"
 
