@@ -280,6 +280,18 @@ def pad_sequence(encoded, seq_length):
         padding[:len(encoded)] = encoded
     return padding
 
+def encode_command(command: str, vocab):
+    last_blank = False
+    words = []
+    for word in command.split():
+        if word not in vocab and not last_blank:
+            last_blank = True
+            words.append('BLANK')
+        else:
+            last_blank = False
+            words.append(word)
+    return ' '.join(words)
+
 if __name__ == '__main__':
     c = "turn on the kitchen lights"
     parsed = information_extraction(c)

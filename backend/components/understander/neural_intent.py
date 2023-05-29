@@ -55,8 +55,7 @@ class NeuralIntent:
         self.conf_thresh = config.get(Components.Understander.value, 'config', 'conf_thresh')
 
     def predict_intent(self, text: str) -> Tuple[str, str, float]:
-        cleaned = clean_text(text)
-        encoded = encode_word_vec(cleaned, self.word_to_int)
+        encoded = encode_word_vec(text, self.word_to_int)
         padded = pad_sequence(encoded, self.seq_length)
         prediction = self.intent_model.predict(np.array([padded]))[0]
         argmax = np.argmax(prediction)
@@ -65,8 +64,8 @@ class NeuralIntent:
         return skill, action, round(float(prediction[argmax])*100, 3)
 
     def understand(self, context: Context) -> Tuple[str, str, float]:
-        command = context['cleaned_command']
-        skill, action, conf = self.predict_intent(command)
+        encoded_command = context['encoded_command']
+        skill, action, conf = self.predict_intent(encoded_command)
         
         print(f'Skill: {skill}')
         print(f'Action: {action}')

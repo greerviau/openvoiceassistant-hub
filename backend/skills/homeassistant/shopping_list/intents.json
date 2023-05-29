@@ -4,22 +4,16 @@
             "action":"add_to_shopping_list",
             "patterns":[
                 "add BLANK to my shopping list",
-                "add BLANK BLANK to my shopping list",
                 "add BLANK to the shopping list",
-                "add BLANK BLANK to the shopping list",
-                "put BLANK on the shopping list",
-                "put BLANK BLANK on the shopping list"
+                "put BLANK on the shopping list"
             ]
         },
         {
             "action":"remove_from_shopping_list",
             "patterns":[
                 "remove BLANK from my shopping list",
-                "remove BLANK BLANK from my shopping list",
                 "remove BLANK from the shopping list",
-                "remove BLANK BLANK from the shopping list",
-                "take BLANK off the shopping list",
-                "take BLANK BLANK off the shopping list"
+                "take BLANK off the shopping list"
             ]
         },
         {

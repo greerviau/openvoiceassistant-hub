@@ -31,34 +31,25 @@ class Fuzzy:
         return tagged_intents
 
     def understand(self, context: Context):
-        command = context['cleaned_command']
+        encoded_command = context['encoded_command']
 
-        encoded_command = self.encode_command(command)
-        context['encoded_command'] = encoded_command
-        print("Fuzzy encoding: ", encoded_command)
+        conf = 0
+        intent = None
+        for label, patterns in self.intents.items():
+            for pattern in patterns:
+                r = fuzz.partial_ratio(encoded_command, pattern)
+                if r > conf:
+                    conf = r
+                    intent = label
+        
+        skill, action = intent.split('-')
+        
+        print(f'Skill: {skill}')
+        print(f'Action: {action}')
+        print(f'Conf: {conf}')
 
-        if encoded_command == "BLANK":
-            skill = "DID_NOT_UNDERSTAND"
-            action = ""
-            conf = 1000
-        else:
-            conf = 0
-            intent = None
-            for label, patterns in self.intents.items():
-                for pattern in patterns:
-                    r = fuzz.partial_ratio(encoded_command, pattern)
-                    if r > conf:
-                        conf = r
-                        intent = label
-            
-            skill, action = intent.split('-')
-            
-            print(f'Skill: {skill}')
-            print(f'Action: {action}')
-            print(f'Conf: {conf}')
-
-            if conf < self.conf_thresh:
-                raise RuntimeError("Not confident in skill")
+        if conf < self.conf_thresh:
+            raise RuntimeError("Not confident in skill")
     
         return skill, action, conf
     
@@ -73,12 +64,6 @@ class Fuzzy:
             if word not in unique:
                 unique.append(word)
         return unique
-    
-    def encode_command(self, command: str):
-        for word in command.split():
-            if word not in self.vocab_list:
-                command = command.replace(word, 'BLANK')
-        return command
 
 def build_engine() -> Fuzzy:
     return Fuzzy()
