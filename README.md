@@ -67,3 +67,4 @@ All of the algorithms in the pipeline are customizable, including:
 - [x] Datetime skill
 - [x] Homeassistant skill
 - [ ] Optimize and improve inference speed
+- [ ] Build frontend
