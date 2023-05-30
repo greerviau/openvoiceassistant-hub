@@ -206,7 +206,7 @@ def information_extraction(sentence):
     parsed["SUBJECT"], parsed["OBJECT"], parsed["COMP"] = [], [], []
 
     for token in doc:
-        #print(f"{token.text} -> {token.dep_}")
+        print(f"{token.text} -> {token.dep_}")
         if (token.dep_=='nsubj'):
             parsed["SUBJECT"].append(token.text)
 
@@ -293,6 +293,6 @@ def encode_command(command: str, vocab):
     return ' '.join(words)
 
 if __name__ == '__main__':
-    c = "turn on the kitchen lights"
+    c = "whats the weather like in India"
     parsed = information_extraction(c)
     print(parsed)

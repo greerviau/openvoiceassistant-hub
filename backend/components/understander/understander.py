@@ -1,5 +1,8 @@
 import time
 import importlib
+import os
+import json
+from typing import List
 
 from backend.enums import Components
 from backend import config
@@ -15,9 +18,37 @@ class Understander:
         if config.get(Components.Understander.value, "config") is None:
             config.set(Components.Understander.value, "config", self.module.default_config())
 
+        imported_skills = config.get(Components.Skillset.value, 'imported_skills')
+        skills_dir = os.path.join(config.get('base_dir'), 'skills')
+        self.intents = self.load_intents(imported_skills, skills_dir)
+        self.vocab_list = self.load_vocab(self.intents.values())
+
         self.engage_delay = config.get("engage_delay")
 
-        self.engine = self.module.build_engine()
+        self.engine = self.module.build_engine(self.intents)
+
+    def load_intents(self, imported_skills: List, skills_dir: str):
+        tagged_intents = {}
+        for skill in imported_skills:
+            intents = json.load(open(os.path.join(skills_dir, skill.replace('.', '/'), 'intents.json')))['intentions']
+            for intent in intents:
+                tag = intent['action']
+                patterns = intent['patterns']
+                label = f'{skill}-{tag}'
+                tagged_intents[label] = patterns
+        return tagged_intents
+    
+    def load_vocab(self, patterns: List[List[str]]):
+        all_words = []
+        for pattern_list in patterns:
+            all_words.extend(pattern_list)
+        all_words = ' '.join(all_words)
+        unique = []
+        for word in all_words.split():
+            word = clean_text(word)
+            if word not in unique:
+                unique.append(word)
+        return unique
     
     def run_stage(self, context: Context):
         print("Understanding Stage")
@@ -40,7 +71,7 @@ class Understander:
             context["cleaned_command"] = cleaned_command
             print(f"Cleaned Command: {cleaned_command}")
 
-        encoded_command = encode_command(cleaned_command)
+        encoded_command = encode_command(cleaned_command, self.vocab_list)
         context["encoded_command"] = encoded_command
         print(f"Encoded command: {encoded_command}")
         

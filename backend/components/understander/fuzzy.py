@@ -11,24 +11,10 @@ from backend import config
 
 class Fuzzy:
 
-    def __init__(self):
-        imported_skills = config.get(Components.Skillset.value, 'imported_skills')
-        skills_dir = os.path.join(config.get('base_dir'), 'skills')
-        self.intents = self.load_intents(imported_skills, skills_dir)
-        self.vocab_list = self.load_vocab(self.intents.values())
+    def __init__(self, intents: Dict):
+        self.intents = intents
 
         self.conf_thresh = config.get(Components.Understander.value, 'config', 'conf_thresh')
-
-    def load_intents(self, imported_skills: List, skills_dir: str):
-        tagged_intents = {}
-        for skill in imported_skills:
-            intents = json.load(open(os.path.join(skills_dir, skill.replace('.', '/'), 'intents.json')))['intentions']
-            for intent in intents:
-                tag = intent['action']
-                patterns = intent['patterns']
-                label = f'{skill}-{tag}'
-                tagged_intents[label] = patterns
-        return tagged_intents
 
     def understand(self, context: Context):
         encoded_command = context['encoded_command']
@@ -52,21 +38,9 @@ class Fuzzy:
             raise RuntimeError("Not confident in skill")
     
         return skill, action, conf
-    
-    def load_vocab(self, patterns: List[List[str]]):
-        all_words = []
-        for pattern_list in patterns:
-            all_words.extend(pattern_list)
-        all_words = ' '.join(all_words)
-        unique = []
-        for word in all_words.split():
-            word = clean_text(word)
-            if word not in unique:
-                unique.append(word)
-        return unique
 
-def build_engine() -> Fuzzy:
-    return Fuzzy()
+def build_engine(intents: Dict) -> Fuzzy:
+    return Fuzzy(intents)
 
 def default_config() -> Dict:
     return {

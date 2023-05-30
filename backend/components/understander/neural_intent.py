@@ -15,7 +15,7 @@ from backend.utils.nlp import clean_text, encode_word_vec, pad_sequence
 
 class NeuralIntent:
 
-    def __init__(self):
+    def __init__(self, intents: Dict):
         self.load_classifier()
 
     
@@ -77,8 +77,8 @@ class NeuralIntent:
         return skill, action, conf
         
 
-def build_engine() -> NeuralIntent:
-    return NeuralIntent()
+def build_engine(intents: Dict) -> NeuralIntent:
+    return NeuralIntent(intents)
 
 def default_config() -> Dict:
     return {
