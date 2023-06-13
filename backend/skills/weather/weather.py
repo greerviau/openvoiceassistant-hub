@@ -14,7 +14,6 @@ class Weather:
         self.lat = config["latitude"]
         self.lon = config["longitude"]
         self.unit = config["unit"]
-        self.update_delay_seconds = config["update_delay_seconds"]
 
         owm = OWM(owm_api_key)
         self.mgr = owm.weather_manager()
@@ -23,7 +22,7 @@ class Weather:
         ents = context["pos_info"]["ENTITIES"]
         location = ents["GPE"] if "GPE" in ents else ents["PERSON"] if "PERSON" in ents else None
         if location:
-            return self.mgr.weather_at_place(location).weather, f"in {location}"
+            return self.mgr.weather_at_place(location).weather, f" in {location}"
         else:
             return self.mgr.weather_at_coords(lat=self.lat, lon=self.lon).weather, ""
 
@@ -54,10 +53,10 @@ class Weather:
         }
 
         RESPONSE_TEMPLATES = [
-            "It looks like its %s outside",
+            "It looks like it's %s outside",
             "Today it will be %s",
             "It is %s outside",
-            "Its %s right now"
+            "It's %s right now"
         ]
 
         w, loc = self._get_weather(context)
@@ -66,7 +65,7 @@ class Weather:
 
         condition = random.choice(SKY_MAPPING[status])
 
-        response = (random.choice(RESPONSE_TEMPLATES) % (condition)) + f" {loc}"
+        response = (random.choice(RESPONSE_TEMPLATES) % (condition)) + loc
 
         return response
 
@@ -91,9 +90,9 @@ class Weather:
         template = random.choice(RESPONSE_TEMPLATES)
 
         if random.choice([0,1]):
-            response = (template % (feeling)) + f" {loc}"
+            response = (template % (feeling)) + loc
         else:
-            response = template % (f"{humidity} percent humidity") + f" {loc}"
+            response = template % (f"{humidity} percent humidity") + loc
 
         return response
 
@@ -118,9 +117,9 @@ class Weather:
         template = random.choice(RESPONSE_TEMPLATES)
 
         if random.choice([0,1]):
-            response = template % (feeling) + f" {loc}"
+            response = template % (feeling) + loc
         else:
-            response = template % (f"{temp} degrees") + f" {loc}"
+            response = template % (f"{temp} degrees") + loc
 
         return response
 
@@ -139,7 +138,6 @@ def default_config():
         "owm_api_key": "",
         "latitude": 0,
         "longitude": 0,
-        "update_delay_seconds": 3600,
         "unit": "fahrenheit",
         "unit_options": ["fahrenheit", "celsius"]
     }
