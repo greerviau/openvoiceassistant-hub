@@ -51,11 +51,12 @@ class ShoppingList:
         if resp.status_code == 200:
             items = resp.json()
             item_names = [item["name"] for item in items]
-            last_item = item_names.pop(-1)
-            if any(item_names) and last_item:
-                return f"You have {','.join(item_names)} and {last_item} on your shopping list"
-            elif last_item:
-                return f"You only have {last_item} on your shopping list"
+            if any(item_names):
+                last_item = item_names.pop(-1)
+                if last_item:
+                    return f"You have {', '.join(item_names)} and {last_item} on your shopping list"
+                elif last_item:
+                    return f"You only have {last_item} on your shopping list"
             else:
                 return "You dont have anything on your shopping list"
         return "I could not access a shopping list"
