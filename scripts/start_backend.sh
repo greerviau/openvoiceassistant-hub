@@ -2,4 +2,4 @@
 
 source ./env/hub/bin/activate
 
-python3 -m backend
+python3.9 -m backend
