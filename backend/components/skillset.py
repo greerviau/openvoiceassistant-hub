@@ -96,8 +96,10 @@ class Skillset:
                 config.set(Components.Skillset.value, 'imported_skills', self.imported_skills)
 
             if skill_config is None:
+                mod_str = 'backend.skills'
                 for id in skill_id.split('.'):
-                    mod = importlib.import_module(f'backend.skills.{id}')
+                    mod_str += f'.{id}'
+                    mod = importlib.import_module(mod_str)
                     if skill_config is None:
                         skill_config = mod.default_config()
                     else:
