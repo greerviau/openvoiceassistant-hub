@@ -31,7 +31,8 @@
             "patterns":[
                 "stop the timer",
                 "cancel the timer",
-                "remove the timer"
+                "remove the timer",
+                "turn off the timer"
             ]
         }
     ]

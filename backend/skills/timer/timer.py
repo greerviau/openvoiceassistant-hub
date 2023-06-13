@@ -13,7 +13,10 @@ class ThreadTimer(threading.Timer):
     def elapsed(self):
         return time.time() - self.started_at
     def remaining(self):
-        return self.interval - self.elapsed()
+        rem = self.interval - self.elapsed()
+        if rem > 0:
+            return rem
+        return 0
 
 class Timer:
 
@@ -44,13 +47,13 @@ class Timer:
                         self.node_id = context["node_id"]
                         self.timer.start()
                 if not response:
-                    response = "How long should I set a timer for?"
                     context['hub_callback'] = "timer.set_timer"
+                    return "How long should I set a timer for?"
             else:
-                response = "How long should I set a timer for?"
                 context['hub_callback'] = "timer.set_timer"
+                return "How long should I set a timer for?"
         else:
-            response = "There is already a timer running"
+            return "There is already a timer running"
 
         return response  
 
@@ -62,6 +65,8 @@ class Timer:
             minutes = 0
             seconds = 0
             remaining = int(self.timer.remaining())
+            if remaining == 0:
+                return "The timer is up"
             if remaining % 3600 > 0:
                 hours = remaining // 3600
                 remaining = remaining % 3600
@@ -77,7 +82,7 @@ class Timer:
             if seconds > 0:
                 pieces.append(f"{seconds} seconds")
 
-            response = "There is"
+            response = "There is "
             if len(pieces) > 1:
                 response += ", ".join(pieces[:2])
                 if len(pieces) > 2:
@@ -85,10 +90,9 @@ class Timer:
             else:
                 response += f" {pieces[0]}"
             response += " remaining"
+            return response
         else:
-            response = "There is no timer currently running"
-
-        return response
+            return "There is no timer currently running"
     
     def stop_timer(self, context: Dict):
         if self.timer:
@@ -97,11 +101,9 @@ class Timer:
             self.timer = None
             self.node_id = None
 
-            response = "Stopping the timer"
+            return "Stopping the timer"
         else:
-            response = "There is no timer currently running"
-
-        return response
+            return "There is no timer currently running"
 
     def alert_timer_finished(self):
         print('Timer finished')
