@@ -95,16 +95,12 @@ class Skillset:
                 self.imported_skills.append(skill_id)
                 config.set(Components.Skillset.value, 'imported_skills', self.imported_skills)
 
-            if skill_config is None:
-                mod_str = 'backend.skills'
-                for id in skill_id.split('.'):
-                    mod_str += f'.{id}'
-                    mod = importlib.import_module(mod_str)
-                    if skill_config is None:
-                        skill_config = mod.default_config()
-                    else:
-                        skill_config[id] = mod.default_config()
-            self.__save_config(skill_id, skill_config)
+            print('Importing ', skill_id)
+            root_skill = skill_id.split('.')[0]
+            skill_config = config.get(Components.Skillset.value, 'skill_configs', root_skill)
+            if not skill_config:
+                skill_config = self.get_default_skill_config(root_skill)
+                self.__save_config(root_skill, skill_config)
             try:
                 module = importlib.import_module(f'backend.skills.{skill_id}')
                 self.imported_skill_modules[skill_id] = module.build_skill(skill_config, self.ova)
