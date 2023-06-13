@@ -99,9 +99,9 @@ class Skillset:
                 for id in skill_id.split('.'):
                     mod = importlib.import_module(f'backend.skills.{id}')
                     if skill_config is None:
-                        skill_config = module.default_config()
+                        skill_config = mod.default_config()
                     else:
-                        skill_config[id] = module.default_config()
+                        skill_config[id] = mod.default_config()
             self.__save_config(skill_id, skill_config)
             try:
                 module = importlib.import_module(f'backend.skills.{skill_id}')
