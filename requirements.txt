@@ -82,7 +82,6 @@ PySocks==1.7.1
 python-dateutil==2.8.2
 pyttsx3==2.90
 pytz==2022.4
-pywin32==306
 PyYAML==6.0
 rake-nltk==1.0.6
 rapidfuzz==2.15.0
