@@ -16,10 +16,8 @@ class Skillset:
         for submodule in iter_modules(skills.__path__):
             sm = submodule.name
             nested_modules = [module for module in iter_modules(importlib.import_module(f'backend.skills.{sm}').__path__) if module.ispkg]
-            if not any(nested_modules): 
-                self.available_skills.append(sm)
-            else:
-                self.available_skills.extend([f'{sm}.{m.name}' for m in nested_modules])
+            self.available_skills.append(sm)
+            self.available_skills.extend([f'{sm}.{m.name}' for m in nested_modules])
         
         self.imported_skills = config.get(Components.Skillset.value, 'imported_skills')
         self.not_imported = list(set(self.available_skills + self.imported_skills))
