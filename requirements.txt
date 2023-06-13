@@ -52,6 +52,7 @@ Markdown==3.4.1
 MarkupSafe==2.1.1
 marshmallow==3.18.0
 marshmallow-enum==1.5.1
+mathparse==0.1.2
 matplotlib==3.6.0
 more-itertools==8.14.0
 murmurhash==1.0.8
