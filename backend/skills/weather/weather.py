@@ -47,7 +47,10 @@ class Weather:
             "broken clouds": ["broken clouds"],
             "rain": ["raining", "rainy"],
             "snow": ["snowing"],
-            "clear sky": ["clear", "sunny"]
+            "clear sky": ["clear", "sunny"],
+            "mist": ["misty"],
+            "moderate rain": ["moderate rain"],
+            "haze": ["hazy"]
         }
 
         RESPONSE_TEMPLATES = [
