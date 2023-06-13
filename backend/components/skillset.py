@@ -96,9 +96,8 @@ class Skillset:
                 config.set(Components.Skillset.value, 'imported_skills', self.imported_skills)
 
             print('Importing ', skill_id)
-            root_skill = skill_id.split('.')[0]
-            skill_config = config.get(Components.Skillset.value, 'skill_configs', root_skill)
             if not skill_config:
+                root_skill = skill_id.split('.')[0]
                 skill_config = self.get_default_skill_config(root_skill)
                 self.__save_config(root_skill, skill_config)
             try:
