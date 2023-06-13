@@ -77,7 +77,6 @@ pydub==0.25.1
 pyjokes==0.6.0
 pyowm==3.3.0
 pyparsing==3.0.9
-pypiwin32==223
 PySocks==1.7.1
 python-dateutil==2.8.2
 pyttsx3==2.90
