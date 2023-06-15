@@ -60,6 +60,7 @@ All of the algorithms in the pipeline are customizable, including:
 ## Voice Synthesis
 * Espeak (default)
 * GradTTS
+* Coqui TTS
 
 ## v0.1.0
 - [ ] Logging system
