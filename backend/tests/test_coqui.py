@@ -1,22 +1,13 @@
-from TTS.utils.manage import ModelManager
-from TTS.utils.synthesizer import Synthesizer
+from TTS.api import TTS
 
-path = "/path/to/pip/site-packages/TTS/.models.json"
+# Running a multi-speaker and multi-lingual model
 
-model_manager = ModelManager(path)
+# List available 🐸TTS models and choose the first one
+model_name = TTS.list_models()[0]
+# Init TTS
+tts = TTS(model_name)
 
-model_path, config_path, model_item = model_manager.download_model("tts_models/en/ljspeech/tacotron2-DDC")
+# Run TTS
 
-voc_path, voc_config_path, _ = model_manager.download_model(model_item["default_vocoder"])
-
-syn = Synthesizer(
-    tts_checkpoint=model_path,
-    tts_config_path=config_path,
-    vocoder_checkpoint=voc_path,
-    vocoder_config=voc_config_path
-)
-
-text = "Hello from a machine"
-
-outputs = syn.tts(text)
-syn.save_wav(outputs, "audio-1.wav")
+# Text to speech to a file
+tts.tts_to_file(text="Hello world!", speaker=tts.speakers[0], language=tts.languages[0], file_path="output.wav")
