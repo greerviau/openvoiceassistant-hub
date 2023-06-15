@@ -9,7 +9,7 @@ from backend import config
 class Coqui:
 
     def __init__(self):
-        self.tts = TTS(model_name="tts_models/en/sam/tacotron-DDC", progress_bar=False, gpu=False)
+        self.tts = TTS(model_name="tts_models/en/sam/tacotron-DDC", progress_bar=False, gpu=True)
 
     def synthesize(self, context: Context):
         text = context['response']
