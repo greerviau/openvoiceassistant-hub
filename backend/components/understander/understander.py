@@ -15,7 +15,7 @@ class Understander:
         self.algo = config.get(Components.Understander.value, "algorithm").lower().replace(" ", "_")
         self.module = importlib.import_module(f"backend.components.understander.{self.algo}")
 
-        if config.get(Components.Understander.value, "config") is None:
+        if not config.get(Components.Understander.value, "config"):
             config.set(Components.Understander.value, "config", self.module.default_config())
 
         imported_skills = config.get(Components.Skillset.value, 'imported_skills')

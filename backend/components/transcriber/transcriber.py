@@ -18,7 +18,7 @@ class Transcriber:
 
         self.file_dump = config.get('file_dump')
         
-        if config.get(Components.Transcriber.value, 'config') is None:
+        if not config.get(Components.Transcriber.value, 'config'):
             config.set(Components.Transcriber.value, 'config', self.module.default_config())
 
         self.engine = self.module.build_engine()
