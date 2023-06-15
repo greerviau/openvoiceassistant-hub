@@ -4,12 +4,13 @@ import soundfile
 import typing
 
 from backend.schemas import Context
+from backend.enums import Components
 from backend import config
 
 class Coqui:
 
-    def __init__(self):
-        self.tts = TTS(model_name="tts_models/en/sam/tacotron-DDC", progress_bar=False, gpu=True)
+    def __init__(self, model_name: str, gpu: bool):
+        self.tts = TTS(model_name=model_name, progress_bar=False, gpu=gpu)
 
     def synthesize(self, context: Context):
         text = context['response']
@@ -29,7 +30,13 @@ class Coqui:
         return audio_data, audio_seg.getframerate(), audio_seg.getsampwidth()
 
 def build_engine() -> Coqui:
-    return Coqui()
+    model_name = config.get(Components.Synthesizer.value, 'config', 'model_name')
+    gpu = config.get(Components.Synthesizer.value, 'config', 'use_gpu')
+    return Coqui(model_name, gpu)
 
 def default_config() -> typing.Dict:
-    return {}
+    return {
+        "model_name": "tts_models/en/ljspeech/speedy-speech",
+        "use_gpu": False,
+        "model_names": TTS.list_models()
+    }
