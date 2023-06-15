@@ -17,7 +17,7 @@ class Synthesizer:
         
         self.file_dump = config.get('file_dump')
 
-        if config.get(Components.Synthesizer.value, 'config') is None:
+        if not config.get(Components.Synthesizer.value, 'config'):
             config.set(Components.Synthesizer.value, 'config', self.module.default_config())
 
         self.engine = self.module.build_engine()
