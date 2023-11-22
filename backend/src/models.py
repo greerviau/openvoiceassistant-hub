@@ -31,5 +31,6 @@ class NodeConfig(BaseModel):
     node_name: str
     node_api_url: str
     wakeup: Dict
-    recording: Dict
+    mic_index: int
+    vad_sensitivity: int
     playback: Dict

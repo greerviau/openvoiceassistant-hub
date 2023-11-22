@@ -25,7 +25,6 @@ class Skillset:
         self.imported_skill_modules = {}
 
         for skill_id in self.imported_skills:
-            print('Importing ', skill_id)
             root_skill = skill_id.split('.')[0]
             skill_config = config.get(Components.Skillset.value, 'skill_configs', root_skill)
             if not skill_config:
