@@ -9,7 +9,6 @@ DEFAULT_CONFIG = {
         "base_dir": os.path.realpath(os.path.dirname(__file__)),
         "model_dump": f"{os.path.realpath(os.path.dirname(__file__))}/model_dump",
         "file_dump": f"{os.path.realpath(os.path.dirname(__file__))}/file_dump",
-        "wake_word": "computer",
         Components.Transcriber.value: {
             "algorithm": "Kaldi",
             "algorithm_options": [
