@@ -46,16 +46,17 @@ Actions performed and associated responses are dependant on skills that you can 
 Responses from OVA-hub are synthesized into speech audio and returned to the origin OVA-node along with metadata.
 
 All of the algorithms in the pipeline are customizable, including:
-* Voice Detection
 * Audio Transcription
+* Understanding
 * Voice Synthesis
-
-## Voice Detection
-* Kaldi Phrase Detection
 
 ## Audio Transcription
 * Kaldi (default)
 * Whisper
+
+## Understanding
+* Rapidfuzz
+* Neural Intent (broken)
 
 ## Voice Synthesis
 * Espeak (default)
@@ -65,7 +66,7 @@ All of the algorithms in the pipeline are customizable, including:
 ## v0.1.0
 - [ ] Logging system
 - [x] Weather skill
-- [x] Datetime skill
 - [x] Homeassistant skill
+- [ ] Fix neural intent (get rid of tensorflow)
 - [ ] Optimize and improve inference speed
 - [ ] Build frontend
