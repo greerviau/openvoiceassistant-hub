@@ -30,7 +30,8 @@ class NodeConfig(BaseModel):
     node_id: str
     node_name: str
     node_api_url: str
-    wakeup: Dict
+    wake_word: str
+    wakeup_sound: bool
     mic_index: int
     vad_sensitivity: int
-    playback: Dict
+    speaker_index: int
