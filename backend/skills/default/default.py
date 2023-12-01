@@ -112,7 +112,7 @@ class Default:
                         d = try_parse_word_number(d)
                         d = d * m
                         self.timer = ThreadTimer(d, self.alert_timer_finished)
-                        self.timer_node_id = context["timer_node_id"]
+                        self.timer_node_id = context["node_id"]
                         self.timer.start()
                 if not response:
                     context['hub_callback'] = "timer.set_timer"
