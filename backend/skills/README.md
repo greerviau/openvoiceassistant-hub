@@ -24,7 +24,7 @@ Skills are located in backend/skills and have a file structure like below:
 
 We will use the jokes skill as an example. So ```<skill>.py``` would be ```jokes.py```.
 
-## __init__.py
+## \_\_init\_\_.py
 Here we need some imports for scope.
 ```python
 from .jokes import Jokes, build_skill, default_config
