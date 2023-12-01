@@ -38,5 +38,5 @@ def default_config() -> typing.Dict:
     return {
         "model_name": "tts_models/en/ljspeech/speedy-speech",
         "use_gpu": False,
-        "model_names": TTS.list_models()
+        "model_names": TTS().list_models()
     }
