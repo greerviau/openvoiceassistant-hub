@@ -150,7 +150,7 @@ class Default:
             if seconds > 0:
                 pieces.append(f"{seconds} seconds")
 
-            response = "There is "
+            response = "There are "
             if len(pieces) > 1:
                 response += ", ".join(pieces[:2])
                 if len(pieces) > 2:
@@ -165,7 +165,7 @@ class Default:
     def stop_timer(self, context: Dict):
         if self.timer:
             self.timer.cancel()
-            self.ova.nodes.call_node_api("POST", self.timer_node_id, "/stop_alarm")
+            self.ova.node_manager.call_node_api("POST", self.timer_node_id, "/stop_alarm")
             self.timer = None
             self.timer_node_id = None
 
