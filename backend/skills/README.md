@@ -1,12 +1,14 @@
 # Skills
-* Greetings
-* Date and Time
+* Default
+    * Greeting
+    * Date / Time
+    * Timer
 * Home Assistant
     * Light Control
     * Shopping List
+    * Vacuum
 * Jokes
 * Math
-* Timer
 * Weather
 
 # Writing a Custom Skill
