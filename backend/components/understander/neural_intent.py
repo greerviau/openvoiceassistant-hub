@@ -21,20 +21,13 @@ class NeuralIntent:
     
     def load_classifier(self):
         model_dump = config.get('model_dump')
-
-        print('Loading classifier')
-        model_file = config.get(Components.Understander.value, 'config', 'model_file')
-        if not model_file:
-            model_file = os.path.join(model_dump, 'intent_model.h5')
-            config.set(Components.Understander.value, 'config', 'model_file', model_file)
-
-        vocab_file = config.get(Components.Understander.value, 'config', 'vocab_file')
-        if not vocab_file:
-            vocab_file = os.path.join(model_dump, 'intent_vocab.p')
-            config.set(Components.Understander.value, 'config', 'vocab_file', vocab_file)
-
+            
         imported_skills = config.get(Components.Skillset.value, 'imported_skills')
         skills_dir = os.path.join(config.get('base_dir'), 'skills')
+
+        print('Loading classifier')
+        model_file = os.path.join(model_dump, 'neural_intent_model.h5')
+        vocab_file = os.path.join(model_dump, 'neural_intent_vocab.p')
 
         if not os.path.exists(model_file) or not os.path.exists(vocab_file):
             print('Classifier model not found')
@@ -82,7 +75,5 @@ def build_engine(intents: Dict) -> NeuralIntent:
 
 def default_config() -> Dict:
     return {
-        "vocab_file": "",
-        "model_file": "",
         "conf_thresh": 80
     }
