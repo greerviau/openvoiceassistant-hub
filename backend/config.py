@@ -25,8 +25,7 @@ DEFAULT_CONFIG = {
         },
         Components.Skillset.value: {
             "imported_skills": [
-                "greetings",
-                "datetime"
+                "default"
             ],
             "skill_configs": {}
         },
@@ -38,9 +37,7 @@ DEFAULT_CONFIG = {
                 "Coqui"
             ]
         },
-        "node_manager": {
-            "nodes": {}
-        }
+        "nodes": {}
     }
 
 loc = os.path.realpath(os.path.dirname(__file__))
