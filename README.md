@@ -32,7 +32,7 @@ Skills are available out of the box, no programming required, simply import them
 
 Check out a [list of all the skills](https://github.com/greerviau/openvoiceassistant-hub/blob/develop/backend/skills/README.md) openvoiceassistant has to offer!
 
-If you want to write your own skills, follow the documentation in ```backend/skills/README.md``` for a guideline. 
+If you want to write your own skills, follow the [documentation](https://github.com/greerviau/openvoiceassistant-hub/blob/develop/backend/skills/README.md#writing-a-custom-skill) for a guideline. 
 
 Users are encouraged to create their own skills and contribute them so others may use them!
 
