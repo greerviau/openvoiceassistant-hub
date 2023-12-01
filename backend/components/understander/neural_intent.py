@@ -23,15 +23,15 @@ class NeuralIntent:
         model_dump = config.get('model_dump')
 
         print('Loading classifier')
-        model_file = config.get(Components.Understander.value, 'model_file')
+        model_file = config.get(Components.Understander.value, 'config', 'model_file')
         if not model_file:
             model_file = os.path.join(model_dump, 'intent_model.h5')
-            config.set(Components.Understander.value, 'model_file', model_file)
+            config.set(Components.Understander.value, 'config', 'model_file', model_file)
 
-        vocab_file = config.get(Components.Understander.value, 'vocab_file')
+        vocab_file = config.get(Components.Understander.value, 'config', 'vocab_file')
         if not vocab_file:
             vocab_file = os.path.join(model_dump, 'intent_vocab.p')
-            config.set(Components.Understander.value, 'vocab_file', vocab_file)
+            config.set(Components.Understander.value, 'config', 'vocab_file', vocab_file)
 
         imported_skills = config.get(Components.Skillset.value, 'imported_skills')
         skills_dir = os.path.join(config.get('base_dir'), 'skills')
