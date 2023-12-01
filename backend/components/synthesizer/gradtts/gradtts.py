@@ -27,6 +27,10 @@ class Gradtts:
         hifi_model_file = config.get(Components.Synthesizer.value, 'config', 'hifi_model_file')
 
         self.CUDA = torch.cuda.is_available()
+        if not self.CUDA:
+            print('GradTTS cant use CUDA')
+        else:
+            print('GradTTS using CUDA')
 
         self.timesteps = 10
     
