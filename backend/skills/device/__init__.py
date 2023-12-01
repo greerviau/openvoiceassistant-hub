@@ -1,1 +1,0 @@
-from .device import default_config

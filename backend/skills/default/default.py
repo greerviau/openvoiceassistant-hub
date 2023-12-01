@@ -1,9 +1,11 @@
 from typing import Dict
+from datetime import datetime
+import pytz
 import threading
 import time
 
 from backend import config
-from backend.utils.nlp import named_entity_recognition, try_parse_word_number
+from backend.utils.nlp import try_parse_word_number
 
 class ThreadTimer(threading.Timer):
     started_at = None
@@ -18,14 +20,80 @@ class ThreadTimer(threading.Timer):
             return rem
         return 0
 
-class Timer:
+class Default:
 
     def __init__(self, config: Dict, ova: 'OpenVoiceAssistant'):
         self.ova = ova
         self.config = config
 
+        self.tz = pytz.timezone(config["timezone"])
+        self.format = "%H" if config["24_hour_format"] else "%I"
+
         self.timer = None
-        self.node_id = None
+        self.timer_node_id = None
+
+    def hello(self, context: Dict):
+        command = context['cleaned_command']
+        addr = context['addr'] if 'addr' in context else ''
+
+        response = ''
+        if 'morning' in command:
+            response = f'Good morning {addr}'
+        elif 'afternoon' in command:
+            response = f'Good afternoon {addr}'
+        elif 'evening' in command:
+            response = f'Good evening {addr}'
+        elif 'night' in command:
+            response = f'Good night {addr}'
+        else:
+            response = f'Hello {addr}'
+
+        return response
+
+    def how_are_you(self, context: Dict):
+        command = context['cleaned_command']
+        addr = context['addr'] if 'addr' in context else ''
+
+        response = f'Doing well {addr}'
+
+        return response
+
+    def whats_up(self, context: Dict):
+        command = context['cleaned_command']
+        addr = context['addr'] if 'addr' in context else ''
+
+        response = f'Not much {addr}'
+        
+        return response
+
+    def goodbye(self, context: Dict):
+        command = context['cleaned_command']
+        addr = context['addr'] if 'addr' in context else ''
+
+        response = f'Goodbye {addr}'
+
+        return response
+    
+    def date(self, context: Dict):
+        date = datetime.now(self.tz).strftime("%B %d, %Y")
+
+        response = f"Today is {date}"
+
+        return response
+
+    def time(self, context: Dict):
+        time = datetime.now(self.tz).strftime(f"{self.format}:%M")
+
+        response = f"It is {time}"
+
+        return response
+
+    def day_of_week(self, context: Dict):
+        dow = datetime.now(self.tz).strftime('%A')
+
+        response = f"It is {dow}"
+
+        return response
 
     def set_timer(self, context: Dict):
         command = context['cleaned_command']
@@ -44,7 +112,7 @@ class Timer:
                         d = try_parse_word_number(d)
                         d = d * m
                         self.timer = ThreadTimer(d, self.alert_timer_finished)
-                        self.node_id = context["node_id"]
+                        self.timer_node_id = context["timer_node_id"]
                         self.timer.start()
                 if not response:
                     context['hub_callback'] = "timer.set_timer"
@@ -97,9 +165,9 @@ class Timer:
     def stop_timer(self, context: Dict):
         if self.timer:
             self.timer.cancel()
-            self.ova.node_manager.call_node_api("POST", self.node_id, "/stop_alarm")
+            self.ova.nodes.call_node_api("POST", self.timer_node_id, "/stop_alarm")
             self.timer = None
-            self.node_id = None
+            self.timer_node_id = None
 
             return "Stopping the timer"
         else:
@@ -107,11 +175,14 @@ class Timer:
 
     def alert_timer_finished(self):
         print('Timer finished')
-        self.ova.node_manager.call_node_api("POST", self.node_id, "/play_alarm")
+        self.ova.node_manager.call_node_api("POST", self.timer_node_id, "/play_alarm")
 
 
 def build_skill(config: Dict, ova: 'OpenVoiceAssistant'):
-    return Timer(config, ova)
+    return Default(config, ova)
 
 def default_config():
-    return {}
+    return {
+        "timezone": "US/Eastern",
+        "24_hour_format": False
+    }
