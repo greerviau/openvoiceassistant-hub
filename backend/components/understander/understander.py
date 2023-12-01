@@ -28,7 +28,7 @@ class Understander:
     def verify_config(self):
         current_config = config.get(Components.Understander.value, 'config')
         default_config = self.module.default_config()
-        if current_config.keys() != default_config.keys():
+        if not current_config or (current_config.keys() != default_config.keys()):
             config.set(Components.Understander.value, 'config', default_config)
 
     def load_intents(self, imported_skills: List, skills_dir: str):
