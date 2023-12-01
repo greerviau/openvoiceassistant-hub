@@ -22,7 +22,10 @@ HIFI_CONFIG = os.path.join(os.path.realpath(os.path.dirname(__file__)), 'grad_tt
 CMU_DICT = os.path.join(os.path.realpath(os.path.dirname(__file__)), 'grad_tts/resources/cmu_dictionary')
 
 class Gradtts:
-    def __init__(self, model_file: str, hifi_model: str):
+    def __init__(self):
+        model_file = config.get(Components.Synthesizer.value, 'config', 'model_file')
+        hifi_model_file = config.get(Components.Synthesizer.value, 'config', 'hifi_model_file')
+
         self.CUDA = torch.cuda.is_available()
 
         self.timesteps = 10
@@ -50,9 +53,9 @@ class Gradtts:
         self.vocoder = HiFiGAN(h)
         if self.CUDA:
             self.vocoder = self.vocoder.cuda()
-            self.vocoder.load_state_dict(torch.load(hifi_model)['generator'])
+            self.vocoder.load_state_dict(torch.load(hifi_model_file)['generator'])
         else:
-            self.vocoder.load_state_dict(torch.load(hifi_model, map_location='cpu')['generator'])
+            self.vocoder.load_state_dict(torch.load(hifi_model_file, map_location='cpu')['generator'])
         self.vocoder.eval()
         self.vocoder.remove_weight_norm()
 
@@ -85,9 +88,7 @@ class Gradtts:
             return audio_data, sample_rate, sample_width
 
 def build_engine() -> Gradtts:
-    model_file = config.get(Components.Synthesizer.value, 'config', 'model_file')
-    hifi_model_file = config.get(Components.Synthesizer.value, 'config', 'hifi_model_file')
-    return Gradtts(model_file, hifi_model_file)
+    return Gradtts()
 
 def default_config() -> typing.Dict:
     return {

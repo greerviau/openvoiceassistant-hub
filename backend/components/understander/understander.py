@@ -12,20 +12,24 @@ from backend.utils.nlp import information_extraction, encode_command
 
 class Understander:
     def __init__(self, ova: "OpenVoiceAssistant"):
-        self.algo = config.get(Components.Understander.value, "algorithm").lower().replace(" ", "_")
-        self.module = importlib.import_module(f"backend.components.understander.{self.algo}")
-
-        if not config.get(Components.Understander.value, "config"):
-            config.set(Components.Understander.value, "config", self.module.default_config())
-
         imported_skills = config.get(Components.Skillset.value, 'imported_skills')
         skills_dir = os.path.join(config.get('base_dir'), 'skills')
         self.intents = self.load_intents(imported_skills, skills_dir)
         self.vocab_list = self.load_vocab(self.intents.values())
-
         self.engage_delay = config.get("engage_delay")
+    
+        self.algo = config.get(Components.Understander.value, "algorithm").lower().replace(" ", "_")
+        self.module = importlib.import_module(f"backend.components.understander.{self.algo}")
+
+        self.verify_config()
 
         self.engine = self.module.build_engine(self.intents)
+
+    def verify_config(self):
+        current_config = config.get(Components.Skillset.value, 'config')
+        default_config = self.module.default_config()
+        if current_config.keys() != default_config.keys():
+            config.set(Components.Skillset.value, 'config', default_config)
 
     def load_intents(self, imported_skills: List, skills_dir: str):
         tagged_intents = {}

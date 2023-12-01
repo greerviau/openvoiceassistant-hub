@@ -10,7 +10,7 @@ from backend import config
 from backend.utils.audio import create_numpy_waveform, resample_waveform
 
 class Whisper:
-    def __init__(self):  
+    def __init__(self):
         model_size = config.get(Components.Transcriber.value, 'config', 'model_size')
         self.model = whisper.load_model(model_size)
 

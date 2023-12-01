@@ -11,17 +11,21 @@ from backend.schemas import Context
 
 class Synthesizer:
     def __init__(self, ova: 'OpenVoiceAssistant'):
+        self.file_dump = config.get('file_dump')
+        os.makedirs(self.file_dump, exist_ok = True)
 
         self.algo = config.get(Components.Synthesizer.value, 'algorithm').lower().replace(' ', '_')
         self.module = importlib.import_module(f'backend.components.synthesizer.{self.algo}')
-        
-        self.file_dump = config.get('file_dump')
 
-        if not config.get(Components.Synthesizer.value, 'config'):
-            config.set(Components.Synthesizer.value, 'config', self.module.default_config())
+        self.verify_config()
 
         self.engine = self.module.build_engine()
-        os.makedirs(self.file_dump, exist_ok = True)
+
+    def verify_config(self):
+        current_config = config.get(Components.Synthesizer.value, 'config')
+        default_config = self.module.default_config()
+        if current_config.keys() != default_config.keys():
+            config.set(Components.Synthesizer.value, 'config', default_config)
 
     def get_algorithm_default_config(self, algorithm_id: str) -> typing.Dict:
         try:
