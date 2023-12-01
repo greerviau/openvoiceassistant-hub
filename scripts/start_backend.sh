@@ -2,4 +2,4 @@
 
 source ./env/bin/activate
 
-python3.9 -m backend
+python3 -m backend
