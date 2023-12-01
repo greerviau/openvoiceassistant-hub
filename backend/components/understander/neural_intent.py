@@ -4,7 +4,7 @@ import pickle
 import numpy as np
 
 from typing import Tuple, Dict
-from keras.models import load_model
+from tensorflow.keras.models import load_model
 
 from backend.schemas import Context
 from backend import config
