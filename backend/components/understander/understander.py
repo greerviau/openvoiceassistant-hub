@@ -26,10 +26,10 @@ class Understander:
         self.engine = self.module.build_engine(self.intents)
 
     def verify_config(self):
-        current_config = config.get(Components.Skillset.value, 'config')
+        current_config = config.get(Components.Understander.value, 'config')
         default_config = self.module.default_config()
         if current_config.keys() != default_config.keys():
-            config.set(Components.Skillset.value, 'config', default_config)
+            config.set(Components.Understander.value, 'config', default_config)
 
     def load_intents(self, imported_skills: List, skills_dir: str):
         tagged_intents = {}
