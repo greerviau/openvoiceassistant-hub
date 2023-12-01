@@ -6,9 +6,9 @@ CWD=$(pwd)
 
 echo $CWD
 
-python3.9 -m venv $CWD/env/hub
+python3.9 -m venv $CWD/env
 
-source $CWD/env/hub/bin/activate
+source $CWD/env/bin/activate
 
 python3.9 -m pip install -r requirements.txt
 
