@@ -5,9 +5,9 @@ import typing
 import numpy as np
 from typing import List
 
-from keras.models import Sequential
-from keras.layers import Dense, LSTM
-from keras.layers import Embedding
+from tensorflow.keras.models import Sequential
+from tensorflow.keras.layers import Dense, LSTM
+from tensorflow.keras.layers import Embedding
 from sklearn.preprocessing import OneHotEncoder
 
 from backend.utils.nlp import clean_text, encode_word_vec, pad_sequence
