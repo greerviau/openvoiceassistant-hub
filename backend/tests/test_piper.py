@@ -26,7 +26,7 @@ voices_info.update(aliases_info)
 ensure_voice_exists(model, data_dir, download_dir, voices_info)
 model, config = find_voice('en_US-lessac-medium', data_dir)
 
-voice = PiperVoice.load(model, config_path=config, use_cuda=False)
+voice = PiperVoice.load(model, config_path=config, use_cuda=True)
 synthesize_args = {
         "speaker_id": 0,
         "length_scale": 0,
