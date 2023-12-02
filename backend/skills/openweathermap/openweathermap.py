@@ -38,36 +38,44 @@ class OpenWeatherMap:
         return response
 
     def sky(self, context: Dict):
-        SKY_MAPPING = {
-            "clear sky": ["clear", "sunny"],
+        MAIN_STATUS_MAPPING = {
+            "thunderstorm": ["thunderstorming"],
+            "drizzle": ["drizzling"],
+            "rain": ["raining", "rainy"],
+            "snow": ["snowing"],
+            "clear": ["clear", "sunny"]
+        }
+        DETAILED_STATUS_MAPPING = {
             "few clouds": ["mostly clear"],
             "scattered clouds": ["scattered clouds"],
             "broken clouds": ["broken clouds"],
-            "clouds": ["cloudy"],
             "overcast clouds": ["overcast"],
-            "rain": ["raining", "rainy"],
-            "snow": ["snowing"],
             "mist": ["misty"],
-            "moderate rain": ["moderate rain"],
+            "smoke": ["smokey"],
             "haze": ["hazy"],
-            "thunderstorm with light rain": ["thunderstorms with light rain"],
-            "thunderstorm with rain": ["thunderstorms with rain"],
-            "thunderstorm with heavy rain": ["thunrderstorms with heavy rain"],
-            "light thunderstorm": ["light thunderstorms"]
+            "dust": ["dusty"],
+            "fog": ["foggy"],
+            "sand": ["sandy"],
+            "ash": ["ashy"],
+            "squall": ["slightly stormy"],
+            "tornado": ["a tornado"],
         }
 
         RESPONSE_TEMPLATES = [
             "It looks like it's %s outside",
-            "Today it will be %s",
             "It is %s outside",
             "It's %s right now"
         ]
 
         w, loc = self._get_weather(context)
 
-        status = w.status
+        main_status = w.main.lower()
+        detailed_status = w.detailed_status.lower()
 
-        condition = random.choice(SKY_MAPPING[status])
+        if main_status not in list(MAIN_STATUS_MAPPING.keys()):
+            condition = random.choice(MAIN_STATUS_MAPPING[main_status])
+        else:
+            condition = random.choice(DETAILED_STATUS_MAPPING[detailed_status])
 
         response = (random.choice(RESPONSE_TEMPLATES) % (condition)) + loc
 
@@ -84,19 +92,9 @@ class OpenWeatherMap:
 
         humidity = int(w.humidity)
 
-        feeling = "dry"
-
-        if humidity > 20:
-            feeling = "comfortable"
-            if humidity > 60:
-                feeling = "muggy"
-
         template = random.choice(RESPONSE_TEMPLATES)
 
-        if random.choice([0,1]):
-            response = (template % (feeling)) + loc
-        else:
-            response = template % (f"{humidity} percent humidity") + loc
+        response = template % (f"{humidity} percent humidity") + loc
 
         return response
 
@@ -111,19 +109,9 @@ class OpenWeatherMap:
 
         temp = int(w.temperature(self.unit)["temp"])
 
-        feeling = "cold"
-
-        if temp > 55:
-            feeling = "comfortable"
-            if temp > 80:
-                feeling = "hot"
-
         template = random.choice(RESPONSE_TEMPLATES)
 
-        if random.choice([0,1]):
-            response = template % (feeling) + loc
-        else:
-            response = template % (f"{temp} degrees") + loc
+        response = template % (f"{temp} degrees") + loc
 
         return response
 
