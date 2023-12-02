@@ -3,7 +3,7 @@ from mathparse import mathparse
 
 from backend import config
 
-class Math:
+class Mathparse:
 
     def __init__(self, config: Dict, ova: 'OpenVoiceAssistant'):
         self.config = config
@@ -28,7 +28,7 @@ class Math:
         return text
 
 def build_skill(config: Dict, ova: 'OpenVoiceAssistant'):
-    return Math(config, ova)
+    return Mathparse(config, ova)
 
 def default_config():
     return {}
