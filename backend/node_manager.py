@@ -69,7 +69,7 @@ class NodeManager:
             'status': status
         }
     
-    def call_node_api(self, verb: str, node_id: str, endpoint: str, data: typing.Dict = None):
+    def call_node_api(self, verb: str, node_id: str, endpoint: str, data: typing.Dict = {}):
         if verb not in ['GET', 'POST', 'PUT', 'DELETE']:
             raise RuntimeError('Invalid api verb')
         try:
