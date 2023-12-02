@@ -21,13 +21,13 @@ class Piper:
         data_dir = [file_dump]
         download_dir = data_dir[0]
 
-        voices_info = get_voices('./')
+        voices_info = get_voices(download_dir)
         #print(voices_info.keys())
 
         ensure_voice_exists(model_name, data_dir, download_dir, voices_info)
-        model, config = find_voice(model_name, data_dir)
+        model, model_config = find_voice(model_name, data_dir)
 
-        self.voice = PiperVoice.load(model, config_path=config, use_cuda=use_gpu)
+        self.voice = PiperVoice.load(model, config_path=model_config, use_cuda=use_gpu)
 
     def synthesize(self, context: Context):
         text = context['response']
