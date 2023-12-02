@@ -146,8 +146,7 @@ class Default:
                     for inc_idx, sec in enumerate(t_split):
                         if inc in sec:
                             d = t_split[inc_idx - 1]
-                            d = try_parse_word_number(d)
-                            durration += d * m
+                            durration += int(d) * m
                 if durration > 0:
                     response = f"Setting a timer for {t}"
                     self.timer = ThreadTimer(d, alert_timer_finished)

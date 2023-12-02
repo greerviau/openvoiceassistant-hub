@@ -54,10 +54,7 @@ def try_parse_word_number(word):
     try:
         return w2n.word_to_num(word)
     except:
-        if isinstance(word, int) or isinstance(word, float):
-            return word
-        else:
-            return None
+        return word
 
 def parse_time(text):
     text = text.lower()
@@ -258,6 +255,7 @@ def get_after(text, token):
 def clean_text(text):
     text = text.lower()
     text = text.replace('%', ' percent')
+    text = ' '.join([try_parse_word_number(word) for word in text])
     table = str.maketrans('', '', string.punctuation)
     text = ' '.join([w.translate(table) for w in text.split()])
     text = text.strip()
