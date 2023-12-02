@@ -52,7 +52,7 @@ DAY_EXTENTIONS = ['rd', 'th', 'st', 'nd']
 
 def try_parse_word_number(word):
     try:
-        return w2n.word_to_num(word)
+        return str(w2n.word_to_num(word))
     except:
         return word
 
