@@ -69,7 +69,7 @@ class OpenWeatherMap:
 
         w, loc = self._get_weather(context)
 
-        main_status = w.main.lower()
+        main_status = w.status.lower()
         detailed_status = w.detailed_status.lower()
 
         if main_status not in list(MAIN_STATUS_MAPPING.keys()):
