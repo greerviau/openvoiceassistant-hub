@@ -10,21 +10,24 @@ from piper import PiperVoice
 from pathlib import Path
 
 from backend.schemas import Context
+from backend.enums import Components
 from backend import config
 
 class Piper:
     def __init__(self):
-        model = 'en_US-lessac-medium'
-        data_dir = [str(Path.cwd())]
+        file_dump = config.get('model_dump')
+        model_name = config.get(Components.Synthesizer.value, 'config', 'model')
+        use_gpu = config.get(Components.Synthesizer.value, 'config', 'use_gpu')
+        data_dir = [file_dump]
         download_dir = data_dir[0]
 
         voices_info = get_voices('./')
         #print(voices_info.keys())
 
-        ensure_voice_exists(model, data_dir, download_dir, voices_info)
-        model, config = find_voice('en_US-lessac-medium', data_dir)
+        ensure_voice_exists(model_name, data_dir, download_dir, voices_info)
+        model, config = find_voice(model_name, data_dir)
 
-        self.voice = PiperVoice.load(model, config_path=config, use_cuda=True)
+        self.voice = PiperVoice.load(model, config_path=config, use_cuda=use_gpu)
 
     def synthesize(self, context: Context):
         text = context['response']
