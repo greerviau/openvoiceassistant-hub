@@ -139,6 +139,7 @@ class Default:
         if not self.timer:
             if 'TIME' in entities:
                 t = entities['TIME']
+                print(t)
                 t_split = t.split()
                 durration = 0
                 for inc, m in {'second': 1, 'minute': 60, 'hour': 3600}.items():
