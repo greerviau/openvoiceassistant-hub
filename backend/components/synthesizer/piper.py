@@ -53,5 +53,5 @@ def default_config() -> typing.Dict:
     return {
         "model": "en_US-lessac-medium",
         "use_gpu": False,
-        "available_models": get_voices('./')
+        "available_models": list(get_voices('./').keys())
     }
