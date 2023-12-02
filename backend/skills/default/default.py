@@ -149,7 +149,7 @@ class Default:
                             durration += int(d) * m
                 if durration > 0:
                     response = f"Setting a timer for {t}"
-                    self.timer = ThreadTimer(d, alert_timer_finished)
+                    self.timer = ThreadTimer(durration, alert_timer_finished)
                     self.timer_node_id = context["node_id"]
                     self.timer.start()
                 else:
