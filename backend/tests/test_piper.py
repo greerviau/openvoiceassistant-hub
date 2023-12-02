@@ -8,7 +8,12 @@ from pathlib import Path
 voices_info = get_voices('./piper_voices')
 print(voices_info.keys())
 
-model, config = find_voice('en_US-lessac-medium', [str(Path.cwd())])
+model = 'en_US-lessac-medium'
+data_dir = [str(Path.cwd())]
+download_dir = data_dir[0]
+
+ensure_voice_exists(model, data_dir, download_dir, voices_info)
+model, config = find_voice('en_US-lessac-medium', data_dir)
 voice = PiperVoice.load('en_US-lessac-medium', config_path=config, use_cuda=True)
 synthesize_args = {
         "speaker_id": 0,
