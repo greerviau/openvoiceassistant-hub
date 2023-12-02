@@ -153,10 +153,10 @@ class Default:
                     self.timer_node_id = context["node_id"]
                     self.timer.start()
                 else:
-                    context['hub_callback'] = "timer.set_timer"
+                    context['hub_callback'] = "default.set_timer"
                     return "How long should I set a timer for?"
             else:
-                context['hub_callback'] = "timer.set_timer"
+                context['hub_callback'] = "default.set_timer"
                 return "How long should I set a timer for?"
         else:
             return "There is already a timer running"
