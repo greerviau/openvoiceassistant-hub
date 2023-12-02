@@ -253,7 +253,7 @@ def get_after(text, token):
 
 def clean_text(text):
     text = text.lower()
-    text.replace('%', ' percent')
+    text = text.replace('%', ' percent')
     table = str.maketrans('', '', string.punctuation)
     text = ' '.join([w.translate(table) for w in text.split()])
     text = text.strip()
