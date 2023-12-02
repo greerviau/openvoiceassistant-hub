@@ -10,7 +10,7 @@ from backend import config
 class Coqui:
 
     def __init__(self):
-        model_name = config.get(Components.Synthesizer.value, 'config', 'model_name')
+        model_name = config.get(Components.Synthesizer.value, 'config', 'model')
         gpu = config.get(Components.Synthesizer.value, 'config', 'use_gpu')
 
         self.tts = TTS(model_name=model_name, progress_bar=False, gpu=gpu)
@@ -37,7 +37,7 @@ def build_engine() -> Coqui:
 
 def default_config() -> typing.Dict:
     return {
-        "model_name": "tts_models/en/ljspeech/speedy-speech",
+        "model": "tts_models/en/ljspeech/speedy-speech",
         "use_gpu": False,
-        "model_names": TTS().list_models()
+        "available_models": TTS().list_models()
     }
