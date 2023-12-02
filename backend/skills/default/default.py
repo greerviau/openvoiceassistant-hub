@@ -49,7 +49,7 @@ class Default:
             volume_percent = value * 10
 
 
-        self.ova.node_manager.call_node_api("PUT", node_id, "/set_volume", data={"volume": volume_percent})
+        self.ova.node_manager.call_node_api("PUT", node_id, "/set_volume", data={"volume_percent": volume_percent})
         return response
 
     def hello(self, context: Dict):
