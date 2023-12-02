@@ -143,11 +143,11 @@ class Default:
                 t_split = t.split()
                 durration = 0
                 for inc, m in {'second': 1, 'minute': 60, 'hour': 3600}.items():
-                    if inc in t_split:
-                        inc_idx = t_split.index(inc)
-                        d = t_split[inc_idx - 1]
-                        d = try_parse_word_number(d)
-                        durration += d * m
+                    for inc_idx, sec in enumerate(t_split):
+                        if inc in sec:
+                            d = t_split[inc_idx - 1]
+                            d = try_parse_word_number(d)
+                            durration += d * m
                 if durration > 0:
                     response = f"Setting a timer for {t}"
                     self.timer = ThreadTimer(d, alert_timer_finished)
