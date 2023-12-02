@@ -39,14 +39,14 @@ class OpenWeatherMap:
 
     def sky(self, context: Dict):
         SKY_MAPPING = {
-            "clouds": ["cloudy"],
+            "clear sky": ["clear", "sunny"],
             "few clouds": ["mostly clear"],
             "scattered clouds": ["scattered clouds"],
             "broken clouds": ["broken clouds"],
+            "clouds": ["cloudy"],
             "overcast clouds": ["overcast"],
             "rain": ["raining", "rainy"],
             "snow": ["snowing"],
-            "clear sky": ["clear", "sunny"],
             "mist": ["misty"],
             "moderate rain": ["moderate rain"],
             "haze": ["hazy"],
@@ -65,7 +65,7 @@ class OpenWeatherMap:
 
         w, loc = self._get_weather(context)
 
-        status = w.detailed_status
+        status = w.status
 
         condition = random.choice(SKY_MAPPING[status])
 
