@@ -139,17 +139,20 @@ class Default:
         if not self.timer:
             if 'TIME' in entities:
                 t = entities['TIME']
+                t_split = t.split()
+                durration = 0
                 for inc, m in {'second': 1, 'minute': 60, 'hour': 3600}.items():
-                    if inc in t:
-                        d = t.replace(inc, '').strip().split()[0]
-                        response = f"Setting a timer for {t}"
+                    if inc in t_split:
+                        inc_idx = t_split.index(inc)
+                        d = t_split[inc_idx - 1]
                         d = try_parse_word_number(d)
-                        d = d * m
-                        self.timer = ThreadTimer(d, alert_timer_finished)
-                        self.timer_node_id = context["node_id"]
-                        self.timer.start()
-                        break
-                if not response:
+                        durration += d * m
+                if durration > 0:
+                    response = f"Setting a timer for {t}"
+                    self.timer = ThreadTimer(d, alert_timer_finished)
+                    self.timer_node_id = context["node_id"]
+                    self.timer.start()
+                else:
                     context['hub_callback'] = "timer.set_timer"
                     return "How long should I set a timer for?"
             else:
