@@ -1,19 +1,31 @@
 import wave
 import sys
+from typing import Any, Dict
 
 from piper.download import ensure_voice_exists, find_voice, get_voices
 from piper import PiperVoice
 from pathlib import Path
 
-voices_info = get_voices('./piper_voices')
-print(voices_info.keys())
-
 model = 'en_US-lessac-medium'
 data_dir = [str(Path.cwd())]
 download_dir = data_dir[0]
 
+model_path = Path(model)
+
+
+voices_info = get_voices('./piper_voices')
+#print(voices_info.keys())
+
+# Resolve aliases for backwards compatibility with old voice names
+aliases_info: Dict[str, Any] = {}
+for voice_info in voices_info.values():
+    for voice_alias in voice_info.get("aliases", []):
+        aliases_info[voice_alias] = {"_is_alias": True, **voice_info}
+
+voices_info.update(aliases_info)
 ensure_voice_exists(model, data_dir, download_dir, voices_info)
 model, config = find_voice('en_US-lessac-medium', data_dir)
+
 voice = PiperVoice.load(model, config_path=config, use_cuda=True)
 synthesize_args = {
         "speaker_id": 0,
