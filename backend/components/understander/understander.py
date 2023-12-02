@@ -79,10 +79,10 @@ class Understander:
         context["encoded_command"] = encoded_command
         print(f"Encoded command: {encoded_command}")
         
-        if encoded_command == "BLANK":
-            skill = "DID_NOT_UNDERSTAND"
+        if encoded_command in ["", "BLANK"]:
+            skill = "NO_COMMAND"
             action = ""
-            conf = 1000
+            conf = 100
         else:
             hub_callback = context["hub_callback"] if "hub_callback" in context else None
             if hub_callback:
