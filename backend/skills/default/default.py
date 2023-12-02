@@ -39,7 +39,7 @@ class Default:
         numbers = extract_numbers(command)
         numbers.extend([try_parse_word_number(word) for word in command.split() if word])
 
-        value = numbers[0]
+        value = int(numbers[0])
 
         if 'percent' in command or value > 10:
             response = f"Setting the volume to {value} percent"
