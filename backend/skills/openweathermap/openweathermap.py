@@ -5,7 +5,7 @@ import random
 from pyowm import OWM
 from typing import Dict
 
-class Weather:
+class OpenWeatherMap:
 
     def __init__(self, config: Dict, ova: 'OpenVoiceAssistant'):
         self.config = config
@@ -40,16 +40,20 @@ class Weather:
     def sky(self, context: Dict):
         SKY_MAPPING = {
             "clouds": ["cloudy"],
-            "overcast clouds": ["overcast"],
             "few clouds": ["mostly clear"],
             "scattered clouds": ["scattered clouds"],
             "broken clouds": ["broken clouds"],
+            "overcast clouds": ["overcast"],
             "rain": ["raining", "rainy"],
             "snow": ["snowing"],
             "clear sky": ["clear", "sunny"],
             "mist": ["misty"],
             "moderate rain": ["moderate rain"],
-            "haze": ["hazy"]
+            "haze": ["hazy"],
+            "thunderstorm with light rain": ["thunderstorms with light rain"],
+            "thunderstorm with rain": ["thunderstorms with rain"],
+            "thunderstorm with heavy rain": ["thunrderstorms with heavy rain"],
+            "light thunderstorm": ["light thunderstorms"]
         }
 
         RESPONSE_TEMPLATES = [
@@ -131,7 +135,7 @@ class Weather:
         return response
 
 def build_skill(config: Dict, ova: 'OpenVoiceAssistant'):
-    return Weather(config, ova)
+    return OpenWeatherMap(config, ova)
 
 def default_config():
     return {
