@@ -48,6 +48,7 @@ class Default:
             response = f"Setting the volume to {value}"
             volume_percent = value * 10
 
+        config.set('nodes', node_id, 'volume', volume_percent)
 
         self.ova.node_manager.call_node_api("PUT", node_id, "/set_volume", data={"volume_percent": volume_percent})
         return response
