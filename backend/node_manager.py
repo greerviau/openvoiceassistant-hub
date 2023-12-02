@@ -1,6 +1,6 @@
 import requests
 import urllib
-from typing import Dict
+import typing
 
 from backend import config
 
@@ -8,23 +8,23 @@ class NodeManager:
     def __init__(self):
         self.nodes = config.get('nodes')
 
-    def update_node_config(self, node_id: str, node_config: Dict):
+    def update_node_config(self, node_id: str, node_config: typing.Dict):
         if self.node_exists(node_id):
             self.nodes[node_id] = node_config
             config.set('nodes', node_id, node_config)
         else:
             raise RuntimeError("Node does not exist")
         
-    def add_node_config(self, node_id: str, node_config: Dict):
+    def add_node_config(self, node_id: str, node_config: typing.Dict):
         if not self.node_exists(node_id):
             self.nodes[node_id] = node_config
             config.set('nodes', node_id, node_config)
         else:
             raise RuntimeError("Node already exists")
         
-    def sync_down_config(self, node_config: Dict, hub_config: Dict):
+    def sync_down_config(self, node_config: typing.Dict, hub_config: typing.Dict):
         node_api_url = node_config['node_api_url']
-        resp = requests.put(f'{node_api_url}/config', node_config)
+        resp = requests.put(f'{node_api_url}/config', data=node_config)
         if resp.status_code != 200:
             raise RuntimeError('Faied to update node config')
 
@@ -69,7 +69,7 @@ class NodeManager:
             'status': status
         }
     
-    def call_node_api(self, verb: str, node_id: str, endpoint: str):
+    def call_node_api(self, verb: str, node_id: str, endpoint: str, data: typing.Dict = None):
         if verb not in ['GET', 'POST', 'PUT', 'DELETE']:
             raise RuntimeError('Invalid api verb')
         try:
@@ -79,4 +79,4 @@ class NodeManager:
         address = node_config['node_api_url']
         url = address + endpoint
         print(url)
-        resp = requests.request(verb, url, timeout=2)
+        resp = requests.request(verb, url, timeout=2, data=data)
