@@ -34,7 +34,8 @@ DEFAULT_CONFIG = {
             "algorithm_options": [
                 "Espeak", 
                 "GradTTS",
-                "Coqui"
+                "Coqui",
+                "Piper"
             ]
         },
         "nodes": {}
