@@ -44,5 +44,14 @@ def build_engine(intents: Dict) -> Fuzzy:
 
 def default_config() -> Dict:
     return {
-        "conf_thresh": 80
+        "conf_thresh": 80,
+        "ratio": "simple_ratio",
+        "ration_options": [
+            "simple_ration",
+            "partial_ratio",
+            "token_sort_ratio",
+            "token_set_ratio",
+            "weighted_ratio",
+            "quick_ratio"
+        ]
     }
