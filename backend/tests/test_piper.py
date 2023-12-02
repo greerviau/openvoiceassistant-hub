@@ -14,7 +14,7 @@ download_dir = data_dir[0]
 
 ensure_voice_exists(model, data_dir, download_dir, voices_info)
 model, config = find_voice('en_US-lessac-medium', data_dir)
-voice = PiperVoice.load('en_US-lessac-medium', config_path=config, use_cuda=True)
+voice = PiperVoice.load(model, config_path=config, use_cuda=True)
 synthesize_args = {
         "speaker_id": 0,
         "length_scale": 0,
