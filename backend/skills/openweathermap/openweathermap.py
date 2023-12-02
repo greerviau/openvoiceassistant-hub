@@ -72,7 +72,7 @@ class OpenWeatherMap:
         main_status = w.status.lower()
         detailed_status = w.detailed_status.lower()
 
-        if main_status not in list(MAIN_STATUS_MAPPING.keys()):
+        if main_status in list(MAIN_STATUS_MAPPING.keys()):
             condition = random.choice(MAIN_STATUS_MAPPING[main_status])
         else:
             condition = random.choice(DETAILED_STATUS_MAPPING[detailed_status])
