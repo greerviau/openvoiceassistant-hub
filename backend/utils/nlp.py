@@ -1,12 +1,13 @@
 import numpy as np
 import string
 import datetime
-from word2number import w2n
-from nltk.corpus import stopwords
+import typing
+import re
 import spacy
 from spacy.matcher import DependencyMatcher
+from word2number import w2n
+from nltk.corpus import stopwords
 
-import typing
 
 nlp = spacy.load('en_core_web_sm')
 
@@ -243,6 +244,9 @@ def information_extraction(sentence):
         parsed["MOD_OBJECT"] = ' '.join([doc[modifier].text, doc[target].text])
 
     return parsed
+
+def extract_numbers(sentence):
+    return re.findall(r'\d+', sentence)
 
 '''
 RELATED TO INTENT CLASSIFICATION
