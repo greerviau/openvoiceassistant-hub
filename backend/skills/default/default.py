@@ -5,7 +5,7 @@ import threading
 import time
 
 from backend import config
-from backend.utils.nlp import try_parse_word_number
+from backend.utils.nlp import try_parse_word_number, extract_numbers
 
 class ThreadTimer(threading.Timer):
     started_at = None
@@ -31,6 +31,26 @@ class Default:
 
         self.timer = None
         self.timer_node_id = None
+
+    def volume(self, context: Dict):
+        node_id = context["node_id"]
+        command = context['cleaned_command']
+
+        numbers = extract_numbers(command)
+        numbers.extend([try_parse_word_number(word) for word in command.split() if word])
+
+        value = numbers[0]
+
+        if 'percent' in command or value > 10:
+            response = f"Setting the volume to {value} percent"
+            volume_percent = value
+        else:
+            response = f"Setting the volume to {value}"
+            volume_percent = value * 10
+
+
+        self.ova.node_manager.call_node_api("PUT", node_id, "/set_volume", data={"volume": volume_percent})
+        return response
 
     def hello(self, context: Dict):
         command = context['cleaned_command']
@@ -73,6 +93,14 @@ class Default:
         response = f'Goodbye {addr}'
 
         return response
+
+    def thank_you(self, context: Dict):
+        command = context['cleaned_command']
+        addr = context['addr'] if 'addr' in context else ''
+
+        response = f'Youre Welcome {addr}'
+
+        return response
     
     def date(self, context: Dict):
         date = datetime.now(self.tz).strftime("%B %d, %Y")
@@ -96,6 +124,11 @@ class Default:
         return response
 
     def set_timer(self, context: Dict):
+        
+        def alert_timer_finished(self):
+            print('Timer finished')
+            self.ova.node_manager.call_node_api("POST", self.timer_node_id, "/play_alarm")
+
         command = context['cleaned_command']
 
         entities = context['pos_info']['ENTITIES']
@@ -111,9 +144,10 @@ class Default:
                         response = f"Setting a timer for {t}"
                         d = try_parse_word_number(d)
                         d = d * m
-                        self.timer = ThreadTimer(d, self.alert_timer_finished)
+                        self.timer = ThreadTimer(d, alert_timer_finished)
                         self.timer_node_id = context["node_id"]
                         self.timer.start()
+                        break
                 if not response:
                     context['hub_callback'] = "timer.set_timer"
                     return "How long should I set a timer for?"
@@ -172,11 +206,6 @@ class Default:
             return "Stopping the timer"
         else:
             return "There is no timer currently running"
-
-    def alert_timer_finished(self):
-        print('Timer finished')
-        self.ova.node_manager.call_node_api("POST", self.timer_node_id, "/play_alarm")
-
 
 def build_skill(config: Dict, ova: 'OpenVoiceAssistant'):
     return Default(config, ova)

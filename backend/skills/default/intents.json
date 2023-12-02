@@ -1,6 +1,23 @@
 {
     "intentions": [
         {
+            "action":"volume",
+            "patterns":[
+                "volume",
+                "volume BLANK percent", 
+                "set the volume to BLANK percent",
+                "set the volume to",
+                "change the volume to", 
+                "volume down",
+                "volume up",
+                "volume up BLANK percent",
+                "turn the volume down",
+                "turn the volume up", 
+                "turn down the volume",
+                "turn up the volume"
+            ]
+        },
+        {
             "action":"hello",
             "patterns":[
                 "hello", 
@@ -59,6 +76,16 @@
                 "im gonna go",
                 "im going to go",
                 "im going to head out"
+            ]
+        },
+        {
+            "action":"thank_you",
+            "patterns":[
+                "thanks",
+                "thank you",
+                "thanks a lot", 
+                "thanks for your help", 
+                "thanks for everything"
             ]
         },
         {
