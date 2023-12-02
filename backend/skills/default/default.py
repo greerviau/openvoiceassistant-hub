@@ -126,7 +126,7 @@ class Default:
 
     def set_timer(self, context: Dict):
         
-        def alert_timer_finished(self):
+        def alert_timer_finished():
             print('Timer finished')
             self.ova.node_manager.call_node_api("POST", self.timer_node_id, "/play_alarm")
 
