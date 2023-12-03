@@ -20,6 +20,7 @@ class SkillManager:
 
         self.imported_skill_modules = {}
 
+        print('Importing Skills...')
         for skill_id in self.imported_skills:
             skill_config = config.get('skills', skill_id)
             if not skill_config:

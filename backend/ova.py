@@ -24,8 +24,8 @@ COMPONENTS = {
 class OpenVoiceAssistant:
     def __init__(self):
         self.node_manager = NodeManager(self)
-        self.skill_manager = SkillManager(self)
         self.integration_manager = IntegrationManager(self)
+        self.skill_manager = SkillManager(self)
         
         self.launch_all_components()    
 

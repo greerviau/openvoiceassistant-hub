@@ -20,6 +20,7 @@ class IntegrationManager:
 
         self.imported_integration_modules = {}
 
+        print('Importing Integrations...')
         for integration_id in self.imported_integrations:
             integration_config = config.get('integrations', integration_id)
             if not integration_config:
