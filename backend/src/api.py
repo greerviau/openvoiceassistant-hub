@@ -310,6 +310,7 @@ def create_app(ova: OpenVoiceAssistant):
             return context
         
         except Exception as err:
+            print(repr(err))
             raise fastapi.HTTPException(
                         status_code=400,
                         detail=repr(err),
