@@ -74,85 +74,6 @@ def create_app(ova: OpenVoiceAssistant):
                         detail='Transcriber algorithm default config does not exist',
                         headers={'X-Error': 'Transcriber algorithm default config does not exist'})
 
-    # SKILLS
-
-    @router.get('/skills/available', tags=["Skills"])
-    async def get_available_skills():
-        try:
-            return ova.get_component(Components.Skillset).available_skills
-        except RuntimeError as err:
-                print(repr(err))
-                raise fastapi.HTTPException(
-                            status_code=400,
-                            detail=repr(err),
-                            headers={'X-Error': f'{err}'})
-
-    @router.get('/skills/active', tags=["Skills"])
-    async def get_active_skills():
-        try:
-            return ova.get_component(Components.Skillset).imported_skills
-        except RuntimeError as err:
-            print(repr(err))
-            raise fastapi.HTTPException(
-                        status_code=400,
-                        detail=repr(err),
-                        headers={'X-Error': f'{err}'})
-
-    @router.get('/skills/{skill_id}/config', tags=["Skills"])
-    async def get_skill_config(skill_id: str):
-        try:
-            return ova.get_component(Components.Skillset).get_skill_config(skill_id)
-        except RuntimeError as err:
-            print(repr(err))
-            raise fastapi.HTTPException(
-                        status_code=400,
-                        detail=repr(err),
-                        headers={'X-Error': f'{err}'})
-
-    @router.get('/skills/{skill_id}/config/default', tags=["Skills"])
-    async def get_skill_default_config(skill_id: str):
-        try:
-            return ova.get_component(Components.Skillset).get_default_skill_config(skill_id)
-        except RuntimeError as err:
-            print(repr(err))
-            raise fastapi.HTTPException(
-                        status_code=400,
-                        detail=repr(err),
-                        headers={'X-Error': f'{err}'})
-
-    @router.post('/skills/{skill_id}', tags=["Skills"])
-    async def post_skill(skill_id: str):
-        try:
-            ova.get_component(Components.Skillset).add_skill(skill_id)
-        except RuntimeError as err:
-            print(repr(err))
-            raise fastapi.HTTPException(
-                        status_code=400,
-                        detail=repr(err),
-                        headers={'X-Error': f'{err}'})
-
-    @router.post('/skills/{skill_id}/config', tags=["Skills"])
-    async def post_skill_config(skill_id: str, skill_config: typing.Dict):
-        try:
-            ova.get_component(Components.Skillset).add_skill_config(skill_id, skill_config)
-        except RuntimeError as err:
-            print(repr(err))
-            raise fastapi.HTTPException(
-                        status_code=400,
-                        detail=repr(err),
-                        headers={'X-Error': f'{err}'})
-                        
-    @router.put('/skills/{skill_id}/config', tags=["Skills"])
-    async def put_skill_config(skill_id: str, skill_config: typing.Dict):
-        try:
-            ova.get_component(Components.Skillset).update_skill_config(skill_id, skill_config)
-        except RuntimeError as err:
-            print(repr(err))
-            raise fastapi.HTTPException(
-                        status_code=400,
-                        detail=repr(err),
-                        headers={'X-Error': f'{err}'})
-
     # NODES
 
     @router.get('/node/status', tags=["Nodes"])
@@ -245,8 +166,167 @@ def create_app(ova: OpenVoiceAssistant):
                         status_code=400,
                         detail=repr(err),
                         headers={'X-Error': f'{err}'})
+        
+    # SKILLS
+
+    @router.get('/skills/available', tags=["Skills"])
+    async def get_available_skills():
+        try:
+            return ova.skill_manager.available_skills
+        except RuntimeError as err:
+                print(repr(err))
+                raise fastapi.HTTPException(
+                            status_code=400,
+                            detail=repr(err),
+                            headers={'X-Error': f'{err}'})
+
+    @router.get('/skills/active', tags=["Skills"])
+    async def get_active_skills():
+        try:
+            return ova.skill_manager.imported_skills
+        except RuntimeError as err:
+            print(repr(err))
+            raise fastapi.HTTPException(
+                        status_code=400,
+                        detail=repr(err),
+                        headers={'X-Error': f'{err}'})
+
+    @router.get('/skills/{skill_id}/config', tags=["Skills"])
+    async def get_skill_config(skill_id: str):
+        try:
+            return ova.skill_manager.get_skill_config(skill_id)
+        except RuntimeError as err:
+            print(repr(err))
+            raise fastapi.HTTPException(
+                        status_code=400,
+                        detail=repr(err),
+                        headers={'X-Error': f'{err}'})
+
+    @router.get('/skills/{skill_id}/config/default', tags=["Skills"])
+    async def get_skill_default_config(skill_id: str):
+        try:
+            return ova.skill_manager.get_default_skill_config(skill_id)
+        except RuntimeError as err:
+            print(repr(err))
+            raise fastapi.HTTPException(
+                        status_code=400,
+                        detail=repr(err),
+                        headers={'X-Error': f'{err}'})
+
+    @router.post('/skills/{skill_id}', tags=["Skills"])
+    async def post_skill(skill_id: str):
+        try:
+            ova.skill_manager.add_skill(skill_id)
+        except RuntimeError as err:
+            print(repr(err))
+            raise fastapi.HTTPException(
+                        status_code=400,
+                        detail=repr(err),
+                        headers={'X-Error': f'{err}'})
+
+    @router.post('/skills/{skill_id}/config', tags=["Skills"])
+    async def post_skill_config(skill_id: str, skill_config: typing.Dict):
+        try:
+            ova.skill_manager.add_skill_config(skill_id, skill_config)
+        except RuntimeError as err:
+            print(repr(err))
+            raise fastapi.HTTPException(
+                        status_code=400,
+                        detail=repr(err),
+                        headers={'X-Error': f'{err}'})
+                        
+    @router.put('/skills/{skill_id}/config', tags=["Skills"])
+    async def put_skill_config(skill_id: str, skill_config: typing.Dict):
+        try:
+            ova.skill_manager.update_skill_config(skill_id, skill_config)
+        except RuntimeError as err:
+            print(repr(err))
+            raise fastapi.HTTPException(
+                        status_code=400,
+                        detail=repr(err),
+                        headers={'X-Error': f'{err}'})
+        
+    # INTEGRATIONS
+
+    @router.get('/integrations/available', tags=["Integration"])
+    async def get_available_integrations():
+        try:
+            return ova.integration_manager.available_integrations
+        except RuntimeError as err:
+                print(repr(err))
+                raise fastapi.HTTPException(
+                            status_code=400,
+                            detail=repr(err),
+                            headers={'X-Error': f'{err}'})
+
+    @router.get('/integrations/active', tags=["Integration"])
+    async def get_active_integrations():
+        try:
+            return ova.integration_manager.imported_integrations
+        except RuntimeError as err:
+            print(repr(err))
+            raise fastapi.HTTPException(
+                        status_code=400,
+                        detail=repr(err),
+                        headers={'X-Error': f'{err}'})
+
+    @router.get('/integrations/{integration_id}/config', tags=["Integration"])
+    async def get_integration_config(integration_id: str):
+        try:
+            return ova.integration_manager.get_integration_config(integration_id)
+        except RuntimeError as err:
+            print(repr(err))
+            raise fastapi.HTTPException(
+                        status_code=400,
+                        detail=repr(err),
+                        headers={'X-Error': f'{err}'})
+
+    @router.get('/integrations/{integration_id}/config/default', tags=["Integration"])
+    async def get_integration_default_config(integration_id: str):
+        try:
+            return ova.integration_manager.get_default_integration_config(integration_id)
+        except RuntimeError as err:
+            print(repr(err))
+            raise fastapi.HTTPException(
+                        status_code=400,
+                        detail=repr(err),
+                        headers={'X-Error': f'{err}'})
+
+    @router.post('/integrations/{integration_id}', tags=["Integration"])
+    async def post_integration(integration_id: str):
+        try:
+            ova.integration_manager.add_integration(integration_id)
+        except RuntimeError as err:
+            print(repr(err))
+            raise fastapi.HTTPException(
+                        status_code=400,
+                        detail=repr(err),
+                        headers={'X-Error': f'{err}'})
+
+    @router.post('/integrations/{integration_id}/config', tags=["Integration"])
+    async def post_integration_config(integration_id: str, integration_config: typing.Dict):
+        try:
+            ova.integration_manager.add_integration_config(integration_id, integration_config)
+        except RuntimeError as err:
+            print(repr(err))
+            raise fastapi.HTTPException(
+                        status_code=400,
+                        detail=repr(err),
+                        headers={'X-Error': f'{err}'})
+                        
+    @router.put('/integrations/{integration_id}/config', tags=["Integration"])
+    async def put_integration_config(integration_id: str, integration_config: typing.Dict):
+        try:
+            ova.integration_manager.update_integration_config(integration_id, integration_config)
+        except RuntimeError as err:
+            print(repr(err))
+            raise fastapi.HTTPException(
+                        status_code=400,
+                        detail=repr(err),
+                        headers={'X-Error': f'{err}'})
 
     # TRANSCRIBE
+
     @router.post('/transcribe/audio/', tags=["Inference"])
     async def transcribe_audio(data: TranscribeAudio):
         context = {}
@@ -267,6 +347,7 @@ def create_app(ova: OpenVoiceAssistant):
         return context
 
     # UNDERSTAND
+
     @router.get('/understand/text/{text}', tags=["Inference"])
     async def understand_text(text: str):
         context = {}
@@ -286,6 +367,7 @@ def create_app(ova: OpenVoiceAssistant):
         return context
 
     # SYNTHESIZE
+
     @router.get('/synthesize/text/{text}', tags=["Inference"])
     async def synthesize_text(text: str):
         context = {}
