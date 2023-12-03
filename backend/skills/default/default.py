@@ -191,6 +191,7 @@ def build_skill(config: Dict, ova: 'OpenVoiceAssistant'):
 
 def default_config():
     return {
+        "name": "Default",
         "timezone": "US/Eastern",
         "24_hour_format": False
     }

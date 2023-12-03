@@ -31,4 +31,6 @@ def build_skill(config: Dict, ova: 'OpenVoiceAssistant'):
     return Mathparse(config, ova)
 
 def default_config():
-    return {}
+    return {
+        "name": "MathParse"
+        }

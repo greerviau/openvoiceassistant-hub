@@ -3,7 +3,7 @@ import requests
 
 from backend import config
 
-class ShoppingList:
+class HAShoppingList:
 
     def __init__(self, config: Dict, ova: 'OpenVoiceAssistant'):
         self.config = config
@@ -63,7 +63,9 @@ class ShoppingList:
 
 
 def build_skill(config: Dict, ova: 'OpenVoiceAssistant'):
-    return ShoppingList(config, ova)
+    return HAShoppingList(config, ova)
 
 def default_config():
-    return {}
+    return {
+        "name": "Home Assistant Shopping List"
+    }

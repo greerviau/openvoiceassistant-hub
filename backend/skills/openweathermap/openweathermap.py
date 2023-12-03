@@ -127,6 +127,7 @@ def build_skill(config: Dict, ova: 'OpenVoiceAssistant'):
 
 def default_config():
     return {
+        "name": "Open Weather Map",
         "owm_api_key": "",
         "latitude": 0,
         "longitude": 0,

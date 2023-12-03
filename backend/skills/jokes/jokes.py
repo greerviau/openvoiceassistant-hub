@@ -16,4 +16,6 @@ def build_skill(config: Dict, ova: 'OpenVoiceAssistant'):
     return Jokes(config, ova)
 
 def default_config():
-    return {}
+    return {
+        "name": "Jokes"
+    }
