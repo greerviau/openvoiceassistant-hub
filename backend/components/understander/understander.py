@@ -12,7 +12,7 @@ from backend.utils.nlp import information_extraction, encode_command
 
 class Understander:
     def __init__(self, ova: "OpenVoiceAssistant"):
-        imported_skills = config.get(Components.Skillset.value, 'imported_skills')
+        imported_skills = list(config.get('skills').keys())
         skills_dir = os.path.join(config.get('base_dir'), 'skills')
         self.intents = self.load_intents(imported_skills, skills_dir)
         self.vocab_list = self.load_vocab(self.intents.values())
