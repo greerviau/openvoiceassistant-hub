@@ -86,7 +86,7 @@ class HomeAssistant:
         return resp.json()
 
     def get_states(self, 
-                   entity_id: str
+                   entity_id: str = ""
     ):
         ext = f"/{entity_id}" if entity_id else ""
 
