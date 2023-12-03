@@ -66,14 +66,14 @@ class Understander:
         
         command = context["command"]
 
-        context["pos_info"] = information_extraction(command)
-
         try:
             cleaned_command = context["cleaned_command"]
         except KeyError:
             cleaned_command = clean_text(command)
             context["cleaned_command"] = cleaned_command
             print(f"Cleaned Command: {cleaned_command}")
+        
+        context["pos_info"] = information_extraction(command)
 
         encoded_command = encode_command(cleaned_command, self.vocab_list)
         context["encoded_command"] = encoded_command
