@@ -20,6 +20,11 @@ class HomeAssistant:
         resp.raise_for_status()
         return resp.json()
     
+    def get_custom(self, endpoint: str):
+        resp = requests.get(f"{self.api}/{endpoint}", headers=self.headers)
+        resp.raise_for_status()
+        return resp.json()
+    
     def get_config(self):
         resp = requests.get(f"{self.api}/config", headers=self.headers)
         resp.raise_for_status()
@@ -113,34 +118,28 @@ class HomeAssistant:
     # POST ENDPOINTS
 
     def post_states(self, entity_id: str, state: typing.Dict):
-        resp = requests.post(f"{self.api}/states/{entity_id}", headers=self.headers, json=state)
-        resp.raise_for_status()
+        return requests.post(f"{self.api}/states/{entity_id}", headers=self.headers, json=state)
 
     def post_events(self, event_type: str, event_data: typing.Dict = None):
         if event_data:
-            resp = requests.post(f"{self.api}/events/{event_type}", headers=self.headers, json=event_data)
+            return requests.post(f"{self.api}/events/{event_type}", headers=self.headers, json=event_data)
         else:
-            resp = requests.post(f"{self.api}/events/{event_type}", headers=self.headers)
-        resp.raise_for_status()
+            return requests.post(f"{self.api}/events/{event_type}", headers=self.headers)
 
-    def post_services(self, domain: str, service: str, service_data: typing.Dict):
+    def post_services(self, domain: str, service: str, service_data: typing.Dict = None):
         if service_data:
-            resp = requests.post(f"{self.api}/services/{domain}/{service}", headers=self.headers, json=service_data)
+            return requests.post(f"{self.api}/services/{domain}/{service}", headers=self.headers, json=service_data)
         else:
-            resp = requests.post(f"{self.api}/events/{domain}/{service}", headers=self.headers)
-        resp.raise_for_status()
+            return requests.post(f"{self.api}/events/{domain}/{service}", headers=self.headers)
 
     def post_template(self, template: typing.Dict):
-        resp = requests.post(f"{self.api}/template", headers=self.headers, json=template)
-        resp.raise_for_status()
+        return requests.post(f"{self.api}/template", headers=self.headers, json=template)
 
     def post_config_core_check_config(self):
-        resp = requests.post(f"{self.api}/config/core/check_config", headers=self.headers)
-        resp.raise_for_status()
+        return requests.post(f"{self.api}/config/core/check_config", headers=self.headers)
 
     def post_intent_handle(self, data: typing.Dict):
-        resp = requests.post(f"{self.api}/intent/handle", headers=self.headers, json=data)
-        resp.raise_for_status()
+        return requests.post(f"{self.api}/intent/handle", headers=self.headers, json=data)
 
 def build_integration(config: typing.Dict, ova: 'OpenVoiceAssistant'):
     return HomeAssistant(config, ova)

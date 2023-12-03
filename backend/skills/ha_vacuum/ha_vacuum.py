@@ -7,39 +7,36 @@ class HAVacuum:
 
     def __init__(self, config: Dict, ova: 'OpenVoiceAssistant'):
         self.config = config
-        host = config["host"]
-        acccess_token = config["acccess_token"]
-        self.headers = {"content-type": "application/json", "Authorization": f"Bearer {acccess_token}"}
-        self.api = f"http://{host}:8123/api"
+        self.ha_integration = self.ova.integration_manager.get_integration_module('homeassistant')
 
     def start_vacuum(self, context: Dict):
-        body = {
+        data = {
             "entity_id": "all"
         }
         
-        resp = requests.post(f"{self.api}/services/vacuum/start", headers=self.headers, json=body)
+        resp = self.ha_integration.post_services('vacuum', 'start', data)
         if resp.status_code == 200:
             return f"Starting the vacuum"
         
         return f"Failed to start the vacuum"
 
     def stop_vacuum(self, context: Dict):
-        body = {
+        data = {
             "entity_id": "all"
         }
         
-        resp = requests.post(f"{self.api}/services/vacuum/stop", headers=self.headers, json=body)
+        resp = self.ha_integration.post_services('vacuum', 'stop', data)
         if resp.status_code == 200:
             return f"Stopping the vacuum"
         
         return f"Failed to stop the vacuum"
 
     def return_to_base(self, context: Dict):
-        body = {
+        data = {
             "entity_id": "all"
         }
         
-        resp = requests.post(f"{self.api}/services/vacuum/return_to_base", headers=self.headers, json=body)
+        resp = self.ha_integration.post_services('vacuum', 'return_to_base', data)
         if resp.status_code == 200:
             return f"Sending the vacuum back home"
         

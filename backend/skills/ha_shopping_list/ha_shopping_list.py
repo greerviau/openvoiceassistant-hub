@@ -7,10 +7,7 @@ class HAShoppingList:
 
     def __init__(self, config: Dict, ova: 'OpenVoiceAssistant'):
         self.config = config
-        host = config["host"]
-        acccess_token = config["acccess_token"]
-        self.headers = {"content-type": "application/json", "Authorization": f"Bearer {acccess_token}"}
-        self.api = f"http://{host}:8123/api"
+        self.ha_integration = self.ova.integration_manager.get_integration_module('homeassistant')
 
     def add_to_shopping_list(self, context: Dict):
         pos_info = context["pos_info"]
@@ -19,11 +16,11 @@ class HAShoppingList:
         except KeyError:
             return "Please provide an item to add to the shopping list"
         
-        body = {
+        data = {
             "name": item_to_add
         }
         
-        resp = requests.post(f"{self.api}/services/shopping_list/add_item", headers=self.headers, json=body)
+        resp = self.ha_integration.post_services('shopping_list', 'add_item', data)
         if resp.status_code == 200:
             return f"Adding {item_to_add} to your shopping list"
         
@@ -36,18 +33,18 @@ class HAShoppingList:
         except KeyError:
             return "Please provide an item to add to the shopping list"
         
-        body = {
+        data = {
             "name": item_to_remove
         }
         
-        resp = requests.post(f"{self.api}/services/shopping_list/remove_item", headers=self.headers, json=body)
+        resp = self.ha_integration.post_services('shopping_list', 'remove_item', data)
         if resp.status_code == 200:
             return f"Removing {item_to_remove} to your shopping list"
         
         return f"Failed to remove {item_to_remove} to your shopping list"
 
     def read_shopping_list(self, context: Dict):
-        resp = requests.get(f"{self.api}/shopping_list", headers=self.headers)
+        resp = self.ha_integration.get_custom('shopping_list')
         if resp.status_code == 200:
             items = resp.json()
             item_names = [item["name"] for item in items]

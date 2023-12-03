@@ -6,22 +6,20 @@ from backend import config
 class HALights:
 
     def __init__(self, config: Dict, ova: 'OpenVoiceAssistant'):
+        self.ova = ova
         self.config = config
-        host = config["host"]
-        acccess_token = config["acccess_token"]
-        self.headers = {"content-type": "application/json", "Authorization": f"Bearer {acccess_token}"}
-        self.api = f"http://{host}:8123/api"
+        self.ha_integration = self.ova.integration_manager.get_integration_module('homeassistant')
 
     def light_on(self, context: Dict):
         pos_info = context["pos_info"]
 
-        body = {
+        data = {
             "entity_id": self.get_light_id(pos_info)
         }
         
         light_description = pos_info["NOUN_CHUNKS"][0]
         
-        resp = requests.post(f"{self.api}/services/light/turn_on", headers=self.headers, json=body)
+        resp = self.ha_integration.post_services('light', 'turn_on', data)
         if resp.status_code == 200:
             return f"Turning on {light_description}"
         
@@ -30,13 +28,13 @@ class HALights:
     def light_off(self, context: Dict):    
         pos_info = context["pos_info"]
 
-        body = {
+        data = {
             "entity_id": self.get_light_id(pos_info)
         }
         
         light_description = pos_info["NOUN_CHUNKS"][0]
         
-        resp = requests.post(f"{self.api}/services/light/turn_off", headers=self.headers, json=body)
+        resp = self.ha_integration.post_services('light', 'turn_off', data)
         if resp.status_code == 200:
             return f"Turning off {light_description}"
         
@@ -58,7 +56,7 @@ class HALights:
         return light_id
     
     def get_lights(self):
-        resp = requests.get(f"{self.api}/states", headers=self.headers)
+        resp = self.ha_integration.get_states()
         if resp.status_code == 200:
             entities = resp.json()
             return [entity["entity_id"] for entity in entities if "light" in entity["entity_id"]]
