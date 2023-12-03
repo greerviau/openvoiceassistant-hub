@@ -57,8 +57,7 @@ class HALights:
     
     def get_lights(self):
         try:
-            resp = self.ha_integration.get_states()
-            entities = resp.json()
+            entities = self.ha_integration.get_states()
             return [entity["entity_id"] for entity in entities if "light" in entity["entity_id"]]
         except:
             raise RuntimeError("Failed to get list of light entites")
