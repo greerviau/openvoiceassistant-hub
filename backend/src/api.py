@@ -410,7 +410,7 @@ def create_app(ova: OpenVoiceAssistant):
             ova.run_pipeline(
                 Components.Transcriber,
                 Components.Understander,
-                Components.Skillset,
+                Components.Actor,
                 Components.Synthesizer,
                 context=context
             )
@@ -440,7 +440,7 @@ def create_app(ova: OpenVoiceAssistant):
 
             ova.run_pipeline(
                 Components.Understander,
-                Components.Skillset,
+                Components.Actor,
                 Components.Synthesizer,
                 context=context
             )
