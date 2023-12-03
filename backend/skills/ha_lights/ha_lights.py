@@ -15,8 +15,11 @@ class HALights:
     def light_on(self, context: Dict):
         pos_info = context["pos_info"]
 
+        entity_id = self.get_light_id(pos_info)
+        print(entity_id)
+
         data = {
-            "entity_id": self.get_light_id(pos_info)
+            "entity_id": entity_id
         }
         
         light_description = pos_info["NOUN_CHUNKS"][0]
@@ -30,8 +33,11 @@ class HALights:
     def light_off(self, context: Dict):    
         pos_info = context["pos_info"]
 
+        entity_id = self.get_light_id(pos_info)
+        print(entity_id)
+
         data = {
-            "entity_id": self.get_light_id(pos_info)
+            "entity_id": entity_id
         }
         
         light_description = pos_info["NOUN_CHUNKS"][0]
