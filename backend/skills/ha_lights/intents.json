@@ -31,12 +31,11 @@
             ]
         },
         {
-            "action":"toggle_lights",
+            "action":"light_toggle",
             "patterns":[
                 "lights",
-                "BLANK lights"
-                "toggle the lights",
                 "BLANK lights",
+                "toggle the lights",
                 "toggle the BLANK lights"
             ]
         }
