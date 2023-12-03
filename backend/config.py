@@ -23,12 +23,6 @@ DEFAULT_CONFIG = {
                 "Neural Intent"
             ]
         },
-        Components.Skillset.value: {
-            "imported_skills": [
-                "default"
-            ],
-            "skill_configs": {}
-        },
         Components.Synthesizer.value: {
             "algorithm": "Espeak",
             "algorithm_options": [
@@ -38,7 +32,9 @@ DEFAULT_CONFIG = {
                 "Piper"
             ]
         },
-        "nodes": {}
+        "nodes": {},
+        "integrations":{},
+        "skills": {}
     }
 
 loc = os.path.realpath(os.path.dirname(__file__))
