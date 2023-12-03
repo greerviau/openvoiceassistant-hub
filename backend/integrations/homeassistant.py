@@ -3,7 +3,9 @@ import requests
 import datetime
 
 class HomeAssistant:
-    def __init__(self, config: typing.Dict):
+    def __init__(self, config: typing.Dict, ova: 'OpenVoiceAssistant'):
+        self.ova = ova
+        
         self.config = config
         host = config["host"]
         port = config["port"]
@@ -140,8 +142,8 @@ class HomeAssistant:
         resp = requests.post(f"{self.api}/intent/handle", headers=self.headers, json=data)
         resp.raise_for_status()
 
-def build_integration(config: typing.Dict):
-    return HomeAssistant(config)
+def build_integration(config: typing.Dict, ova: 'OpenVoiceAssistant'):
+    return HomeAssistant(config, ova)
 
 def default_config():
     return {
