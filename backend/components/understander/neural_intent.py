@@ -22,7 +22,7 @@ class NeuralIntent:
     def load_classifier(self):
         model_dump = config.get('model_dump')
             
-        imported_skills = config.get(Components.Skillset.value, 'imported_skills')
+        imported_skills = list(config.get('skills').keys())
         skills_dir = os.path.join(config.get('base_dir'), 'skills')
 
         print('Loading classifier')
