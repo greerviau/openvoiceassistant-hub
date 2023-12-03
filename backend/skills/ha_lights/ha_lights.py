@@ -11,6 +11,8 @@ class HALights:
         self.ha_integration = self.ova.integration_manager.get_integration_module('homeassistant')
 
         self.lights = self.get_lights()
+        print('Detected lights')
+        print(self.lights)
 
     def light_on(self, context: Dict):
         pos_info = context["pos_info"]
