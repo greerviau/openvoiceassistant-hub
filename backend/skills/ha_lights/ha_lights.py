@@ -15,16 +15,15 @@ class HALights:
         print(self.lights)
 
     def light_on(self, context: Dict):
-        pos_info = context["pos_info"]
-
-        entity_id = self.get_light_id(pos_info)
-        print(entity_id)
+        try:
+            entity_id, light_description = self.find_light_entity_id(context)
+            print(entity_id)
+        except:
+            return "No light specified"
 
         data = {
             "entity_id": entity_id
         }
-        
-        light_description = pos_info["NOUN_CHUNKS"][0]
         
         resp = self.ha_integration.post_services('light', 'turn_on', data)
         if resp.status_code == 200:
@@ -33,16 +32,15 @@ class HALights:
         return f"Failed to turn on {light_description}"
 
     def light_off(self, context: Dict):    
-        pos_info = context["pos_info"]
-
-        entity_id = self.get_light_id(pos_info)
-        print(entity_id)
+        try:
+            entity_id, light_description = self.find_light_entity_id(context)
+            print(entity_id)
+        except:
+            return "No light specified"
 
         data = {
             "entity_id": entity_id
         }
-        
-        light_description = pos_info["NOUN_CHUNKS"][0]
         
         resp = self.ha_integration.post_services('light', 'turn_off', data)
         if resp.status_code == 200:
@@ -50,18 +48,40 @@ class HALights:
         
         return f"Failed to turn off {light_description}"
     
-    def get_light_id(self, pos_info):
+    def light_toggle(self, context: Dict):
         try:
-            light = pos_info["COMP"][0]
+            entity_id, light_description = self.find_light_entity_id(context)
+            print(entity_id)
         except:
-            return "Please provide a light to turn on"
+            return "No light specified"
+
+        data = {
+            "entity_id": entity_id
+        }
+        
+        resp = self.ha_integration.post_services('light', 'toggle', data)
+        if resp.status_code == 200:
+            return f"Turning off {light_description}"
+        
+        return f"Failed to turn off {light_description}"
+    
+    def find_light_entity_id(self, context: Dict):
+        try:
+            light = context["pos_info"]["COMP"][0]
+            light_description = context['pos_info']["NOUN_CHUNKS"][0]
+        except:
+            light = context["node_area"]
+            light_description = f"the lights"
+
+        if not light:
+            raise RuntimeError("No light specified")
 
         try:
             light_id = [l for l in self.lights if light in l][0]
         except:
             raise RuntimeError("Could not find the light specified")
 
-        return light_id
+        return light_id, light_description
     
     def get_lights(self):
         try:

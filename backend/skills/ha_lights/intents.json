@@ -3,6 +3,9 @@
         {
             "action":"light_on",
             "patterns":[
+                "lights on",
+                "turn on the lights",
+                "turn the lights on",
                 "turn on the lights",
                 "turn on the BLANK lights",
                 "turn on BLANK lights",
@@ -15,6 +18,9 @@
         {
             "action":"light_off",
             "patterns":[
+                "lights off",
+                "turn off the lights",
+                "turn the lights off",
                 "turn off the lights",
                 "turn off the BLANK lights",
                 "turn off BLANK lights",
@@ -22,6 +28,16 @@
                 "turn the BLANK lights off",
                 "turn the lights off",
                 "turn BLANK lights off"
+            ]
+        },
+        {
+            "action":"toggle_lights",
+            "patterns":[
+                "lights",
+                "BLANK lights"
+                "toggle the lights",
+                "BLANK lights",
+                "toggle the BLANK lights"
             ]
         }
     ]
