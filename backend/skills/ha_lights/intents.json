@@ -36,7 +36,9 @@
                 "lights",
                 "BLANK lights",
                 "toggle the lights",
-                "toggle the BLANK lights"
+                "toggle the BLANK lights",
+                "get the lights",
+                "get the BLANK lights"
             ]
         }
     ]
