@@ -284,29 +284,36 @@ def create_app(ova: OpenVoiceAssistant):
     @router.post('/respond/audio', tags=["Inference"])
     async def respond_to_audio(data: RespondAudio):
 
-        context = {}
+        try:
+            context = {}
 
-        context['node_id'] = data.node_id
-        context['command_audio_data_hex'] = data.command_audio_data_hex
-        context['command_audio_sample_rate'] = data.command_audio_sample_rate
-        context['command_audio_sample_width'] = data.command_audio_sample_width
-        context['command_audio_channels'] = data.command_audio_channels
-        context['node_callback'] = data.node_callback
-        context['hub_callback'] = data.hub_callback
-        context['time_sent'] = data.time_sent
-        context['last_time_engaged'] = data.last_time_engaged
+            context['node_id'] = data.node_id
+            context['command_audio_data_hex'] = data.command_audio_data_hex
+            context['command_audio_sample_rate'] = data.command_audio_sample_rate
+            context['command_audio_sample_width'] = data.command_audio_sample_width
+            context['command_audio_channels'] = data.command_audio_channels
+            context['node_callback'] = data.node_callback
+            context['hub_callback'] = data.hub_callback
+            context['time_sent'] = data.time_sent
+            context['last_time_engaged'] = data.last_time_engaged
 
-        ova.run_pipeline(
-            Components.Transcriber,
-            Components.Understander,
-            Components.Skillset,
-            Components.Synthesizer,
-            context=context
-        )
+            ova.run_pipeline(
+                Components.Transcriber,
+                Components.Understander,
+                Components.Skillset,
+                Components.Synthesizer,
+                context=context
+            )
 
-        del context['command_audio_data_bytes']
+            del context['command_audio_data_bytes']
 
-        return context
+            return context
+        
+        except Exception as err:
+            raise fastapi.HTTPException(
+                        status_code=400,
+                        detail=repr(err),
+                        headers={'X-Error': f'{err}'})
 
     @router.post('/respond/text', tags=["Inference"])
     async def respond_to_text(data: RespondText):

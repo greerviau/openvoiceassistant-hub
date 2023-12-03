@@ -47,7 +47,7 @@ class OpenVoiceAssistant:
             context = {}
 
         start = time.time()
-
+        
         for stage in stages:
             self.get_component(stage).run_stage(context)
 
