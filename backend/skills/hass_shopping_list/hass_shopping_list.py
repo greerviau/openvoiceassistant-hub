@@ -6,6 +6,7 @@ from backend import config
 class HASS_ShoppingList:
 
     def __init__(self, config: Dict, ova: 'OpenVoiceAssistant'):
+        self.ova = ova
         self.config = config
         self.ha_integration = self.ova.integration_manager.get_integration_module('homeassistant')
 
