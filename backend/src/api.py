@@ -399,6 +399,8 @@ def create_app(ova: OpenVoiceAssistant):
             context = {}
 
             context['node_id'] = data.node_id
+            context['node_name'] = data.node_name
+            context['node_area'] = data.node_area
             context['command_audio_data_hex'] = data.command_audio_data_hex
             context['command_audio_sample_rate'] = data.command_audio_sample_rate
             context['command_audio_sample_width'] = data.command_audio_sample_width
