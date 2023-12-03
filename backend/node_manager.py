@@ -5,7 +5,9 @@ import typing
 from backend import config
 
 class NodeManager:
-    def __init__(self):
+    def __init__(self, ova):
+        self.ova = ova
+        
         self.nodes = config.get('nodes')
 
     def update_node_config(self, node_id: str, node_config: typing.Dict):
