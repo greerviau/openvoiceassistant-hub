@@ -10,6 +10,8 @@ class HALights:
         self.config = config
         self.ha_integration = self.ova.integration_manager.get_integration_module('homeassistant')
 
+        self.lights = self.get_lights()
+
     def light_on(self, context: Dict):
         pos_info = context["pos_info"]
 
@@ -45,11 +47,9 @@ class HALights:
             light = pos_info["COMP"][0]
         except:
             return "Please provide a light to turn on"
-        
-        lights = self.get_lights()
 
         try:
-            light_id = [l for l in lights if light in l][0]
+            light_id = [l for l in self.lights if light in l][0]
         except:
             raise RuntimeError("Could not find the light specified")
 
