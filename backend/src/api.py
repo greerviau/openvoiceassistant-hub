@@ -45,7 +45,8 @@ def create_app(ova: OpenVoiceAssistant):
         try:
             config.set('components', component_id, 'config', component_config)
             return component_config
-        except Exception as e:
+        except Exception as err:
+            print(repr(err))
             raise fastapi.HTTPException(
                         status_code=400,
                         detail=repr(e),
@@ -55,8 +56,8 @@ def create_app(ova: OpenVoiceAssistant):
     async def get_synthesizer_default_config(algorithm_id: str):
         try:
             return ova.get_component(Components.Synthesizer).get_algorithm_default_config(algorithm_id)
-        except Exception as e:
-            print(repr(e))
+        except Exception as err:
+            print(repr(err))
             raise fastapi.HTTPException(
                         status_code=400,
                         detail='Synthesizer algorithm default config does not exist',
@@ -66,8 +67,8 @@ def create_app(ova: OpenVoiceAssistant):
     async def get_transcriber_default_config(algorithm_id: str):
         try:
             return ova.get_component(Components.Transcriber).get_algorithm_default_config(algorithm_id)
-        except Exception as e:
-            print(repr(e))
+        except Exception as err:
+            print(repr(err))
             raise fastapi.HTTPException(
                         status_code=400,
                         detail='Transcriber algorithm default config does not exist',
@@ -77,17 +78,32 @@ def create_app(ova: OpenVoiceAssistant):
 
     @router.get('/skills/available', tags=["Skills"])
     async def get_available_skills():
-        return ova.get_component(Components.Skillset).available_skills
+        try:
+            return ova.get_component(Components.Skillset).available_skills
+        except RuntimeError as err:
+                print(repr(err))
+                raise fastapi.HTTPException(
+                            status_code=400,
+                            detail=repr(err),
+                            headers={'X-Error': f'{err}'})
 
     @router.get('/skills/active', tags=["Skills"])
     async def get_active_skills():
-        return ova.get_component(Components.Skillset).imported_skills
+        try:
+            return ova.get_component(Components.Skillset).imported_skills
+        except RuntimeError as err:
+            print(repr(err))
+            raise fastapi.HTTPException(
+                        status_code=400,
+                        detail=repr(err),
+                        headers={'X-Error': f'{err}'})
 
     @router.get('/skills/{skill_id}/config', tags=["Skills"])
     async def get_skill_config(skill_id: str):
         try:
             return ova.get_component(Components.Skillset).get_skill_config(skill_id)
         except RuntimeError as err:
+            print(repr(err))
             raise fastapi.HTTPException(
                         status_code=400,
                         detail=repr(err),
@@ -98,6 +114,7 @@ def create_app(ova: OpenVoiceAssistant):
         try:
             return ova.get_component(Components.Skillset).get_default_skill_config(skill_id)
         except RuntimeError as err:
+            print(repr(err))
             raise fastapi.HTTPException(
                         status_code=400,
                         detail=repr(err),
@@ -108,6 +125,7 @@ def create_app(ova: OpenVoiceAssistant):
         try:
             ova.get_component(Components.Skillset).add_skill(skill_id)
         except RuntimeError as err:
+            print(repr(err))
             raise fastapi.HTTPException(
                         status_code=400,
                         detail=repr(err),
@@ -118,6 +136,7 @@ def create_app(ova: OpenVoiceAssistant):
         try:
             ova.get_component(Components.Skillset).add_skill_config(skill_id, skill_config)
         except RuntimeError as err:
+            print(repr(err))
             raise fastapi.HTTPException(
                         status_code=400,
                         detail=repr(err),
@@ -128,6 +147,7 @@ def create_app(ova: OpenVoiceAssistant):
         try:
             ova.get_component(Components.Skillset).update_skill_config(skill_id, skill_config)
         except RuntimeError as err:
+            print(repr(err))
             raise fastapi.HTTPException(
                         status_code=400,
                         detail=repr(err),
@@ -140,6 +160,7 @@ def create_app(ova: OpenVoiceAssistant):
         try:
             return ova.node_manager.get_all_node_status()
         except RuntimeError as err:
+            print(repr(err))
             raise fastapi.HTTPException(
                         status_code=400,
                         detail=repr(err),
@@ -150,6 +171,7 @@ def create_app(ova: OpenVoiceAssistant):
         try:
             return ova.node_manager.get_node_status(node_id)
         except RuntimeError as err:
+            print(repr(err))
             raise fastapi.HTTPException(
                         status_code=400,
                         detail=repr(err),
@@ -160,6 +182,7 @@ def create_app(ova: OpenVoiceAssistant):
         try:
             return ova.node_manager.get_node_config(node_id)
         except RuntimeError as err:
+            print(repr(err))
             raise fastapi.HTTPException(
                         status_code=400,
                         detail=repr(err),
@@ -175,6 +198,7 @@ def create_app(ova: OpenVoiceAssistant):
         try:
             ova.node_manager.update_node_config(node_config.node_id, jsonable_encoder(node_config))
         except Exception as err:
+            print(repr(err))
             raise fastapi.HTTPException(
                         status_code=400,
                         detail=repr(err),
@@ -196,6 +220,7 @@ def create_app(ova: OpenVoiceAssistant):
             return sync_node_config
         
         except Exception as err:
+            print(repr(err))
             raise fastapi.HTTPException(
                         status_code=400,
                         detail=repr(err),
@@ -215,6 +240,7 @@ def create_app(ova: OpenVoiceAssistant):
             return sync_node_config
         
         except Exception as err:
+            print(repr(err))
             raise fastapi.HTTPException(
                         status_code=400,
                         detail=repr(err),
@@ -232,6 +258,7 @@ def create_app(ova: OpenVoiceAssistant):
         try:
             ova.run_pipeline(Components.Transcriber, context=context)
         except Exception as err:
+            print(repr(err))
             raise fastapi.HTTPException(
                         status_code=400,
                         detail=repr(err),
@@ -250,6 +277,7 @@ def create_app(ova: OpenVoiceAssistant):
         try:
             ova.run_pipeline(Components.Understander, context=context)
         except Exception as err:
+            print(repr(err))
             raise fastapi.HTTPException(
                         status_code=400,
                         detail=repr(err),
@@ -266,6 +294,7 @@ def create_app(ova: OpenVoiceAssistant):
         try:
             ova.run_pipeline(Components.Synthesizer, context=context)
         except Exception as err:
+            print(repr(err))
             raise fastapi.HTTPException(
                         status_code=400,
                         detail=repr(err),
@@ -283,7 +312,6 @@ def create_app(ova: OpenVoiceAssistant):
 
     @router.post('/respond/audio', tags=["Inference"])
     async def respond_to_audio(data: RespondAudio):
-
         try:
             context = {}
 
@@ -318,24 +346,30 @@ def create_app(ova: OpenVoiceAssistant):
 
     @router.post('/respond/text', tags=["Inference"])
     async def respond_to_text(data: RespondText):
+        try:
+            context = {}
 
-        context = {}
+            context['node_id'] = data.node_id
+            context['command'] = data.command_text
+            context['node_callback'] = data.node_callback
+            context['hub_callback'] = data.hub_callback
+            context['time_sent'] = data.time_sent
+            context['last_time_engaged'] = data.last_time_engaged
 
-        context['node_id'] = data.node_id
-        context['command'] = data.command_text
-        context['node_callback'] = data.node_callback
-        context['hub_callback'] = data.hub_callback
-        context['time_sent'] = data.time_sent
-        context['last_time_engaged'] = data.last_time_engaged
-
-        ova.run_pipeline(
-            Components.Understander,
-            Components.Skillset,
-            Components.Synthesizer,
-            context=context
-        )
-        
-        return context
+            ova.run_pipeline(
+                Components.Understander,
+                Components.Skillset,
+                Components.Synthesizer,
+                context=context
+            )
+            
+            return context
+        except Exception as err:
+            print(repr(err))
+            raise fastapi.HTTPException(
+                        status_code=400,
+                        detail=repr(err),
+                        headers={'X-Error': f'{err}'})
 
     app = fastapi.FastAPI()
 
