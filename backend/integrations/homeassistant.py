@@ -13,6 +13,12 @@ class HomeAssistant:
         self.headers = {"content-type": "application/json", "Authorization": f"Bearer {acccess_token}"}
         self.api = f"http://{host}:{port}/api"
 
+        try:
+            self.get_api()
+            print('Homassistant integration started')
+        except:
+            print('Failed to start Homeassistant integration')
+
     # GET ENDPOINTS
 
     def get_api(self):
