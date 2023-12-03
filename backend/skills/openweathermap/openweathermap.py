@@ -41,9 +41,9 @@ class OpenWeatherMap:
         MAIN_STATUS_MAPPING = {
             "thunderstorm": ["thunderstorming"],
             "drizzle": ["drizzling"],
-            "rain": ["raining", "rainy"],
+            "rain": ["raining"],
             "snow": ["snowing"],
-            "clear": ["clear", "sunny"]
+            "clear": ["clear", "clear skies"]
         }
         DETAILED_STATUS_MAPPING = {
             "few clouds": ["mostly clear"],
@@ -63,8 +63,13 @@ class OpenWeatherMap:
 
         RESPONSE_TEMPLATES = [
             "It looks like it's %s outside",
-            "It is %s outside",
-            "It's %s right now"
+            "It appears to be %s outside",
+            "It's %s outside",
+            "It's %s right now",
+            "Right now it's %s outside",
+            "Right now it's %s",
+            "Outside it's %s",
+
         ]
 
         w, loc = self._get_weather(context)
