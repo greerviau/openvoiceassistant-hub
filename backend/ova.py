@@ -6,8 +6,10 @@ from backend import config
 from backend.schemas import Context
 from backend.enums import Components
 from backend.node_manager import NodeManager
+from backend.skill_manager import SkillManager
+from backend.integration_manager import IntegrationManager
 
-from backend.components.skillset import Skillset
+from backend.components.actor import Actor
 from backend.components.understander import Understander
 from backend.components.transcriber import Transcriber
 from backend.components.synthesizer import Synthesizer
@@ -15,13 +17,15 @@ from backend.components.synthesizer import Synthesizer
 COMPONENTS = {
     Components.Transcriber: Transcriber,
     Components.Understander: Understander,
-    Components.Skillset: Skillset,
+    Components.Actor: Actor,
     Components.Synthesizer: Synthesizer
 }
 
 class OpenVoiceAssistant:
     def __init__(self):
-        self.node_manager = NodeManager()
+        self.node_manager = NodeManager(self)
+        self.skill_manager = SkillManager(self)
+        self.integration_manager = IntegrationManager(self)
         
         self.launch_all_components()    
 
