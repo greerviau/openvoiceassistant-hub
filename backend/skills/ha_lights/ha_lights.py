@@ -69,8 +69,10 @@ class HALights:
         try:
             light = context["pos_info"]["COMP"][0]
             light_description = context['pos_info']["NOUN_CHUNKS"][0]
-        except:
+        except Exception as err:
+            print(err)
             light = context["node_area"]
+            print('light')
             light_description = f"the lights"
 
         if not light:
