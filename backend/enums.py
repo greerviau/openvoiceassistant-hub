@@ -3,5 +3,5 @@ import enum
 class Components(enum.Enum):
     Transcriber = 'transcriber'
     Understander = 'understander'
-    Skillset = 'skillset'
+    Actor = 'actor'
     Synthesizer = 'synthesizer'
