@@ -9,26 +9,29 @@ class TranscribeAudio(BaseModel):
     
 class RespondAudio(BaseModel):
     node_id: str
+    node_area: str
+    node_callback: str = ''
+    hub_callback: str = ''
+    time_sent: float
+    last_time_engaged: float
     command_audio_data_hex: str = ''
     command_audio_sample_rate: int
     command_audio_sample_width: int
     command_audio_channels: int
-    node_callback: str = ''
-    hub_callback: str = ''
-    last_time_engaged: float
-    time_sent: float
 
 class RespondText(BaseModel):
     node_id: str
-    command_text: str = ''
+    node_area: str
     node_callback: str = ''
     hub_callback: str = ''
-    last_time_engaged: float
     time_sent: float
+    last_time_engaged: float
+    command_text: str = ''
 
 class NodeConfig(BaseModel):
     node_id: str
     node_name: str
+    node_area: str
     node_api_url: str
     wake_word: str
     wakeup_sound: bool

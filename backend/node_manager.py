@@ -7,7 +7,7 @@ from backend import config
 class NodeManager:
     def __init__(self, ova):
         self.ova = ova
-        
+
         self.nodes = config.get('nodes')
 
     def update_node_config(self, node_id: str, node_config: typing.Dict):
@@ -33,11 +33,17 @@ class NodeManager:
     def node_exists(self, node_id: str):
         return node_id in self.nodes
     
+    def get_node_in_area(self, area: str):
+        for id, conf in self.nodes.items():
+            if area in conf['node_area']:
+                return self.nodes[id]
+        return {}
+    
     def get_node_ids(self):
-        return self.nodes.keys()
+        return list(self.nodes.keys())
 
     def get_node_configs(self):
-        return self.nodes.values()
+        return list(self.nodes.values())
 
     def get_node_config(self, node_id: str):
         if self.node_exists(node_id):
