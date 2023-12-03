@@ -72,7 +72,7 @@ class HALights:
         except Exception as err:
             print(err)
             light = context["node_area"]
-            print('light')
+            print(light)
             light_description = f"the lights"
 
         if not light:

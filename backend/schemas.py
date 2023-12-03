@@ -2,6 +2,8 @@ import typing
 
 class Context(typing.TypedDict):
     node_id: str
+    node_name: str
+    node_area: str
     node_callback: str
     time_sent: float
     engaged: bool
