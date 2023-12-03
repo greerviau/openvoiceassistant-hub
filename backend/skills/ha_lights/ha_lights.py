@@ -58,12 +58,15 @@ class HALights:
         data = {
             "entity_id": entity_id
         }
+
+        light_state = self.ha_integration.get_states(entity_id)
+        light_mode = "off" if light_state["state"] == "on" else "on"
         
         resp = self.ha_integration.post_services('light', 'toggle', data)
         if resp.status_code == 200:
-            return f"Turning off {light_description}"
+            return f"Turning {light_mode} {light_description}"
         
-        return f"Failed to turn off {light_description}"
+        return f"Failed to turn {light_mode} {light_description}"
     
     def find_light_entity_id(self, context: Dict):
         try:
