@@ -34,7 +34,9 @@ DEFAULT_CONFIG = {
         },
         "nodes": {},
         "integrations":{},
-        "skills": {}
+        "skills": {
+            "default": {}
+        }
     }
 
 loc = os.path.realpath(os.path.dirname(__file__))
