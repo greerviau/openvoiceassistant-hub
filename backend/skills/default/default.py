@@ -7,19 +7,6 @@ import time
 from backend import config
 from backend.utils.nlp import try_parse_word_number, extract_numbers
 
-class ThreadTimer(threading.Timer):
-    started_at = None
-    def start(self):
-        self.started_at = time.time()
-        threading.Timer.start(self)
-    def elapsed(self):
-        return time.time() - self.started_at
-    def remaining(self):
-        rem = self.interval - self.elapsed()
-        if rem > 0:
-            return rem
-        return 0
-
 class Default:
 
     def __init__(self, config: Dict, ova: 'OpenVoiceAssistant'):
@@ -28,9 +15,6 @@ class Default:
 
         self.tz = pytz.timezone(config["timezone"])
         self.format = "%H" if config["24_hour_format"] else "%I"
-
-        self.timer = None
-        self.timer_node_id = None
 
     def volume(self, context: Dict):
         node_id = context["node_id"]
@@ -125,18 +109,17 @@ class Default:
         return response
 
     def set_timer(self, context: Dict):
-        
-        def alert_timer_finished():
-            print('Timer finished')
-            self.ova.node_manager.call_node_api("POST", self.timer_node_id, "/play_alarm")
-
         command = context['cleaned_command']
 
         entities = context['pos_info']['ENTITIES']
 
         response = ""
 
-        if not self.timer:
+        node_id = context["node_id"]
+        response = self.ova.node_manager.call_node_api("GET", node_id, "/timer_remaining_time")
+        remaining = response.json()['time_remaining']
+
+        if remaining == 0:
             if 'TIME' in entities:
                 t = entities['TIME']
                 print(t)
@@ -148,10 +131,8 @@ class Default:
                             d = t_split[inc_idx - 1]
                             durration += int(d) * m
                 if durration > 0:
+                    self.ova.node_manager.call_node_api("POST", node_id, "/set_timer", data={"durration": durration})
                     response = f"Setting a timer for {t}"
-                    self.timer = ThreadTimer(durration, alert_timer_finished)
-                    self.timer_node_id = context["node_id"]
-                    self.timer.start()
                 else:
                     context['hub_callback'] = "default.set_timer"
                     return "How long should I set a timer for?"
@@ -166,11 +147,13 @@ class Default:
     def time_remaining(self, context: Dict):
         command = context['cleaned_command']
 
-        if self.timer:
+        node_id = context["node_id"]
+        response = self.ova.node_manager.call_node_api("GET", node_id, "/timer_remaining_time")
+        remaining = response.json()['time_remaining']
+        if remaining > 0:
             hours = 0
             minutes = 0
             seconds = 0
-            remaining = int(self.timer.remaining())
             if remaining == 0:
                 return "The timer is up"
             if remaining % 3600 > 0:
@@ -200,16 +183,8 @@ class Default:
         else:
             return "There is no timer currently running"
     
-    def stop_timer(self, context: Dict):
-        if self.timer:
-            self.timer.cancel()
-            self.ova.node_manager.call_node_api("POST", self.timer_node_id, "/stop_alarm")
-            self.timer = None
-            self.timer_node_id = None
-
-            return "Stopping the timer"
-        else:
-            return "There is no timer currently running"
+    def stop(self, context: Dict):
+        return " "
 
 def build_skill(config: Dict, ova: 'OpenVoiceAssistant'):
     return Default(config, ova)

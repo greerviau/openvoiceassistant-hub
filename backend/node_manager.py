@@ -80,3 +80,4 @@ class NodeManager:
         url = address + endpoint
         print(url)
         resp = requests.request(verb, url, timeout=2, json=data)
+        return resp

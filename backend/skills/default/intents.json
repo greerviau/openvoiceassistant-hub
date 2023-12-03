@@ -164,12 +164,14 @@
             ]
         },
         {
-            "action":"stop_timer",
+            "action":"stop",
             "patterns":[
-                "stop the timer",
-                "cancel the timer",
-                "remove the timer",
-                "turn off the timer"
+                "stop",
+                "cancel",
+                "thats enough",
+                "quiet",
+                "be quiet",
+                "shut up"
             ]
         }
     ]
