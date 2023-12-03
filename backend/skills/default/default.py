@@ -184,7 +184,7 @@ class Default:
             return "There is no timer currently running"
     
     def stop(self, context: Dict):
-        return " "
+        return ""
 
 def build_skill(config: Dict, ova: 'OpenVoiceAssistant'):
     return Default(config, ova)
