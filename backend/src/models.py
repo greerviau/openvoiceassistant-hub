@@ -9,6 +9,7 @@ class TranscribeAudio(BaseModel):
     
 class RespondAudio(BaseModel):
     node_id: str
+    node_name: str
     node_area: str
     node_callback: str = ''
     hub_callback: str = ''
@@ -21,6 +22,7 @@ class RespondAudio(BaseModel):
 
 class RespondText(BaseModel):
     node_id: str
+    node_name: str
     node_area: str
     node_callback: str = ''
     hub_callback: str = ''
