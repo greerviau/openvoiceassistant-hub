@@ -3,7 +3,7 @@ import requests
 
 from backend import config
 
-class HALights:
+class HASS_Lights:
 
     def __init__(self, config: Dict, ova: 'OpenVoiceAssistant'):
         self.ova = ova
@@ -96,7 +96,7 @@ class HALights:
             raise RuntimeError("Failed to get list of light entites")
 
 def build_skill(config: Dict, ova: 'OpenVoiceAssistant'):
-    return HALights(config, ova)
+    return HASS_Lights(config, ova)
 
 def default_config():
     return {

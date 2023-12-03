@@ -3,7 +3,7 @@ import requests
 
 from backend import config
 
-class HAVacuum:
+class HASS_Vacuum:
 
     def __init__(self, config: Dict, ova: 'OpenVoiceAssistant'):
         self.config = config
@@ -43,7 +43,7 @@ class HAVacuum:
         return f"Failed to send the vacuum back home"
 
 def build_skill(config: Dict, ova: 'OpenVoiceAssistant'):
-    return HAVacuum(config, ova)
+    return HASS_Vacuum(config, ova)
 
 def default_config():
     return {
