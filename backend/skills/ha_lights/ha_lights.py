@@ -56,11 +56,12 @@ class HALights:
         return light_id
     
     def get_lights(self):
-        resp = self.ha_integration.get_states()
-        if resp.status_code == 200:
+        try:
+            resp = self.ha_integration.get_states()
             entities = resp.json()
             return [entity["entity_id"] for entity in entities if "light" in entity["entity_id"]]
-        raise RuntimeError("Failed to get list of light entites")
+        except:
+            raise RuntimeError("Failed to get list of light entites")
 
 def build_skill(config: Dict, ova: 'OpenVoiceAssistant'):
     return HALights(config, ova)
