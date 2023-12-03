@@ -1,4 +1,5 @@
 import typing
+import time
 import fastapi
 from fastapi.encoders import jsonable_encoder
 from fastapi.openapi.utils import get_openapi
@@ -405,6 +406,7 @@ def create_app(ova: OpenVoiceAssistant):
             context['node_callback'] = data.node_callback
             context['hub_callback'] = data.hub_callback
             context['time_sent'] = data.time_sent
+            context['time_recieved'] = time.time()
             context['last_time_engaged'] = data.last_time_engaged
 
             ova.run_pipeline(
@@ -416,6 +418,8 @@ def create_app(ova: OpenVoiceAssistant):
             )
 
             del context['command_audio_data_bytes']
+
+            context['time_returned'] = time.time()
 
             return context
         
@@ -436,6 +440,7 @@ def create_app(ova: OpenVoiceAssistant):
             context['node_callback'] = data.node_callback
             context['hub_callback'] = data.hub_callback
             context['time_sent'] = data.time_sent
+            context['time_recieved'] = time.time()
             context['last_time_engaged'] = data.last_time_engaged
 
             ova.run_pipeline(
@@ -444,6 +449,8 @@ def create_app(ova: OpenVoiceAssistant):
                 Components.Synthesizer,
                 context=context
             )
+
+            context['time_returned'] = time.time()
             
             return context
         except Exception as err:

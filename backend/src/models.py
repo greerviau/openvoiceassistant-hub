@@ -14,6 +14,9 @@ class RespondAudio(BaseModel):
     node_callback: str = ''
     hub_callback: str = ''
     time_sent: float
+    time_recieved: float
+    time_returned: float
+    time_to_run_pipeline: float
     last_time_engaged: float
     command_audio_data_hex: str = ''
     command_audio_sample_rate: int
@@ -27,6 +30,9 @@ class RespondText(BaseModel):
     node_callback: str = ''
     hub_callback: str = ''
     time_sent: float
+    time_recieved: float
+    time_returned: float
+    time_to_run_pipeline: float
     last_time_engaged: float
     command_text: str = ''
 
