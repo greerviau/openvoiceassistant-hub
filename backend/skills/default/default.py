@@ -5,7 +5,7 @@ import threading
 import time
 
 from backend import config
-from backend.utils.nlp import try_parse_word_number, extract_numbers
+from backend.utils.nlp import extract_numbers
 
 class Default:
 
@@ -21,8 +21,6 @@ class Default:
         command = context['cleaned_command']
 
         numbers = extract_numbers(command)
-        numbers.extend([try_parse_word_number(word) for word in command.split() if word])
-
         value = int(numbers[0])
 
         if 'percent' in command or value > 10:
@@ -56,7 +54,6 @@ class Default:
         return response
 
     def how_are_you(self, context: Dict):
-        command = context['cleaned_command']
         addr = context['addr'] if 'addr' in context else ''
 
         response = f'Doing well {addr}'
@@ -64,7 +61,6 @@ class Default:
         return response
 
     def whats_up(self, context: Dict):
-        command = context['cleaned_command']
         addr = context['addr'] if 'addr' in context else ''
 
         response = f'Not much {addr}'
@@ -72,7 +68,6 @@ class Default:
         return response
 
     def goodbye(self, context: Dict):
-        command = context['cleaned_command']
         addr = context['addr'] if 'addr' in context else ''
 
         response = f'Goodbye {addr}'
@@ -80,7 +75,6 @@ class Default:
         return response
 
     def thank_you(self, context: Dict):
-        command = context['cleaned_command']
         addr = context['addr'] if 'addr' in context else ''
 
         response = f'Youre Welcome {addr}'
@@ -109,8 +103,6 @@ class Default:
         return response
 
     def set_timer(self, context: Dict):
-        command = context['cleaned_command']
-
         entities = context['pos_info']['ENTITIES']
 
         response = ""
@@ -145,8 +137,6 @@ class Default:
         return response  
 
     def time_remaining(self, context: Dict):
-        command = context['cleaned_command']
-
         node_id = context["node_id"]
         response = self.ova.node_manager.call_node_api("GET", node_id, "/timer_remaining_time")
         remaining = response.json()['time_remaining']
