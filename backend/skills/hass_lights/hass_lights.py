@@ -2,6 +2,7 @@ from typing import Dict
 import requests
 
 from backend import config
+from backend.utils.nlp import extract_numbers
 
 class HASS_Lights:
 
@@ -67,6 +68,32 @@ class HASS_Lights:
             return f"Turning {light_mode} {light_description}"
         
         return f"Failed to turn {light_mode} {light_description}"
+    
+    def light_brightness(self, context: Dict):
+        try:
+            entity_id, light_description = self.find_light_entity_id(context)
+            print(entity_id)
+        except:
+            return "No light specified"
+        
+        command = context['cleaned_command']
+        
+        if "percent" in command:
+            numbers = extract_numbers(command)
+            percent = int(numbers[0])
+
+            data = {
+                "entity_id": entity_id,
+                "brightness_pct": percent
+            }
+            
+            resp = self.ha_integration.post_services('light', 'turn_on', data)
+            if resp.status_code == 200:
+                return f"Setting the {light_description} brightness to {percent} percent"
+            
+            return f"Failed to set the {light_description} brightness"
+        else:
+            return f"Please specify a brighness level"
     
     def find_light_entity_id(self, context: Dict):
         try:
