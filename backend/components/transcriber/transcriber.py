@@ -1,14 +1,11 @@
 import importlib
-import json
 import os
 import typing
 import time
-import wave
 
 from backend.enums import Components
 from backend import config
 from backend.schemas import Context
-from backend.utils.audio import save_wave
 from backend.utils.nlp import clean_text
 
 class Transcriber:

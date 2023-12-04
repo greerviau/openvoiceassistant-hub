@@ -1,22 +1,16 @@
 #!/bin/bash
 
-apt install -y python3-pip python3.9-dev python3.9-venv nginx wget git bash systemd ffmpeg espeak libespeak-dev sed npm
+apt install -y python3-pip python3.11-dev python3.11-venv python3.11-dev nginx wget git bash systemd ffmpeg espeak libespeak-dev sed npm
 
 CWD=$(pwd)
 
 echo $CWD
 
-python3.9 -m venv $CWD/env
+python3.11 -m venv $CWD/env
 
 source $CWD/env/bin/activate
 
 python -m pip install -r requirements.txt
-
-cd $CWD/backend/components/synthesizer/gradtts/grad_tts/model/monotonic_align/
-
-python setup.py build_ext --inplace
-
-cd $CWD
 
 python -m spacy download en_core_web_sm
 

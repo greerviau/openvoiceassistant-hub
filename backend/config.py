@@ -17,17 +17,16 @@ DEFAULT_CONFIG = {
             ]
         },
         Components.Understander.value: {
-            "algorithm": "Fuzzy",
+            "algorithm": "Rapidfuzz",
             "algorithm_options": [
-                "Fuzzy",
+                "Rapidfuzz",
                 "Neural Intent"
             ]
         },
         Components.Synthesizer.value: {
             "algorithm": "Espeak",
             "algorithm_options": [
-                "Espeak", 
-                "GradTTS",
+                "Espeak",
                 "Coqui",
                 "Piper"
             ]
