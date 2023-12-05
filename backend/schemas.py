@@ -8,7 +8,6 @@ class Context(typing.TypedDict):
     time_sent: float
     engaged: bool
     last_time_engaged: float
-    command_audio_data: bytes
     command_audio_file_path: str
     command: str
     cleaned_command: str
