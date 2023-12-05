@@ -47,7 +47,7 @@ def build_engine(intents: typing.Dict) -> Rapidfuzz:
 def default_config() -> typing.Dict:
     return {
         "conf_thresh": 80,
-        "ratio": "simple_ratio",
+        "ratio": "ratio",
         "ration_options": [
             "ratio",
             "partial_ratio",
