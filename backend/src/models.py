@@ -2,10 +2,7 @@ from pydantic import BaseModel
 from typing import Dict
 
 class TranscribeAudio(BaseModel):
-    command_audio_data_hex: str = ''
-    command_audio_sample_rate: int
-    command_audio_sample_width: int
-    command_audio_channels: int
+    command_audio_data: str
     
 class RespondAudio(BaseModel):
     node_id: str
@@ -15,7 +12,7 @@ class RespondAudio(BaseModel):
     hub_callback: str = ''
     time_sent: float
     last_time_engaged: float
-    command_audio_data: str = ''
+    command_audio_data: str
 
 class RespondText(BaseModel):
     node_id: str

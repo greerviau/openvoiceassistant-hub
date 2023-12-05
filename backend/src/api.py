@@ -16,7 +16,7 @@ def create_app(ova: OpenVoiceAssistant):
 
     @router.get('')
     async def index():
-        return {"Success"}
+        return {"is_ova": True}
     
     @router.get('/config', tags=["Config"])
     async def get_config():
@@ -27,45 +27,45 @@ def create_app(ova: OpenVoiceAssistant):
             raise fastapi.HTTPException(
                         status_code=400,
                         detail='no config',
-                        headers={'X-Error': 'component does not exist'})
+                        headers={'X-Error': 'Could not find OVA config'})
+        
+    @router.get('/config/default', tags=["Config"])
+    async def get_config():
+        c = config.DEFAULT_CONFIG
+        if c:
+            return c
+        else:
+            raise fastapi.HTTPException(
+                        status_code=400,
+                        detail='no config',
+                        headers={'X-Error': 'Could not find OVA default config'})
 
-    # COMPONENTS
+    # TRANSCRIBER
 
-    @router.get('/components/{component_id}/config', tags=["Components"])
-    async def get_component_config(component_id: str):
-        component_config = config.get('components', component_id)
+    @router.get('/transcriber/config', tags=["Transcriber"])
+    async def get_transcriber_config():
+        component_config = config.get('transcriber')
         if component_config:
             return component_config
         else:
             raise fastapi.HTTPException(
                         status_code=400,
-                        detail='component does not exist',
-                        headers={'X-Error': 'component does not exist'})
+                        detail='Could not find transcriber config',
+                        headers={'X-Error': 'Could not find transcriber config'})
         
-    @router.put('/components/{component_id}/config', tags=["Components"])
-    async def put_component_config(component_id: str, component_config: Dict):
+    @router.put('/transcriber/config', tags=["Transcriber"])
+    async def put_transcriber_config(component_config: Dict):
         try:
-            config.set('components', component_id, 'config', component_config)
+            config.set('transcriber', component_config)
             return component_config
         except Exception as err:
             print(repr(err))
             raise fastapi.HTTPException(
                         status_code=400,
-                        detail=repr(e),
-                        headers={'X-Error': 'failed to put config'})
+                        detail=repr(err),
+                        headers={'X-Error': 'Failed to put transcriber config'})
         
-    @router.get('/components/synthesizer/{algorithm_id}/config/default', tags=["Components"])
-    async def get_synthesizer_default_config(algorithm_id: str):
-        try:
-            return ova.get_component(Components.Synthesizer).get_algorithm_default_config(algorithm_id)
-        except Exception as err:
-            print(repr(err))
-            raise fastapi.HTTPException(
-                        status_code=400,
-                        detail='Synthesizer algorithm default config does not exist',
-                        headers={'X-Error': 'Synthesizer algorithm default config does not exist'})
-        
-    @router.get('/components/transcriber/{algorithm_id}/config/default', tags=["Components"])
+    @router.get('/transcriber/{algorithm_id}/config/default', tags=["Transcriber"])
     async def get_transcriber_default_config(algorithm_id: str):
         try:
             return ova.get_component(Components.Transcriber).get_algorithm_default_config(algorithm_id)
@@ -75,6 +75,160 @@ def create_app(ova: OpenVoiceAssistant):
                         status_code=400,
                         detail='Transcriber algorithm default config does not exist',
                         headers={'X-Error': 'Transcriber algorithm default config does not exist'})
+        
+    
+    @router.post('/transcriber/transcribe/audio/', tags=["Transcriber"])
+    async def transcribe_audio(data: TranscribeAudio):
+        context = {}
+
+        file_dump = config.get('file_dump')
+
+        audio_file_path = os.path.join(file_dump, 'command.wav')
+
+        command_audio_data = bytes.fromhex(data.command_audio_data)
+        with open(audio_file_path, 'wb') as file:
+            file.write(command_audio_data)
+
+        context['command_audio_file_path'] = audio_file_path
+
+        try:
+            ova.run_pipeline(Components.Transcriber, context=context)
+        except Exception as err:
+            print(repr(err))
+            raise fastapi.HTTPException(
+                        status_code=400,
+                        detail=repr(err),
+                        headers={'X-Error': f'{err}'})
+
+        return context
+        
+    # UNDERSTANDER
+
+    @router.get('/understander/config', tags=["Understander"])
+    async def get_understander_config():
+        component_config = config.get('understander')
+        if component_config:
+            return component_config
+        else:
+            raise fastapi.HTTPException(
+                        status_code=400,
+                        detail='Could not find understander config',
+                        headers={'X-Error': 'Could not find understander config'})
+        
+    @router.put('/understander/config', tags=["Understander"])
+    async def put_understander_config(component_config: Dict):
+        try:
+            config.set('understander', component_config)
+            return component_config
+        except Exception as err:
+            print(repr(err))
+            raise fastapi.HTTPException(
+                        status_code=400,
+                        detail=repr(err),
+                        headers={'X-Error': 'Failed to put understander config'})
+        
+    @router.get('/understander/{algorithm_id}/config/default', tags=["Understander"])
+    async def get_understander_default_config(algorithm_id: str):
+        try:
+            return ova.get_component(Components.Understander).get_algorithm_default_config(algorithm_id)
+        except Exception as err:
+            print(repr(err))
+            raise fastapi.HTTPException(
+                        status_code=400,
+                        detail='Transcriber algorithm default config does not exist',
+                        headers={'X-Error': 'Transcriber algorithm default config does not exist'})
+        
+    @router.get('/understander/understand/text/{text}', tags=["Understander"])
+    async def understand_text(text: str):
+        context = {}
+        context['command'] = text
+        context['time_sent'] = 0.0
+        context['last_time_engaged'] = 0.0
+
+        try:
+            ova.run_pipeline(Components.Understander, context=context)
+        except Exception as err:
+            print(repr(err))
+            raise fastapi.HTTPException(
+                        status_code=400,
+                        detail=repr(err),
+                        headers={'X-Error': f'{err}'})
+
+        return context
+    
+    # SYNTHESIZER
+
+    @router.get('/synthesizer/config', tags=["Synthesizer"])
+    async def get_synthesizer_config():
+        component_config = config.get('synthesizer')
+        if component_config:
+            return component_config
+        else:
+            raise fastapi.HTTPException(
+                        status_code=400,
+                        detail='Could not find synthesizer config',
+                        headers={'X-Error': 'Could not find synthesizer config'})
+        
+    @router.put('/synthesizer/config', tags=["Synthesizer"])
+    async def put_synthesizer_config(component_config: Dict):
+        try:
+            config.set('synthesizer', component_config)
+            return component_config
+        except Exception as err:
+            print(repr(err))
+            raise fastapi.HTTPException(
+                        status_code=400,
+                        detail=repr(err),
+                        headers={'X-Error': 'Failed to put synthesizer config'})
+        
+    @router.get('/synthesizer/{algorithm_id}/config/default', tags=["Synthesizer"])
+    async def get_synthesizer_default_config(algorithm_id: str):
+        try:
+            return ova.get_component(Components.Synthesizer).get_algorithm_default_config(algorithm_id)
+        except Exception as err:
+            print(repr(err))
+            raise fastapi.HTTPException(
+                        status_code=400,
+                        detail='Synthesizer algorithm default config does not exist',
+                        headers={'X-Error': 'Synthesizer algorithm default config does not exist'}) 
+    
+    @router.get('/synthesizer/synthesize/text/{text}', tags=["Inference"])
+    async def synthesize_text(text: str):
+        context = {}
+        context['response'] = text
+
+        try:
+            ova.run_pipeline(Components.Synthesizer, context=context)
+        except Exception as err:
+            print(repr(err))
+            raise fastapi.HTTPException(
+                        status_code=400,
+                        detail=repr(err),
+                        headers={'X-Error': f'{err}'})
+
+        return context
+    
+    @router.get('/synthesizer/synthesize/text/{text}/file', tags=["Inference"])
+    async def synthesize_text(text: str):
+        context = {}
+        context['response'] = text
+
+        try:
+            ova.run_pipeline(Components.Synthesizer, context=context)
+        except Exception as err:
+            print(repr(err))
+            raise fastapi.HTTPException(
+                        status_code=400,
+                        detail=repr(err),
+                        headers={'X-Error': f'{err}'})
+
+        response_file_path = context['response_file_path']
+
+        def iterfile():
+            with open(response_file_path, mode="rb") as file_like: 
+                yield from file_like 
+
+        return fastapi.responses.StreamingResponse(iterfile(), media_type="audio/wav")
 
     # NODES
 
@@ -184,7 +338,7 @@ def create_app(ova: OpenVoiceAssistant):
                 context=context
             )
             
-            ova.node_manager.call_node_api('PUT', node_id, '/play', context)
+            ova.node_manager.call_node_api('POST', node_id, '/play/audio', context)
 
             return {}
         
@@ -352,75 +506,10 @@ def create_app(ova: OpenVoiceAssistant):
                         status_code=400,
                         detail=repr(err),
                         headers={'X-Error': f'{err}'})
-
-    # TRANSCRIBE
-
-    @router.post('/transcribe/audio/', tags=["Inference"])
-    async def transcribe_audio(data: TranscribeAudio):
-        context = {}
-        context['command_audio_data_hex'] = data.command_audio_data_hex
-        context['command_audio_sample_rate'] = data.command_audio_sample_rate
-        context['command_audio_sample_width'] = data.command_audio_sample_width
-        context['command_audio_channels'] = data.command_audio_channels
-
-        try:
-            ova.run_pipeline(Components.Transcriber, context=context)
-        except Exception as err:
-            print(repr(err))
-            raise fastapi.HTTPException(
-                        status_code=400,
-                        detail=repr(err),
-                        headers={'X-Error': f'{err}'})
-
-        return context
-
-    # UNDERSTAND
-
-    @router.get('/understand/text/{text}', tags=["Inference"])
-    async def understand_text(text: str):
-        context = {}
-        context['command'] = text
-        context['time_sent'] = 0.0
-        context['last_time_engaged'] = 0.0
-
-        try:
-            ova.run_pipeline(Components.Understander, context=context)
-        except Exception as err:
-            print(repr(err))
-            raise fastapi.HTTPException(
-                        status_code=400,
-                        detail=repr(err),
-                        headers={'X-Error': f'{err}'})
-
-        return context
-
-    # SYNTHESIZE
-
-    @router.get('/synthesize/text/{text}', tags=["Inference"])
-    async def synthesize_text(text: str):
-        context = {}
-        context['response'] = text
-
-        try:
-            ova.run_pipeline(Components.Synthesizer, context=context)
-        except Exception as err:
-            print(repr(err))
-            raise fastapi.HTTPException(
-                        status_code=400,
-                        detail=repr(err),
-                        headers={'X-Error': f'{err}'})
-
-        response_file_path = context['response_file_path']
-
-        def iterfile():
-            with open(response_file_path, mode="rb") as file_like: 
-                yield from file_like 
-
-        return fastapi.responses.StreamingResponse(iterfile(), media_type="audio/wav")
-
+        
     # RESPOND
 
-    @router.post('/respond/audio', tags=["Inference"])
+    @router.post('/respond/audio', tags=["Pipeline"])
     async def respond_to_audio(data: RespondAudio):
         try:
             context = {}
@@ -463,7 +552,7 @@ def create_app(ova: OpenVoiceAssistant):
                         detail=repr(err),
                         headers={'X-Error': f'{err}'})
 
-    @router.post('/respond/text', tags=["Inference"])
+    @router.post('/respond/text', tags=["Pipeline"])
     async def respond_to_text(data: RespondText):
         try:
             context = {}
