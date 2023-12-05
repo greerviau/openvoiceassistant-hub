@@ -17,9 +17,9 @@ DEFAULT_CONFIG = {
             ]
         },
         Components.Understander.value: {
-            "algorithm": "Rapidfuzz",
+            "algorithm": "Rapid Fuzz",
             "algorithm_options": [
-                "Rapidfuzz",
+                "Rapid Fuzz",
                 "Neural Intent"
             ]
         },
