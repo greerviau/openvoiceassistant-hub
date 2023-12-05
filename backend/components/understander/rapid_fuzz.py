@@ -49,7 +49,7 @@ def default_config() -> typing.Dict:
         "conf_thresh": 80,
         "ratio": "simple_ratio",
         "ration_options": [
-            "simple_ration",
+            "simple_ratio",
             "partial_ratio",
             "token_sort_ratio",
             "token_set_ratio",
