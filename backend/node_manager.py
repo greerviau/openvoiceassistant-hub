@@ -87,5 +87,5 @@ class NodeManager:
         address = node_config['node_api_url']
         url = address + endpoint
         print(url)
-        resp = requests.request(verb, url, timeout=2, json=data)
+        resp = requests.request(verb, url, timeout=10, json=data)
         return resp
