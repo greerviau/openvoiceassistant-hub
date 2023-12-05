@@ -192,7 +192,7 @@ def create_app(ova: OpenVoiceAssistant):
                         detail='Synthesizer algorithm default config does not exist',
                         headers={'X-Error': 'Synthesizer algorithm default config does not exist'}) 
     
-    @router.get('/synthesizer/synthesize/text/{text}', tags=["Inference"])
+    @router.get('/synthesizer/synthesize/text/{text}', tags=["Synthesizer"])
     async def synthesize_text(text: str):
         context = {}
         context['response'] = text
@@ -208,7 +208,7 @@ def create_app(ova: OpenVoiceAssistant):
 
         return context
     
-    @router.get('/synthesizer/synthesize/text/{text}/file', tags=["Inference"])
+    @router.get('/synthesizer/synthesize/text/{text}/file', tags=["Synthesizer"])
     async def synthesize_text(text: str):
         context = {}
         context['response'] = text
