@@ -20,19 +20,9 @@ class Espeak:
         tts_engine.save_to_file(text, file_path)
         tts_engine.runAndWait()
 
-        while not os.path.isfile(file_path):
-            time.sleep(0.1)
+        return True
 
-        try:
-            audio_seg = wave.open(file_path, 'rb')
-        except wave.Error:
-            data, samplerate = soundfile.read(file_path)
-            soundfile.write(file_path, data, samplerate)
-            audio_seg = wave.open(file_path, 'rb')
 
-        audio_data = audio_seg.readframes(audio_seg.getnframes())
-
-        return audio_data, audio_seg.getframerate(), audio_seg.getsampwidth()
 
 def build_engine() -> Espeak:
     return Espeak()

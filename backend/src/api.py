@@ -168,6 +168,30 @@ def create_app(ova: OpenVoiceAssistant):
                         detail=repr(err),
                         headers={'X-Error': f'{err}'})
         
+    @router.post('/node/say', tags=["Inference"])
+    async def node_say(data: NodeSay):
+        try:
+            context = {}
+
+            node_id = data.node_id
+
+            context['node_id'] = data.node_id
+            context['response'] = data.text
+
+            ova.run_pipeline(
+                Components.Synthesizer,
+                context=context
+            )
+            
+            ova.node_manager.call_node_api('PUT', node_id, '/say', context)
+        
+        except Exception as err:
+            print(repr(err))
+            raise fastapi.HTTPException(
+                        status_code=400,
+                        detail=repr(err),
+                        headers={'X-Error': f'{err}'})
+        
     # SKILLS
 
     @router.get('/skills/available', tags=["Skills"])

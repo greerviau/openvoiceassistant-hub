@@ -8,11 +8,7 @@ class Context(typing.TypedDict):
     time_sent: float
     engaged: bool
     last_time_engaged: float
-    command_audio_data_str: str
-    command_audio_data_bytes: bytes
-    command_audio_sample_rate: int
-    command_audio_sample_width: int
-    command_audio_channels: int
+    command_audio_data: bytes
     command_audio_file_path: str
     command: str
     cleaned_command: str
@@ -27,8 +23,5 @@ class Context(typing.TypedDict):
     time_to_synthesize: float
     time_to_run_pipeline: float
     response: str
-    response_audio_data_str: str
-    response_audio_data_bytes: bytes
-    response_audio_sample_rate: str
-    response_audio_sample_width: str
     response_audio_file_path: str
+    response_audio_data: bytes

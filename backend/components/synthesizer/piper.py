@@ -38,16 +38,7 @@ class Piper:
         with wave.open(file_path, "wb") as wav_file:
             self.voice.synthesize(text, wav_file)
 
-        try:
-            audio_seg = wave.open(file_path, 'rb')
-        except wave.Error:
-            data, samplerate = soundfile.read(file_path)
-            soundfile.write(file_path, data, samplerate)
-            audio_seg = wave.open(file_path, 'rb')
-
-        audio_data = audio_seg.readframes(audio_seg.getnframes())
-
-        return audio_data, audio_seg.getframerate(), audio_seg.getsampwidth()
+        return True
 
 def build_engine() -> Piper:
     return Piper()

@@ -41,15 +41,15 @@ class Synthesizer:
         print('Response: ', response)
         if not response:
             raise RuntimeError('No response to synthesize')
-
-        context['response_audio_file_path'] = os.path.join(self.file_dump, 'response.wav')
+        
+        response_file_path = os.path.join(self.file_dump, 'response.wav')
+        context['response_audio_file_path'] = response_file_path
 
         start = time.time()
             
-        audio_data, sample_rate, sample_width = self.engine.synthesize(context)
+        if not self.engine.synthesize(context):
+            raise RuntimeError('Failed to synthesize')
 
-        context['response_audio_data_hex'] = audio_data.hex()
-        context['response_audio_sample_rate'] = sample_rate
-        context['response_audio_sample_width'] = sample_width
+        context['response_audio_data'] = open(response_file_path, 'rb')
 
         context['time_to_synthesize'] = time.time() - start
