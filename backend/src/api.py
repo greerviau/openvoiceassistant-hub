@@ -450,8 +450,6 @@ def create_app(ova: OpenVoiceAssistant):
                 context=context
             )
 
-            del context['command_audio_data_bytes']
-
             context['time_returned'] = time.time()
 
             return context

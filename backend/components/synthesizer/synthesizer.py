@@ -36,7 +36,7 @@ class Synthesizer:
             raise RuntimeError('Synthesizer algorithm does not exist')
     
     def run_stage(self, context: Context):
-        print('Synth Stage')
+        print('Synthesizer Stage')
         response = context['response']
         print('Response: ', response)
         if not response:

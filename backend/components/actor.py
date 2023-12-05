@@ -7,7 +7,7 @@ class Actor:
         self.ova = ova
 
     def run_stage(self, context: Context):
-        print('Skill Stage')
+        print('Action Stage')
         skill = context['skill']
         action = context['action']
 
