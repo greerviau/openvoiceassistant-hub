@@ -11,16 +11,20 @@ class Mathparse:
     def equation(self, config: Dict):
         command = config["cleaned_command"]
 
-        math_command = self.remove_words(
-            command,
-            ['whats', 'what', 'is', 'the']
-        )
+        try:
+            math_command = self.remove_words(
+                command,
+                ['whats', 'what', 'is', 'the']
+            )
 
-        res = mathparse.parse(math_command, language='ENG')
+            res = mathparse.parse(math_command, language='ENG')
 
-        response = math_command + f" is {round(res, 2)}"
+            response = math_command + f" is {round(res, 2)}"
 
-        return response
+            return response
+        except Exception as e:
+            print(repr(e))
+            return "Couldnt perform that math equation"
     
     def remove_words(self, text: str, words: List[str]):
         for word in words:
