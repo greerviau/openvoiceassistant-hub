@@ -169,7 +169,7 @@ def create_app(ova: OpenVoiceAssistant):
                         detail=repr(err),
                         headers={'X-Error': f'{err}'})
         
-    @router.post('/node/say', tags=["Inference"])
+    @router.post('/node/say', tags=["Nodes"])
     async def node_say(data: NodeSay):
         try:
             context = {}
