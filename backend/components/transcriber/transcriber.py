@@ -38,9 +38,9 @@ class Transcriber:
         print('Transcribing Stage')
         start = time.time()
 
-        command_audio_data_hex = context['command_audio_data_hex']
+        command_audio_data = context['command_audio_data']
 
-        context['command_audio_data_bytes'] = bytes.fromhex(command_audio_data_hex)
+        context['command_audio_data'] = bytes.fromhex(command_audio_data)
 
         context['command_audio_file_path'] = os.path.join(self.file_dump, 'command.wav')
 

@@ -19,22 +19,12 @@ class Kaldi:
 
     def transcribe(self, context: Context):
 
-        audio_data = context['command_audio_data_bytes']
-        sample_rate = context['command_audio_sample_rate']
-        sample_width = context['command_audio_sample_width']
-        channels = context['command_audio_channels']
-        
-        wave_file = create_wave(
-            audio_data=audio_data, 
-            sample_rate=sample_rate, 
-            sample_width=sample_width, 
-            channels=channels
-        )
-
-        rec = KaldiRecognizer(self.vosk_model, sample_rate)
+        file_path = context['command_audio_file_path']
+        wf = wave.open(file_path, 'rb')
+        rec = KaldiRecognizer(self.vosk_model, wf.getframerate())
         res = None
         while True:
-            data = wave_file.readframes(4000)
+            data = wf.readframes(4000)
             if len(data) == 0:
                 break
             if rec.AcceptWaveform(data):

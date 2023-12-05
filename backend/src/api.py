@@ -1,5 +1,6 @@
 import typing
 import time
+import os
 import fastapi
 from fastapi.encoders import jsonable_encoder
 from fastapi.openapi.utils import get_openapi
@@ -422,13 +423,19 @@ def create_app(ova: OpenVoiceAssistant):
         try:
             context = {}
 
+            file_dump = config.get('file_dump')
+
+            audio_file_path = os.path.join(file_dump, 'command.wav')
+
+            command_audio_data = bytes.fromhex(data.command_audio_data)
+            with open(audio_file_path, 'wb') as file:
+                file.write(command_audio_data)
+
+            context['command_audio_file_path'] = audio_file_path
+
             context['node_id'] = data.node_id
             context['node_name'] = data.node_name
             context['node_area'] = data.node_area
-            context['command_audio_data_hex'] = data.command_audio_data_hex
-            context['command_audio_sample_rate'] = data.command_audio_sample_rate
-            context['command_audio_sample_width'] = data.command_audio_sample_width
-            context['command_audio_channels'] = data.command_audio_channels
             context['node_callback'] = data.node_callback
             context['hub_callback'] = data.hub_callback
             context['time_sent'] = data.time_sent

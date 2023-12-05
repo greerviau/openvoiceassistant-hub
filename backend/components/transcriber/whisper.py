@@ -16,16 +16,8 @@ class Whisper:
 
     def transcribe(self, context: Context):
 
-        audio_data = context['command_audio_data_bytes']
-        sample_rate = context['command_audio_sample_rate']
-
-        waveform = create_numpy_waveform(audio_data)
-
-        if sample_rate != 16000:
-            waveform = resample_waveform(waveform, sample_rate, 16000)
-
-        result = self.model.transcribe(waveform)
-
+        file_path = context['command_audio_file_path']
+        result = self.model.transcribe(file_path)
         return result["text"]
 
 def build_engine():
