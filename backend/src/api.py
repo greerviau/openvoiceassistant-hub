@@ -184,7 +184,7 @@ def create_app(ova: OpenVoiceAssistant):
                 context=context
             )
             
-            ova.node_manager.call_node_api('PUT', node_id, '/say', context)
+            ova.node_manager.call_node_api('PUT', node_id, '/play', context)
         
         except Exception as err:
             print(repr(err))
