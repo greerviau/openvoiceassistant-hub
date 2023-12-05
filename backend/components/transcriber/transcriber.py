@@ -38,14 +38,6 @@ class Transcriber:
         print('Transcribing Stage')
         start = time.time()
 
-        command_audio_data = context['command_audio_data']
-
-        context['command_audio_data'] = bytes.fromhex(command_audio_data)
-
-        context['command_audio_file_path'] = os.path.join(self.file_dump, 'command.wav')
-
-        #save_wave(wave_file_path, audio_data, sample_rate, sample_width, channels)
-
         command = self.engine.transcribe(context).strip()
         
         context['time_to_transcribe'] = time.time() - start
