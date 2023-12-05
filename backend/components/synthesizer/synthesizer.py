@@ -50,6 +50,6 @@ class Synthesizer:
         if not self.engine.synthesize(context):
             raise RuntimeError('Failed to synthesize')
 
-        context['response_audio_data'] = open(response_file_path, 'rb').hex()
+        context['response_audio_data'] = open(response_file_path, 'rb').read().hex()
 
         context['time_to_synthesize'] = time.time() - start
