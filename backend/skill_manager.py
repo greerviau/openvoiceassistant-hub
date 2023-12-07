@@ -69,8 +69,11 @@ class SkillManager:
             return self.imported_skill_modules[skill_id]
         
     def get_skill_intents(self, skill_id: str):
-        if self.skill_imported(skill_id):
-            return self.imported_skill_modules[skill_id].INTENTIONS
+        if self.skill_exists(skill_id):
+            module = importlib.import_module(f'backend.skills.{skill_id}')
+            return module.INTENTIONS
+        else:
+            raise RuntimeError('Skill does not exist')
 
     def __import_skill(self, skill_id: str, skill_config: typing.Dict):
         if self.skill_exists(skill_id):
