@@ -14,6 +14,7 @@ SetLogLevel(0)
 
 class Kaldi:
     def __init__(self, ova: 'OpenVoiceAssistant'):
+        self.ova = ova
         model_lang = config.get(Components.Transcriber.value, 'config', 'model_lang')
         self.vosk_model = Model(lang=model_lang)
 

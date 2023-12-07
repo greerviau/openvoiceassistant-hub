@@ -19,7 +19,7 @@ class Synthesizer:
 
         self.verify_config()
 
-        self.engine = self.module.build_engine()
+        self.engine = self.module.build_engine(ova)
 
     def verify_config(self):
         current_config = config.get(Components.Synthesizer.value, 'config')

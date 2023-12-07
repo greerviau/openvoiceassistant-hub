@@ -9,7 +9,8 @@ from backend import config
 
 class Coqui:
 
-    def __init__(self):
+    def __init__(self, ova: 'OpenVoiceAssistant'):
+        self.ova = ova
         model_name = config.get(Components.Synthesizer.value, 'config', 'model')
         gpu = config.get(Components.Synthesizer.value, 'config', 'use_gpu')
 
@@ -23,8 +24,8 @@ class Coqui:
 
         return True
 
-def build_engine() -> Coqui:
-    return Coqui()
+def build_engine(ova: 'OpenVoiceAssistant') -> Coqui:
+    return Coqui(ova)
 
 def default_config() -> typing.Dict:
     return {

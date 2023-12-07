@@ -14,8 +14,9 @@ from backend.enums import Components
 from backend import config
 
 class Piper:
-    def __init__(self):
-        file_dump = config.get('model_dump')
+    def __init__(self, ova: 'OpenVoiceAssistant'):
+        self.ova = ova
+        file_dump = ova.model_dump
         model_name = config.get(Components.Synthesizer.value, 'config', 'model')
         use_gpu = config.get(Components.Synthesizer.value, 'config', 'use_gpu')
         data_dir = [file_dump]
@@ -40,8 +41,8 @@ class Piper:
 
         return True
 
-def build_engine() -> Piper:
-    return Piper()
+def build_engine(ova: 'OpenVoiceAssistant') -> Piper:
+    return Piper(ova)
 
 def default_config() -> typing.Dict:
     return {

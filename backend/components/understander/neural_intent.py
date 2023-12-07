@@ -18,10 +18,9 @@ class NeuralIntent:
         self.ova = ova
         self.intents = intents
         self.load_classifier()
-
     
     def load_classifier(self):
-        model_dump = config.get('model_dump')
+        model_dump = self.ova.model_dump
             
         imported_skills = list(config.get('skills').keys())
         skills_dir = os.path.join(self.ova.base_dir, 'skills')

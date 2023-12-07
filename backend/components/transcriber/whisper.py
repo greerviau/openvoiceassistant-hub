@@ -11,6 +11,7 @@ from backend.utils.audio import create_numpy_waveform, resample_waveform
 
 class Whisper:
     def __init__(self, ova: 'OpenVoiceAssistant'):
+        self.ova = ova
         model_size = config.get(Components.Transcriber.value, 'config', 'model_size')
         self.model = whisper.load_model(model_size)
 

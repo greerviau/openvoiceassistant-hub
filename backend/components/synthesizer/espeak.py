@@ -10,6 +10,9 @@ from backend import config
 
 class Espeak:
 
+    def __init__(self, ova: 'OpenVoiceAssistant'):
+        self.ova = ova
+
     def synthesize(self, context: Context):
         text = context['response']
         file_path = context['response_audio_file_path']
@@ -24,8 +27,8 @@ class Espeak:
 
 
 
-def build_engine() -> Espeak:
-    return Espeak()
+def build_engine(ova: 'OpenVoiceAssistant') -> Espeak:
+    return Espeak(ova)
 
 def default_config() -> typing.Dict:
     return {}
