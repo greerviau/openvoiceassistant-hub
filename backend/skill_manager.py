@@ -67,6 +67,10 @@ class SkillManager:
     def get_skill_module(self, skill_id: str):
         if self.skill_imported(skill_id):
             return self.imported_skill_modules[skill_id]
+        
+    def get_skill_intents(self, skill_id: str):
+        if self.skill_imported(skill_id):
+            return self.imported_skill_modules[skill_id].INTENTIONS
 
     def __import_skill(self, skill_id: str, skill_config: typing.Dict):
         if self.skill_exists(skill_id):

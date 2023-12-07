@@ -11,8 +11,8 @@ from backend.schemas import Context
 
 class Synthesizer:
     def __init__(self, ova: 'OpenVoiceAssistant'):
-        self.file_dump = config.get('file_dump')
-        os.makedirs(self.file_dump, exist_ok = True)
+        self.ova = ova
+        self.file_dump = self.ova.file_dump
 
         self.algo = config.get(Components.Synthesizer.value, 'algorithm').lower().replace(' ', '_')
         self.module = importlib.import_module(f'backend.components.synthesizer.{self.algo}')

@@ -13,7 +13,7 @@ from backend.utils.audio import create_wave, load_wave
 SetLogLevel(0)
 
 class Kaldi:
-    def __init__(self):
+    def __init__(self, ova: 'OpenVoiceAssistant'):
         model_lang = config.get(Components.Transcriber.value, 'config', 'model_lang')
         self.vosk_model = Model(lang=model_lang)
 
@@ -39,8 +39,8 @@ class Kaldi:
 
         return command
 
-def build_engine():
-    return Kaldi()
+def build_engine(ova: 'OpenVoiceAssistant'):
+    return Kaldi(ova)
 
 def default_config():
     return {

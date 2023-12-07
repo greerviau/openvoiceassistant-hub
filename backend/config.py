@@ -6,9 +6,6 @@ from backend.enums import Components
 
 DEFAULT_CONFIG = {
         "engage_delay": 30,
-        "base_dir": os.path.realpath(os.path.dirname(__file__)),
-        "model_dump": f"{os.path.realpath(os.path.dirname(__file__))}/model_dump",
-        "file_dump": f"{os.path.realpath(os.path.dirname(__file__))}/file_dump",
         Components.Transcriber.value: {
             "algorithm": "Kaldi",
             "algorithm_options": [

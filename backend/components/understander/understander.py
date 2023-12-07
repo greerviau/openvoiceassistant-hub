@@ -12,9 +12,9 @@ from backend.utils.nlp import information_extraction, encode_command
 
 class Understander:
     def __init__(self, ova: "OpenVoiceAssistant"):
+        self.ova = ova
         imported_skills = list(config.get('skills').keys())
-        skills_dir = os.path.join(config.get('base_dir'), 'skills')
-        self.intents = self.load_intents(imported_skills, skills_dir)
+        self.intents = self.load_intents(imported_skills)
         self.vocab_list = self.load_vocab(self.intents.values())
         self.engage_delay = config.get("engage_delay")
     
@@ -23,7 +23,7 @@ class Understander:
 
         self.verify_config()
 
-        self.engine = self.module.build_engine(self.intents)
+        self.engine = self.module.build_engine(ova, self.intents)
 
     def verify_config(self):
         current_config = config.get(Components.Understander.value, 'config')
@@ -31,10 +31,10 @@ class Understander:
         if not current_config or (current_config.keys() != default_config.keys()):
             config.set(Components.Understander.value, 'config', default_config)
 
-    def load_intents(self, imported_skills: List, skills_dir: str):
+    def load_intents(self, imported_skills: List):
         tagged_intents = {}
         for skill in imported_skills:
-            intents = json.load(open(os.path.join(skills_dir, skill.replace('.', '/'), 'intents.json')))['intentions']
+            intents = self.ova.skill_manager.get_skill_intents(skill)
             for intent in intents:
                 tag = intent['action']
                 patterns = intent['patterns']

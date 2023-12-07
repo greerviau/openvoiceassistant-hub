@@ -9,16 +9,15 @@ from backend.schemas import Context
 from backend.utils.nlp import clean_text
 
 class Transcriber:
-    def __init__(self, ova: 'OpenVoiceAssistant'):        
-        self.file_dump = config.get('file_dump')
-        os.makedirs(self.file_dump, exist_ok = True)
+    def __init__(self, ova: 'OpenVoiceAssistant'):    
+        self.ova = ova
 
         self.algo = config.get(Components.Transcriber.value, 'algorithm').lower().replace(' ', '_')
         self.module = importlib.import_module(f'backend.components.transcriber.{self.algo}')
 
         self.verify_config()
 
-        self.engine = self.module.build_engine()
+        self.engine = self.module.build_engine(ova)
 
     def verify_config(self):
         current_config = config.get(Components.Transcriber.value, 'config')

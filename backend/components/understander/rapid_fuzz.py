@@ -10,7 +10,8 @@ from backend import config
 
 class Rapidfuzz:
 
-    def __init__(self, intents: typing.Dict):
+    def __init__(self, ova: 'OpenVoiceAssistant', intents: typing.Dict):
+        self.ova = ova
         self.intents = intents
 
         self.conf_thresh = config.get(Components.Understander.value, 'config', 'conf_thresh')
@@ -41,8 +42,8 @@ class Rapidfuzz:
     
         return skill, action, conf
 
-def build_engine(intents: typing.Dict) -> Rapidfuzz:
-    return Rapidfuzz(intents)
+def build_engine(ova: 'OpenVoiceAssistant', intents: typing.Dict) -> Rapidfuzz:
+    return Rapidfuzz(ova, intents)
 
 def default_config() -> typing.Dict:
     return {

@@ -3,23 +3,20 @@ import json
 import pickle
 import typing
 import numpy as np
-from typing import List
 
-from tensorflow.keras.models import Sequential
-from tensorflow.keras.layers import Dense, LSTM
-from tensorflow.keras.layers import Embedding
-from sklearn.preprocessing import OneHotEncoder
+import torch
+from torch import nn
+from torch.utils.data import Dataset, DataLoader
+from torchtext.data.utils import get_tokenizer
+from torchtext.vocab import build_vocab_from_iterator
+from sklearn.metrics import precision_score, recall_score, f1_score
 
 from backend.utils.nlp import clean_text, encode_word_vec, pad_sequence
 
-def load_training_data(imported_skills: typing.List, skills_dir: str):
+def load_training_data(intents: typing.Dict):
     compiled_data = []
-    for skill in imported_skills:
-        intents = json.load(open(os.path.join(skills_dir, skill, 'intents.json')))['intentions']
-        for intent in intents:
-            tag = intent['action']
-            patterns = intent['patterns']
-            compiled_data.extend([[f'{skill}-{tag}', clean_text(pattern)] for pattern in patterns])
+    for skill, patterns in intents.items():
+        compiled_data.extend([[skill, clean_text(pattern)] for pattern in patterns])
     compiled_data = np.array(compiled_data)
     return compiled_data[:,1], compiled_data[:,0]
 

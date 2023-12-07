@@ -1,9 +1,8 @@
 import os
 import pickle
+import typing
 
 import numpy as np
-
-from typing import Tuple, Dict
 from tensorflow.keras.models import load_model
 
 from backend.schemas import Context
@@ -15,7 +14,9 @@ from backend.utils.nlp import clean_text, encode_word_vec, pad_sequence
 
 class NeuralIntent:
 
-    def __init__(self, intents: Dict):
+    def __init__(self, ova: 'OpenVoiceAssistant', intents: typing.Dict):
+        self.ova = ova
+        self.intents = intents
         self.load_classifier()
 
     
@@ -23,7 +24,7 @@ class NeuralIntent:
         model_dump = config.get('model_dump')
             
         imported_skills = list(config.get('skills').keys())
-        skills_dir = os.path.join(config.get('base_dir'), 'skills')
+        skills_dir = os.path.join(self.ova.base_dir, 'skills')
 
         print('Loading classifier')
         model_file = os.path.join(model_dump, 'neural_intent_model.h5')
@@ -47,7 +48,7 @@ class NeuralIntent:
 
         self.conf_thresh = config.get(Components.Understander.value, 'config', 'conf_thresh')
 
-    def predict_intent(self, text: str) -> Tuple[str, str, float]:
+    def predict_intent(self, text: str) -> typing.Tuple[str, str, float]:
         encoded = encode_word_vec(text, self.word_to_int)
         padded = pad_sequence(encoded, self.seq_length)
         prediction = self.intent_model.predict(np.array([padded]))[0]
@@ -56,7 +57,7 @@ class NeuralIntent:
         skill, action = label.split('-')
         return skill, action, round(float(prediction[argmax])*100, 3)
 
-    def understand(self, context: Context) -> Tuple[str, str, float]:
+    def understand(self, context: Context) -> typing.Tuple[str, str, float]:
         encoded_command = context['encoded_command']
         skill, action, conf = self.predict_intent(encoded_command)
         
@@ -70,10 +71,10 @@ class NeuralIntent:
         return skill, action, conf
         
 
-def build_engine(intents: Dict) -> NeuralIntent:
-    return NeuralIntent(intents)
+def build_engine(ova: 'OpenVoiceAssistant', intents: typing.Dict) -> NeuralIntent:
+    return NeuralIntent(ova, intents)
 
-def default_config() -> Dict:
+def default_config() -> typing.Dict:
     return {
         "conf_thresh": 80
     }
