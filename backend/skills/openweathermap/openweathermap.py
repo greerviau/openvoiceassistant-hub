@@ -43,7 +43,7 @@ class OpenWeatherMap:
             "drizzle": ["drizzling"],
             "rain": ["raining"],
             "snow": ["snowing"],
-            "clear": ["clear", "clear skies"]
+            "clear": ["sunny", "clear", "clear skies"]
         }
         DETAILED_STATUS_MAPPING = {
             "few clouds": ["mostly clear"],
@@ -117,13 +117,6 @@ class OpenWeatherMap:
         template = random.choice(RESPONSE_TEMPLATES)
 
         response = template % (f"{temp} degrees") + loc
-
-        return response
-
-    def ocean(self, context: Dict):
-        w, loc = self._get_weather(context)
-
-        response = "Not implemented"
 
         return response
 
