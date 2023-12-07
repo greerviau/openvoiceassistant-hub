@@ -323,8 +323,8 @@ def create_app(ova: OpenVoiceAssistant):
                         detail=repr(err),
                         headers={'X-Error': f'{err}'})
         
-    @router.post('/node/say', tags=["Nodes"])
-    async def node_say(data: NodeSay):
+    @router.post('/node/announce', tags=["Nodes"])
+    async def node_announce(data: NodeAnnounce):
         try:
             context = {}
 
@@ -337,8 +337,12 @@ def create_app(ova: OpenVoiceAssistant):
                 Components.Synthesizer,
                 context=context
             )
+
+            data = {
+                "audio_data": context['response_audio_data']
+            }
             
-            ova.node_manager.call_node_api('POST', node_id, '/play/audio', context)
+            ova.node_manager.call_node_api('POST', node_id, '/play/audio', data)
 
             return {}
         

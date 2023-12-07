@@ -24,7 +24,7 @@ class RespondText(BaseModel):
     last_time_engaged: float
     command_text: str = ''
 
-class NodeSay(BaseModel):
+class NodeAnnounce(BaseModel):
     node_id: str
     text: str
 
