@@ -81,7 +81,7 @@ def create_app(ova: OpenVoiceAssistant):
     async def transcribe_audio(data: TranscribeAudio):
         context = {}
 
-        file_dump = config.get('file_dump')
+        file_dump = ova.file_dump
 
         audio_file_path = os.path.join(file_dump, 'command.wav')
 
@@ -518,7 +518,7 @@ def create_app(ova: OpenVoiceAssistant):
         try:
             context = {}
 
-            file_dump = config.get('file_dump')
+            file_dump = ova.file_dump
 
             audio_file_path = os.path.join(file_dump, 'command.wav')
 
