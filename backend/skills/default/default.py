@@ -176,7 +176,7 @@ class Default:
     def stop_timer(self, context: Dict):
         node_id = context["node_id"]
         resp = self.ova.node_manager.call_node_api("GET", node_id, "/stop_timer")
-        return ""
+        return "Stopping the timer"
 
 def build_skill(config: Dict, ova: 'OpenVoiceAssistant'):
     return Default(config, ova)
