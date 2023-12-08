@@ -105,11 +105,11 @@ class Default:
     def set_timer(self, context: Dict):
         entities = context['pos_info']['ENTITIES']
 
-        response = ""
-
         node_id = context["node_id"]
-        response = self.ova.node_manager.call_node_api("GET", node_id, "/timer_remaining_time")
-        remaining = response.json()['time_remaining']
+        resp = self.ova.node_manager.call_node_api("GET", node_id, "/timer_remaining_time")
+        remaining = resp.json()['time_remaining']
+
+        response = ""
 
         if remaining == 0:
             if 'TIME' in entities:
@@ -138,8 +138,8 @@ class Default:
 
     def time_remaining(self, context: Dict):
         node_id = context["node_id"]
-        response = self.ova.node_manager.call_node_api("GET", node_id, "/timer_remaining_time")
-        remaining = response.json()['time_remaining']
+        resp = self.ova.node_manager.call_node_api("GET", node_id, "/timer_remaining_time")
+        remaining = resp.json()['time_remaining']
         if remaining > 0:
             hours = 0
             minutes = 0
@@ -173,7 +173,9 @@ class Default:
         else:
             return "There is no timer currently running"
     
-    def stop(self, context: Dict):
+    def stop_timer(self, context: Dict):
+        node_id = context["node_id"]
+        resp = self.ova.node_manager.call_node_api("GET", node_id, "/stop_timer")
         return ""
 
 def build_skill(config: Dict, ova: 'OpenVoiceAssistant'):

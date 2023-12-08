@@ -165,14 +165,14 @@ INTENTIONS = [
             ]
         },
         {
-            "action":"stop",
+            "action":"stop_timer",
             "patterns":[
-                "stop",
-                "cancel",
-                "thats enough",
-                "quiet",
-                "be quiet",
-                "shut up"
+                "stop the timer",
+                "stop that timer",
+                "cancel the timer",
+                "cancel that timer",
+                "forget the timer",
+                "forget that timer"
             ]
         }
     ]
