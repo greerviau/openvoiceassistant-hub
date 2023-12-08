@@ -79,7 +79,7 @@ class Understander:
         context["encoded_command"] = encoded_command
         print(f"Encoded command: {encoded_command}")
         
-        if encoded_command in ["", "BLANK"] or cleaned_command not in ["stop", "cancel"]:
+        if encoded_command in ["", "BLANK"] or cleaned_command in ["stop", "cancel"]:
             skill = "NO_COMMAND"
             action = ""
             conf = 100
