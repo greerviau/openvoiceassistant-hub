@@ -20,8 +20,8 @@ class Whisper:
         file_path = context['command_audio_file_path']
         segments, _ = self.model.transcribe(file_path)
         segments = list(segments)
-        print(segments)
-        return " ".join(segments)
+        #print(segments)
+        return " ".join([segment.text for segment in segments])
 
 def build_engine(ova: 'OpenVoiceAssistant'):
     return Whisper(ova)
