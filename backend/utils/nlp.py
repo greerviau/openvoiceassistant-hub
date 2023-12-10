@@ -261,28 +261,6 @@ def clean_text(text):
     text = text.strip()
     return text
 
-def encode_bow(text, vocab):
-    encoded = np.zeros(len(vocab))
-    for word in text.split():
-        if word in vocab.keys():
-            encoded[vocab[word]] = 1
-    return np.array(encoded)
-
-def encode_word_vec(text, vocab):
-    encoded = np.zeros(len(text.split()))
-    for i, word in enumerate(text.split()):
-        if word in vocab.keys():
-            encoded[i] = vocab[word]
-    return np.array(encoded)
-
-def pad_sequence(encoded, seq_length):
-    padding = np.zeros(seq_length)
-    if len(encoded) > seq_length:
-        padding = encoded[:seq_length]
-    else:
-        padding[:len(encoded)] = encoded
-    return padding
-
 def encode_command(command: str, vocab):
     last_blank = False
     words = []
