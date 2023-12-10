@@ -37,7 +37,7 @@ class NeuralIntent:
             pickle.dump([self.word_to_int, int_to_word, label_to_int, self.int_to_label, n_vocab, n_labels, labels, self.max_length], open(vocab_file, 'wb'))  
         else:
             self.word_to_int, int_to_word, label_to_int, self.int_to_label, n_vocab, n_labels, loaded_labels, self.max_length = pickle.load(open(vocab_file, 'rb'))
-        
+
         if not os.path.exists(model_file) or loaded_labels != labels:
             print('Model file not found')
             X, Y = preprocess_data(x, y, self.word_to_int, self.max_length, label_to_int)
@@ -76,16 +76,28 @@ class NeuralIntent:
     
 class IntentDataset(Dataset):
     def __init__(self, X, Y):
-        self.X_data = X
-        self.Y_data = Y
+        self.x = X
+        self.y = Y
         
     def __len__(self):
-        return len(self.X_data)
+        return len(self.x)
     
     def __getitem__(self, idx):
-        x_ = self.X_data[idx]
-        y_ = self.Y_data[idx]
-        return x_, y_
+        return self.x[idx], self.y[idx]   
+    
+class IntentClassifier(nn.Module):
+    def __init__(self, vocab_size, embedding_dim, hidden_dim, num_classes):
+        super(IntentClassifier, self).__init__()
+        self.embedding = nn.Embedding(vocab_size, embedding_dim)
+        self.rnn = nn.LSTM(embedding_dim, hidden_dim, batch_first=True)
+        self.fc = nn.Linear(hidden_dim, num_classes)
+        
+    def forward(self, x):
+        embedded = self.embedding(x)
+        output, _ = self.rnn(embedded)
+        last_hidden = output[:, -1, :]
+        logits = self.fc(last_hidden)
+        return logits
     
 def load_training_data(intents: typing.Dict):
     print("Loading data")
@@ -100,6 +112,7 @@ def load_training_data(intents: typing.Dict):
     compiled_data = np.array(compiled_data)
     x = compiled_data[:,0]
     y = compiled_data[:,1]
+    print("Max sequence length: ", max_length)
     return x, y, max_length
 
 def build_vocab(X: np.array, y: np.array):
@@ -141,23 +154,9 @@ def preprocess_data(x, y, word_to_int, max_length, label_to_int):
     Y = onehot_encoder.fit_transform(data_y)
     Y = np.array(y)
 
-    #print(X[0], Y[0])
+    print(X[0], Y[0])
 
     return X, Y
-    
-class IntentClassifier(nn.Module):
-    def __init__(self, vocab_size, embedding_dim, hidden_dim, num_classes):
-        super(IntentClassifier, self).__init__()
-        self.embedding = nn.Embedding(vocab_size, embedding_dim)
-        self.rnn = nn.LSTM(embedding_dim, hidden_dim, batch_first=True)
-        self.fc = nn.Linear(hidden_dim, num_classes)
-        
-    def forward(self, x):
-        embedded = self.embedding(x)
-        output, _ = self.rnn(embedded)
-        last_hidden = output[:, -1, :]
-        logits = self.fc(last_hidden)
-        return logits
     
 def train_classifier(X, Y, embedding_dim, hidden_dim, num_classes, vocab_size, model_file):
     print('Training classifier')
