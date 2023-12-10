@@ -6,6 +6,7 @@ import time
 
 from backend import config
 from backend.utils.nlp import extract_numbers
+from backend.utils.formatting import format_readable_date, format_readable_time
 
 class Default:
 
@@ -14,7 +15,7 @@ class Default:
         self.config = config
 
         self.tz = pytz.timezone(config["timezone"])
-        self.format = "%H" if config["24_hour_format"] else "%I"
+        self.hour_format = "%H" if config["24_hour_format"] else "%I"
 
     def volume(self, context: Dict):
         node_id = context["node_id"]
@@ -82,14 +83,14 @@ class Default:
         return response
     
     def date(self, context: Dict):
-        date = datetime.now(self.tz).strftime("%B %d, %Y")
+        date = format_readable_date(datetime.now(self.tz))
 
         response = f"Today is {date}"
 
         return response
 
     def time(self, context: Dict):
-        time = datetime.now(self.tz).strftime(f"{self.format}:%M")
+        time = format_readable_time(datetime.now(self.tz), self.hour_format)
 
         response = f"It is {time}"
 
