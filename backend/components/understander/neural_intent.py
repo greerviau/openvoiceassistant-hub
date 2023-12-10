@@ -33,7 +33,7 @@ class NeuralIntent:
 
         if not os.path.exists(vocab_file):
             print('Vocab file not found')
-            label_to_int, self.int_to_label, self.word_to_int, int_to_word, n_vocab, n_labels = load_vocab(x, y)
+            label_to_int, self.int_to_label, self.word_to_int, int_to_word, n_vocab, n_labels = build_vocab(x, y)
             pickle.dump([self.word_to_int, int_to_word, label_to_int, self.int_to_label, n_vocab, n_labels, labels, self.max_length], open(vocab_file, 'wb'))  
         else:
             self.word_to_int, int_to_word, label_to_int, self.int_to_label, n_vocab, n_labels, loaded_labels, self.max_length = pickle.load(open(vocab_file, 'rb'))
@@ -102,7 +102,7 @@ def load_training_data(intents: typing.Dict):
     y = compiled_data[:,1]
     return x, y, max_length
 
-def load_vocab(X: np.array, y: np.array, vocab_file: str):
+def build_vocab(X: np.array, y: np.array):
     print("Building vocab")
     # fix random seed for reproducibility
     np.random.seed(7)
