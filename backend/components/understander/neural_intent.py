@@ -54,7 +54,7 @@ class NeuralIntent:
 
         if not os.path.exists(model_file):
             print('Model file not found')
-            X, Y = preprocess_data(x, y, self.word_to_int, self.max_length, label_to_int)
+            X, Y = preprocess_data(x, y, self.word_to_int, self.max_length, label_to_int, n_vocab)
             train_classifier(X, Y, embedding_dim, hidden_dim, n_labels, n_vocab, model_file)
         
         self.intent_model = IntentClassifier(n_vocab, embedding_dim, hidden_dim, n_labels)
@@ -73,7 +73,7 @@ class NeuralIntent:
             conf = torch.max(prediction, dim=1)[0]
             label = self.int_to_label[argmax]
             skill, action = label.split('-')
-            return skill, action, round(float(conf), 3)
+            return skill, action, round(float(conf)*100, 3)
 
     def understand(self, context: Context) -> typing.Tuple[str, str, float]:
         encoded_command = context['encoded_command']
@@ -153,12 +153,12 @@ def build_vocab(X: np.array, y: np.array):
 
     return label_to_int, int_to_label, word_to_int, int_to_word, n_vocab, n_labels
 
-def preprocess_data(x, y, word_to_int, max_length, label_to_int):
+def preprocess_data(x, y, word_to_int, max_length, label_to_int, vocab_size):
     print("Preprocessing data")
     data_x = []
     data_y = []
     for text, label in zip(x, y):
-        encoded = encode_word_vec(text, word_to_int)
+        encoded = encode_word_vec(text, word_to_int) / vocab_size
         padded = pad_sequence(encoded, max_length)
         data_x.append(padded)
         data_y.append([label_to_int[label]])
