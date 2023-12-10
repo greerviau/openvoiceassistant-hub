@@ -65,7 +65,7 @@ class NeuralIntent:
 
     def predict_intent(self, text: str) -> typing.Tuple[str, str, float]:
         encoded = encode_word_vec(text, self.word_to_int)
-        padded = pad_sequence(encoded, self.seq_length)
+        padded = pad_sequence(encoded, self.max_length)
         with torch.no_grad():
             inputs = torch.LongTensor(np.array([padded]))
             prediction = self.intent_model(inputs)
