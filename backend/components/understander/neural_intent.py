@@ -103,15 +103,15 @@ class IntentClassifier(nn.Module):
     def __init__(self, vocab_size, embedding_dim, hidden_dim, num_classes):
         super(IntentClassifier, self).__init__()
         self.embedding = nn.Embedding(vocab_size, embedding_dim)
-        self.rnn = nn.LSTM(embedding_dim, hidden_dim, batch_first=True)
+        self.lstm = nn.LSTM(embedding_dim, hidden_dim, batch_first=True)
         self.fc = nn.Linear(hidden_dim, num_classes)
         
     def forward(self, x):
-        embedded = self.embedding(x)
-        output, _ = self.rnn(embedded)
-        last_hidden = output[:, -1, :]
-        logits = self.fc(last_hidden)
-        return logits
+        embed = self.embedding(x)
+        out, _ = self.lstm(embed)
+        out = out[:, -1, :]
+        out = self.fc(out)
+        return torch.softmax(out)
     
 def load_training_data(intents: typing.Dict):
     print("Loading data")
