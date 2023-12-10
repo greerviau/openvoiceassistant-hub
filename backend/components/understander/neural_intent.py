@@ -44,6 +44,7 @@ class NeuralIntent:
 
         x, y, self.max_length = load_training_data(intents)
         labels = list(set(y))
+        print(labels)
 
         if not os.path.exists(vocab_file):
             print('Vocab file not found')
