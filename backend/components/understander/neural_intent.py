@@ -52,7 +52,7 @@ class NeuralIntent:
         else:
             self.word_to_int, int_to_word, label_to_int, self.int_to_label, n_vocab, n_labels, loaded_labels, self.max_length = pickle.load(open(vocab_file, 'rb'))
 
-        if not os.path.exists(model_file) or loaded_labels != labels:
+        if not os.path.exists(model_file):
             print('Model file not found')
             X, Y = preprocess_data(x, y, self.word_to_int, self.max_length, label_to_int)
             train_classifier(X, Y, embedding_dim, hidden_dim, n_labels, n_vocab, model_file)
@@ -69,8 +69,8 @@ class NeuralIntent:
         with torch.no_grad():
             inputs = torch.LongTensor(np.array([padded]))
             prediction = self.intent_model(inputs)
-            argmax = torch.argmax(prediction, dim=1)[0]
-            conf = torch.max(prediction, dim=1)[0]
+            argmax = torch.argmax(prediction, dim=1).item()
+            conf = torch.max(prediction, dim=1).item()
             label = self.int_to_label[argmax]
             skill, action = label.split('-')
             return skill, action, round(float(conf)*100, 3)
