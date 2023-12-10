@@ -73,7 +73,7 @@ class NeuralIntent:
             conf = torch.max(prediction, dim=1)[0]
             label = self.int_to_label[argmax]
             skill, action = label.split('-')
-            return skill, action, round(float(conf)*100, 3)
+            return skill, action, round(float(conf), 3)
 
     def understand(self, context: Context) -> typing.Tuple[str, str, float]:
         encoded_command = context['encoded_command']
