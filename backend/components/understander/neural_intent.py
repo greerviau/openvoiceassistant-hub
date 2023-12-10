@@ -7,13 +7,27 @@ import numpy as np
 import torch
 from torch import nn
 from torch.utils.data import Dataset, DataLoader
-from sklearn.metrics import precision_score, recall_score, f1_score
 from sklearn.preprocessing import OneHotEncoder
 
 from backend import config
 from backend.schemas import Context
 from backend.enums import Components
-from backend.utils.nlp import clean_text, encode_word_vec, pad_sequence
+from backend.utils.nlp import clean_text
+
+def encode_word_vec(text, vocab):
+    encoded = np.zeros(len(text.split()))
+    for i, word in enumerate(text.split()):
+        if word in vocab.keys():
+            encoded[i] = vocab[word]
+    return np.array(encoded)
+
+def pad_sequence(encoded, seq_length):
+    padding = np.zeros(seq_length)
+    if len(encoded) > seq_length:
+        padding = encoded[:seq_length]
+    else:
+        padding[:len(encoded)] = encoded
+    return padding
 
 class NeuralIntent:
 
@@ -152,7 +166,7 @@ def preprocess_data(x, y, word_to_int, max_length, label_to_int):
     X = np.array(data_x)
     onehot_encoder = OneHotEncoder(sparse=False)
     Y = onehot_encoder.fit_transform(data_y)
-    Y = np.array(y)
+    Y = np.array(Y)
 
     print(X[0], Y[0])
 
