@@ -52,7 +52,7 @@ class NeuralIntent:
         else:
             self.word_to_int, int_to_word, label_to_int, self.int_to_label, n_vocab, n_labels, loaded_labels, self.max_length = pickle.load(open(vocab_file, 'rb'))
 
-        if not os.path.exists(model_file) or sorted(labels) == sorted(loaded_labels):
+        if not os.path.exists(model_file) or sorted(labels) != sorted(loaded_labels):
             print('Model file not found')
             X, Y = preprocess_data(x, y, self.word_to_int, self.max_length, label_to_int)
             train_classifier(X, Y, embedding_dim, hidden_dim, n_labels, n_vocab, model_file)
