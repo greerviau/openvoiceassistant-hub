@@ -70,7 +70,7 @@ class NeuralIntent:
             inputs = torch.LongTensor(np.array([padded]))
             prediction = self.intent_model(inputs)
             argmax = torch.argmax(prediction, dim=1).item()
-            conf = torch.max(prediction, dim=1).item()
+            conf = torch.max(prediction, dim=1)[0]
             label = self.int_to_label[argmax]
             skill, action = label.split('-')
             return skill, action, round(float(conf)*100, 3)
