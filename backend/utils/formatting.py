@@ -8,9 +8,9 @@ def format_readable_date(dt):
 
     inf = inflect.engine()
 
-    day = inf.number_to_words(int(day))
-    century = inf.number_to_words(int(year[:2]))
-    decade = inf.number_to_words(int(year[2:]))
+    day = inf.number_to_words(int(day)).replace("-", " ")
+    century = inf.number_to_words(int(year[:2])).replace("-", " ")
+    decade = inf.number_to_words(int(year[2:])).replace("-", " ")
 
     return f"{month} {day}, {century}{decade}"
 
@@ -22,7 +22,7 @@ def format_readable_time(dt, hour_format: str):
 
     inf = inflect.engine()
 
-    hour = inf.number_to_words(int(hour))
-    minutes = inf.number_to_words(int(minutes))
+    hour = inf.number_to_words(int(hour)).replace("-", " ")
+    minutes = inf.number_to_words(int(minutes)).replace("-", " ")
 
     return f"{hour} {minutes}"
