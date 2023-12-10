@@ -1,25 +1,26 @@
-import whisper
-import numpy as np
-import typing
-import wave
-import os
+import torch
+from faster_whisper import WhisperModel
 
 from backend.schemas import Context
 from backend.enums import Components
 from backend import config
-from backend.utils.audio import create_numpy_waveform, resample_waveform
 
 class Whisper:
     def __init__(self, ova: 'OpenVoiceAssistant'):
         self.ova = ova
         model_size = config.get(Components.Transcriber.value, 'config', 'model_size')
-        self.model = whisper.load_model(model_size)
+        gpu = config.get(Components.Transcriber.value, 'config', 'use_gpu')
+
+        device = "cuda" if torch.cuda.is_available() and gpu else "cpu"
+
+        self.model = WhisperModel(model_size, device=device, compute_type="int8")
 
     def transcribe(self, context: Context):
 
         file_path = context['command_audio_file_path']
-        result = self.model.transcribe(file_path)
-        return result["text"]
+        segments, _ = self.model.transcribe(file_path)
+        segments = list(segments)
+        return " ".join(segments)
 
 def build_engine(ova: 'OpenVoiceAssistant'):
     return Whisper(ova)
@@ -27,5 +28,6 @@ def build_engine(ova: 'OpenVoiceAssistant'):
 def default_config():
     return {
         "model_size": "tiny.en",
-        "model_sizes": ["tiny.en", "tiny", "base.en", "base", "small.en", "small", "medium.en", "medium", "large"]
+        "model_sizes": ["tiny.en", "tiny", "base.en", "base", "small.en", "small", "medium.en", "medium", "large"],
+        "use_gpu": False
     }
