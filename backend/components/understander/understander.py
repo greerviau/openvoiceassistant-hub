@@ -83,6 +83,7 @@ class Understander:
             skill = "NO_COMMAND"
             action = ""
             conf = 100
+            raise RuntimeError("No command")
         else:
             hub_callback = context["hub_callback"] if "hub_callback" in context else None
             if hub_callback:
