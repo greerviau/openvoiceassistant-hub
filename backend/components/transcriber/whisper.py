@@ -19,6 +19,7 @@ class Whisper:
 
         file_path = context['command_audio_file_path']
         segments, _ = self.model.transcribe(file_path)
+        print(segments)
         segments = list(segments)
         return " ".join(segments)
 
