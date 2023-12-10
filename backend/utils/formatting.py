@@ -46,7 +46,7 @@ def format_readable_date(dt):
     century = inf.number_to_words(int(year[:2])).replace("-", " ")
     decade = inf.number_to_words(int(year[2:])).replace("-", " ")
 
-    return f"{month} {day}, {century}{decade}"
+    return f"{month} {day}, {century} {decade}"
 
 def format_readable_time(dt, hour_format: str):
     time = dt.strftime(f"{hour_format}:%M").lstrip("0")
