@@ -173,8 +173,8 @@ def preprocess_data(x, y, word_to_int, max_length, label_to_int):
 def train_classifier(X, Y, embedding_dim, hidden_dim, num_classes, vocab_size, model_file):
     print('Training classifier')
     # Training parameters
-    batch_size = 16
-    num_epochs = 25
+    batch_size = 8
+    num_epochs = 50
     learning_rate = 0.001
 
     # Create the model
