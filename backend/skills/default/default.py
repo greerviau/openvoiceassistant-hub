@@ -1,8 +1,6 @@
-from typing import Dict
+import typing
 from datetime import datetime
 import pytz
-import threading
-import time
 
 from backend import config
 from backend.utils.nlp import extract_numbers
@@ -10,14 +8,14 @@ from backend.utils.formatting import format_readable_date, format_readable_time
 
 class Default:
 
-    def __init__(self, config: Dict, ova: 'OpenVoiceAssistant'):
+    def __init__(self, config: typing.Dict, ova: 'OpenVoiceAssistant'):
         self.ova = ova
         self.config = config
 
         self.tz = pytz.timezone(config["timezone"])
         self.hour_format = "%H" if config["24_hour_format"] else "%I"
 
-    def volume(self, context: Dict):
+    def volume(self, context: typing.Dict):
         node_id = context["node_id"]
         command = context['cleaned_command']
 
@@ -36,7 +34,7 @@ class Default:
         self.ova.node_manager.call_node_api("PUT", node_id, "/set_volume", data={"volume_percent": volume_percent})
         return response
 
-    def hello(self, context: Dict):
+    def hello(self, context: typing.Dict):
         command = context['cleaned_command']
         addr = context['addr'] if 'addr' in context else ''
 
@@ -54,56 +52,56 @@ class Default:
 
         return response
 
-    def how_are_you(self, context: Dict):
+    def how_are_you(self, context: typing.Dict):
         addr = context['addr'] if 'addr' in context else ''
 
         response = f'Doing well {addr}'
 
         return response
 
-    def whats_up(self, context: Dict):
+    def whats_up(self, context: typing.Dict):
         addr = context['addr'] if 'addr' in context else ''
 
         response = f'Not much {addr}'
         
         return response
 
-    def goodbye(self, context: Dict):
+    def goodbye(self, context: typing.Dict):
         addr = context['addr'] if 'addr' in context else ''
 
         response = f'Goodbye {addr}'
 
         return response
 
-    def thank_you(self, context: Dict):
+    def thank_you(self, context: typing.Dict):
         addr = context['addr'] if 'addr' in context else ''
 
         response = f'Youre Welcome {addr}'
 
         return response
     
-    def date(self, context: Dict):
+    def date(self, context: typing.Dict):
         date = format_readable_date(datetime.now(self.tz))
 
         response = f"Today is {date}"
 
         return response
 
-    def time(self, context: Dict):
+    def time(self, context: typing.Dict):
         time = format_readable_time(datetime.now(self.tz), self.hour_format)
 
         response = f"It is {time}"
 
         return response
 
-    def day_of_week(self, context: Dict):
+    def day_of_week(self, context: typing.Dict):
         dow = datetime.now(self.tz).strftime('%A')
 
         response = f"It is {dow}"
 
         return response
 
-    def set_timer(self, context: Dict):
+    def set_timer(self, context: typing.Dict):
         entities = context['pos_info']['ENTITIES']
 
         node_id = context["node_id"]
@@ -137,7 +135,7 @@ class Default:
 
         return response  
 
-    def time_remaining(self, context: Dict):
+    def time_remaining(self, context: typing.Dict):
         node_id = context["node_id"]
         resp = self.ova.node_manager.call_node_api("GET", node_id, "/timer_remaining_time")
         remaining = resp.json()['time_remaining']
@@ -174,12 +172,12 @@ class Default:
         else:
             return "There is no timer currently running"
     
-    def stop_timer(self, context: Dict):
+    def stop_timer(self, context: typing.Dict):
         node_id = context["node_id"]
         resp = self.ova.node_manager.call_node_api("GET", node_id, "/stop_timer")
         return "Stopping the timer"
 
-def build_skill(config: Dict, ova: 'OpenVoiceAssistant'):
+def build_skill(config: typing.Dict, ova: 'OpenVoiceAssistant'):
     return Default(config, ova)
 
 def default_config():

@@ -8,7 +8,15 @@ def format_readable_date(dt):
 
     inf = inflect.engine()
 
-    day = inf.number_to_words(int(day)).replace("-", " ")
+    if int(day) in [1, 21, 31]:
+        day = f"{day}st"
+    elif int(day) in [2, 22]:
+        day = f"{day}nd"
+    elif int(day) in [3, 23]:
+        day = f"{day}rd"
+    else:
+        day = f"{day}th"
+        
     century = inf.number_to_words(int(year[:2])).replace("-", " ")
     decade = inf.number_to_words(int(year[2:])).replace("-", " ")
 
