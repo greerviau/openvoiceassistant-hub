@@ -92,10 +92,11 @@ def load_training_data(intents: typing.Dict):
     compiled_data = []
     max_length = 0
     for label, patterns in intents.items():
-        pattern = clean_text(pattern)
-        if len(pattern.split()) > max_length:
-            max_length = len(pattern.split())
-        compiled_data.extend([[pattern, label] for pattern in patterns])
+        for pattern in patterns:
+            pattern = clean_text(pattern)
+            if len(pattern.split()) > max_length:
+                max_length = len(pattern.split())
+            compiled_data.append([pattern, label])
     compiled_data = np.array(compiled_data)
     x = compiled_data[:,0]
     y = compiled_data[:,1]
