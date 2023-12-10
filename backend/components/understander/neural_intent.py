@@ -58,7 +58,7 @@ class NeuralIntent:
             train_classifier(X, Y, embedding_dim, hidden_dim, n_labels, n_vocab, model_file)
         
         self.intent_model = IntentClassifier(n_vocab, embedding_dim, hidden_dim, n_labels)
-        self.intent_model.load_state_dict(model_file)
+        self.intent_model.load_state_dict(torch.load(model_file))
         self.intent_model.eval()
 
         self.conf_thresh = config.get(Components.Understander.value, 'config', 'conf_thresh')
@@ -176,7 +176,7 @@ def train_classifier(X, Y, embedding_dim, hidden_dim, num_classes, vocab_size, m
     print('Training classifier')
     # Training parameters
     batch_size = 16
-    num_epochs = 10
+    num_epochs = 25
     learning_rate = 0.001
 
     # Create the model
