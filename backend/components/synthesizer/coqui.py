@@ -1,7 +1,6 @@
 from TTS.api import TTS
-import wave
-import soundfile
 import typing
+import torch
 
 from backend.schemas import Context
 from backend.enums import Components
@@ -14,7 +13,9 @@ class Coqui:
         model_name = config.get(Components.Synthesizer.value, 'config', 'model')
         gpu = config.get(Components.Synthesizer.value, 'config', 'use_gpu')
 
-        self.tts = TTS(model_name=model_name, progress_bar=False, gpu=gpu)
+        device = "cuda" if torch.cuda.is_available() and gpu else "cpu"
+
+        self.tts = TTS(model_name=model_name, progress_bar=False, gpu=gpu).to(device)
 
     def synthesize(self, context: Context):
         text = context['response']
