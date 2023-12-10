@@ -111,7 +111,7 @@ class IntentClassifier(nn.Module):
         out, _ = self.lstm(embed)
         out = out[:, -1, :]
         out = self.fc(out)
-        return torch.softmax(out)
+        return torch.nn.functional.softmax(out, dim=1)
     
 def load_training_data(intents: typing.Dict):
     print("Loading data")
