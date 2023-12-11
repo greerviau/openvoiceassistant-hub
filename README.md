@@ -81,13 +81,13 @@ All of the algorithms in the pipeline are customizable, including:
 * Whisper
 
 ## Understanding
-* Rapidfuzz
-* Neural Intent (broken)
+* Rapidfuzz (default)
+* Neural Intent
 
 ## Voice Synthesis
 * Espeak (default)
-* GradTTS
 * Coqui TTS
+* Piper TTS
 
 ## v0.1.0
 - [x] Fix neural intent (get rid of tensorflow)
