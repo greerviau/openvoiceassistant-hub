@@ -79,7 +79,7 @@ The Skill class takes a config dictionary and an instance of ```OpenVoiceAssista
 
 The only required functions are whatever actions you have in your ```INTENTIONS``` list in the ```__init__.py``` file. The name of the functions MUST match the actions.
 
-The action functions can perform any actions auxilary actions you want. You can utilize any integrations that you have imported. You can access an integration via the integration manager ```OpenVoiceAssistant.integration_manager.get_integration_module("<integration>")```
+The action functions can perform any actions auxilary actions you want. You can utilize any integrations that you have imported. You can access an integration via the integration manager ```OpenVoiceAssistant.integration_manager.get_integration_module("<integration>")```.
 
 The action functions themselves take a dictionary ```context``` as a parameter and must return a string response that you want to send to the user.
 
