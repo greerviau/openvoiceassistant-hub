@@ -1,24 +1,22 @@
-from typing import Dict
-import requests
+import typing
 
-from backend import config
 from backend.utils.nlp import extract_numbers
 
 class HASS_Lights:
 
-    def __init__(self, config: Dict, ova: 'OpenVoiceAssistant'):
+    def __init__(self, skill_config: typing.Dict, ova: 'OpenVoiceAssistant'):
         self.ova = ova
-        self.config = config
+
         self.ha_integration = self.ova.integration_manager.get_integration_module('homeassistant')
 
         self.lights = self.get_lights()
-        print('Detected lights')
-        print(self.lights)
+        #print('Detected lights')
+        #print(self.lights)
 
-    def light_on(self, context: Dict):
+    def light_on(self, context: typing.Dict):
         try:
             entity_id, light_description = self.find_light_entity_id(context)
-            print(entity_id)
+            #print(entity_id)
         except:
             return "No light specified"
 
@@ -32,10 +30,10 @@ class HASS_Lights:
         
         return f"Failed to turn on {light_description}"
 
-    def light_off(self, context: Dict):    
+    def light_off(self, context: typing.Dict):    
         try:
             entity_id, light_description = self.find_light_entity_id(context)
-            print(entity_id)
+            #print(entity_id)
         except:
             return "No light specified"
 
@@ -49,10 +47,10 @@ class HASS_Lights:
         
         return f"Failed to turn off {light_description}"
     
-    def light_toggle(self, context: Dict):
+    def light_toggle(self, context: typing.Dict):
         try:
             entity_id, light_description = self.find_light_entity_id(context)
-            print(entity_id)
+            #print(entity_id)
         except:
             return "No light specified"
 
@@ -69,10 +67,10 @@ class HASS_Lights:
         
         return f"Failed to turn {light_mode} {light_description}"
     
-    def light_brightness(self, context: Dict):
+    def light_brightness(self, context: typing.Dict):
         try:
             entity_id, light_description = self.find_light_entity_id(context)
-            print(entity_id)
+            #print(entity_id)
         except:
             return "No light specified"
         
@@ -95,14 +93,14 @@ class HASS_Lights:
         else:
             return f"Please specify a brighness level"
     
-    def find_light_entity_id(self, context: Dict):
+    def find_light_entity_id(self, context: typing.Dict):
         try:
             light = context["pos_info"]["COMP"][0]
             light_description = context['pos_info']["NOUN_CHUNKS"][0]
         except Exception as err:
-            print(err)
+            #print(err)
             light = context["node_area"]
-            print(light)
+            #print(light)
             light_description = f"the lights"
 
         if not light:
@@ -122,10 +120,11 @@ class HASS_Lights:
         except:
             raise RuntimeError("Failed to get list of light entites")
 
-def build_skill(config: Dict, ova: 'OpenVoiceAssistant'):
-    return HASS_Lights(config, ova)
+def build_skill(skill_config: typing.Dict, ova: 'OpenVoiceAssistant'):
+    return HASS_Lights(skill_config, ova)
 
 def default_config():
     return {
-        "name": "Home Assistant Lights"
+        "name": "Home Assistant Lights",
+        "required_integrations": ["homeassistant"]
     }

@@ -1,16 +1,13 @@
-from typing import Dict
-import requests
-
-from backend import config
+import typing
 
 class HASS_Vacuum:
 
-    def __init__(self, config: Dict, ova: 'OpenVoiceAssistant'):
+    def __init__(self, skill_config: typing.Dict, ova: 'OpenVoiceAssistant'):
         self.ova = ova
-        self.config = config
+        
         self.ha_integration = self.ova.integration_manager.get_integration_module('homeassistant')
 
-    def start_vacuum(self, context: Dict):
+    def start_vacuum(self, context: typing.Dict):
         data = {
             "entity_id": "all"
         }
@@ -21,7 +18,7 @@ class HASS_Vacuum:
         
         return f"Failed to start the vacuum"
 
-    def stop_vacuum(self, context: Dict):
+    def stop_vacuum(self, context: typing.Dict):
         data = {
             "entity_id": "all"
         }
@@ -32,7 +29,7 @@ class HASS_Vacuum:
         
         return f"Failed to stop the vacuum"
 
-    def return_to_base(self, context: Dict):
+    def return_to_base(self, context: typing.Dict):
         data = {
             "entity_id": "all"
         }
@@ -43,10 +40,11 @@ class HASS_Vacuum:
         
         return f"Failed to send the vacuum back home"
 
-def build_skill(config: Dict, ova: 'OpenVoiceAssistant'):
-    return HASS_Vacuum(config, ova)
+def build_skill(skill_config: typing.Dict, ova: 'OpenVoiceAssistant'):
+    return HASS_Vacuum(skill_config, ova)
 
 def default_config():
     return {
-        "name": "Home Assistant Vacuum"
+        "name": "Home Assistant Vacuum",
+        "required_integrations": ["homeassistant"]
     }

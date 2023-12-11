@@ -273,6 +273,11 @@ def encode_command(command: str, vocab):
             words.append(word)
     return ' '.join(words)
 
+def remove_words(self, text: str, words: typing.List[str]):
+    for word in words:
+        text = text.replace(word, '').strip()
+    return text
+
 if __name__ == '__main__':
     c = "whats the weather like in India"
     parsed = information_extraction(c)

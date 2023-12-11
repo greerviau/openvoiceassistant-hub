@@ -1,16 +1,13 @@
-from typing import Dict
-import requests
-
-from backend import config
+import typing
 
 class HASS_ShoppingList:
 
-    def __init__(self, config: Dict, ova: 'OpenVoiceAssistant'):
+    def __init__(self, skill_config: typing.Dict, ova: 'OpenVoiceAssistant'):
         self.ova = ova
-        self.config = config
+        
         self.ha_integration = self.ova.integration_manager.get_integration_module('homeassistant')
 
-    def add_to_shopping_list(self, context: Dict):
+    def add_to_shopping_list(self, context: typing.Dict):
         pos_info = context["pos_info"]
         try:
             item_to_add = pos_info["MOD_OBJECT"] if "MOD_OBJECT" in pos_info else pos_info["OBJECT"][0]
@@ -27,7 +24,7 @@ class HASS_ShoppingList:
         
         return f"Failed to add {item_to_add} to your shopping list"
 
-    def remove_from_shopping_list(self, context: Dict):
+    def remove_from_shopping_list(self, context: typing.Dict):
         pos_info = context["pos_info"]
         try:
             item_to_remove = pos_info["MOD_OBJECT"] if "MOD_OBJECT" in pos_info else pos_info["OBJECT"][0]
@@ -44,7 +41,7 @@ class HASS_ShoppingList:
         
         return f"Failed to remove {item_to_remove} to your shopping list"
 
-    def read_shopping_list(self, context: Dict):
+    def read_shopping_list(self, context: typing.Dict):
         resp = self.ha_integration.get_custom('shopping_list')
         if resp.status_code == 200:
             items = resp.json()
@@ -60,10 +57,11 @@ class HASS_ShoppingList:
         return "I could not access a shopping list"
 
 
-def build_skill(config: Dict, ova: 'OpenVoiceAssistant'):
-    return HASS_ShoppingList(config, ova)
+def build_skill(skill_config: typing.Dict, ova: 'OpenVoiceAssistant'):
+    return HASS_ShoppingList(skill_config, ova)
 
 def default_config():
     return {
-        "name": "Home Assistant Shopping List"
+        "name": "Home Assistant Shopping List",
+        "required_integrations": ["homeassistant"]
     }

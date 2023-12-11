@@ -1,19 +1,18 @@
-from typing import Dict
+import typing
 import time
 import threading
 import random
 from pyowm import OWM
-from typing import Dict
 
 class OpenWeatherMap:
 
-    def __init__(self, config: Dict, ova: 'OpenVoiceAssistant'):
-        self.config = config
+    def __init__(self, skill_config: typing.Dict, ova: 'OpenVoiceAssistant'):
+        self.ova = ova
 
-        owm_api_key = config["owm_api_key"]
-        self.lat = config["latitude"]
-        self.lon = config["longitude"]
-        self.unit = config["unit"]
+        owm_api_key = skill_config["owm_api_key"]
+        self.lat = skill_config["latitude"]
+        self.lon = skill_config["longitude"]
+        self.unit = skill_config["unit"]
 
         owm = OWM(owm_api_key)
         self.mgr = owm.weather_manager()
@@ -28,7 +27,7 @@ class OpenWeatherMap:
         self.weather_thread = threading.Thread(target=_update_weather, daemon=True)
         self.weather_thread.start()
 
-    def _get_weather(self, context: Dict):
+    def _get_weather(self, context: typing.Dict):
         ents = context["pos_info"]["ENTITIES"]
         location = ents["GPE"] if "GPE" in ents else ents["PERSON"] if "PERSON" in ents else None
         if location:
@@ -36,7 +35,7 @@ class OpenWeatherMap:
         else:
             return self._current_weather, ""
 
-    def weather(self, context: Dict):
+    def weather(self, context: typing.Dict):
         w, loc = self._get_weather(context)
 
         sky = self.sky(context)
@@ -47,7 +46,7 @@ class OpenWeatherMap:
 
         return response
 
-    def sky(self, context: Dict):
+    def sky(self, context: typing.Dict):
         MAIN_STATUS_MAPPING = {
             "thunderstorm": ["thunderstorming"],
             "drizzle": ["drizzling"],
@@ -96,7 +95,7 @@ class OpenWeatherMap:
 
         return response
 
-    def air(self, context: Dict):
+    def air(self, context: typing.Dict):
         RESPONSE_TEMPLATES = [
             "Today will be %s",
             "It is %s outside",
@@ -113,7 +112,7 @@ class OpenWeatherMap:
 
         return response
 
-    def temperature(self, context: Dict):
+    def temperature(self, context: typing.Dict):
         RESPONSE_TEMPLATES = [
             "Today will be %s",
             "It is %s outside",
@@ -130,8 +129,8 @@ class OpenWeatherMap:
 
         return response
 
-def build_skill(config: Dict, ova: 'OpenVoiceAssistant'):
-    return OpenWeatherMap(config, ova)
+def build_skill(skill_config: typing.Dict, ova: 'OpenVoiceAssistant'):
+    return OpenWeatherMap(skill_config, ova)
 
 def default_config():
     return {

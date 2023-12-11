@@ -2,18 +2,16 @@ import typing
 from datetime import datetime
 import pytz
 
-from backend import config
 from backend.utils.nlp import extract_numbers
 from backend.utils.formatting import format_readable_date, format_readable_time
 
 class Default:
 
-    def __init__(self, config: typing.Dict, ova: 'OpenVoiceAssistant'):
+    def __init__(self, skill_config: typing.Dict, ova: 'OpenVoiceAssistant'):
         self.ova = ova
-        self.config = config
 
-        self.tz = pytz.timezone(config["timezone"])
-        self.hour_format = "%H" if config["24_hour_format"] else "%I"
+        self.tz = pytz.timezone(skill_config["timezone"])
+        self.hour_format = "%H" if skill_config["24_hour_format"] else "%I"
 
     def volume(self, context: typing.Dict):
         node_id = context["node_id"]
@@ -29,7 +27,9 @@ class Default:
             response = f"Setting the volume to {value}"
             volume_percent = value * 10
 
-        config.set('nodes', node_id, 'volume', volume_percent)
+        node_config = self.ova.node_manager.get_node_config(node_id)
+        node_config["volume"] = volume_percent
+        self.ova.node_manager.update_node_config(node_id, node_config)
 
         self.ova.node_manager.call_node_api("PUT", node_id, "/set_volume", data={"volume_percent": volume_percent})
         return response
@@ -113,7 +113,7 @@ class Default:
         if remaining == 0:
             if 'TIME' in entities:
                 t = entities['TIME']
-                print(t)
+                #print(t)
                 t_split = t.split()
                 durration = 0
                 for inc, m in {'second': 1, 'minute': 60, 'hour': 3600}.items():
@@ -177,12 +177,13 @@ class Default:
         resp = self.ova.node_manager.call_node_api("GET", node_id, "/stop_timer")
         return "Stopping the timer"
 
-def build_skill(config: typing.Dict, ova: 'OpenVoiceAssistant'):
-    return Default(config, ova)
+def build_skill(skill_config: typing.Dict, ova: 'OpenVoiceAssistant'):
+    return Default(skill_config, ova)
 
 def default_config():
     return {
         "name": "Default",
+        "required_integrations": [],
         "timezone": "US/Eastern",
         "24_hour_format": False
     }
