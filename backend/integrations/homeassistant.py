@@ -3,13 +3,12 @@ import requests
 import datetime
 
 class HomeAssistant:
-    def __init__(self, config: typing.Dict, ova: 'OpenVoiceAssistant'):
+    def __init__(self, integration_config: typing.Dict, ova: 'OpenVoiceAssistant'):
         self.ova = ova
         
-        self.config = config
-        host = config["host"]
-        port = config["port"]
-        acccess_token = config["acccess_token"]
+        host = integration_config["host"]
+        port = integration_config["port"]
+        acccess_token = integration_config["acccess_token"]
         self.headers = {"content-type": "application/json", "Authorization": f"Bearer {acccess_token}"}
         self.api = f"http://{host}:{port}/api"
 
@@ -147,8 +146,8 @@ class HomeAssistant:
     def post_intent_handle(self, data: typing.Dict):
         return requests.post(f"{self.api}/intent/handle", headers=self.headers, json=data)
 
-def build_integration(config: typing.Dict, ova: 'OpenVoiceAssistant'):
-    return HomeAssistant(config, ova)
+def build_integration(integration_config: typing.Dict, ova: 'OpenVoiceAssistant'):
+    return HomeAssistant(integration_config, ova)
 
 def default_config():
     return {
