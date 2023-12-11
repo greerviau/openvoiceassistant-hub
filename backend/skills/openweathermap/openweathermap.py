@@ -18,13 +18,22 @@ class OpenWeatherMap:
         owm = OWM(owm_api_key)
         self.mgr = owm.weather_manager()
 
+        self._current_weather = None
+        def _update_weather():
+            while True:
+                self._current_weather = self.mgr.weather_at_coords(lat=self.lat, lon=self.lon).weather
+                time.sleep(3600)
+
+        self.weather_thread = threading.Thread(target=_update_weather, daemon=True)
+        self.weather_thread.start()
+
     def _get_weather(self, context: Dict):
         ents = context["pos_info"]["ENTITIES"]
         location = ents["GPE"] if "GPE" in ents else ents["PERSON"] if "PERSON" in ents else None
         if location:
             return self.mgr.weather_at_place(location).weather, f" in {location}"
         else:
-            return self.mgr.weather_at_coords(lat=self.lat, lon=self.lon).weather, ""
+            return self._current_weather, ""
 
     def weather(self, context: Dict):
         w, loc = self._get_weather(context)
