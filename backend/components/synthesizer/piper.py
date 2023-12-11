@@ -1,13 +1,10 @@
-import pyttsx3
 import wave
-import soundfile
 import os
-import time
 import typing
+import torch
 
 from piper.download import ensure_voice_exists, find_voice, get_voices
 from piper import PiperVoice
-from pathlib import Path
 
 from backend.schemas import Context
 from backend.enums import Components
@@ -19,6 +16,9 @@ class Piper:
         file_dump = ova.model_dump
         model_name = config.get(Components.Synthesizer.value, 'config', 'model')
         use_gpu = config.get(Components.Synthesizer.value, 'config', 'use_gpu')
+
+        use_gpu = torch.cuda.is_available() and use_gpu
+
         data_dir = [file_dump]
         download_dir = data_dir[0]
 
