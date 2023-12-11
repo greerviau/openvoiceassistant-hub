@@ -22,4 +22,6 @@ class Actor:
             else:
                 context['response'] = 'Skill is not imported'
 
-        context['time_to_action'] = time.time() - start
+        dt = time.time() - start
+        print("Time to run action: ", dt)
+        context['time_to_action'] = dt

@@ -38,8 +38,6 @@ class Transcriber:
         start = time.time()
 
         command = self.engine.transcribe(context).strip()
-        
-        context['time_to_transcribe'] = time.time() - start
 
         if not command:
             raise RuntimeError('No command')
@@ -50,4 +48,8 @@ class Transcriber:
         cleaned_command = clean_text(command)
         context['cleaned_command'] = cleaned_command
         print(f'Cleaned Command: {cleaned_command}')
+
+        dt = time.time() - start        
+        print("Time to transcribe: ", dt)
+        context['time_to_transcribe'] = dt
         

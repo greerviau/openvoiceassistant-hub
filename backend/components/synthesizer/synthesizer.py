@@ -52,4 +52,6 @@ class Synthesizer:
 
         context['response_audio_data'] = open(response_file_path, 'rb').read().hex()
 
-        context['time_to_synthesize'] = time.time() - start
+        dt = time.time() - start
+        print("Time to synthesize: ", dt)
+        context['time_to_synthesize'] = dt

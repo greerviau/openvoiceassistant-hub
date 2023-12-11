@@ -101,7 +101,9 @@ class Understander:
                     action = ''
                     conf = 100
 
-        context["time_to_understand"] = time.time() - start
+        dt = time.time() - start
+        context["time_to_understand"] = dt
+        print("Time to understand: ", dt)
         context["skill"] = skill
         context["action"] = action
         context["conf"] = conf
