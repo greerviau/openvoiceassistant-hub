@@ -21,6 +21,7 @@ class OpenWeatherMap:
         self._current_weather = None
         def _update_weather():
             while True:
+                print("Current Location Weather Updated")
                 self._current_weather = self.mgr.weather_at_coords(lat=self.lat, lon=self.lon).weather
                 time.sleep(3600)
 
