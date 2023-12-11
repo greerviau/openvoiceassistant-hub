@@ -13,7 +13,7 @@ class Whisper:
 
         device = "cuda" if torch.cuda.is_available() and gpu else "cpu"
 
-        self.model = WhisperModel(model_size, device=device, compute_type="float32")
+        self.model = WhisperModel(model_size, device=device, compute_type="float16")
 
     def transcribe(self, context: Context):
 
