@@ -173,3 +173,4 @@ Werkzeug==3.0.1
 wget==3.2
 word2number==1.1
 yarl==1.9.4
+uuid==1.30

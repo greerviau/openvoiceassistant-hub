@@ -1,12 +1,11 @@
 import importlib
-import json
 import os
 import typing
 import time
+import uuid
 
 from backend.enums import Components
 from backend import config
-from backend.utils.audio import save_wave
 from backend.schemas import Context
 
 class Synthesizer:
@@ -42,7 +41,12 @@ class Synthesizer:
         if not response:
             raise RuntimeError('No response to synthesize')
         
-        response_file_path = os.path.join(self.file_dump, 'response.wav')
+        if 'node_id' in context:
+            id = context['node_id']
+        else:
+            id = uuid.uuid4()
+        
+        response_file_path = os.path.join(self.file_dump, f'response_{id}.wav')
         context['response_audio_file_path'] = response_file_path
 
         start = time.time()
