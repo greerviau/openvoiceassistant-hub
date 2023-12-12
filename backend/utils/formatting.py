@@ -49,14 +49,19 @@ def format_readable_date(dt):
     return f"{month} {day}, {century} {decade}"
 
 def format_readable_time(dt, hour_format: str):
-    time = dt.strftime(f"{hour_format}:%M").lstrip("0")
+    time = dt.strftime(f"{hour_format}:%M")
 
-    hour = time.split(":")[0]
+    hour = time.split(":")[0].lstrip("0")
     minutes = time.split(":")[1]
 
     inf = inflect.engine()
 
     hour = inf.number_to_words(int(hour)).replace("-", " ")
+    
+    o_clock = ''
+    if minutes[0] == '0':
+        o_clock = 'O '
+        minutes = minutes[1]
     minutes = inf.number_to_words(int(minutes)).replace("-", " ")
 
-    return f"{hour} {minutes}"
+    return f"{hour} {o_clock}{minutes}"
