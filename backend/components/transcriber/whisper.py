@@ -20,7 +20,7 @@ class Whisper:
     def transcribe(self, context: Context):
 
         file_path = context['command_audio_file_path']
-        segments, _ = self.model.transcribe(file_path)
+        segments, _ = self.model.transcribe(file_path, beam_size=5)
         segments = list(segments)
         #print(segments)
         return " ".join([segment.text for segment in segments])
