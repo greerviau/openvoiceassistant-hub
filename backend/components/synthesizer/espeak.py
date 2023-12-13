@@ -22,6 +22,7 @@ class Espeak:
         tts_engine = pyttsx3.init()
         tts_engine.save_to_file(text, file_path)
         tts_engine.runAndWait()
+        time.sleep(0.1)
 
         return True
 
