@@ -3,6 +3,7 @@ import json
 import typing
 
 from backend.enums import Components
+from backend.skills.default import default_config
 
 DEFAULT_CONFIG = {
         "engage_delay": 30,
@@ -31,7 +32,7 @@ DEFAULT_CONFIG = {
         "nodes": {},
         "integrations":{},
         "skills": {
-            "default": {}
+            "default": default_config()
         }
     }
 
