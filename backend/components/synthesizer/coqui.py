@@ -33,5 +33,5 @@ def default_config() -> typing.Dict:
         "coqui": True,
         "model": "tts_models/en/ljspeech/speedy-speech",
         "use_gpu": False,
-        "available_models": TTS().list_models()
+        "available_models": TTS().list_models().list_models()
     }
