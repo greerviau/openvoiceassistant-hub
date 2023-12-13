@@ -58,10 +58,12 @@ def format_readable_time(dt, hour_format: str):
 
     hour = inf.number_to_words(int(hour)).replace("-", " ")
     
-    o_clock = ''
     if minutes[0] == '0':
-        o_clock = 'O '
         minutes = minutes[1]
-    minutes = inf.number_to_words(int(minutes)).replace("-", " ")
+        if int(minutes) == 0:
+            minutes = "o'clock"
+        else:
+            minutes = inf.number_to_words(int(minutes)).replace("-", " ")
+            minutes = f'o {minutes}'
 
-    return f"{hour} {o_clock}{minutes}"
+    return f"{hour} {minutes}"
