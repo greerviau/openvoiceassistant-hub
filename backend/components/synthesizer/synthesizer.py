@@ -44,7 +44,7 @@ class Synthesizer:
         if 'node_id' in context:
             id = context['node_id']
         else:
-            id = uuid.uuid4()
+            id = uuid.uuid4().hex
         
         response_file_path = os.path.join(self.file_dump, f'response_{id}.wav')
         context['response_audio_file_path'] = response_file_path

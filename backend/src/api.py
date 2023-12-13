@@ -84,7 +84,7 @@ def create_app(ova: OpenVoiceAssistant):
 
         file_dump = ova.file_dump
 
-        audio_file_path = os.path.join(file_dump, f"command_{uuid.uuid4()}.wav")
+        audio_file_path = os.path.join(file_dump, f"command_{uuid.uuid4().hex}.wav")
 
         command_audio_data = bytes.fromhex(data.command_audio_data)
         with open(audio_file_path, 'wb') as file:
