@@ -45,5 +45,6 @@ def build_engine(ova: 'OpenVoiceAssistant'):
 
 def default_config():
     return {
+        "kaldi": True,
         "model_lang": "en-us", 
     }

@@ -47,6 +47,7 @@ def build_engine(ova: 'OpenVoiceAssistant', intents: typing.Dict) -> Rapidfuzz:
 
 def default_config() -> typing.Dict:
     return {
+        "rapid_fuzz": True,
         "conf_thresh": 80,
         "ratio": "ratio",
         "ration_options": [

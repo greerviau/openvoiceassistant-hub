@@ -28,6 +28,7 @@ def build_engine(ova: 'OpenVoiceAssistant'):
 
 def default_config():
     return {
+        "whisper": True,
         "model_size": "tiny.en",
         "model_sizes": ["tiny.en", "tiny", "base.en", "base", "small.en", "small", "medium.en", "medium", "large"],
         "use_gpu": False
