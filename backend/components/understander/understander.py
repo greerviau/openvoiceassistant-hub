@@ -28,7 +28,10 @@ class Understander:
     def verify_config(self):
         current_config = config.get(Components.Understander.value, 'config')
         default_config = self.module.default_config()
-        if not current_config or (current_config.keys() != default_config.keys()):
+        try:
+            if not current_config or (current_config.keys() != default_config.keys()) or current_config["id"] != default_config["id"]:
+                raise Exception("Incorrect config")
+        except:
             config.set(Components.Understander.value, 'config', default_config)
 
     def load_intents(self, imported_skills: List):
@@ -79,7 +82,7 @@ class Understander:
         context["encoded_command"] = encoded_command
         print(f"Encoded command: {encoded_command}")
         
-        if encoded_command in ["", "BLANK"] or cleaned_command in ["stop", "cancel"]:
+        if encoded_command in ["", "BLANK"] or cleaned_command in ["stop", "cancel", "nevermind", "forget it"]:
             skill = "NO_COMMAND"
             action = ""
             conf = 100

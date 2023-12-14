@@ -22,7 +22,10 @@ class Transcriber:
     def verify_config(self):
         current_config = config.get(Components.Transcriber.value, 'config')
         default_config = self.module.default_config()
-        if not current_config or (current_config.keys() != default_config.keys()):
+        try:
+            if not current_config or (current_config.keys() != default_config.keys()) or current_config["id"] != default_config["id"]:
+                raise Exception("Incorrect config")
+        except:
             config.set(Components.Transcriber.value, 'config', default_config)
 
     def get_algorithm_default_config(self, algorithm_id: str) -> typing.Dict:

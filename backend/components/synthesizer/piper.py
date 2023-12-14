@@ -46,7 +46,7 @@ def build_engine(ova: 'OpenVoiceAssistant') -> Piper:
 
 def default_config() -> typing.Dict:
     return {
-        "piper": True,
+        "id": "piper",
         "model": "en_US-lessac-medium",
         "use_gpu": False,
         "available_models": list(get_voices('./').keys())

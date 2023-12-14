@@ -222,6 +222,6 @@ def build_engine(ova: 'OpenVoiceAssistant', intents: typing.Dict) -> NeuralInten
 
 def default_config() -> typing.Dict:
     return {
-        "neural_intent": True,
+        "id": "neural_intent",
         "conf_thresh": 80
     }

@@ -30,7 +30,7 @@ def build_engine(ova: 'OpenVoiceAssistant') -> Coqui:
 
 def default_config() -> typing.Dict:
     return {
-        "coqui": True,
+        "id": "coqui",
         "model": "tts_models/en/ljspeech/speedy-speech",
         "use_gpu": False,
         "available_models": TTS().list_models().list_models()

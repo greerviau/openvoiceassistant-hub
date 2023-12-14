@@ -33,5 +33,5 @@ def build_engine(ova: 'OpenVoiceAssistant') -> Espeak:
 
 def default_config() -> typing.Dict:
     return {
-        "espeak": True
+        "id": "espeak"
     }
