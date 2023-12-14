@@ -159,11 +159,9 @@ def parse_date(text):
             day_str = word
             break
 
-    # THE NEW PART STARTS HERE
     if month < today.month and month != -1:  # if the month mentioned is before the current month set the year to the next
         year = year+1
 
-    # This is slighlty different from the video but the correct version
     if month == -1 and day != -1:  # if we didn't find a month, but we have a day
         if day < today.day:
             month = today.month + 1
@@ -182,7 +180,7 @@ def parse_date(text):
                 day_of_week_str = 'next '+day_of_week_str
         return today + datetime.timedelta(dif), day_of_week_str
 
-    if day != -1:  # FIXED FROM VIDEO
+    if day != -1:
         return datetime.date(month=month, day=day, year=year), f'{month_str} {day_str}'
 
     return None, None
@@ -204,7 +202,7 @@ def information_extraction(sentence):
     parsed["SUBJECT"], parsed["OBJECT"], parsed["COMP"] = [], [], []
 
     for token in doc:
-        print(f"{token.text} -> {token.dep_}")
+        #print(f"{token.text} -> {token.dep_}")
         if (token.dep_=='nsubj'):
             parsed["SUBJECT"].append(token.text)
 
@@ -214,7 +212,7 @@ def information_extraction(sentence):
         elif (token.dep_=='compound'):
             parsed["COMP"].append(token.text)
 
-    parsed["ENTITIES"] = named_entity_recognition(sentence)
+    parsed["ENTITIES"] = dict([(ent.label_, ent.text) for ent in doc.ents])
 
     parsed['NOUN_CHUNKS'] = []
     for chunk in doc.noun_chunks:
