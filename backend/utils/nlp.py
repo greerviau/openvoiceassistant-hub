@@ -8,7 +8,6 @@ from spacy.matcher import DependencyMatcher
 from word2number import w2n
 from nltk.corpus import stopwords
 
-
 nlp = spacy.load('en_core_web_sm')
 
 STOPWORDS = list(set(stopwords.words('english')))
