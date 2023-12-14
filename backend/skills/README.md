@@ -1,6 +1,5 @@
 # Skills
 * Default
-    * Greeting
     * Date / Time
     * Timer
 * Home Assistant

@@ -33,52 +33,6 @@ class Default:
 
         self.ova.node_manager.call_node_api("PUT", node_id, "/set_volume", data={"volume_percent": volume_percent})
         return response
-
-    def hello(self, context: typing.Dict):
-        command = context['cleaned_command']
-        addr = context['addr'] if 'addr' in context else ''
-
-        response = ''
-        if 'morning' in command:
-            response = f'Good morning {addr}'
-        elif 'afternoon' in command:
-            response = f'Good afternoon {addr}'
-        elif 'evening' in command:
-            response = f'Good evening {addr}'
-        elif 'night' in command:
-            response = f'Good night {addr}'
-        else:
-            response = f'Hello {addr}'
-
-        return response
-
-    def how_are_you(self, context: typing.Dict):
-        addr = context['addr'] if 'addr' in context else ''
-
-        response = f'Doing well {addr}'
-
-        return response
-
-    def whats_up(self, context: typing.Dict):
-        addr = context['addr'] if 'addr' in context else ''
-
-        response = f'Not much {addr}'
-        
-        return response
-
-    def goodbye(self, context: typing.Dict):
-        addr = context['addr'] if 'addr' in context else ''
-
-        response = f'Goodbye {addr}'
-
-        return response
-
-    def thank_you(self, context: typing.Dict):
-        addr = context['addr'] if 'addr' in context else ''
-
-        response = f'Youre Welcome {addr}'
-
-        return response
     
     def date(self, context: typing.Dict):
         date = format_readable_date(datetime.now(self.tz))
