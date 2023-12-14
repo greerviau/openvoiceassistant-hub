@@ -42,19 +42,19 @@ class HASS_ShoppingList:
         return f"Failed to remove {item_to_remove} to your shopping list"
 
     def read_shopping_list(self, context: typing.Dict):
-        resp = self.ha_integration.get_custom('shopping_list')
-        if resp.status_code == 200:
-            items = resp.json()
-            item_names = [item["name"] for item in items]
-            if any(item_names):
-                last_item = item_names.pop(-1)
-                if last_item:
-                    return f"You have {', '.join(item_names)} and {last_item} on your shopping list"
-                elif last_item:
-                    return f"You only have {last_item} on your shopping list"
-            else:
-                return "You dont have anything on your shopping list"
-        return "I could not access a shopping list"
+        try:
+            items = self.ha_integration.get_custom('shopping_list')
+        except:
+            return "I could not access a shopping list"
+        item_names = [item["name"] for item in items]
+        if any(item_names):
+            last_item = item_names.pop(-1)
+            if last_item:
+                return f"You have {', '.join(item_names)} and {last_item} on your shopping list"
+            elif last_item:
+                return f"You only have {last_item} on your shopping list"
+        else:
+            return "You dont have anything on your shopping list"
 
 
 def build_skill(skill_config: typing.Dict, ova: 'OpenVoiceAssistant'):
