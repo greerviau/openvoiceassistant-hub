@@ -185,16 +185,6 @@ def parse_date(text):
 
     return None, None
 
-def named_entity_recognition(sentence):
-    doc = nlp(sentence)
-
-    parsed = {}
-
-    for ent in doc.ents:
-        parsed[ent.label_] = ent.text
-
-    return parsed
-
 def information_extraction(sentence):
     doc = nlp(sentence)
 
