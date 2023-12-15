@@ -178,7 +178,7 @@ def train_classifier(X, Y, embedding_dim, hidden_dim, num_classes, vocab_size, m
     print('Training classifier')
     # Training parameters
     batch_size = 8
-    num_epochs = 100
+    num_epochs = 50
     learning_rate = 0.001
 
     # Create the model
