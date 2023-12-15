@@ -10,7 +10,7 @@ class HASS_ShoppingList:
     def add_to_shopping_list(self, context: typing.Dict):
         pos_info = context["pos_info"]
         try:
-            item_to_add = pos_info["MOD_OBJECT"] if "MOD_OBJECT" in pos_info else pos_info["OBJECT"][0]
+            item_to_add = pos_info["MOD_OBJECT"][0] if "MOD_OBJECT" in pos_info else pos_info["OBJECT"][0]
         except KeyError:
             return "Please provide an item to add to the shopping list"
         
