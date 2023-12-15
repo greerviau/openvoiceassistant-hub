@@ -59,13 +59,12 @@ class Understander:
     
     def run_stage(self, context: Context):
         print("Understanding Stage")
+        start = time.time()
 
         time_sent = context["time_sent"]
         last_time_engaged = context["last_time_engaged"]
 
         delta_time = time_sent - last_time_engaged
-        
-        start = time.time()
         
         command = context["command"]
 
@@ -86,7 +85,7 @@ class Understander:
             skill = "NO_COMMAND"
             action = ""
             conf = 100
-            raise RuntimeError("No command")
+            pass_threshold = True
         else:
             hub_callback = context["hub_callback"] if "hub_callback" in context else None
             if hub_callback:
@@ -97,17 +96,17 @@ class Understander:
                 except:
                     raise RuntimeError("Failed to parse callback")
             else:
-                try:
-                    skill, action, conf = self.engine.understand(context)
-                except RuntimeError:
-                    skill = "DID_NOT_UNDERSTAND"
-                    action = ''
-                    conf = 100
+                skill, action, conf, pass_threshold = self.engine.understand(context)
+        
+        print(f'Skill: {skill}')
+        print(f'Action: {action}')
+        print(f'Conf: {conf}')
+        context["skill"] = skill
+        context["action"] = action
+        context["conf"] = conf
+        context["pass_threshold"] = pass_threshold
 
         dt = time.time() - start
         context["time_to_understand"] = dt
         print("Time to understand: ", dt)
-        context["skill"] = skill
-        context["action"] = action
-        context["conf"] = conf
 

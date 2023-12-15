@@ -8,13 +8,16 @@ class Actor:
 
     def run_stage(self, context: Context):
         print('Action Stage')
-        skill = context['skill']
-        action = context['action']
-
         start = time.time()
 
-        if skill == 'DID_NOT_UNDERSTAND':
+        skill = context['skill']
+        action = context['action']
+        pass_threshold = context['pass_threshold']
+
+        if not pass_threshold:
             context['response'] = 'Sorry, I did not understand'
+        elif skill in ["NO_COMMAND"]:
+            context['response'] = ''
         else:
             if self.ova.skill_manager.skill_imported(skill):
                 method = getattr(self.ova.skill_manager.get_skill_module(skill), action)

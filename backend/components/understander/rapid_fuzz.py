@@ -32,15 +32,12 @@ class Rapidfuzz:
                     intent = label
         
         skill, action = intent.split('-')
-        
-        print(f'Skill: {skill}')
-        print(f'Action: {action}')
-        print(f'Conf: {conf}')
 
+        pass_threshold = True
         if conf < self.conf_thresh:
-            raise RuntimeError("Not confident in skill")
+            pass_threshold = False
     
-        return skill, action, conf
+        return skill, action, conf, pass_threshold
 
 def build_engine(ova: 'OpenVoiceAssistant', intents: typing.Dict) -> Rapidfuzz:
     return Rapidfuzz(ova, intents)

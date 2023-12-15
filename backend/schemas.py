@@ -16,6 +16,7 @@ class Context(typing.TypedDict):
     skill: str
     action: str
     conf: float
+    pass_threshold: bool
     time_to_transcribe: float
     time_to_understand: float
     time_to_action: float

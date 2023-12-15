@@ -84,14 +84,11 @@ class NeuralIntent:
         encoded_command = context['encoded_command']
         skill, action, conf = self.predict_intent(encoded_command)
         
-        print(f'Skill: {skill}')
-        print(f'Action: {action}')
-        print(f'Conf: {conf}')
-
+        pass_threshold = True
         if conf < self.conf_thresh:
-            raise RuntimeError("Not confident in skill")
+            pass_threshold = False
     
-        return skill, action, conf
+        return skill, action, conf, pass_threshold
     
 class IntentDataset(Dataset):
     def __init__(self, X, Y):
