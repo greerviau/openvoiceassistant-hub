@@ -15,7 +15,7 @@ class HASS_Lights:
 
     def light_on(self, context: typing.Dict):
         try:
-            entity_id, light_description = self.find_light_entity_id(context)
+            entity_id, light_description, same_room = self.find_light_entity_id(context)
             #print(entity_id)
         except:
             return "No light specified"
@@ -26,13 +26,16 @@ class HASS_Lights:
         
         resp = self.ha_integration.post_services('light', 'turn_on', data)
         if resp.status_code == 200:
-            return f"Turning on {light_description}"
+            if not same_room:
+                return f"Turning on {light_description}"
+            else:
+                return ""
         
         return f"Failed to turn on {light_description}"
 
     def light_off(self, context: typing.Dict):    
         try:
-            entity_id, light_description = self.find_light_entity_id(context)
+            entity_id, light_description, same_room = self.find_light_entity_id(context)
             #print(entity_id)
         except:
             return "No light specified"
@@ -43,13 +46,16 @@ class HASS_Lights:
         
         resp = self.ha_integration.post_services('light', 'turn_off', data)
         if resp.status_code == 200:
-            return f"Turning off {light_description}"
+            if not same_room:
+                return f"Turning off {light_description}"
+            else:
+                return ""
         
         return f"Failed to turn off {light_description}"
     
     def light_toggle(self, context: typing.Dict):
         try:
-            entity_id, light_description = self.find_light_entity_id(context)
+            entity_id, light_description, same_room = self.find_light_entity_id(context)
             #print(entity_id)
         except:
             return "No light specified"
@@ -63,13 +69,16 @@ class HASS_Lights:
         
         resp = self.ha_integration.post_services('light', 'toggle', data)
         if resp.status_code == 200:
-            return f"Turning {light_mode} {light_description}"
+            if not same_room:
+                return f"Turning {light_mode} {light_description}"
+            else:
+                return ""
         
         return f"Failed to turn {light_mode} {light_description}"
     
     def light_brightness(self, context: typing.Dict):
         try:
-            entity_id, light_description = self.find_light_entity_id(context)
+            entity_id, light_description, same_room = self.find_light_entity_id(context)
             #print(entity_id)
         except:
             return "No light specified"
@@ -87,7 +96,10 @@ class HASS_Lights:
             
             resp = self.ha_integration.post_services('light', 'turn_on', data)
             if resp.status_code == 200:
-                return f"Setting the {light_description} brightness to {percent} percent"
+                if not same_room:
+                    return f"Setting the {light_description} brightness to {percent} percent"
+                else:
+                    return ""
             
             return f"Failed to set the {light_description} brightness"
         else:
@@ -97,11 +109,13 @@ class HASS_Lights:
         try:
             light = context["pos_info"]["COMP"][0]
             light_description = context['pos_info']["NOUN_CHUNKS"][0]
+            same_room = False
         except Exception as err:
             #print(err)
             light = context["node_area"]
             #print(light)
             light_description = f"the lights"
+            same_room = True
 
         if not light:
             raise RuntimeError("No light specified")
@@ -111,7 +125,7 @@ class HASS_Lights:
         except:
             raise RuntimeError("Could not find the light specified")
 
-        return light_id, light_description
+        return light_id, light_description, same_room
     
     def get_lights(self):
         try:

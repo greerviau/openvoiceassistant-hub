@@ -28,6 +28,7 @@ INTENTIONS = [
         {
             "action":"light_toggle",
             "patterns":[
+                "lights",
                 "lights please",
                 "BLANK lights",
                 "toggle the lights",
@@ -39,10 +40,18 @@ INTENTIONS = [
         {
             "action":"light_brightness",
             "patterns":[
-                "set the BLANK lights to BLANK percent",
-                "set the BLANK lights to BLANK percent brightness",
+                "lights BLANK percent",
+                "lights BLANK percent brightness",
+                "set the light brightness to BLANK percent",
+                "set the light to BLANK percent brightness",
+                "set the lights brightness to BLANK percent",
+                "set the lights to BLANK percent brightness",
                 "BLANK lights BLANK percent",
                 "BLANK lights BLANK percent brightness"
+                "set the BLANK light brightness to BLANK percent",
+                "set the BLANK light to BLANK percent brightness",
+                "set the BLANK lights brightness to BLANK percent",
+                "set the BLANK lights to BLANK percent brightness",
             ]
         }
     ]

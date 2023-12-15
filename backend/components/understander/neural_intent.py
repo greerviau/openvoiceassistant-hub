@@ -33,7 +33,7 @@ class NeuralIntent:
 
     def __init__(self, ova: 'OpenVoiceAssistant', intents: typing.Dict):
         embedding_dim = 100
-        hidden_dim = 64
+        hidden_dim = 128
 
         self.ova = ova
         model_dump = self.ova.model_dump
@@ -107,11 +107,13 @@ class IntentClassifier(nn.Module):
         self.embedding = nn.Embedding(vocab_size, embedding_dim)
         self.lstm = nn.LSTM(embedding_dim, hidden_dim, batch_first=True)
         self.fc = nn.Linear(hidden_dim, num_classes)
+        self.drop = nn.Dropout(p=0.5)
         
     def forward(self, x):
         embed = self.embedding(x)
         out, _ = self.lstm(embed)
         out = out[:, -1, :]
+        #out = self.drop(out)
         out = self.fc(out)
         return torch.nn.functional.softmax(out, dim=1)
     
@@ -176,7 +178,7 @@ def train_classifier(X, Y, embedding_dim, hidden_dim, num_classes, vocab_size, m
     print('Training classifier')
     # Training parameters
     batch_size = 8
-    num_epochs = 50
+    num_epochs = 100
     learning_rate = 0.001
 
     # Create the model
