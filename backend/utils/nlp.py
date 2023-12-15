@@ -252,9 +252,10 @@ def encode_command(command: str, vocab):
     last_blank = False
     words = []
     for word in command.split():
-        if word not in vocab and not last_blank:
-            last_blank = True
-            words.append('BLANK')
+        if word not in vocab:
+            if not last_blank:
+                last_blank = True
+                words.append('BLANK')
         else:
             last_blank = False
             words.append(word)
