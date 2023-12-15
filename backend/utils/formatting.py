@@ -65,5 +65,7 @@ def format_readable_time(dt, hour_format: str):
         else:
             minutes = inf.number_to_words(int(minutes)).replace("-", " ")
             minutes = f"o'{minutes}"
+    else:
+        minutes = inf.number_to_words(int(minutes)).replace("-", " ")
 
     return f"{hour} {minutes}"
