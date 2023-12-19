@@ -1,7 +1,7 @@
 import typing
 import pyjokes
 
-class Jokes:
+class PyJokes:
 
     def __init__(self, skill_config: typing.Dict, ova: 'OpenVoiceAssistant'):
         self.ova = ova
@@ -11,7 +11,7 @@ class Jokes:
 
 
 def build_skill(skill_config: typing.Dict, ova: 'OpenVoiceAssistant'):
-    return Jokes(skill_config, ova)
+    return PyJokes(skill_config, ova)
 
 def default_config():
     return {

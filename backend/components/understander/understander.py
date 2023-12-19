@@ -6,9 +6,8 @@ from typing import List
 
 from backend.enums import Components
 from backend import config
-from backend.utils.nlp import clean_text
 from backend.schemas import Context
-from backend.utils.nlp import information_extraction, encode_command
+from backend.utils.nlp import clean_text, information_extraction, encode_command
 
 class Understander:
     def __init__(self, ova: "OpenVoiceAssistant"):

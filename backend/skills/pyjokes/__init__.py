@@ -1,4 +1,4 @@
-from .jokes import Jokes, build_skill, default_config
+from .pyjokes import PyJokes, build_skill, default_config
 
 INTENTIONS = [
         {
