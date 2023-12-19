@@ -191,7 +191,7 @@ def information_extraction(sentence):
     parsed["SUBJECT"], parsed["OBJECT"], parsed["COMP"] = [], [], []
 
     for token in doc:
-        #print(f"{token.text} -> {token.dep_}")
+        print(f"{token.text} -> {token.dep_}")
         if (token.dep_=='nsubj'):
             parsed["SUBJECT"].append(token.text)
 
@@ -222,10 +222,11 @@ def information_extraction(sentence):
     ]
 
     matcher = DependencyMatcher(nlp.vocab)
-    matcher.add("OBJECT", [object_pattern])   
+    matcher.add("OBJ", [object_pattern])   
 
-    for match_id, (target, modifier) in matcher(doc):
-        parsed["MOD_OBJECT"] = ' '.join([doc[modifier].text, doc[target].text])
+    parsed["MOD_OBJECT"] = []
+    for match_id, (modifier, target) in matcher(doc):
+        parsed["MOD_OBJECT"].append(' '.join([doc[modifier].text, doc[target].text]))
 
     return parsed
 
@@ -267,6 +268,9 @@ def remove_words(self, text: str, words: typing.List[str]):
     return text
 
 if __name__ == '__main__':
-    c = "whats the weather like in India"
-    parsed = information_extraction(c)
-    print(parsed)
+    #print(STOPWORDS)
+    while True:
+        c = input("-> ")
+        if c in ['stop']: break
+        parsed = information_extraction(c)
+        print(parsed)
