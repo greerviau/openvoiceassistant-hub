@@ -9,7 +9,7 @@ class HASS_Lights:
 
         self.ha_integration = self.ova.integration_manager.get_integration_module('homeassistant')
 
-        self.lights = self.get_lights()
+        self.lights = self._get_lights()
         #print('Detected lights')
         #print(self.lights)
 

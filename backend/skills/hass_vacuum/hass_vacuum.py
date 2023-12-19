@@ -17,7 +17,6 @@ class HASS_Vacuum:
             return "Starting the vacuum"
         
         return "Failed to start the vacuum"
-        
 
     def pause_vacuum(self, context: typing.Dict):
         data = {
