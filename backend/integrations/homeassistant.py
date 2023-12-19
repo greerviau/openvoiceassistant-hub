@@ -135,7 +135,7 @@ class HomeAssistant:
         if service_data:
             return requests.post(f"{self.api}/services/{domain}/{service}", headers=self.headers, json=service_data)
         else:
-            return requests.post(f"{self.api}/events/{domain}/{service}", headers=self.headers)
+            return requests.post(f"{self.api}/services/{domain}/{service}", headers=self.headers)
 
     def post_template(self, template: typing.Dict):
         return requests.post(f"{self.api}/template", headers=self.headers, json=template)

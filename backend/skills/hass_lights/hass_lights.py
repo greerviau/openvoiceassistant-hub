@@ -125,7 +125,7 @@ class HASS_Lights:
 
         return light_id, light_description
     
-    def get_lights(self):
+    def _get_lights(self):
         try:
             entities = self.ha_integration.get_states()
             return [entity["entity_id"] for entity in entities if "light" in entity["entity_id"].split('.')[0]]

@@ -230,6 +230,11 @@ def information_extraction(sentence):
 
     return parsed
 
+def remove_stop_words(phrase):
+    for word in STOPWORDS:
+        phrase = phrase.replace(word, '')
+    return phrase.strip()
+
 def extract_numbers(sentence):
     return re.findall(r'\d+', sentence)
 
