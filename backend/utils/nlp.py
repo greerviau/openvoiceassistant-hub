@@ -191,7 +191,7 @@ def information_extraction(sentence):
     parsed["SUBJECT"], parsed["OBJECT"], parsed["COMP"] = [], [], []
 
     for token in doc:
-        print(f"{token.text} -> {token.dep_}")
+        #print(f"{token.text} -> {token.dep_}")
         if (token.dep_=='nsubj'):
             parsed["SUBJECT"].append(token.text)
 

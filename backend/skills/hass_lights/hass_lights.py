@@ -11,7 +11,7 @@ class HASS_Lights:
 
         self.lights = self._get_lights()
         #print('Detected lights')
-        #print(self.lights)
+        print(self.lights)
 
     def light_on(self, context: typing.Dict):
         try:
@@ -26,7 +26,7 @@ class HASS_Lights:
         
         resp = self.ha_integration.post_services('light', 'turn_on', data)
         if resp.status_code == 200:
-            if not light_description:
+            if light_description:
                 return f"Turning on {light_description}"
             else:
                 return ""
@@ -46,7 +46,7 @@ class HASS_Lights:
         
         resp = self.ha_integration.post_services('light', 'turn_off', data)
         if resp.status_code == 200:
-            if not light_description:
+            if light_description:
                 return f"Turning off {light_description}"
             else:
                 return ""
@@ -69,7 +69,7 @@ class HASS_Lights:
         
         resp = self.ha_integration.post_services('light', 'toggle', data)
         if resp.status_code == 200:
-            if not light_description:
+            if light_description:
                 return f"Turning {light_mode} {light_description}"
             else:
                 return ""
@@ -96,7 +96,7 @@ class HASS_Lights:
             
             resp = self.ha_integration.post_services('light', 'turn_on', data)
             if resp.status_code == 200:
-                if not light_description:
+                if light_description:
                     return f"Setting the {light_description} brightness to {percent} percent"
                 else:
                     return ""
@@ -108,6 +108,8 @@ class HASS_Lights:
     def find_light_entity_id(self, context: typing.Dict):
         try:
             light = '_'.join(context["pos_info"]["COMP"])
+            if not light:
+                raise
             light_description = context['pos_info']["NOUN_CHUNKS"][0]
         except Exception as err:
             #print(err)
