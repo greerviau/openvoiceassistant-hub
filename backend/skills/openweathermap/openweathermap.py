@@ -9,20 +9,21 @@ class OpenWeatherMap:
     def __init__(self, skill_config: typing.Dict, ova: 'OpenVoiceAssistant'):
         self.ova = ova
 
-        owm_api_key = skill_config["owm_api_key"]
+        api_key = skill_config["api_key"]
         self.lat = skill_config["latitude"]
         self.lon = skill_config["longitude"]
         self.unit = skill_config["unit"]
 
-        owm = OWM(owm_api_key)
+        owm = OWM(api_key)
         self.mgr = owm.weather_manager()
 
         self._current_weather = None
+
         def _update_weather():
             while True:
-                print("Current Location Weather Updated")
                 self._current_weather = self.mgr.weather_at_coords(lat=self.lat, lon=self.lon).weather
-                time.sleep(3600)
+                print("Current Location Weather Updated")
+                time.sleep(3600) # Wait 1 hour
 
         self.weather_thread = threading.Thread(target=_update_weather, daemon=True)
         self.weather_thread.start()
@@ -37,12 +38,13 @@ class OpenWeatherMap:
 
     def weather(self, context: typing.Dict):
         w, loc = self._get_weather(context)
+        command = context["command"]
 
         sky = self.sky(context)
         temp = int(w.temperature(self.unit)["temp"])
         humidity = int(w.humidity)
 
-        response = f"{sky}. The temperature is {temp} degrees with a humidity of {humidity} percent."
+        response = f"{sky}. The temperature{loc} is {temp} degrees with a humidity of {humidity} percent."
 
         return response
 
@@ -135,7 +137,7 @@ def build_skill(skill_config: typing.Dict, ova: 'OpenVoiceAssistant'):
 def default_config():
     return {
         "name": "Open Weather Map",
-        "owm_api_key": "",
+        "api_key": "",
         "latitude": 0,
         "longitude": 0,
         "unit": "fahrenheit",
