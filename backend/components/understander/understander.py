@@ -92,6 +92,7 @@ class Understander:
                     skill, action = hub_callback.split('.')
                     conf = 100
                     context["hub_callback"] = ''
+                    pass_threshold = True
                 except:
                     raise RuntimeError("Failed to parse callback")
             else:
