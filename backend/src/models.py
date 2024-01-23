@@ -30,11 +30,4 @@ class NodeAnnounce(BaseModel):
 
 class NodeConfig(BaseModel):
     node_id: str
-    node_name: str
-    node_area: str
-    node_api_url: str
-    wake_word: str
-    wakeup_sound: bool
-    mic_index: int
-    vad_sensitivity: int
-    speaker_index: int
+    config: dict

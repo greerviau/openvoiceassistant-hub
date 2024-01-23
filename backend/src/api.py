@@ -274,7 +274,7 @@ def create_app(ova: OpenVoiceAssistant):
                         detail='No config provided',
                         headers={'X-Error': 'No config provided'})
         try:
-            ova.node_manager.update_node_config(node_config.node_id, jsonable_encoder(node_config))
+            ova.node_manager.update_node_config(node_config.node_id, jsonable_encoder(node_config.config))
         except Exception as err:
             print(repr(err))
             raise fastapi.HTTPException(
@@ -291,9 +291,9 @@ def create_app(ova: OpenVoiceAssistant):
                         headers={'X-Error': 'No config provided'})
         try:
             if ova.node_manager.node_exists(node_config.node_id):
-                ova.node_manager.update_node_config(node_config.node_id, jsonable_encoder(node_config))
+                ova.node_manager.update_node_config(node_config.node_id, jsonable_encoder(node_config.config))
             else:
-                ova.node_manager.add_node_config(node_config.node_id, jsonable_encoder(node_config))
+                ova.node_manager.add_node_config(node_config.node_id, jsonable_encoder(node_config.config))
             sync_node_config = ova.node_manager.get_node_config(node_config.node_id)
             return sync_node_config
         
@@ -313,7 +313,7 @@ def create_app(ova: OpenVoiceAssistant):
                         headers={'X-Error': 'No config provided'})
         try:
             if not ova.node_manager.node_exists(node_config.node_id):
-                ova.node_manager.add_node_config(node_config.node_id, jsonable_encoder(node_config))
+                ova.node_manager.add_node_config(node_config.node_id, jsonable_encoder(node_config.config))
             sync_node_config = ova.node_manager.get_node_config(node_config.node_id)
             return sync_node_config
         
