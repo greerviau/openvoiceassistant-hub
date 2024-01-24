@@ -248,6 +248,7 @@ def get_after(text, token):
 def clean_text(text):
     text = text.lower()
     text = text.replace('%', ' percent')
+    text = text.replace('-', '  ')
     text = ' '.join([try_parse_word_number(word) for word in text.split()])
     table = str.maketrans('', '', string.punctuation)
     text = ' '.join([w.translate(table) for w in text.split()])
