@@ -75,21 +75,18 @@ INTENTIONS = [
                 "set a BLANK timer",
                 "set a BLANK minute timer",
                 "set a BLANK hour timer",
-                "start a timer",
-                "start a timer for BLANK",
                 "set a timer for BLANK minutes",
                 "set a timer for BLANK hours and BLANK minutes",
-                "start a timer for BLANK hour",
-                "make a timer for",
-                "make a timer"
+                "start a timer",
+                "start a timer for BLANK",
+                "start a timer for BLANK",
+                "start a BLANK minute timer"
             ]
         },
         {
             "action":"time_remaining",
             "patterns":[
                 "how much time is left on the timer",
-                "how much time is left",
-                "how much time left",
                 "how long on the timer",
                 "how much longer on the timer",
                 "what is the time remaining"

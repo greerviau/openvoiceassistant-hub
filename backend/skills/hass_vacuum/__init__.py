@@ -9,9 +9,7 @@ INTENTIONS = [
                 "clean the floor",
                 "clean the house",
                 "vacuum the floor",
-                "vacuum the house",
-                "start vacuuming the floor"
-                "start vacuuming the house"
+                "vacuum the house"
             ]
         },
         {
@@ -25,8 +23,6 @@ INTENTIONS = [
             "patterns":[
                 "stop the vacuum",
                 "stop vacuuming",
-                "stop vacuuming the floor"
-                "stop vacuuming the house"
             ]
         }
     ]
