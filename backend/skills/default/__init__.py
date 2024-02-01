@@ -2,6 +2,15 @@ from .default import Default, build_skill, default_config
 
 INTENTIONS = [
         {
+            "action":"introduction",
+            "patterns":[
+                "introduce yourself",
+                "what are you", 
+                "who are you",
+                "explain who you are",
+                "tell me about yourself"
+            ]
+        },
             "action":"volume",
             "patterns":[
                 "volume BLANK",

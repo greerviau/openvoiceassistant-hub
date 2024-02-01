@@ -33,7 +33,7 @@ class NeuralIntent:
 
     def __init__(self, ova: 'OpenVoiceAssistant', intents: typing.Dict):
         embedding_dim = 100
-        hidden_dim = 128
+        hidden_dim = 32
 
         self.ova = ova
         model_dump = self.ova.model_dump
@@ -107,7 +107,7 @@ class IntentClassifier(nn.Module):
         self.embedding = nn.Embedding(vocab_size, embedding_dim)
         self.lstm = nn.LSTM(embedding_dim, hidden_dim, batch_first=True)
         self.fc = nn.Linear(hidden_dim, num_classes)
-        self.drop = nn.Dropout(p=0.5)
+        self.drop = nn.Dropout(p=0.2)
         
     def forward(self, x):
         embed = self.embedding(x)
@@ -177,7 +177,7 @@ def preprocess_data(x, y, word_to_int, max_length, label_to_int):
 def train_classifier(X, Y, embedding_dim, hidden_dim, num_classes, vocab_size, model_file):
     print('Training classifier')
     # Training parameters
-    batch_size = 8
+    batch_size = 16
     num_epochs = 50
     learning_rate = 0.001
 
