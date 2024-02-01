@@ -11,6 +11,7 @@ INTENTIONS = [
                 "tell me about yourself"
             ]
         },
+        {
             "action":"volume",
             "patterns":[
                 "volume BLANK",
