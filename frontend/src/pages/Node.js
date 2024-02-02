@@ -24,6 +24,7 @@ function Node() {
       fetch(`/node/${initialData.id}/config`)
         .then((response) => response.json())
         .then((json) => {
+          console.log(json)
           setConfigData(json);
           setEditedData(json);
           setLoading(false);
@@ -76,10 +77,30 @@ function Node() {
   };
 
   const handleInputChange = (field, value) => {
+    let typedValue = value;
+    // Convert the value to the appropriate type based on the field type
+    switch (typeof configData[field]) {
+      case 'number':
+        typedValue = parseFloat(value) || 0; // Use 0 if parseFloat returns NaN
+        break;
+      default:
+        typedValue = value;
+    }
+  
     setEditedData((prevData) => ({
       ...prevData,
-      [field]: value,
+      [field]: typedValue,
     }));
+
+    console.log(editedData);
+  };
+
+  const handleCheckboxChange = (field) => {
+    setEditedData((prevData) => ({
+      ...prevData,
+      [field]: !prevData[field], // Toggle the boolean value
+    }));
+    console.log(editedData);
   };
 
   const handleSaveChanges = () => {
@@ -233,8 +254,8 @@ function Node() {
               <label>Wakeup Sound</label>
               <input
                 type="checkbox"
-                value={editedData.wakeup_sound}
-                onChange={(e) => handleInputChange('wakeup_sound', e.target.value)}
+                checked={editedData.wakeup_sound}
+                onChange={(e) => handleCheckboxChange('wakeup_sound')}
               />
             </div>
             <div className="form-field">
@@ -257,8 +278,8 @@ function Node() {
               <label>Speex Noise Suppression</label>
               <input
                 type="checkbox"
-                value={editedData.speex_noise_suppression}
-                onChange={(e) => handleInputChange('speex_noise_suppression', e.target.value)}
+                checked={editedData.speex_noise_suppression}
+                onChange={(e) => handleCheckboxChange('speex_noise_suppression')}
               />
             </div>
             <div className="form-field">
@@ -268,8 +289,8 @@ function Node() {
                 onChange={(e) => handleInputChange('mic_index', e.target.value)}
               >
                 {microphones.map((mic, index) => (
-                  <option key={index} value={index}>
-                    {mic}
+                  <option key={index} value={mic.idx}>
+                    {mic.name}
                   </option>
                 ))}
               </select>
@@ -281,8 +302,8 @@ function Node() {
                 onChange={(e) => handleInputChange('speaker_index', e.target.value)}
               >
                 {speakers.map((speaker, index) => (
-                  <option key={index} value={index}>
-                    {speaker}
+                  <option key={index} value={speaker.idx}>
+                    {speaker.name}
                   </option>
                 ))}
               </select>
