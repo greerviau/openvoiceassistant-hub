@@ -159,7 +159,7 @@ function Nodes() {
                     {identifying ? 'Identifying...' : 'Identify'}
                   </button>
                 )}
-                {item.restart_required && (
+                {item.restart_required && item.status === 'online'&& (
                   <button
                     className={`restart-button ${restarting ? 'disabled' : ''}`}
                     onClick={(event) => handleRestartClick(item.id, event)}

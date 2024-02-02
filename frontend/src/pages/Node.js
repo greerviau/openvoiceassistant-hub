@@ -9,14 +9,14 @@ function Node() {
   const [configData, setConfigData] = useState({});
   const [editedData, setEditedData] = useState({});
   const [loading, setLoading] = useState(true);
-  const [isSaved, setIsSaved] = useState(false);
-  const [restartNotification, setRestartNotification] = useState(null);
-  const [restartSuccessNotification, setRestartSuccessNotification] = useState(null);
-  const [errorNotification, setErrorNotification] = useState(null);
+  const [saveSuccessNotification, setSaveSuccessNotification] = useState(false);
+  const [restartNotification, setRestartNotification] = useState(false);
+  const [restartSuccessNotification, setRestartSuccessNotification] = useState(false);
+  const [errorNotification, setErrorNotification] = useState(false);
+  const [isIdentifying, setIsIdentifying] = useState(false);
   const [isRestarting, setIsRestarting] = useState(false);
   const [microphones, setMicrophones] = useState([]);
   const [speakers, setSpeakers] = useState([]);
-  const [isIdentifying, setIsIdentifying] = useState(false);
 
   useEffect(() => {
     if (initialData) {
@@ -123,18 +123,19 @@ function Node() {
       })
       .then((json) => {
         console.log('Update successful:', json);
-        setIsSaved(true);
-  
         // Display notification for configuration saved
+        setSaveSuccessNotification(true);
         setTimeout(() => {
-          setIsSaved(false);
+          setSaveSuccessNotification(false);
         }, 3000);
   
-        // Display notification for node restart required
-        setRestartNotification(true);
-        setTimeout(() => {
-          setRestartNotification(false);
-        }, 3000);
+        if (initialData.status == 'online') {
+          // Display notification for node restart required
+          setRestartNotification(true);
+          setTimeout(() => {
+            setRestartNotification(false);
+          }, 3000);
+        }
   
         // Enable the restart button
         setConfigData((prevData) => ({ ...prevData, restart_required: true }));
@@ -165,7 +166,10 @@ function Node() {
       })
       .then((json) => {
         console.log('Node restarted:', json);
-        setRestartSuccessNotification('Node Restarted');
+        setRestartSuccessNotification(true);
+        setTimeout(() => {
+          setSaveSuccessNotification(false);
+        }, 3000);
       })
       .catch((error) => {
         console.error('Error restarting node:', error);
@@ -285,6 +289,7 @@ function Node() {
             <div className="form-field">
               <label>Microphone</label>
               <select
+                className="dropdown"
                 value={editedData.mic_index}
                 onChange={(e) => handleInputChange('mic_index', e.target.value)}
               >
@@ -298,6 +303,7 @@ function Node() {
             <div className="form-field">
               <label>Speaker</label>
               <select
+                className="dropdown"
                 value={editedData.speaker_index}
                 onChange={(e) => handleInputChange('speaker_index', e.target.value)}
               >
@@ -321,7 +327,7 @@ function Node() {
             </button>
             <button
               type="button"
-              className={`restart-button ${isRestarting ? 'disabled' : ''}`}
+              className={`restart-button ${isRestarting || initialData.status === 'offline' ? 'disabled' : ''}`}
               onClick={handleRestart}
               disabled={isRestarting}
             >
@@ -337,7 +343,7 @@ function Node() {
               {restartSuccessNotification && (
                 <div className="notification success-notification">Node Restarted</div>
               )}
-              {isSaved && (
+              {saveSuccessNotification && (
                 <div className="notification success-notification">Configuration Saved!</div>
               )}
             </div>
