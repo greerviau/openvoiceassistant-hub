@@ -23,11 +23,3 @@ class RespondText(BaseModel):
     time_sent: float
     last_time_engaged: float
     command_text: str = ''
-
-class NodeAnnounce(BaseModel):
-    node_id: str
-    text: str
-
-class NodeConfig(BaseModel):
-    node_id: str
-    config: dict

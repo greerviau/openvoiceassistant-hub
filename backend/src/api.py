@@ -210,7 +210,7 @@ def create_app(ova: OpenVoiceAssistant):
         return context
     
     @router.get('/synthesizer/synthesize/text/{text}/file', tags=["Synthesizer"])
-    async def synthesize_text(text: str):
+    async def synthesize_text_file(text: str):
         context = {}
         context['response'] = text
 
@@ -266,15 +266,15 @@ def create_app(ova: OpenVoiceAssistant):
                         detail=repr(err),
                         headers={'X-Error': f'{err}'})
 
-    @router.put('/node/config', tags=["Nodes"])
-    async def put_node_config(node_config: NodeConfig):
+    @router.put('/node/{node_id}/config', tags=["Nodes"])
+    async def put_node_config(node_id: str, node_config: dict):
         if not node_config:
             raise fastapi.HTTPException(
                         status_code=400,
                         detail='No config provided',
                         headers={'X-Error': 'No config provided'})
         try:
-            ova.node_manager.update_node_config(node_config.node_id, jsonable_encoder(node_config.config))
+            ova.node_manager.update_node_config(node_id, jsonable_encoder(node_config))
         except Exception as err:
             print(repr(err))
             raise fastapi.HTTPException(
@@ -282,57 +282,108 @@ def create_app(ova: OpenVoiceAssistant):
                         detail=repr(err),
                         headers={'X-Error': f'{err}'})
 
-    @router.put('/node/sync_up', tags=["Nodes"])
-    async def node_sync_up(node_config: NodeConfig):
+    @router.put('/node/{node_id}/sync_up', tags=["Nodes"])
+    async def node_sync_up(node_id: str, node_config: dict):
         if not node_config:
             raise fastapi.HTTPException(
                         status_code=400,
                         detail='No config provided',
                         headers={'X-Error': 'No config provided'})
         try:
-            if ova.node_manager.node_exists(node_config.node_id):
-                ova.node_manager.update_node_config(node_config.node_id, jsonable_encoder(node_config.config))
+            sync_node_config = ova.node_manager.update_node_config(node_id, jsonable_encoder(node_config))
+            return sync_node_config
+        
+        except Exception as err:
+            print(repr(err))
+            raise fastapi.HTTPException(
+                        status_code=400,
+                        detail=repr(err),
+                        headers={'X-Error': f'{err}'})
+
+    @router.put('/node/{node_id}/sync_down', tags=["Nodes"])
+    async def node_sync_down(node_id: str, node_config: dict):
+        if not node_config:
+            raise fastapi.HTTPException(
+                        status_code=400,
+                        detail='No config provided',
+                        headers={'X-Error': 'No config provided'})
+        try:
+            if not ova.node_manager.node_exists(node_id):
+                ova.node_manager.update_node_config(node_id, jsonable_encoder(node_config))
+            sync_node_config = ova.node_manager.get_node_config(node_id)
+            sync_node_config["restart_required"] = False
+            ova.node_manager.update_node_config(node_id, sync_node_config)
+            return sync_node_config
+        
+        except Exception as err:
+            print(repr(err))
+            raise fastapi.HTTPException(
+                        status_code=400,
+                        detail=repr(err),
+                        headers={'X-Error': f'{err}'})
+        
+    @router.get('/node/{node_id}/hardware', tags=["Nodes"])
+    async def get_hardware(node_id: str):
+        try:
+            if ova.node_manager.node_exists(node_id):
+                return ova.node_manager.get_node_hardware(node_id)
             else:
-                ova.node_manager.add_node_config(node_config.node_id, jsonable_encoder(node_config.config))
-            sync_node_config = ova.node_manager.get_node_config(node_config.node_id)
-            return sync_node_config
-        
-        except Exception as err:
+                raise fastapi.HTTPException(
+                        status_code=400,
+                        detail='Node does not exist',
+                        headers={'X-Error': 'Node does not exist'})
+        except RuntimeError as err:
             print(repr(err))
             raise fastapi.HTTPException(
                         status_code=400,
                         detail=repr(err),
                         headers={'X-Error': f'{err}'})
-
-    @router.put('/node/sync_down', tags=["Nodes"])
-    async def node_sync_down(node_config: NodeConfig):
-        if not node_config:
-            raise fastapi.HTTPException(
-                        status_code=400,
-                        detail='No config provided',
-                        headers={'X-Error': 'No config provided'})
+        
+    @router.delete('/node/{node_id}/remove', tags=["Nodes"])
+    async def delete_node(node_id: str):
         try:
-            if not ova.node_manager.node_exists(node_config.node_id):
-                ova.node_manager.add_node_config(node_config.node_id, jsonable_encoder(node_config.config))
-            sync_node_config = ova.node_manager.get_node_config(node_config.node_id)
-            return sync_node_config
-        
-        except Exception as err:
+            if ova.node_manager.node_exists(node_id):
+                node_config = ova.node_manager.get_node_config(node_id)
+                ova.node_manager.delete_node(node_id)
+                return node_config
+            else:
+                raise fastapi.HTTPException(
+                        status_code=400,
+                        detail='Node does not exist',
+                        headers={'X-Error': 'Node does not exist'})
+        except RuntimeError as err:
+            print(repr(err))
+            raise fastapi.HTTPException(
+                        status_code=400,
+                        detail=repr(err),
+                        headers={'X-Error': f'{err}'})
+    
+    @router.post('/node/{node_id}/restart', tags=["Nodes"])
+    async def restart_node(node_id: str):
+        try:
+            if ova.node_manager.node_exists(node_id):
+                ova.node_manager.restart_node(node_id)
+            else:
+                raise fastapi.HTTPException(
+                        status_code=400,
+                        detail='Node does not exist',
+                        headers={'X-Error': 'Node does not exist'})
+        except RuntimeError as err:
             print(repr(err))
             raise fastapi.HTTPException(
                         status_code=400,
                         detail=repr(err),
                         headers={'X-Error': f'{err}'})
         
-    @router.post('/node/announce', tags=["Nodes"])
-    async def node_announce(data: NodeAnnounce):
+    @router.post('/node/{node_id}/announce/{text}', tags=["Nodes"])
+    async def node_announce(node_id: str, text: str):
         try:
             context = {}
 
-            node_id = data.node_id
+            node_id = node_id
 
-            context['node_id'] = data.node_id
-            context['response'] = data.text
+            context['node_id'] = node_id
+            context['response'] = text
 
             ova.run_pipeline(
                 Components.Synthesizer,
@@ -343,7 +394,7 @@ def create_app(ova: OpenVoiceAssistant):
                 "audio_data": context['response_audio_data']
             }
             
-            ova.node_manager.call_node_api('POST', node_id, '/play/audio', data)
+            ova.node_manager.call_node_api('POST', node_id, f'/play/audio', data=data)
 
             return {}
         
