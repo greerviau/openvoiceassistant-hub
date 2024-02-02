@@ -1,14 +1,14 @@
 import React, { useState, useEffect } from 'react';
 import './App.css';
 import { BrowserRouter, Route, Routes, Link} from 'react-router-dom';
-import Sidebar from './components/Sidebar';
-import Overview from './pages/Overview';
-import Nodes from './pages/Nodes.js';
-import Node from './pages/Node.js';
-import Skills from './pages/Skills.js';
-import Settings from './pages/Settings.js';
-import Logs from './pages/Logs.js';
-import Skill from './pages/Skill'
+import Sidebar from './components/Sidebar.jsx';
+import Overview from './pages/Overview.jsx';
+import Nodes from './pages/Nodes.jsx';
+import Node from './pages/Node.jsx';
+import Skills from './pages/Skills.jsx';
+import Settings from './pages/Settings.jsx';
+import Logs from './pages/Logs.jsx';
+import Skill from './pages/Skill.jsx'
 
 const App = () => {
 
