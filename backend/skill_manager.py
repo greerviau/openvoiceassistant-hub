@@ -9,23 +9,23 @@ class SkillManager:
     def __init__(self, ova):
         self.ova = ova
 
-        self.available_skills = []
-        for submodule in iter_modules(skills.__path__):
-            sm = submodule.name
-            self.available_skills.append(sm)
-
-        self.skills = config.get('skills')
-        self.imported_skills = list(self.skills.keys())
-        self.not_imported = list(set(self.available_skills + self.imported_skills))
-
         self.imported_skill_modules = {}
 
+        self.available_skills = [submodule.name for submodule in iter_modules(skills.__path__)]
+
+        self.skills = config.get('skills')
+        self.not_imported = [skill for skill in self.available_skills if skill not in self.skills]
+
         print('Importing Skills...')
-        for skill_id in self.imported_skills:
+        for skill_id in self.skills:
             skill_config = config.get('skills', skill_id)
             if not skill_config:
                 skill_config = self.get_default_skill_config(skill_id)
             self.__import_skill(skill_id, skill_config)
+
+    @property
+    def imported_skills(self):
+        return list(self.skills.keys())
 
     def add_skill(self, skill_id: str):
         if not self.skill_imported(skill_id):
@@ -33,21 +33,22 @@ class SkillManager:
         else:
             raise RuntimeError('Skill is already imported')
 
-    def add_skill_config(self, skill_id: str, skill_config: typing.Dict):
-        if not self.skill_imported(skill_id):
-            self.__import_skill(skill_id, skill_config)
-        else:
-            raise RuntimeError('Skill is already imported')
+    def remove_skill(self, skill_id: str):
+        if self.skill_imported(skill_id):
+            skill_config = self.skills.pop(skill_id)
+            self.not_imported.append(skill_id)
+            config.set("skills", self.skills)
+            return skill_config
+        raise RuntimeError("Skill not imported")
 
     def update_skill_config(self, skill_id: str, skill_config: typing.Dict):
-        if self.skill_imported(skill_id):
-            self.__import_skill(skill_id, skill_config)
-        else:
-            raise RuntimeError('Skill is not imported')
+        imported = self.skill_imported(skill_id)
+        self.__import_skill(skill_id, skill_config)
+        if not imported: self.not_imported.remove(skill_id)
 
     def get_skill_config(self, skill_id: str) -> typing.Dict:
         if self.skill_imported(skill_id):
-            return config.get('skills', *skill_id.split('.'))
+            return self.skills[skill_id]
         else:
             return self.get_default_skill_config(skill_id)
 
@@ -84,6 +85,7 @@ class SkillManager:
             try:
                 module = importlib.import_module(f'backend.skills.{skill_id}')
                 self.imported_skill_modules[skill_id] = module.build_skill(skill_config, self.ova)
+                self.__save_config(skill_id, skill_config)
             except Exception as e:
                 raise RuntimeError(f'Failed to load {skill_id} | Exception {repr(e)}')
         else:

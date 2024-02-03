@@ -139,8 +139,6 @@ def build_skill(skill_config: typing.Dict, ova: 'OpenVoiceAssistant'):
 
 def default_config():
     return {
-        "name": "Default",
-        "required_integrations": [],
         "timezone": "US/Eastern",
         "24_hour_format": False
     }

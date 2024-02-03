@@ -45,6 +45,5 @@ def build_skill(skill_config: typing.Dict, ova: 'OpenVoiceAssistant'):
 
 def default_config():
     return {
-        "name": "Home Assistant Vacuum",
         "required_integrations": ["homeassistant"]
     }

@@ -14,6 +14,4 @@ def build_skill(skill_config: typing.Dict, ova: 'OpenVoiceAssistant'):
     return PyJokes(skill_config, ova)
 
 def default_config():
-    return {
-        "name": "PyJokes"
-    }
+    return {}
