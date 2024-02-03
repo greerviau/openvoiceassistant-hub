@@ -184,7 +184,7 @@ const getFieldInput = (fieldName, fieldValue, handleInputChange, jsonData, edita
         id={fieldName}
         name={fieldName}
         value={fieldValue}
-        onChange={(e) => handleInputChange(fieldName, e.target.value)}
+        onChange={(e) => handleInputChange(fieldName, parseFloat(e.target.value))}
       />
     );
   } else {
