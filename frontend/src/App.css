@@ -146,9 +146,8 @@ html {
 }
 
 .item-list {
-  list-style: none;
+  list-style-type: none;
   padding: 0;
-  margin: 0;
 }
 
 .item-list li {
@@ -169,13 +168,21 @@ html {
   margin-bottom: 0;
 }
 
+.list-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 1px solid #ddd;
+  padding: 10px;
+}
+
 /* Nodes.css */
 
 .list-container {
   padding: 20px;
 }
 
-.edit-node-form {
+.edit-form {
   max-width: 600px;
 }
 
@@ -261,7 +268,7 @@ input {
   cursor: not-allowed;
 }
 
-.restart-button {
+.info-button {
   margin-left: 10px;
   background-color: #2196f3;
   color: #fff;
@@ -271,7 +278,7 @@ input {
   cursor: pointer;
 }
 
-.restart-button.disabled {
+.info-button.disabled {
   background-color: #ccc;
   cursor: not-allowed;
 }
@@ -289,6 +296,31 @@ input {
 .identify-button.disabled {
   background-color: #ccc;
   cursor: not-allowed;
+}
+
+/* Skills.css */
+.button-import {
+  margin-bottom: 10px;
+  padding: 12px 20px;
+  font-size: 16px;
+  border-radius: 5px;
+  background-color: #3498db;
+  color: #fff;
+  border: none;
+  cursor: pointer;
+}
+
+.button-import:hover {
+  background-color: #2980b9;
+}
+
+.delete-button {
+  background-color: #f44336; /* Red color */
+  color: white;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 4px;
+  cursor: pointer;
 }
 
 .dropdown {

@@ -125,13 +125,39 @@ function Nodes() {
       });
   };
 
+  const handleDeleteClick = (id, name) => {
+    const confirmation = window.confirm(`Are you sure you want to delete ${name}?`);
+    if (confirmation) {
+      // Call the API to remove the node
+      fetch(`/node/${id}`, {
+        method: 'DELETE',
+      })
+        .then((response) => {
+          if (response.ok) {
+            console.log(`${name} successfully deleted.`);
+            // Add any additional logic or update UI as needed
+            fetchData();
+          } else {
+            console.error(`Failed to delete ${name}.`);
+            // Handle error or update UI accordingly
+          }
+        })
+        .catch((error) => {
+          console.error('Error deleting node:', error);
+        });
+    } else {
+      // User canceled the deletion
+      console.log(`Deletion of ${name} canceled.`);
+    }
+  };
+
   return (
     <div>
       <h1>Nodes</h1>
       <div className="list-container">
         <button
           onClick={handleRefreshClick}
-          className={`restart-button ${refreshing ? 'disabled' : ''}`}
+          className={`info-button ${refreshing ? 'disabled' : ''}`}
           disabled={refreshing}
           style={{ marginBottom: '10px' }}
         >
@@ -142,32 +168,45 @@ function Nodes() {
         ) : (
           <ul className="item-list">
             {data.map((item) => (
-              <li key={item.id} onClick={() => handleItemClick(item.id)}>
-                <Link to="#" style={{ color: 'inherit' }}>
-                  <strong>Name:</strong> {item.name} |{' '}
-                  <strong>Status:</strong>{' '}
-                  <span style={{ color: item.status === 'online' ? 'green' : 'red' }}>
-                    {item.status}
-                  </span>
-                </Link>
-                {item.status === 'online' && (
+              <li className="list-item" key={item.id} onClick={() => handleItemClick(item.id)}>
+                <span>
+                  <Link to="#" style={{ color: 'inherit' }}>
+                    <strong>Name:</strong> {item.name} |{' '}
+                    <strong>Status:</strong>{' '}
+                    <span style={{ color: item.status === 'online' ? 'green' : 'red' }}>
+                      {item.status}
+                    </span>
+                  </Link>
+                  {item.status === 'online' && (
+                    <button
+                      className={`identify-button ${identifying ? 'disabled' : ''}`}
+                      onClick={(event) => handleItemIdentify(item.id, event)}
+                      disabled={identifying}
+                    >
+                      {identifying ? 'Identifying...' : 'Identify'}
+                    </button>
+                  )}
+                  {item.restart_required && item.status === 'online' && (
+                    <button
+                      className={`info-button ${restarting ? 'disabled' : ''}`}
+                      onClick={(event) => handleRestartClick(item.id, event)}
+                      disabled={restarting}
+                    >
+                      {restarting ? 'Restarting...' : 'Restart'}
+                    </button>
+                  )}
+                </span>
+                <span className="delete-button-container">
                   <button
-                    className={`identify-button ${identifying ? 'disabled' : ''}`}
-                    onClick={(event) => handleItemIdentify(item.id, event)}
-                    disabled={identifying}
+                    className="delete-button"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      handleDeleteClick(item.id, item.name);
+                    }}
                   >
-                    {identifying ? 'Identifying...' : 'Identify'}
+                    <i className="fas fa-trash-alt"></i>
                   </button>
-                )}
-                {item.restart_required && item.status === 'online'&& (
-                  <button
-                    className={`restart-button ${restarting ? 'disabled' : ''}`}
-                    onClick={(event) => handleRestartClick(item.id, event)}
-                    disabled={restarting}
-                  >
-                    {restarting ? 'Restarting...' : 'Restart'}
-                  </button>
-                )}
+                </span>
               </li>
             ))}
           </ul>

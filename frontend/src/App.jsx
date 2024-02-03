@@ -6,9 +6,10 @@ import Overview from './pages/Overview.jsx';
 import Nodes from './pages/Nodes.jsx';
 import Node from './pages/Node.jsx';
 import Skills from './pages/Skills.jsx';
+import ImportSkill from './pages/ImportSkill.jsx'
+import Skill from './pages/Skill.jsx'
 import Settings from './pages/Settings.jsx';
 import Logs from './pages/Logs.jsx';
-import Skill from './pages/Skill.jsx'
 
 const App = () => {
 
@@ -20,9 +21,11 @@ const App = () => {
           <Route path="/overview" element={<Overview />} />
           <Route path="/nodes" element={<Nodes />} />
           <Route path="/skills" element={<Skills />} />
+          <Route path="/import-skill" element={<ImportSkill />} />
+          <Route path="/skill/:skillId" element={<Skill />} />
           <Route path="/settings" element={<Settings />} />
           <Route path="/logs" element={<Logs />} />
-          <Route path="/node/:fieldName" element={<Node />} />
+          <Route path="/node/:nodeId" element={<Node />} />
         </Routes>
       </Sidebar>
     </BrowserRouter>

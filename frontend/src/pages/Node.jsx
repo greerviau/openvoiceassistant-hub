@@ -9,6 +9,7 @@ function Node() {
   const [configData, setConfigData] = useState({});
   const [editedData, setEditedData] = useState({});
   const [loading, setLoading] = useState(true);
+  const [newChanges, setNewChanges] = useState(false);
   const [saveSuccessNotification, setSaveSuccessNotification] = useState(false);
   const [restartNotification, setRestartNotification] = useState(false);
   const [restartSuccessNotification, setRestartSuccessNotification] = useState(false);
@@ -17,6 +18,7 @@ function Node() {
   const [isRestarting, setIsRestarting] = useState(false);
   const [microphones, setMicrophones] = useState([]);
   const [speakers, setSpeakers] = useState([]);
+  const [wakeWords, setWakeWords] = useState([]);
 
   useEffect(() => {
     if (initialData) {
@@ -43,7 +45,17 @@ function Node() {
           setSpeakers(json.speakers);
         })
         .catch((error) => {
-          console.error('Error fetching microphone data:', error);
+          console.error('Error fetching hardware data:', error);
+        });
+
+      fetch(`/node/${initialData.id}/wake_words`)
+        .then((response) => response.json())
+        .then((json) => {
+          console.log(json)
+          setWakeWords(json);
+        })
+        .catch((error) => {
+          console.error('Error fetching wake word data:', error);
         });
     }
   }, [initialData]);
@@ -86,6 +98,8 @@ function Node() {
       default:
         typedValue = value;
     }
+
+    setNewChanges(true);
   
     setEditedData((prevData) => ({
       ...prevData,
@@ -123,6 +137,7 @@ function Node() {
       })
       .then((json) => {
         console.log('Update successful:', json);
+        setNewChanges(false);
         // Display notification for configuration saved
         setSaveSuccessNotification(true);
         setTimeout(() => {
@@ -168,7 +183,7 @@ function Node() {
         console.log('Node restarted:', json);
         setRestartSuccessNotification(true);
         setTimeout(() => {
-          setSaveSuccessNotification(false);
+          setRestartSuccessNotification(false);
         }, 3000);
       })
       .catch((error) => {
@@ -210,7 +225,7 @@ function Node() {
       {loading ? (
         <p>Loading data...</p>
       ) : (
-        <div className="edit-node-form">
+        <div className="edit-form">
           <h2>Edit Node Configuration</h2>
           
           <form>
@@ -231,20 +246,18 @@ function Node() {
               />
             </div>
             <div className="form-field">
-              <label>Wake Word Engine</label>
-              <input
-                type="text"
-                value={editedData.wake_word_engine}
-                onChange={(e) => handleInputChange('wake_word_engine', e.target.value)}
-              />
-            </div>
-            <div className="form-field">
-              <label>Wake Word</label>
-              <input
-                type="text"
+              <label>WakeWord</label>
+              <select
+                className="dropdown"
                 value={editedData.wake_word}
                 onChange={(e) => handleInputChange('wake_word', e.target.value)}
-              />
+              >
+                {wakeWords.map((wake_word, index) => (
+                  <option key={index} value={wake_word}>
+                    {wake_word}
+                  </option>
+                ))}
+              </select>
             </div>
             <div className="form-field">
               <label>Wake Word Confidence</label>
@@ -322,12 +335,13 @@ function Node() {
                 onChange={(e) => handleInputChange('volume', e.target.value)}
               />
             </div>
-            <button type="button" className="save-button" onClick={handleSaveChanges}>
-              Save Changes
-            </button>
+            <button type="button" 
+                className={`save-button ${!newChanges ? 'disabled' : ''}`} 
+                disabled={!newChanges} 
+                onClick={handleSaveChanges}>Save Changes</button>
             <button
               type="button"
-              className={`restart-button ${isRestarting || initialData.status === 'offline' ? 'disabled' : ''}`}
+              className={`info-button ${isRestarting || initialData.status === 'offline' ? 'disabled' : ''}`}
               onClick={handleRestart}
               disabled={isRestarting}
             >
