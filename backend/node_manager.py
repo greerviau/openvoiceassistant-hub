@@ -51,6 +51,12 @@ class NodeManager:
         hardware["speakers"] = resp.json()
         return hardware
 
+    def get_node_wake_words(self, node_id: str):
+        resp = self.call_node_api("GET", node_id, "/wake_word_models")
+        if resp.status_code != 200:
+            raise RuntimeError(f"Failed to get wake words from node {node_id}")
+        return resp.json()
+
     def get_node_status(self, node_id: str):
         try:
             node_config = self.nodes[node_id]
@@ -63,7 +69,8 @@ class NodeManager:
                 status = 'online'
             else:
                 raise
-        except:
+        except Exception as e:
+            #print(e)
             status = 'offline'
         
         return {
@@ -73,10 +80,12 @@ class NodeManager:
             'restart_required': node_config['restart_required']
         }
     
-    def delete_node(self, node_id: str):
+    def remove_node(self, node_id: str):
         if self.node_exists(node_id):
-            del self.nodes[node_id]
+            node_config = self.nodes.pop(node_id)
             config.set('nodes', self.nodes)
+            return node_config
+        raise RuntimeError("Node does not exist")
 
     def restart_node(self, node_id: str):
         if self.node_exists(node_id):

@@ -338,13 +338,29 @@ def create_app(ova: OpenVoiceAssistant):
                         status_code=400,
                         detail=repr(err),
                         headers={'X-Error': f'{err}'})
-        
-    @router.delete('/node/{node_id}/remove', tags=["Nodes"])
-    async def delete_node(node_id: str):
+
+    @router.get('/node/{node_id}/wake_words', tags=["Nodes"])
+    async def get_node_wake_words(node_id: str):
         try:
             if ova.node_manager.node_exists(node_id):
-                node_config = ova.node_manager.get_node_config(node_id)
-                ova.node_manager.delete_node(node_id)
+                return ova.node_manager.get_node_wake_words(node_id)
+            else:
+                raise fastapi.HTTPException(
+                        status_code=400,
+                        detail='Node does not exist',
+                        headers={'X-Error': 'Node does not exist'})
+        except RuntimeError as err:
+            print(repr(err))
+            raise fastapi.HTTPException(
+                        status_code=400,
+                        detail=repr(err),
+                        headers={'X-Error': f'{err}'})
+        
+    @router.delete('/node/{node_id}', tags=["Nodes"])
+    async def remove_node(node_id: str):
+        try:
+            if ova.node_manager.node_exists(node_id):
+                node_config = ova.node_manager.remove_node(node_id)
                 return node_config
             else:
                 raise fastapi.HTTPException(
@@ -418,10 +434,21 @@ def create_app(ova: OpenVoiceAssistant):
                             detail=repr(err),
                             headers={'X-Error': f'{err}'})
 
-    @router.get('/skills/active', tags=["Skills"])
-    async def get_active_skills():
+    @router.get('/skills/imported', tags=["Skills"])
+    async def get_imported_skills():
         try:
             return ova.skill_manager.imported_skills
+        except RuntimeError as err:
+            print(repr(err))
+            raise fastapi.HTTPException(
+                        status_code=400,
+                        detail=repr(err),
+                        headers={'X-Error': f'{err}'})
+
+    @router.get('/skills/not_imported', tags=["Skills"])
+    async def get_not_imported_skills():
+        try:
+            return ova.skill_manager.not_imported
         except RuntimeError as err:
             print(repr(err))
             raise fastapi.HTTPException(
@@ -462,10 +489,17 @@ def create_app(ova: OpenVoiceAssistant):
                         detail=repr(err),
                         headers={'X-Error': f'{err}'})
 
-    @router.post('/skills/{skill_id}/config', tags=["Skills"])
-    async def post_skill_config(skill_id: str, skill_config: typing.Dict):
+    @router.delete('/skills/{skill_id}', tags=["Skills"])
+    async def remove_skill(skill_id: str):
         try:
-            ova.skill_manager.add_skill_config(skill_id, skill_config)
+            if ova.skill_manager.skill_imported(skill_id):
+                skill_config = ova.skill_manager.remove_skill(skill_id)
+                return skill_config
+            else:
+                raise fastapi.HTTPException(
+                        status_code=400,
+                        detail='Skill is not imported',
+                        headers={'X-Error': 'Skill is not imported'})
         except RuntimeError as err:
             print(repr(err))
             raise fastapi.HTTPException(
@@ -486,7 +520,7 @@ def create_app(ova: OpenVoiceAssistant):
         
     # INTEGRATIONS
 
-    @router.get('/integrations/available', tags=["Integration"])
+    @router.get('/integrations/available', tags=["Integrations"])
     async def get_available_integrations():
         try:
             return ova.integration_manager.available_integrations
@@ -497,8 +531,8 @@ def create_app(ova: OpenVoiceAssistant):
                             detail=repr(err),
                             headers={'X-Error': f'{err}'})
 
-    @router.get('/integrations/active', tags=["Integration"])
-    async def get_active_integrations():
+    @router.get('/integrations/imported', tags=["Integrations"])
+    async def get_imported_integrations():
         try:
             return ova.integration_manager.imported_integrations
         except RuntimeError as err:
@@ -508,7 +542,18 @@ def create_app(ova: OpenVoiceAssistant):
                         detail=repr(err),
                         headers={'X-Error': f'{err}'})
 
-    @router.get('/integrations/{integration_id}/config', tags=["Integration"])
+    @router.get('/integrations/not_imported', tags=["Integrations"])
+    async def get_not_imported_integrations():
+        try:
+            return ova.integration_manager.not_imported
+        except RuntimeError as err:
+            print(repr(err))
+            raise fastapi.HTTPException(
+                        status_code=400,
+                        detail=repr(err),
+                        headers={'X-Error': f'{err}'})
+
+    @router.get('/integrations/{integration_id}/config', tags=["Integrations"])
     async def get_integration_config(integration_id: str):
         try:
             return ova.integration_manager.get_integration_config(integration_id)
@@ -519,7 +564,7 @@ def create_app(ova: OpenVoiceAssistant):
                         detail=repr(err),
                         headers={'X-Error': f'{err}'})
 
-    @router.get('/integrations/{integration_id}/config/default', tags=["Integration"])
+    @router.get('/integrations/{integration_id}/config/default', tags=["Integrations"])
     async def get_integration_default_config(integration_id: str):
         try:
             return ova.integration_manager.get_default_integration_config(integration_id)
@@ -530,7 +575,7 @@ def create_app(ova: OpenVoiceAssistant):
                         detail=repr(err),
                         headers={'X-Error': f'{err}'})
 
-    @router.post('/integrations/{integration_id}', tags=["Integration"])
+    @router.post('/integrations/{integration_id}', tags=["Integrations"])
     async def post_integration(integration_id: str):
         try:
             ova.integration_manager.add_integration(integration_id)
@@ -541,10 +586,17 @@ def create_app(ova: OpenVoiceAssistant):
                         detail=repr(err),
                         headers={'X-Error': f'{err}'})
 
-    @router.post('/integrations/{integration_id}/config', tags=["Integration"])
-    async def post_integration_config(integration_id: str, integration_config: typing.Dict):
+    @router.delete('/integrations/{integration_id}', tags=["Integrations"])
+    async def remove_integration(integration_id: str):
         try:
-            ova.integration_manager.add_integration_config(integration_id, integration_config)
+            if ova.integration_manager.integration_imported(integration_id):
+                integration_config = ova.integration_manager.remove_integration(integration_id)
+                return integration_config
+            else:
+                raise fastapi.HTTPException(
+                        status_code=400,
+                        detail='Integration is not imported',
+                        headers={'X-Error': 'Integration is not imported'})
         except RuntimeError as err:
             print(repr(err))
             raise fastapi.HTTPException(
@@ -552,7 +604,7 @@ def create_app(ova: OpenVoiceAssistant):
                         detail=repr(err),
                         headers={'X-Error': f'{err}'})
                         
-    @router.put('/integrations/{integration_id}/config', tags=["Integration"])
+    @router.put('/integrations/{integration_id}/config', tags=["Integrations"])
     async def put_integration_config(integration_id: str, integration_config: typing.Dict):
         try:
             ova.integration_manager.update_integration_config(integration_id, integration_config)

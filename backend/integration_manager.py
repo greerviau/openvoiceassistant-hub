@@ -16,7 +16,7 @@ class IntegrationManager:
 
         self.integrations = config.get('integrations')
         self.imported_integrations = list(self.integrations.keys())
-        self.not_imported = list(set(self.available_integrations + self.imported_integrations))
+        self.not_imported = [integration for integration in self.available_integrations if integration not in self.imported_integrations]
 
         self.imported_integration_modules = {}
 
@@ -33,17 +33,17 @@ class IntegrationManager:
         else:
             raise RuntimeError('Integration is already imported')
 
-    def add_integration_config(self, integration_id: str, integration_config: typing.Dict):
-        if not self.integration_imported(integration_id):
-            self.__import_integration(integration_id, integration_config)
-        else:
-            raise RuntimeError('Integration is already imported')
+    def remove_integration(self, integration_id: str):
+        if self.integration_imported(integration_id):
+            integration_config = self.integrations.pop(integration_id)
+            self.imported_integrations.remove(integration_id)
+            self.not_imported.append(integration_id)
+            config.set("integrations", self.integrations)
+            return integration_config
+        raise RuntimeError("Integration not imported")
 
     def update_integration_config(self, integration_id: str, integration_config: typing.Dict):
-        if self.integration_imported(integration_id):
-            self.__import_integration(integration_id, integration_config)
-        else:
-            raise RuntimeError('Integration is not imported')
+        self.__import_integration(integration_id, integration_config)
 
     def get_integration_config(self, integration_id: str) -> typing.Dict:
         if self.integration_imported(integration_id):
