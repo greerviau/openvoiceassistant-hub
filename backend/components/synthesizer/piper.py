@@ -49,5 +49,5 @@ def default_config() -> typing.Dict:
         "id": "piper",
         "model": "en_US-lessac-medium",
         "use_gpu": False,
-        "available_models": list(get_voices('./').keys())
+        "model_options": list(get_voices('./').keys())
     }

@@ -9,23 +9,23 @@ class IntegrationManager:
     def __init__(self, ova):
         self.ova = ova
 
-        self.available_integrations = []
-        for submodule in iter_modules(integrations.__path__):
-            sm = submodule.name
-            self.available_integrations.append(sm)
-
-        self.integrations = config.get('integrations')
-        self.imported_integrations = list(self.integrations.keys())
-        self.not_imported = [integration for integration in self.available_integrations if integration not in self.imported_integrations]
-
         self.imported_integration_modules = {}
 
-        print('Importing Integrations...')
-        for integration_id in self.imported_integrations:
+        self.available_integrations = [submodule.name for submodule in iter_modules(integrations.__path__)]
+
+        self.integrations = config.get('integrations')
+        self.not_imported = [integration for integration in self.available_integrations if integration not in self.integrations]
+
+        print('Importing integrations...')
+        for integration_id in self.integrations:
             integration_config = config.get('integrations', integration_id)
             if not integration_config:
                 integration_config = self.get_default_integration_config(integration_id)
             self.__import_integration(integration_id, integration_config)
+
+    @property
+    def imported_integrations(self):
+        return list(self.integrations.keys())
 
     def add_integration(self, integration_id: str):
         if not self.integration_imported(integration_id):
@@ -43,11 +43,13 @@ class IntegrationManager:
         raise RuntimeError("Integration not imported")
 
     def update_integration_config(self, integration_id: str, integration_config: typing.Dict):
+        imported = self.integration_imported(integration_id)
         self.__import_integration(integration_id, integration_config)
+        if not imported: self.not_imported.remove(integration_id)
 
     def get_integration_config(self, integration_id: str) -> typing.Dict:
         if self.integration_imported(integration_id):
-            return config.get('integrations', *integration_id.split('.'))
+            return self.integrations[integration_id]
         else:
             return self.get_default_integration_config(integration_id)
 
@@ -77,10 +79,11 @@ class IntegrationManager:
             try:
                 module = importlib.import_module(f'backend.integrations.{integration_id}')
                 self.imported_integration_modules[integration_id] = module.build_integration(integration_config, self.ova)
+                self.__save_config(integration_id, integration_config)
             except Exception as e:
                 raise RuntimeError(f'Failed to load {integration_id} | Exception {repr(e)}')
         else:
-            raise RuntimeError('Integration does not exist')
+            raise RuntimeError('integration does not exist')
         
     def __save_config(self, integration_id: str, integration_config: typing.Dict):
         config.set('integrations', integration_id, integration_config)

@@ -45,7 +45,7 @@ class SkillManager:
         imported = self.skill_imported(skill_id)
         self.__import_skill(skill_id, skill_config)
         if not imported: self.not_imported.remove(skill_id)
-
+        
     def get_skill_config(self, skill_id: str) -> typing.Dict:
         if self.skill_imported(skill_id):
             return self.skills[skill_id]

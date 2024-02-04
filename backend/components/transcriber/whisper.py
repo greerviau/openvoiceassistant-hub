@@ -32,6 +32,6 @@ def default_config():
     return {
         "id": "whisper",
         "model_size": "tiny.en",
-        "model_sizes": ["tiny.en", "tiny", "base.en", "base", "small.en", "small", "medium.en", "medium", "large"],
+        "model_size_options": ["tiny.en", "tiny", "base.en", "base", "small.en", "small", "medium.en", "medium", "large"],
         "use_gpu": False
     }

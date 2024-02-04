@@ -132,7 +132,7 @@ class HASS_Lights:
             entities = self.ha_integration.get_states()
             return [entity["entity_id"] for entity in entities if "light" in entity["entity_id"].split('.')[0]]
         except:
-            raise RuntimeError("Failed to get list of light entites")
+            return []
 
 def build_skill(skill_config: typing.Dict, ova: 'OpenVoiceAssistant'):
     return HASS_Lights(skill_config, ova)
