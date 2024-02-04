@@ -1,10 +1,10 @@
-// Skill.jsx
+// Integration.jsx
 import React, { useState, useEffect } from 'react';
 import { useParams, useLocation } from 'react-router-dom';
 import { capitalizeId, getFieldInput} from '../Utils';
 
-function Skill() {
-  const { skillId } = useParams(); // Access the skillId from URL params
+function Integration() {
+  const { integrationId } = useParams(); // Access the integrationId from URL params
   const location = useLocation();
   const [newChanges, setNewChanges] = useState(false);
   const [saveSuccessNotification, setSaveSuccessNotification] = useState(false);
@@ -14,7 +14,7 @@ function Skill() {
 
   useEffect(() => {
     // Fetch configuration data from the API endpoint
-    fetch(`/skills/${skillId}/config`)
+    fetch(`/integrations/${integrationId}/config`)
       .then((response) => response.json())
       .then((json) => {
         console.log(json);
@@ -23,7 +23,7 @@ function Skill() {
       .catch((error) => {
         console.error('Error fetching configuration data:', error);
       });
-  }, [skillId]);
+  }, [integrationId]);
 
   useEffect(() => {
     // Check if import mode is true
@@ -44,7 +44,7 @@ function Skill() {
   };
 
   const handleSaveChanges = () => {
-    fetch(`/skills/${skillId}/config`, {
+    fetch(`/integrations/${integrationId}/config`, {
       method: 'PUT',
       headers: {
         'Content-Type': 'application/json',
@@ -80,8 +80,8 @@ function Skill() {
   ));
 
   return (
-    <div className="skill-container">
-      <h1>Edit {capitalizeId(skillId)}</h1>
+    <div className="integration-container">
+      <h1>Edit Integration {capitalizeId(integrationId)}</h1>
       <form style={{ paddingTop: "20px"}}>
         {editableFields.map(([fieldName, fieldValue], index) => {
           const inputField = getFieldInput(fieldName, fieldValue, handleInputChange, editableFields);
@@ -120,7 +120,7 @@ function Skill() {
             <div className="notification success-notification">Configuration Saved</div>
           )}
           {importSuccessNotification && (
-            <div className="notification info-notification">Skill Imported</div>
+            <div className="notification info-notification">Integration Imported</div>
           )}
         </div>
       </form>
@@ -128,4 +128,4 @@ function Skill() {
   );
 }
 
-export default Skill;
+export default Integration;

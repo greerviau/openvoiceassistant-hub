@@ -144,7 +144,7 @@ function Node() {
           setSaveSuccessNotification(false);
         }, 3000);
   
-        if (initialData.status == 'online') {
+        if (initialData.status === 'online') {
           // Display notification for node restart required
           setRestartNotification(true);
           setTimeout(() => {
@@ -200,17 +200,9 @@ function Node() {
     return <div>No data found for this node.</div>;
   }
 
-  // Filter out id and api_url from being displayed
-  const filteredConfigData = Object.fromEntries(
-    Object.entries(configData).filter(
-      ([field]) => field !== 'id' && field !== 'api_url' && field !== 'restart_required'
-    )
-  );
-
   return (
-    <div className="list-container">
-      {!loading && (
-        <div className="node-header">
+    <div>
+      <div className="node-header">
         <h1>{initialData.name}</h1>
         <button
           type="button"
@@ -221,149 +213,150 @@ function Node() {
           {isIdentifying ? 'Identifying...' : 'Identify'}
         </button>
       </div>
-      )}
-      {loading ? (
-        <p>Loading data...</p>
-      ) : (
-        <div className="edit-form">
-          <h2>Edit Node Configuration</h2>
-          
-          <form>
-            <div className="form-field">
-              <label>Name</label>
-              <input
-                type="text"
-                value={editedData.name}
-                onChange={(e) => handleInputChange('name', e.target.value)}
-              />
-            </div>
-            <div className="form-field">
-              <label>Area</label>
-              <input
-                type="text"
-                value={editedData.area}
-                onChange={(e) => handleInputChange('area', e.target.value)}
-              />
-            </div>
-            <div className="form-field">
-              <label>WakeWord</label>
-              <select
-                className="dropdown"
-                value={editedData.wake_word}
-                onChange={(e) => handleInputChange('wake_word', e.target.value)}
+      <div className="list-container">
+        {loading ? (
+          <p>Loading data...</p>
+        ) : (
+          <div className="edit-form">
+            <h2>Configuration</h2>
+            
+            <form style={{ paddingTop: "20px"}}>
+              <div className="form-field">
+                <label>Name</label>
+                <input
+                  type="text"
+                  value={editedData.name}
+                  onChange={(e) => handleInputChange('name', e.target.value)}
+                />
+              </div>
+              <div className="form-field">
+                <label>Area</label>
+                <input
+                  type="text"
+                  value={editedData.area}
+                  onChange={(e) => handleInputChange('area', e.target.value)}
+                />
+              </div>
+              <div className="form-field">
+                <label>WakeWord</label>
+                <select
+                  className="dropdown"
+                  value={editedData.wake_word}
+                  onChange={(e) => handleInputChange('wake_word', e.target.value)}
+                >
+                  {wakeWords.map((wake_word, index) => (
+                    <option key={index} value={wake_word}>
+                      {wake_word}
+                    </option>
+                  ))}
+                </select>
+              </div>
+              <div className="form-field">
+                <label>Wake Word Confidence</label>
+                <input
+                  type="number"
+                  value={editedData.wake_word_conf_threshold}
+                  onChange={(e) => handleInputChange('wake_word_conf_threshold', e.target.value)}
+                />
+              </div>
+              <div className="form-field">
+                <label>Wakeup Sound</label>
+                <input
+                  type="checkbox"
+                  checked={editedData.wakeup_sound}
+                  onChange={(e) => handleCheckboxChange('wakeup_sound')}
+                />
+              </div>
+              <div className="form-field">
+                <label>VAD Sensitivity</label>
+                <input
+                  type="number"
+                  value={editedData.vad_sensitivity}
+                  onChange={(e) => handleInputChange('vad_sensitivity', e.target.value)}
+                />
+              </div>
+              <div className="form-field">
+                <label>VAD Threshold</label>
+                <input
+                  type="number"
+                  value={editedData.vad_threshold}
+                  onChange={(e) => handleInputChange('vad_threshold', e.target.value)}
+                />
+              </div>
+              <div className="form-field">
+                <label>Speex Noise Suppression</label>
+                <input
+                  type="checkbox"
+                  checked={editedData.speex_noise_suppression}
+                  onChange={(e) => handleCheckboxChange('speex_noise_suppression')}
+                />
+              </div>
+              <div className="form-field">
+                <label>Microphone</label>
+                <select
+                  className="dropdown"
+                  value={editedData.mic_index}
+                  onChange={(e) => handleInputChange('mic_index', e.target.value)}
+                >
+                  {microphones.map((mic, index) => (
+                    <option key={index} value={mic.idx}>
+                      {mic.name}
+                    </option>
+                  ))}
+                </select>
+              </div>
+              <div className="form-field">
+                <label>Speaker</label>
+                <select
+                  className="dropdown"
+                  value={editedData.speaker_index}
+                  onChange={(e) => handleInputChange('speaker_index', e.target.value)}
+                >
+                  {speakers.map((speaker, index) => (
+                    <option key={index} value={speaker.idx}>
+                      {speaker.name}
+                    </option>
+                  ))}
+                </select>
+              </div>
+              <div className="form-field">
+                <label>Volume</label>
+                <input
+                  type="number"
+                  value={editedData.volume}
+                  onChange={(e) => handleInputChange('volume', e.target.value)}
+                />
+              </div>
+              <button type="button" 
+                  className={`save-button ${!newChanges ? 'disabled' : ''}`} 
+                  disabled={!newChanges} 
+                  onClick={handleSaveChanges}>Save Changes</button>
+              <button
+                type="button"
+                className={`info-button ${isRestarting || initialData.status === 'offline' ? 'disabled' : ''}`}
+                onClick={handleRestart}
+                disabled={isRestarting}
               >
-                {wakeWords.map((wake_word, index) => (
-                  <option key={index} value={wake_word}>
-                    {wake_word}
-                  </option>
-                ))}
-              </select>
-            </div>
-            <div className="form-field">
-              <label>Wake Word Confidence</label>
-              <input
-                type="number"
-                value={editedData.wake_word_conf_threshold}
-                onChange={(e) => handleInputChange('wake_word_conf_threshold', e.target.value)}
-              />
-            </div>
-            <div className="form-field">
-              <label>Wakeup Sound</label>
-              <input
-                type="checkbox"
-                checked={editedData.wakeup_sound}
-                onChange={(e) => handleCheckboxChange('wakeup_sound')}
-              />
-            </div>
-            <div className="form-field">
-              <label>VAD Sensitivity</label>
-              <input
-                type="number"
-                value={editedData.vad_sensitivity}
-                onChange={(e) => handleInputChange('vad_sensitivity', e.target.value)}
-              />
-            </div>
-            <div className="form-field">
-              <label>VAD Threshold</label>
-              <input
-                type="number"
-                value={editedData.vad_threshold}
-                onChange={(e) => handleInputChange('vad_threshold', e.target.value)}
-              />
-            </div>
-            <div className="form-field">
-              <label>Speex Noise Suppression</label>
-              <input
-                type="checkbox"
-                checked={editedData.speex_noise_suppression}
-                onChange={(e) => handleCheckboxChange('speex_noise_suppression')}
-              />
-            </div>
-            <div className="form-field">
-              <label>Microphone</label>
-              <select
-                className="dropdown"
-                value={editedData.mic_index}
-                onChange={(e) => handleInputChange('mic_index', e.target.value)}
-              >
-                {microphones.map((mic, index) => (
-                  <option key={index} value={mic.idx}>
-                    {mic.name}
-                  </option>
-                ))}
-              </select>
-            </div>
-            <div className="form-field">
-              <label>Speaker</label>
-              <select
-                className="dropdown"
-                value={editedData.speaker_index}
-                onChange={(e) => handleInputChange('speaker_index', e.target.value)}
-              >
-                {speakers.map((speaker, index) => (
-                  <option key={index} value={speaker.idx}>
-                    {speaker.name}
-                  </option>
-                ))}
-              </select>
-            </div>
-            <div className="form-field">
-              <label>Volume</label>
-              <input
-                type="number"
-                value={editedData.volume}
-                onChange={(e) => handleInputChange('volume', e.target.value)}
-              />
-            </div>
-            <button type="button" 
-                className={`save-button ${!newChanges ? 'disabled' : ''}`} 
-                disabled={!newChanges} 
-                onClick={handleSaveChanges}>Save Changes</button>
-            <button
-              type="button"
-              className={`info-button ${isRestarting || initialData.status === 'offline' ? 'disabled' : ''}`}
-              onClick={handleRestart}
-              disabled={isRestarting}
-            >
-              {isRestarting ? 'Restarting...' : 'Restart'}
-            </button>
-            <div className="notification-container">
-              {errorNotification && (
-                <div className="notification error-notification">{errorNotification}</div>
-              )}
-              {restartNotification && (
-                <div className="notification info-notification">Node Restart Required!</div>
-              )}
-              {restartSuccessNotification && (
-                <div className="notification success-notification">Node Restarted</div>
-              )}
-              {saveSuccessNotification && (
-                <div className="notification success-notification">Configuration Saved!</div>
-              )}
-            </div>
-          </form>
-        </div>
-      )}
+                {isRestarting ? 'Restarting...' : 'Restart'}
+              </button>
+              <div className="notification-container">
+                {errorNotification && (
+                  <div className="notification error-notification">{errorNotification}</div>
+                )}
+                {restartNotification && (
+                  <div className="notification info-notification">Node Restart Required!</div>
+                )}
+                {restartSuccessNotification && (
+                  <div className="notification success-notification">Node Restarted</div>
+                )}
+                {saveSuccessNotification && (
+                  <div className="notification success-notification">Configuration Saved!</div>
+                )}
+              </div>
+            </form>
+          </div>
+        )}
+      </div>
     </div>
   );
 }
