@@ -24,7 +24,6 @@ main{
   width: 200px;
   transition: all 0.5s;
   overscroll-behavior: none;
-  position: relative;
 }
 
 .sidebar.collapsed {

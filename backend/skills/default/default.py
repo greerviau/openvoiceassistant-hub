@@ -14,7 +14,7 @@ class Default:
         self.hour_format = "%H" if skill_config["24_hour_format"] else "%I"
 
     def introduction(self, context: typing.Dict):
-        return "Hello, my name is ova. I am an opensource voice assistant designed to be a locally controlled alternative to popular voice assistants on the market like Alexa, and Google home."
+        return "Hello. My name is ova. I am an opensource voice assistant designed to be a locally controlled alternative to popular voice assistants on the market like Alexa and Google home."
 
     def volume(self, context: typing.Dict):
         node_id = context["node_id"]

@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { capitalizeId, getFieldInput} from '../Utils';
 
-const CollapsibleSection = ({ title, component, config, setConfig, setSuccessNotification, setInfoNotification}) => {
+const CollapsibleSection = ({ title, component, config, setConfig, setSuccessNotification, setInfoNotification, setErrorNotification}) => {
   const [newChanges, setNewChanges] = useState(false);
   const [isExpanded, setIsExpanded] = useState(false);
 
@@ -41,7 +41,7 @@ const CollapsibleSection = ({ title, component, config, setConfig, setSuccessNot
       >
         {options.map((option, index) => (
           <option key={index} value={option}>
-            {option}
+            {capitalizeId(option)}
           </option>
         ))}
       </select>
@@ -69,12 +69,7 @@ const CollapsibleSection = ({ title, component, config, setConfig, setSuccessNot
       },
       body: JSON.stringify(config),
     })
-      .then((response) => {
-        if (!response.ok) {
-          throw new Error(`HTTP error! Status: ${response.status}`);
-        }
-        return response.json();
-      })
+      .then((response) => response.json())
       .then((json) => {
         setNewChanges(false);
         console.log('Update successful:', json);
@@ -88,6 +83,14 @@ const CollapsibleSection = ({ title, component, config, setConfig, setSuccessNot
         setTimeout(() => {
           setInfoNotification(null);
         }, 3000);
+      })
+      .catch((error) => {
+        console.error(`Error updating ${component} configuration:`, error);
+        setErrorNotification(`${error.message}`);
+        // Clear the notification after a few seconds
+        setTimeout(() => {
+          setErrorNotification(null);
+        }, 5000);
       });
   };
 
@@ -96,12 +99,7 @@ const CollapsibleSection = ({ title, component, config, setConfig, setSuccessNot
     fetch(`/${component}/reload`, {
       method: 'POST',
     })
-      .then((response) => {
-        if (!response.ok) {
-          throw new Error(`HTTP error! Status: ${response.status}`);
-        }
-        return response.json();
-      })
+      .then((response) => response.json())
       .then((json) => {
         console.log('Reload successful');
         setSuccessNotification(`${capitalizeId(component)} Reloaded`);
@@ -111,6 +109,11 @@ const CollapsibleSection = ({ title, component, config, setConfig, setSuccessNot
       })
       .catch((error) => {
         console.error(`Error reloading ${component} configuration:`, error);
+        setErrorNotification(`${error.message}`);
+        // Clear the notification after a few seconds
+        setTimeout(() => {
+          setErrorNotification(null);
+        }, 5000);
       });
   };
 
@@ -185,6 +188,7 @@ function Settings() {
   const [synthesizerConfig, setSynthesizerConfig] = useState({});
   const [successNotification, setSuccessNotification] = useState(null);
   const [infoNotification, setInfoNotification] = useState(null);
+  const [errorNotification, setErrorNotification] = useState(null);
 
   useEffect(() => {
     // Initial fetch
@@ -197,7 +201,12 @@ function Settings() {
         setTranscriberConfig(json);
       })
       .catch((error) => {
-        console.error('Error fetching data:', error);
+        console.error('Error fetching transcriber config:', error);
+        setErrorNotification(`${error.message}`);
+        // Clear the notification after a few seconds
+        setTimeout(() => {
+          setErrorNotification(null);
+        }, 5000);
       });
 
     // Fetch configuration data for Understander
@@ -208,7 +217,12 @@ function Settings() {
         setUnderstanderConfig(json);
       })
       .catch((error) => {
-        console.error('Error fetching Understander configuration:', error);
+        console.error('Error fetching understander config:', error);
+        setErrorNotification(`${error.message}`);
+        // Clear the notification after a few seconds
+        setTimeout(() => {
+          setErrorNotification(null);
+        }, 5000);
       });
 
     // Fetch configuration data for Synthesizer
@@ -219,7 +233,12 @@ function Settings() {
         setSynthesizerConfig(json);
       })
       .catch((error) => {
-        console.error('Error fetching Synthesizer configuration:', error);
+        console.error('Error fetching synthesizer config:', error);
+        setErrorNotification(`${error.message}`);
+        // Clear the notification after a few seconds
+        setTimeout(() => {
+          setErrorNotification(null);
+        }, 5000);
       });
   }, []);  
 
@@ -233,27 +252,33 @@ function Settings() {
               config={transcriberConfig}
               setConfig={setTranscriberConfig}
               setSuccessNotification={setSuccessNotification}
-              setInfoNotification={setInfoNotification}/>
+              setInfoNotification={setInfoNotification}
+              setErrorNotification={setErrorNotification}/>
         <CollapsibleSection 
               title="Understander" 
               component="understander"
               config={understanderConfig}
               setConfig={setUnderstanderConfig}
               setSuccessNotification={setSuccessNotification}
-              setInfoNotification={setInfoNotification}/>
+              setInfoNotification={setInfoNotification}
+              setErrorNotification={setErrorNotification}/>
         <CollapsibleSection 
               title="Synthesizer" 
               component="synthesizer"
               config={synthesizerConfig}
               setConfig={setSynthesizerConfig}
               setSuccessNotification={setSuccessNotification}
-              setInfoNotification={setInfoNotification}/>
+              setInfoNotification={setInfoNotification}
+              setErrorNotification={setErrorNotification}/>
         <div className="notification-container">
           {successNotification && (
             <div className="notification success-notification">{successNotification}</div>
           )}
           {infoNotification && (
             <div className="notification info-notification">{infoNotification}</div>
+          )}
+          {errorNotification && (
+            <div className="notification error-notification">{errorNotification}</div>
           )}
         </div>
       </div>

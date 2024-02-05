@@ -1,6 +1,7 @@
 // Node.js
 import React, { useEffect, useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
+import { capitalizeId } from '../Utils';
 
 function Node() {
   const location = useLocation();
@@ -258,7 +259,7 @@ function Node() {
                 >
                   {wakeWords.map((wake_word, index) => (
                     <option key={index} value={wake_word}>
-                      {wake_word}
+                      {capitalizeId(wake_word)}
                     </option>
                   ))}
                 </select>

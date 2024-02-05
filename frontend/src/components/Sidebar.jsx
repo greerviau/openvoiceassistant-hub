@@ -19,6 +19,8 @@ import { NavLink } from 'react-router-dom';
 const Sidebar = ({children}) => {
     const[isOpen ,setIsOpen] = useState(false);
     const toggle = () => setIsOpen (!isOpen);
+    const [successNotification, setSuccessNotification] = useState(null);
+    const [errorNotification, setErrorNotification] = useState(null);
     
     const handlePowerOffClick = () => {
         // Display a confirmation popup
@@ -32,9 +34,19 @@ const Sidebar = ({children}) => {
             })
             .then(response => {
                 // Handle the response if needed
+                setSuccessNotification(`OVA Restarted`);
+                // Clear the notification after a few seconds
+                setTimeout(() => {
+                setSuccessNotification(null);
+                }, 3000);
             })
             .catch(error => {
                 console.error('Error restarting:', error);
+                setErrorNotification(`${error.message}`);
+                // Clear the notification after a few seconds
+                setTimeout(() => {
+                setErrorNotification(null);
+                }, 5000);
             });
         }
     };
@@ -94,6 +106,14 @@ const Sidebar = ({children}) => {
                 </div>
            </div>
            <main>{children}</main>
+           <div className="notification-container">
+            {errorNotification && (
+                <div className="notification error-notification">{errorNotification}</div>
+            )}
+            {successNotification && (
+                <div className="notification success-notification">{successNotification}</div>
+            )}
+            </div>
         </div>
     );
 };

@@ -7,6 +7,7 @@ function Skills() {
   const [data, setData] = useState([]);
   const [loading, setLoading] = useState(true);
   const [successNotification, setSuccessNotification] = useState(null);
+  const [infoNotification, setInfoNotification] = useState(null);
   const [errorNotification, setErrorNotification] = useState(null);
   const navigate = useNavigate();
 
@@ -54,6 +55,11 @@ function Skills() {
         // Clear the notification after a few seconds
         setTimeout(() => {
           setSuccessNotification(null);
+        }, 3000);
+        setInfoNotification(`Understander Restart Required`);
+        // Clear the notification after a few seconds
+        setTimeout(() => {
+          setInfoNotification(null);
         }, 3000);
         fetchData();
       })
@@ -112,6 +118,9 @@ function Skills() {
         )}
         {successNotification && (
           <div className="notification success-notification">{successNotification}</div>
+        )}
+        {infoNotification && (
+          <div className="notification info-notification">{infoNotification}</div>
         )}
       </div>
     </div>
