@@ -23,6 +23,7 @@ const App = () => {
           <Route path="/" element={<Overview />} />
           <Route path="/overview" element={<Overview />} />
           <Route path="/nodes" element={<Nodes />} />
+          <Route path="/node/:nodeId" element={<Node />} />
           <Route path="/skills" element={<Skills />} />
           <Route path="/skill/:skillId" element={<Skill />} />
           <Route path="/import-skill" element={<ImportSkill />} />
@@ -31,7 +32,6 @@ const App = () => {
           <Route path="/import-integration" element={<ImportIntegration />} />
           <Route path="/settings" element={<Settings />} />
           <Route path="/logs" element={<Logs />} />
-          <Route path="/node/:nodeId" element={<Node />} />
         </Routes>
       </Sidebar>
     </BrowserRouter>

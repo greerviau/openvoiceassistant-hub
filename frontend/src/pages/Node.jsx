@@ -1,6 +1,6 @@
 // Node.js
 import React, { useEffect, useState } from 'react';
-import { useLocation } from 'react-router-dom';
+import { Link, useLocation } from 'react-router-dom';
 
 function Node() {
   const location = useLocation();
@@ -10,10 +10,9 @@ function Node() {
   const [editedData, setEditedData] = useState({});
   const [loading, setLoading] = useState(true);
   const [newChanges, setNewChanges] = useState(false);
-  const [saveSuccessNotification, setSaveSuccessNotification] = useState(false);
-  const [restartNotification, setRestartNotification] = useState(false);
-  const [restartSuccessNotification, setRestartSuccessNotification] = useState(false);
-  const [errorNotification, setErrorNotification] = useState(false);
+  const [infoNotification, setInfoNotification] = useState(null);
+  const [successNotification, setSuccessNotification] = useState(null);
+  const [errorNotification, setErrorNotification] = useState(null);
   const [isIdentifying, setIsIdentifying] = useState(false);
   const [isRestarting, setIsRestarting] = useState(false);
   const [microphones, setMicrophones] = useState([]);
@@ -29,10 +28,16 @@ function Node() {
           console.log(json)
           setConfigData(json);
           setEditedData(json);
-          setLoading(false);
         })
         .catch((error) => {
           console.error('Error fetching configuration data:', error);
+          setErrorNotification(`${error.message}`);
+          // Clear the notification after a few seconds
+          setTimeout(() => {
+            setErrorNotification(null);
+          }, 5000);
+        })
+        .finally(() => {
           setLoading(false);
         });
 
@@ -46,6 +51,11 @@ function Node() {
         })
         .catch((error) => {
           console.error('Error fetching hardware data:', error);
+          setErrorNotification(`${error.message}`);
+          // Clear the notification after a few seconds
+          setTimeout(() => {
+            setErrorNotification(null);
+          }, 5000);
         });
 
       fetch(`/node/${initialData.id}/wake_words`)
@@ -56,6 +66,11 @@ function Node() {
         })
         .catch((error) => {
           console.error('Error fetching wake word data:', error);
+          setErrorNotification(`${error.message}`);
+          // Clear the notification after a few seconds
+          setTimeout(() => {
+            setErrorNotification(null);
+          }, 5000);
         });
     }
   }, [initialData]);
@@ -68,24 +83,22 @@ function Node() {
     fetch(`/node/${initialData.id}/announce/Hello%20World`, {
       method: 'POST',
     })
-      .then((response) => {
-        if (!response.ok) {
-          throw new Error(`HTTP error! Status: ${response.status}`);
-        }
-        return response.json();
-      })
-      .then((json) => {
-        console.log('Announcement initiated:', json);
-        // You can handle successful announcement here if needed
-      })
-      .catch((error) => {
-        console.error('Error initiating announcement:', error);
-        // You can handle the error if needed
-      })
-      .finally(() => {
-        // Set the loading state to false after the API call is completed
-        setIsIdentifying(false);
-      });
+    .then((json) => {
+      console.log('Announcement initiated:', json);
+      // You can handle successful announcement here if needed
+    })
+    .catch((error) => {
+      console.error('Error initiating announcement:', error);
+      setErrorNotification(`${error.message}`);
+      // Clear the notification after a few seconds
+      setTimeout(() => {
+        setErrorNotification(null);
+      }, 5000);
+    })
+    .finally(() => {
+      // Set the loading state to false after the API call is completed
+      setIsIdentifying(false);
+    });
   };
 
   const handleInputChange = (field, value) => {
@@ -105,8 +118,6 @@ function Node() {
       ...prevData,
       [field]: typedValue,
     }));
-
-    console.log(editedData);
   };
 
   const handleCheckboxChange = (field) => {
@@ -139,16 +150,16 @@ function Node() {
         console.log('Update successful:', json);
         setNewChanges(false);
         // Display notification for configuration saved
-        setSaveSuccessNotification(true);
+        setSuccessNotification('Changes Saved');
         setTimeout(() => {
-          setSaveSuccessNotification(false);
+          setSuccessNotification(null);
         }, 3000);
   
         if (initialData.status === 'online') {
           // Display notification for node restart required
-          setRestartNotification(true);
+          setInfoNotification('Node Restart Required');
           setTimeout(() => {
-            setRestartNotification(false);
+            setInfoNotification(null);
           }, 3000);
         }
   
@@ -173,27 +184,25 @@ function Node() {
     fetch(`/node/${initialData.id}/restart`, {
       method: 'POST',
     })
-      .then((response) => {
-        if (!response.ok) {
-          throw new Error(`HTTP error! Status: ${response.status}`);
-        }
-        return response.json();
-      })
-      .then((json) => {
-        console.log('Node restarted:', json);
-        setRestartSuccessNotification(true);
-        setTimeout(() => {
-          setRestartSuccessNotification(false);
-        }, 3000);
-      })
-      .catch((error) => {
-        console.error('Error restarting node:', error);
-        setErrorNotification(`${error.message}`);
-      })
-      .finally(() => {
-        // Set the loading state to false after the API call is completed
-        setIsRestarting(false);
-      });
+    .then((json) => {
+      console.log('Node restarted:', json);
+      setSuccessNotification('Node Restarted');
+      setTimeout(() => {
+        setSuccessNotification(null);
+      }, 3000);
+    })
+    .catch((error) => {
+      console.error('Error restarting node:', error);
+      setErrorNotification(`${error.message}`);
+      // Clear the notification after a few seconds
+      setTimeout(() => {
+        setErrorNotification(null);
+      }, 5000);
+    })
+    .finally(() => {
+      // Set the loading state to false after the API call is completed
+      setIsRestarting(null);
+    });
   };
 
   if (!initialData) {
@@ -213,11 +222,14 @@ function Node() {
           {isIdentifying ? 'Identifying...' : 'Identify'}
         </button>
       </div>
+      <Link to="/nodes" className="import-button">
+        Back
+      </Link>
       <div className="list-container">
         {loading ? (
           <p>Loading data...</p>
         ) : (
-          <div className="edit-form">
+          <div>
             <h2>Configuration</h2>
             
             <form style={{ paddingTop: "20px"}}>
@@ -343,14 +355,11 @@ function Node() {
                 {errorNotification && (
                   <div className="notification error-notification">{errorNotification}</div>
                 )}
-                {restartNotification && (
-                  <div className="notification info-notification">Node Restart Required!</div>
+                {infoNotification && (
+                  <div className="notification info-notification">{infoNotification}</div>
                 )}
-                {restartSuccessNotification && (
-                  <div className="notification success-notification">Node Restarted</div>
-                )}
-                {saveSuccessNotification && (
-                  <div className="notification success-notification">Configuration Saved!</div>
+                {successNotification && (
+                  <div className="notification success-notification">{successNotification}</div>
                 )}
               </div>
             </form>

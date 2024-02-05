@@ -140,13 +140,10 @@ html {
   align-items: center;
   border-bottom: 1px solid #ddd;
   padding: 10px;
+  cursor: pointer;
 }
 
 /* Nodes.css */
-
-.edit-form {
-  max-width: 600px;
-}
 
 .form-field {
   margin-bottom: 15px;
@@ -262,7 +259,7 @@ input {
   cursor: not-allowed;
 }
 
-.button-import {
+.import-button {
   margin-bottom: 10px;
   padding: 12px 20px;
   font-size: 16px;
@@ -273,8 +270,13 @@ input {
   cursor: pointer;
 }
 
-.button-import:hover {
+.import-button:hover {
   background-color: #2980b9;
+}
+
+.import-button.disabled {
+  background-color: #ccc;
+  cursor: not-allowed;
 }
 
 .delete-button {
@@ -285,6 +287,20 @@ input {
   border-radius: 4px;
   cursor: pointer;
 }
+
+.reload-button {
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0;
+  font-size: 1rem;
+  color: #3498db; /* Change color based on your design */
+}
+
+.reload-button:hover {
+  color: #2980b9; /* Change hover color based on your design */
+}
+
 
 /* DROPDOWNS */
 

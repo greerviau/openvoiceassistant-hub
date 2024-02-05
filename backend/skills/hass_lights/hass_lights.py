@@ -11,7 +11,7 @@ class HASS_Lights:
 
         self.lights = self._get_lights()
         #print('Detected lights')
-        print(self.lights)
+        print(f"Lights : {self.lights}")
 
     def light_on(self, context: typing.Dict):
         try:

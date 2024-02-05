@@ -1,117 +1,158 @@
 import React, { useState, useEffect } from 'react';
 import { capitalizeId, getFieldInput} from '../Utils';
 
-function Settings() {
-  const [transcriberConfig, setTranscriberConfig] = useState({});
-  const [understanderConfig, setUnderstanderConfig] = useState({});
-  const [synthesizerConfig, setSynthesizerConfig] = useState({});
+const CollapsibleSection = ({ title, component, config, setConfig, setSuccessNotification, setInfoNotification}) => {
+  const [newChanges, setNewChanges] = useState(false);
+  const [isExpanded, setIsExpanded] = useState(false);
 
-  useEffect(() => {
-    // Fetch configuration data for Transcriber
-    fetch(`/transcriber/config`)
-      .then((response) => response.json())
-      .then((json) => {
-        console.log(json);
-        setTranscriberConfig(json);
-      })
-      .catch((error) => {
-        console.error('Error fetching Transcriber configuration:', error);
-      });
+  const DropdownMenu = ({ options, initialValue, component }) => {
+    const [selectedOption, setSelectedOption] = useState(initialValue || '');
 
-    // Fetch configuration data for Understander
-    fetch(`/understander/config`)
-      .then((response) => response.json())
-      .then((json) => {
-        console.log(json);
-        setUnderstanderConfig(json);
-      })
-      .catch((error) => {
-        console.error('Error fetching Understander configuration:', error);
-      });
+    const handleOptionChange = async (e) => {
+      const newSelectedOption = e.target.value;
 
-    // Fetch configuration data for Synthesizer
-    fetch(`/synthesizer/config`)
-      .then((response) => response.json())
-      .then((json) => {
+      setSelectedOption(newSelectedOption);
+
+      try {
+        const response = await fetch(`/${component.toLowerCase()}/${newSelectedOption.toLowerCase()}/config/default`);
+        const json = await response.json();
         console.log(json);
-        setSynthesizerConfig(json);
-      })
-      .catch((error) => {
-        console.error('Error fetching Synthesizer configuration:', error);
-      });
-  }, []);
-  
-  const CollapsibleSection = ({title, component, config}) => {
-    const [isExpanded, setIsExpanded] = useState(false);
-    const [newChanges, setNewChanges] = useState(false);
-    const [saveSuccessNotification, setSaveSuccessNotification] = useState(false);
-    
-    const handleInputChange = (fieldName, value) => {
-      // Update the state with the new input value
-      setTranscriberConfig((prevData) => ({
-        ...prevData,
-        [fieldName]: value,
-      }));
-      // Mark changes as unsaved
+        setConfig((prevData) => ({
+          ...prevData,
+          config: json,
+          algorithm: newSelectedOption,
+        }));
+      } catch (error) {
+        console.error(`Error fetching ${component} configuration:`, error);
+      }
       setNewChanges(true);
     };
 
-    const handleSaveChanges = (config) => {
-      fetch(`/${component}/config`, {
-        method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(config),
+    return (
+      <select
+        className='dropdown'
+        id="algorithmDropdown"
+        name="algorithmDropdown"
+        value={selectedOption}
+        onChange={handleOptionChange}
+        onClick={(e) => {
+          e.stopPropagation();
+        }}
+      >
+        {options.map((option, index) => (
+          <option key={index} value={option}>
+            {option}
+          </option>
+        ))}
+      </select>
+    );
+  };
+
+  const handleInputChange = (fieldName, value) => {
+    // Update the state with the new input value
+    setConfig((prevData) => ({
+      ...prevData,
+      config: {
+        ...prevData.config,
+        [fieldName]: value,
+      },
+    }));
+    // Mark changes as unsaved
+    setNewChanges(true);
+  };
+
+  const handleSaveChanges = () => {
+    fetch(`/${component}/config`, {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(config),
+    })
+      .then((response) => {
+        if (!response.ok) {
+          throw new Error(`HTTP error! Status: ${response.status}`);
+        }
+        return response.json();
       })
-        .then((response) => {
-          if (!response.ok) {
-            throw new Error(`HTTP error! Status: ${response.status}`);
-          }
-          return response.json();
-        })
-        .then((json) => {
-          setNewChanges(false);
-          console.log('Update successful:', json);
-          // Display notification for configuration saved
-          setSaveSuccessNotification(true);
-          setTimeout(() => {
-            setSaveSuccessNotification(false);
-          }, 3000);
-        });
-    };
-  
-    const toggleSection = () => {
-      setIsExpanded(!isExpanded);
-    };
+      .then((json) => {
+        setNewChanges(false);
+        console.log('Update successful:', json);
+        // Display notification for configuration saved
+        setSuccessNotification(`Saved ${capitalizeId(component)} Config`);
+        setTimeout(() => {
+          setSuccessNotification(null);
+        }, 3000);
 
-    const component_config = config.config;
+        setInfoNotification(`${capitalizeId(component)} Reload Required`);
+        setTimeout(() => {
+          setInfoNotification(null);
+        }, 3000);
+      });
+  };
 
-    console.log(component_config);
-    const editableFields = Object.entries(component_config).filter(([fieldName]) => (
-      fieldName !== 'id'));
+  const handleReload = () => {
+    // Call the reload API
+    fetch(`/${component}/reload`, {
+      method: 'POST',
+    })
+      .then((response) => {
+        if (!response.ok) {
+          throw new Error(`HTTP error! Status: ${response.status}`);
+        }
+        return response.json();
+      })
+      .then((json) => {
+        console.log('Reload successful');
+        setSuccessNotification(`${capitalizeId(component)} Reloaded`);
+        setTimeout(() => {
+          setSuccessNotification(null);
+        }, 3000);
+      })
+      .catch((error) => {
+        console.error(`Error reloading ${component} configuration:`, error);
+      });
+  };
 
-    console.log(editableFields);
+  const toggleSection = () => {
+    setIsExpanded(!isExpanded);
+  };
+
+  if (config && config.config) {
+    const componentConfig = config.config;
+    const editableFields = Object.entries(componentConfig).filter(([fieldName]) => fieldName !== 'id');
 
     return (
       <div className="collapsible-section">
         <div className="section-header" onClick={toggleSection}>
-          <h2>{title}</h2>
+          <h2>
+            {title}
+            <button className="reload-button" 
+              style={{ marginLeft: '10px' }} 
+              onClick={(e) => {
+                e.stopPropagation();
+                handleReload();
+              }}>
+              <i className="fas fa-sync"></i>
+            </button>
+            <span style={{ marginLeft: '10px' }}>
           {config && config.algorithm_options && (
-            <DropdownMenu options={config.algorithm_options} initialValue={config.algorithm} />
+            <DropdownMenu options={config.algorithm_options} initialValue={config.algorithm} component={component} />
           )}
+          </span>
+          </h2>
         </div>
         {isExpanded && (
           <div className="section-content">
-            <form style={{ paddingTop: "20px"}}>
+            <form style={{ paddingTop: '20px' }}>
               {editableFields.map(([fieldName, fieldValue], index) => {
                 const inputField = getFieldInput(fieldName, fieldValue, handleInputChange, editableFields);
-  
+
                 // Skip rendering for fields ending with "_options"
                 if (inputField === null) {
                   return null;
                 }
-  
+
                 return (
                   <div key={index} className="form-field">
                     <label htmlFor={fieldName}>{capitalizeId(fieldName)}</label>
@@ -127,63 +168,95 @@ function Settings() {
               >
                 Save Changes
               </button>
-              <div className="notification-container">
-                {saveSuccessNotification && (
-                  <div className="notification success-notification">{title} Config Saved</div>
-                )}
-              </div>
             </form>
           </div>
         )}
       </div>
     );
-  };
+  } else {
+    console.error('Config is undefined or missing required properties.');
+    return null; // or some fallback UI if needed
+  }
+};
 
-  const DropdownMenu = ({ options, initialValue }) => {
-    const [selectedOption, setSelectedOption] = useState(initialValue || '');
-  
-    const handleOptionChange = (e) => {
-      setSelectedOption(e.target.value);
-    };
-  
-    return (
-      <div className="dropdown-container">
-        <select
-          className='dropdown'
-          id="algorithmDropdown"
-          name="algorithmDropdown"
-          value={selectedOption}
-          onChange={handleOptionChange}
-          onClick={(e) => {
-            e.stopPropagation();
-          }}
-        >
-          <option value="">Select an option</option>
-          {options.map((option, index) => (
-            <option key={index} value={option}>
-              {option}
-            </option>
-          ))}
-        </select>
-      </div>
-    );
-  };
+function Settings() {
+  const [transcriberConfig, setTranscriberConfig] = useState({});
+  const [understanderConfig, setUnderstanderConfig] = useState({});
+  const [synthesizerConfig, setSynthesizerConfig] = useState({});
+  const [successNotification, setSuccessNotification] = useState(null);
+  const [infoNotification, setInfoNotification] = useState(null);
+
+  useEffect(() => {
+    // Initial fetch
+    console.log('Pulling config data')
+    // Fetch configuration data for Transcriber
+    fetch('/transcriber/config')
+      .then((response) => response.json())
+      .then((json) => {
+        console.log(json);
+        setTranscriberConfig(json);
+      })
+      .catch((error) => {
+        console.error('Error fetching data:', error);
+      });
+
+    // Fetch configuration data for Understander
+    fetch('/understander/config')
+      .then((response) => response.json())
+      .then((json) => {
+        console.log(json);
+        setUnderstanderConfig(json);
+      })
+      .catch((error) => {
+        console.error('Error fetching Understander configuration:', error);
+      });
+
+    // Fetch configuration data for Synthesizer
+    fetch('/synthesizer/config')
+      .then((response) => response.json())
+      .then((json) => {
+        console.log(json);
+        setSynthesizerConfig(json);
+      })
+      .catch((error) => {
+        console.error('Error fetching Synthesizer configuration:', error);
+      });
+  }, []);  
 
   return (
-    <div className="settings-container">
+    <div>
       <h1>Settings</h1>
-      <CollapsibleSection 
-            title="Transcriber" 
-            component="transcriber"
-            config={transcriberConfig}/>
-      <CollapsibleSection 
-            title="Understander" 
-            component="understander"
-            config={understanderConfig}/>
-      <CollapsibleSection 
-            title="Synthesizer" 
-            component="synthesizer"
-            config={synthesizerConfig}/>
+      <div className="settings-container">
+        <CollapsibleSection 
+              title="Transcriber" 
+              component="transcriber"
+              config={transcriberConfig}
+              setConfig={setTranscriberConfig}
+              setSuccessNotification={setSuccessNotification}
+              setInfoNotification={setInfoNotification}/>
+        <CollapsibleSection 
+              title="Understander" 
+              component="understander"
+              config={understanderConfig}
+              setConfig={setUnderstanderConfig}
+              setSuccessNotification={setSuccessNotification}
+              setInfoNotification={setInfoNotification}/>
+        <CollapsibleSection 
+              title="Synthesizer" 
+              component="synthesizer"
+              config={synthesizerConfig}
+              setConfig={setSynthesizerConfig}
+              setSuccessNotification={setSuccessNotification}
+              setInfoNotification={setInfoNotification}/>
+        <div className="notification-container">
+          {successNotification && (
+            <div className="notification success-notification">{successNotification}</div>
+          )}
+          {infoNotification && (
+            <div className="notification info-notification">{infoNotification}</div>
+          )}
+        </div>
+      </div>
     </div>
   );
 }

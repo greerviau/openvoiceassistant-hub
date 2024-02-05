@@ -9,6 +9,7 @@ from backend import config
 class Coqui:
 
     def __init__(self, ova: 'OpenVoiceAssistant'):
+        print("Loading Coqui Synthesizer")
         self.ova = ova
         model_name = config.get(Components.Synthesizer.value, 'config', 'model')
         gpu = config.get(Components.Synthesizer.value, 'config', 'use_gpu')

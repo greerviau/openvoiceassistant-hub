@@ -6,6 +6,7 @@ import { capitalizeId } from '../Utils';
 function ImportSkill() {
   const [data, setData] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [errorNotification, setErrorNotification] = useState(null);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -14,11 +15,17 @@ function ImportSkill() {
       .then((response) => response.json())
       .then((json) => {
         setData(json); // Convert object to array
-        setLoading(false); // Set loading to false when data is fetched
       })
       .catch((error) => {
         console.error('Error fetching not imported skills data:', error);
-        setLoading(false); // Set loading to false in case of an error
+        setErrorNotification(`${error.message}`);
+        // Clear the notification after a few seconds
+        setTimeout(() => {
+          setErrorNotification(null);
+        }, 5000);
+      })
+      .finally(() => {
+        setLoading(false);
       });
   }, []);
 
@@ -28,24 +35,31 @@ function ImportSkill() {
   };
 
   return (
-    <div className="list-container">
-      <h1 style={{ marginBottom: '30px' }}>Import Skills</h1>
-      <Link to="/skills" className="button-import">
-        Back
-      </Link>
+    <div>
+      <h1>Import Skills</h1>
+      <div className="list-container">
+        <Link to="/skills" className="import-button">
+          Back
+        </Link>
         <div style={{ marginTop: '20px' }}>
         {loading ? (
-            <p>Loading...</p>
+          <p>Loading...</p>
         ) : (
           <ul className="item-list" style={{ paddingTop: '10px' }}>
             {data.map((item, index) => (
-              <li key={index} onClick={() => handleItemClick(item)}>
-                {capitalizeId(item)}
+              <li className="list-item" key={index} onClick={() => handleItemClick(item)}>
+                <strong>{capitalizeId(item)}</strong>
               </li>
             ))}
           </ul>
         )}
         </div>
+        <div className="notification-container">
+          {errorNotification && (
+            <div className="notification error-notification">{errorNotification}</div>
+          )}
+        </div>
+      </div>
     </div>
   );
 }

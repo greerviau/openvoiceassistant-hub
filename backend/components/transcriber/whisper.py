@@ -7,6 +7,7 @@ from backend import config
 
 class Whisper:
     def __init__(self, ova: 'OpenVoiceAssistant'):
+        print("Loading Whisper Transcriber")
         self.ova = ova
         model_size = config.get(Components.Transcriber.value, 'config', 'model_size')
         gpu = config.get(Components.Transcriber.value, 'config', 'use_gpu')

@@ -1,14 +1,14 @@
 // Integration.jsx
 import React, { useState, useEffect } from 'react';
-import { useParams, useLocation } from 'react-router-dom';
+import { Link, useParams, useLocation } from 'react-router-dom';
 import { capitalizeId, getFieldInput} from '../Utils';
 
 function Integration() {
   const { integrationId } = useParams(); // Access the integrationId from URL params
   const location = useLocation();
   const [newChanges, setNewChanges] = useState(false);
-  const [saveSuccessNotification, setSaveSuccessNotification] = useState(false);
-  const [importSuccessNotification, setImportSuccessNotification] = useState(false);
+  const [successNotification, setSuccessNotification] = useState(null);
+  const [errorNotification, setErrorNotification] = useState(null);
   const [jsonData, setJsonData] = useState([]);
   const [importMode, setImportMode] = useState(false);
 
@@ -22,6 +22,11 @@ function Integration() {
       })
       .catch((error) => {
         console.error('Error fetching configuration data:', error);
+        setErrorNotification(`${error.message}`);
+        // Clear the notification after a few seconds
+        setTimeout(() => {
+          setErrorNotification(null);
+        }, 5000);
       });
   }, [integrationId]);
 
@@ -51,27 +56,29 @@ function Integration() {
       },
       body: JSON.stringify(jsonData),
     })
-      .then((response) => {
-        if (!response.ok) {
-          throw new Error(`HTTP error! Status: ${response.status}`);
-        }
-        return response.json();
-      })
       .then((json) => {
         setNewChanges(false);
         if (!importMode) {
           console.log('Update successful:', json);
           // Display notification for configuration saved
-          setSaveSuccessNotification(true);
+          setSuccessNotification(`${capitalizeId(integrationId)} Config Updated`);
           setTimeout(() => {
-            setSaveSuccessNotification(false);
+            setSuccessNotification(null);
           }, 3000);
         } else {
-          setImportSuccessNotification(true);
+          setSuccessNotification(`${capitalizeId(integrationId)} Imported`);
           setTimeout(() => {
-            setImportSuccessNotification(false);
+            setSuccessNotification(null);
           }, 3000);
         }
+      })
+      .catch((error) => {
+        console.error('Error fetching integrations data:', error);
+        setErrorNotification(`${error.message}`);
+        // Clear the notification after a few seconds
+        setTimeout(() => {
+          setErrorNotification(null);
+        }, 5000);
       });
   };
 
@@ -80,50 +87,56 @@ function Integration() {
   ));
 
   return (
-    <div className="integration-container">
+    <div>
       <h1>Edit Integration {capitalizeId(integrationId)}</h1>
-      <form style={{ paddingTop: "20px"}}>
-        {editableFields.map(([fieldName, fieldValue], index) => {
-          const inputField = getFieldInput(fieldName, fieldValue, handleInputChange, editableFields);
+      <div style={{ padding: "20px"}}>
+        <Link to="/skills" className="import-button">
+            Back
+        </Link>
+        <form style={{ paddingTop: "20px"}}>
+          {editableFields.map(([fieldName, fieldValue], index) => {
+            const inputField = getFieldInput(fieldName, fieldValue, handleInputChange, editableFields);
 
-          // Skip rendering for fields ending with "_options"
-          if (inputField === null) {
-            return null;
-          }
+            // Skip rendering for fields ending with "_options"
+            if (inputField === null) {
+              return null;
+            }
 
-          return (
-            <div key={index} className="form-field">
-              <label htmlFor={fieldName}>{capitalizeId(fieldName)}</label>
-              {inputField}
-            </div>
-          );
-        })}
-        {importMode ? (
-          <button 
-            type="button" 
-            className="info-button" 
-            onClick={handleSaveChanges}>
-            Import
-          </button>
-        ) : (
-          <button
-            type="button"
-            className={`save-button ${!newChanges ? 'disabled' : ''}`}
-            disabled={!newChanges}
-            onClick={handleSaveChanges}
-          >
-            Save Changes
-          </button>
-        )}
-        <div className="notification-container">
-          {saveSuccessNotification && (
-            <div className="notification success-notification">Configuration Saved</div>
+            return (
+              <div key={index} className="form-field">
+                <label htmlFor={fieldName}>{capitalizeId(fieldName)}</label>
+                {inputField}
+              </div>
+            );
+          })}
+          {importMode ? (
+            <button 
+              type="button" 
+              className={`import-button ${!newChanges ? 'disabled' : ''}`}
+              onClick={handleSaveChanges}
+              disabled={!newChanges}>
+              Import
+            </button>
+          ) : (
+            <button
+              type="button"
+              className={`save-button ${!newChanges ? 'disabled' : ''}`}
+              disabled={!newChanges}
+              onClick={handleSaveChanges}
+            >
+              Save Changes
+            </button>
           )}
-          {importSuccessNotification && (
-            <div className="notification info-notification">Integration Imported</div>
-          )}
-        </div>
-      </form>
+          <div className="notification-container">
+            {errorNotification && (
+              <div className="notification error-notification">{errorNotification}</div>
+            )}
+            {successNotification && (
+              <div className="notification success-notification">{successNotification}</div>
+            )}
+          </div>
+        </form>  
+      </div>
     </div>
   );
 }

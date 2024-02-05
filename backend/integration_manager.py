@@ -26,16 +26,17 @@ class IntegrationManager:
     @property
     def imported_integrations(self):
         return list(self.integrations.keys())
+    
+    def integration_imported(self, integration_id: str):
+        return integration_id in self.imported_integration_modules
 
-    def add_integration(self, integration_id: str):
-        if not self.integration_imported(integration_id):
-            self.__import_integration(integration_id, None)
-        else:
-            raise RuntimeError('Integration is already imported')
+    def integration_exists(self, integration_id: str):
+        return integration_id in self.available_integrations
 
     def remove_integration(self, integration_id: str):
         if self.integration_imported(integration_id):
             integration_config = self.integrations.pop(integration_id)
+            self.imported_integration_modules.pop(skill_id)
             self.imported_integrations.remove(integration_id)
             self.not_imported.append(integration_id)
             config.set("integrations", self.integrations)
@@ -43,15 +44,21 @@ class IntegrationManager:
         raise RuntimeError("Integration not imported")
 
     def update_integration_config(self, integration_id: str, integration_config: typing.Dict):
-        imported = self.integration_imported(integration_id)
-        self.__import_integration(integration_id, integration_config)
-        if not imported: self.not_imported.remove(integration_id)
+        if self.integration_exists(integration_id):
+            imported = self.integration_imported(integration_id)
+            self.__import_integration(integration_id, integration_config)
+            if not imported: self.not_imported.remove(integration_id)
+        else:
+            raise RuntimeError("Integration does not exist")
 
     def get_integration_config(self, integration_id: str) -> typing.Dict:
-        if self.integration_imported(integration_id):
-            return self.integrations[integration_id]
+        if self.integration_exists(integration_id):
+            if self.integration_imported(integration_id):
+                return self.integrations[integration_id]
+            else:
+                return self.get_default_integration_config(integration_id)
         else:
-            return self.get_default_integration_config(integration_id)
+            raise RuntimeError('Integration does not exist')
 
     def get_default_integration_config(self, integration_id: str) -> typing.Dict:
         if self.integration_exists(integration_id):
@@ -59,12 +66,6 @@ class IntegrationManager:
             return module.default_config()
         else:
             raise RuntimeError('Integration does not exist')
-
-    def integration_imported(self, integration_id: str):
-        return integration_id in self.imported_integration_modules
-
-    def integration_exists(self, integration_id: str):
-        return integration_id in self.available_integrations
     
     def get_integration_module(self, integration_id: str):
         if self.integration_imported(integration_id):

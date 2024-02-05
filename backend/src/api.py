@@ -19,7 +19,7 @@ def create_app(ova: OpenVoiceAssistant):
     async def index():
         return {"is_ova": True}
     
-    @router.get('/config', tags=["Config"])
+    @router.get('/config', tags=["Core"])
     async def get_config():
         c = config.get()
         if c:
@@ -30,7 +30,7 @@ def create_app(ova: OpenVoiceAssistant):
                         detail='no config',
                         headers={'X-Error': 'Could not find OVA config'})
         
-    @router.get('/config/default', tags=["Config"])
+    @router.get('/config/default', tags=["Core"])
     async def get_config():
         c = config.DEFAULT_CONFIG
         if c:
@@ -41,7 +41,27 @@ def create_app(ova: OpenVoiceAssistant):
                         detail='no config',
                         headers={'X-Error': 'Could not find OVA default config'})
 
+    @router.post('/restart', tags=["Core"])
+    async def restart():
+        if ova:
+            ova.restart()
+        else:
+            raise fastapi.HTTPException(
+                        status_code=400,
+                        detail='no config',
+                        headers={'X-Error': 'OVA not initialized'})               
+
     # TRANSCRIBER
+
+    @router.post('/transcriber/reload', tags=["Transcriber"])
+    async def reload_transcriber():
+        if ova:
+            ova.launch_component(Components.Transcriber)
+        else:
+            raise fastapi.HTTPException(
+                        status_code=400,
+                        detail='Failed to reload Transcriber',
+                        headers={'X-Error': 'Failed to reload Transcriber'})
 
     @router.get('/transcriber/config', tags=["Transcriber"])
     async def get_transcriber_config():
@@ -105,6 +125,16 @@ def create_app(ova: OpenVoiceAssistant):
         
     # UNDERSTANDER
 
+    @router.post('/understander/reload', tags=["Understander"])
+    async def reload_understander():
+        if ova:
+            ova.launch_component(Components.Understander)
+        else:
+            raise fastapi.HTTPException(
+                        status_code=400,
+                        detail='Failed to reload Understander',
+                        headers={'X-Error': 'Failed to reload Understander'})
+
     @router.get('/understander/config', tags=["Understander"])
     async def get_understander_config():
         component_config = config.get('understander')
@@ -158,6 +188,16 @@ def create_app(ova: OpenVoiceAssistant):
         return context
     
     # SYNTHESIZER
+
+    @router.post('/synthesizer/reload', tags=["Synthesizer"])
+    async def reload_synthesizer():
+        if ova:
+            ova.launch_component(Components.Synthesizer)
+        else:
+            raise fastapi.HTTPException(
+                        status_code=400,
+                        detail='Failed to reload Synthesizer',
+                        headers={'X-Error': 'Failed to reload Synthesizer'})
 
     @router.get('/synthesizer/config', tags=["Synthesizer"])
     async def get_synthesizer_config():
@@ -274,7 +314,7 @@ def create_app(ova: OpenVoiceAssistant):
                         detail='No config provided',
                         headers={'X-Error': 'No config provided'})
         try:
-            ova.node_manager.update_node_config(node_id, jsonable_encoder(node_config))
+            return ova.node_manager.update_node_config(node_id, jsonable_encoder(node_config))
         except Exception as err:
             print(repr(err))
             raise fastapi.HTTPException(
@@ -290,8 +330,7 @@ def create_app(ova: OpenVoiceAssistant):
                         detail='No config provided',
                         headers={'X-Error': 'No config provided'})
         try:
-            sync_node_config = ova.node_manager.update_node_config(node_id, jsonable_encoder(node_config))
-            return sync_node_config
+            return ova.node_manager.update_node_config(node_id, jsonable_encoder(node_config))
         
         except Exception as err:
             print(repr(err))
@@ -309,11 +348,11 @@ def create_app(ova: OpenVoiceAssistant):
                         headers={'X-Error': 'No config provided'})
         try:
             if not ova.node_manager.node_exists(node_id):
-                ova.node_manager.update_node_config(node_id, jsonable_encoder(node_config))
-            sync_node_config = ova.node_manager.get_node_config(node_id)
-            sync_node_config["restart_required"] = False
-            ova.node_manager.update_node_config(node_id, sync_node_config)
-            return sync_node_config
+                return ova.node_manager.update_node_config(node_id, jsonable_encoder(node_config))
+            else:
+                sync_node_config = ova.node_manager.get_node_config(node_id)
+                sync_node_config["restart_required"] = False
+                return ova.node_manager.update_node_config(node_id, sync_node_config)
         
         except Exception as err:
             print(repr(err))
@@ -325,13 +364,7 @@ def create_app(ova: OpenVoiceAssistant):
     @router.get('/node/{node_id}/hardware', tags=["Nodes"])
     async def get_hardware(node_id: str):
         try:
-            if ova.node_manager.node_exists(node_id):
-                return ova.node_manager.get_node_hardware(node_id)
-            else:
-                raise fastapi.HTTPException(
-                        status_code=400,
-                        detail='Node does not exist',
-                        headers={'X-Error': 'Node does not exist'})
+            return ova.node_manager.get_node_hardware(node_id)
         except RuntimeError as err:
             print(repr(err))
             raise fastapi.HTTPException(
@@ -342,13 +375,7 @@ def create_app(ova: OpenVoiceAssistant):
     @router.get('/node/{node_id}/wake_words', tags=["Nodes"])
     async def get_node_wake_words(node_id: str):
         try:
-            if ova.node_manager.node_exists(node_id):
-                return ova.node_manager.get_node_wake_words(node_id)
-            else:
-                raise fastapi.HTTPException(
-                        status_code=400,
-                        detail='Node does not exist',
-                        headers={'X-Error': 'Node does not exist'})
+            return ova.node_manager.get_node_wake_words(node_id)
         except RuntimeError as err:
             print(repr(err))
             raise fastapi.HTTPException(
@@ -359,14 +386,7 @@ def create_app(ova: OpenVoiceAssistant):
     @router.delete('/node/{node_id}', tags=["Nodes"])
     async def remove_node(node_id: str):
         try:
-            if ova.node_manager.node_exists(node_id):
-                node_config = ova.node_manager.remove_node(node_id)
-                return node_config
-            else:
-                raise fastapi.HTTPException(
-                        status_code=400,
-                        detail='Node does not exist',
-                        headers={'X-Error': 'Node does not exist'})
+            return ova.node_manager.remove_node(node_id)
         except RuntimeError as err:
             print(repr(err))
             raise fastapi.HTTPException(
@@ -377,13 +397,7 @@ def create_app(ova: OpenVoiceAssistant):
     @router.post('/node/{node_id}/restart', tags=["Nodes"])
     async def restart_node(node_id: str):
         try:
-            if ova.node_manager.node_exists(node_id):
-                ova.node_manager.restart_node(node_id)
-            else:
-                raise fastapi.HTTPException(
-                        status_code=400,
-                        detail='Node does not exist',
-                        headers={'X-Error': 'Node does not exist'})
+            ova.node_manager.restart_node(node_id)
         except RuntimeError as err:
             print(repr(err))
             raise fastapi.HTTPException(
@@ -481,7 +495,7 @@ def create_app(ova: OpenVoiceAssistant):
     @router.post('/skills/{skill_id}', tags=["Skills"])
     async def post_skill(skill_id: str):
         try:
-            ova.skill_manager.add_skill(skill_id)
+            return ova.skill_manager.update_skill_config(skill_id, None)
         except RuntimeError as err:
             print(repr(err))
             raise fastapi.HTTPException(
@@ -492,14 +506,7 @@ def create_app(ova: OpenVoiceAssistant):
     @router.delete('/skills/{skill_id}', tags=["Skills"])
     async def remove_skill(skill_id: str):
         try:
-            if ova.skill_manager.skill_imported(skill_id):
-                skill_config = ova.skill_manager.remove_skill(skill_id)
-                return skill_config
-            else:
-                raise fastapi.HTTPException(
-                        status_code=400,
-                        detail='Skill is not imported',
-                        headers={'X-Error': 'Skill is not imported'})
+            return ova.skill_manager.remove_skill(skill_id)
         except RuntimeError as err:
             print(repr(err))
             raise fastapi.HTTPException(
@@ -510,7 +517,7 @@ def create_app(ova: OpenVoiceAssistant):
     @router.put('/skills/{skill_id}/config', tags=["Skills"])
     async def put_skill_config(skill_id: str, skill_config: typing.Dict):
         try:
-            ova.skill_manager.update_skill_config(skill_id, skill_config)
+            return ova.skill_manager.update_skill_config(skill_id, skill_config)
         except RuntimeError as err:
             print(repr(err))
             raise fastapi.HTTPException(
@@ -578,7 +585,7 @@ def create_app(ova: OpenVoiceAssistant):
     @router.post('/integrations/{integration_id}', tags=["Integrations"])
     async def post_integration(integration_id: str):
         try:
-            ova.integration_manager.add_integration(integration_id)
+            return ova.integration_manager.update_integration_config(integration_id, None)
         except RuntimeError as err:
             print(repr(err))
             raise fastapi.HTTPException(
@@ -589,14 +596,7 @@ def create_app(ova: OpenVoiceAssistant):
     @router.delete('/integrations/{integration_id}', tags=["Integrations"])
     async def remove_integration(integration_id: str):
         try:
-            if ova.integration_manager.integration_imported(integration_id):
-                integration_config = ova.integration_manager.remove_integration(integration_id)
-                return integration_config
-            else:
-                raise fastapi.HTTPException(
-                        status_code=400,
-                        detail='Integration is not imported',
-                        headers={'X-Error': 'Integration is not imported'})
+            return ova.integration_manager.remove_integration(integration_id)
         except RuntimeError as err:
             print(repr(err))
             raise fastapi.HTTPException(
@@ -607,7 +607,7 @@ def create_app(ova: OpenVoiceAssistant):
     @router.put('/integrations/{integration_id}/config', tags=["Integrations"])
     async def put_integration_config(integration_id: str, integration_config: typing.Dict):
         try:
-            ova.integration_manager.update_integration_config(integration_id, integration_config)
+            return ova.integration_manager.update_integration_config(integration_id, integration_config)
         except RuntimeError as err:
             print(repr(err))
             raise fastapi.HTTPException(

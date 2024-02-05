@@ -1,14 +1,15 @@
 // Skill.jsx
 import React, { useState, useEffect } from 'react';
-import { useParams, useLocation } from 'react-router-dom';
+import { Link, useParams, useLocation } from 'react-router-dom';
 import { capitalizeId, getFieldInput} from '../Utils';
 
 function Skill() {
   const { skillId } = useParams(); // Access the skillId from URL params
   const location = useLocation();
   const [newChanges, setNewChanges] = useState(false);
-  const [saveSuccessNotification, setSaveSuccessNotification] = useState(false);
-  const [importSuccessNotification, setImportSuccessNotification] = useState(false);
+  const [successNotification, setSuccessNotification] = useState(null);
+  const [infoNotification, setInfoNotification] = useState(null);
+  const [errorNotification, setErrorNotification] = useState(null);
   const [jsonData, setJsonData] = useState([]);
   const [importMode, setImportMode] = useState(false);
 
@@ -22,6 +23,11 @@ function Skill() {
       })
       .catch((error) => {
         console.error('Error fetching configuration data:', error);
+        setErrorNotification(`${error.message}`);
+        // Clear the notification after a few seconds
+        setTimeout(() => {
+          setErrorNotification(null);
+        }, 5000);
       });
   }, [skillId]);
 
@@ -29,6 +35,7 @@ function Skill() {
     // Check if import mode is true
     if (location.state && location.state.import) {
       setImportMode(true);
+      setNewChanges(true);
     }
   }, [location.state]);
 
@@ -51,28 +58,34 @@ function Skill() {
       },
       body: JSON.stringify(jsonData),
     })
-      .then((response) => {
-        if (!response.ok) {
-          throw new Error(`HTTP error! Status: ${response.status}`);
-        }
-        return response.json();
-      })
-      .then((json) => {
-        setNewChanges(false);
-        if (!importMode) {
-          console.log('Update successful:', json);
-          // Display notification for configuration saved
-          setSaveSuccessNotification(true);
-          setTimeout(() => {
-            setSaveSuccessNotification(false);
-          }, 3000);
-        } else {
-          setImportSuccessNotification(true);
-          setTimeout(() => {
-            setImportSuccessNotification(false);
-          }, 3000);
-        }
-      });
+    .then((json) => {
+      setNewChanges(false);
+      if (!importMode) {
+        console.log('Update successful:', json);
+        // Display notification for configuration saved
+        setSuccessNotification(`${capitalizeId(skillId)} Config Updated`);
+        setTimeout(() => {
+          setSuccessNotification(null);
+        }, 3000);
+      } else {
+        setSuccessNotification(`${capitalizeId(skillId)} Imported`);
+        setTimeout(() => {
+          setSuccessNotification(null);
+        }, 3000);
+        setInfoNotification('Understander Restart Required');
+        setTimeout(() => {
+          setInfoNotification(null);
+        }, 3000);
+      }
+    })
+    .catch((error) => {
+      console.error('Error fetching integrations data:', error);
+      setErrorNotification(`${error.message}`);
+      // Clear the notification after a few seconds
+      setTimeout(() => {
+        setErrorNotification(null);
+      }, 5000);
+    });
   };
 
   const editableFields = Object.entries(jsonData).filter(([fieldName]) => (
@@ -80,50 +93,59 @@ function Skill() {
   ));
 
   return (
-    <div className="skill-container">
+    <div>
       <h1>Edit {capitalizeId(skillId)}</h1>
-      <form style={{ paddingTop: "20px"}}>
-        {editableFields.map(([fieldName, fieldValue], index) => {
-          const inputField = getFieldInput(fieldName, fieldValue, handleInputChange, editableFields);
+      <div style={{ padding: "20px"}}>
+        <Link to="/skills" className="import-button">
+          Back
+        </Link>
+        <form style={{ paddingTop: "20px"}}>
+          {editableFields.map(([fieldName, fieldValue], index) => {
+            const inputField = getFieldInput(fieldName, fieldValue, handleInputChange, editableFields);
 
-          // Skip rendering for fields ending with "_options"
-          if (inputField === null) {
-            return null;
-          }
+            // Skip rendering for fields ending with "_options"
+            if (inputField === null) {
+              return null;
+            }
 
-          return (
-            <div key={index} className="form-field">
-              <label htmlFor={fieldName}>{capitalizeId(fieldName)}</label>
-              {inputField}
-            </div>
-          );
-        })}
-        {importMode ? (
-          <button 
-            type="button" 
-            className="info-button" 
-            onClick={handleSaveChanges}>
-            Import
-          </button>
-        ) : (
-          <button
-            type="button"
-            className={`save-button ${!newChanges ? 'disabled' : ''}`}
-            disabled={!newChanges}
-            onClick={handleSaveChanges}
-          >
-            Save Changes
-          </button>
-        )}
-        <div className="notification-container">
-          {saveSuccessNotification && (
-            <div className="notification success-notification">Configuration Saved</div>
+            return (
+              <div key={index} className="form-field">
+                <label htmlFor={fieldName}>{capitalizeId(fieldName)}</label>
+                {inputField}
+              </div>
+            );
+          })}
+          {importMode ? (
+            <button 
+              type="button" 
+              className={`import-button ${!newChanges ? 'disabled' : ''}`}
+              onClick={handleSaveChanges}
+              disabled={!newChanges}>
+              Import
+            </button>
+          ) : (
+            <button
+              type="button"
+              className={`save-button ${!newChanges ? 'disabled' : ''}`}
+              disabled={!newChanges}
+              onClick={handleSaveChanges}
+            >
+              Save Changes
+            </button>
           )}
-          {importSuccessNotification && (
-            <div className="notification info-notification">Skill Imported</div>
-          )}
-        </div>
-      </form>
+          <div className="notification-container">
+            {errorNotification && (
+              <div className="notification error-notification">{errorNotification}</div>
+            )}
+            {successNotification && (
+              <div className="notification success-notification">{successNotification}</div>
+            )}
+            {infoNotification && (
+              <div className="notification info-notification">{infoNotification}</div>
+            )}
+          </div>
+        </form>
+      </div>        
     </div>
   );
 }

@@ -11,6 +11,7 @@ from backend import config
 class Espeak:
 
     def __init__(self, ova: 'OpenVoiceAssistant'):
+        print("Loading Espeak Synthesizer")
         self.ova = ova
 
     def synthesize(self, context: Context):

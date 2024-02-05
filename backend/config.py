@@ -8,25 +8,25 @@ from backend.skills.default import default_config
 DEFAULT_CONFIG = {
         "engage_delay": 30,
         Components.Transcriber.value: {
-            "algorithm": "Kaldi",
+            "algorithm": "kaldi",
             "algorithm_options": [
-                "Kaldi", 
-                "Whisper"
+                "kaldi", 
+                "whisper"
             ]
         },
         Components.Understander.value: {
-            "algorithm": "Rapid Fuzz",
+            "algorithm": "rapid_fuzz",
             "algorithm_options": [
-                "Rapid Fuzz",
-                "Neural Intent"
+                "rapid_fuzz",
+                "neural_intent"
             ]
         },
         Components.Synthesizer.value: {
-            "algorithm": "Espeak",
+            "algorithm": "espeak",
             "algorithm_options": [
-                "Espeak",
-                "Coqui",
-                "Piper"
+                "espeak",
+                "coqui",
+                "piper"
             ]
         },
         "nodes": {},
@@ -67,7 +67,7 @@ def config_exists():
 
 def save_config():
     global config, config_path
-    print('Config saved')
+    #print('Config saved')
     with open(config_path, 'w') as config_file:
         config_file.write(json.dumps(config, indent=4))
 

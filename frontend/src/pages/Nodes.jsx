@@ -8,6 +8,8 @@ function Nodes() {
   const [refreshing, setRefreshing] = useState(false);
   const [restarting, setRestarting] = useState(false);
   const [identifying, setIdentifying] = useState(false);
+  const [successNotification, setSuccessNotification] = useState(null);
+  const [errorNotification, setErrorNotification] = useState(null);
   const navigate = useNavigate();
 
   const fetchData = () => {
@@ -18,11 +20,17 @@ function Nodes() {
       .then((json) => {
         console.log(json);
         setData(json);
-        setRefreshing(false); // Set loading to false when data is fetched
       })
       .catch((error) => {
         console.error('Error fetching data:', error);
-        setRefreshing(false); // Set loading to false in case of an error
+        setErrorNotification(`${error.message}`);
+        // Clear the notification after a few seconds
+        setTimeout(() => {
+          setErrorNotification(null);
+        }, 5000);
+      })
+      .finally(() => {
+        setRefreshing(false);
       });
   };
 
@@ -31,11 +39,6 @@ function Nodes() {
     setLoading(true);
     fetchData();
     setLoading(false);
-  }, []);
-
-  useEffect(() => {
-    // Initial fetch
-    fetchData();
 
     // Fetch data every minute (60,000 milliseconds)
     const intervalId = setInterval(fetchData, 60000);
@@ -51,10 +54,7 @@ function Nodes() {
     navigate(`/node/${id}`, { state: { jsonData: selectedData } });
   };
 
-  const handleRestartClick = (id, event) => {
-    // Stop the event from propagating to the list item's click event
-    event.stopPropagation();
-  
+  const handleRestartClick = (id, name) => {
     // Set loading state to true for the corresponding item
     setRestarting(true);
   
@@ -70,24 +70,22 @@ function Nodes() {
       })
       .then((json) => {
         console.log(`Node with ID ${id} restarted:`, json);
-  
-        // Refetch data from the /node/status API after a successful restart
-        fetch('/node/status')
-          .then((response) => response.json())
-          .then((json) => {
-            setData(json);
-          })
-          .catch((error) => {
-            console.error('Error refetching data:', error);
-          })
-          .finally(() => {
-            // Remove loading state for the corresponding item
-            setRestarting(false);
-          });
+        setSuccessNotification(`${name} Restarted`);
+        // Clear the notification after a few seconds
+        setTimeout(() => {
+          setSuccessNotification(null);
+        }, 3000);
+        fetchData();
       })
       .catch((error) => {
         console.error(`Error restarting node with ID ${id}:`, error);
-        // Remove loading state for the corresponding item on failure
+        setErrorNotification(`${error.message}`);
+        // Clear the notification after a few seconds
+        setTimeout(() => {
+          setErrorNotification(null);
+        }, 5000);
+      })
+      .finally(() => {
         setRestarting(false);
       });
   };
@@ -115,12 +113,18 @@ function Nodes() {
       })
       .then((json) => {
         console.log('Node identified:', json);
-        setIdentifying(false)
         // Add any additional logic you need after successful identification
       })
       .catch((error) => {
         console.error('Error identifying node:', error);
+        setErrorNotification(`${error.message}`);
+        // Clear the notification after a few seconds
+        setTimeout(() => {
+          setErrorNotification(null);
+        }, 5000);
         // Handle the error, if needed
+        
+      }).finally(() => {
         setIdentifying(false);
       });
   };
@@ -136,6 +140,11 @@ function Nodes() {
           if (response.ok) {
             console.log(`${name} successfully deleted.`);
             // Add any additional logic or update UI as needed
+            setSuccessNotification(`${name} Deleted`);
+            // Clear the notification after a few seconds
+            setTimeout(() => {
+              setSuccessNotification(null);
+            }, 3000);
             fetchData();
           } else {
             console.error(`Failed to delete ${name}.`);
@@ -144,6 +153,11 @@ function Nodes() {
         })
         .catch((error) => {
           console.error('Error deleting node:', error);
+          setErrorNotification(`${error.message}`);
+          // Clear the notification after a few seconds
+          setTimeout(() => {
+            setErrorNotification(null);
+          }, 5000);
         });
     } else {
       // User canceled the deletion
@@ -157,9 +171,8 @@ function Nodes() {
       <div className="list-container">
         <button
           onClick={handleRefreshClick}
-          className={`info-button ${refreshing ? 'disabled' : ''}`}
+          className={`import-button ${refreshing ? 'disabled' : ''}`}
           disabled={refreshing}
-          style={{ marginBottom: '10px' }}
         >
           {refreshing ? 'Refreshing...' : 'Refresh'}
         </button>
@@ -189,7 +202,10 @@ function Nodes() {
                   {item.restart_required && item.status === 'online' && (
                     <button
                       className={`info-button ${restarting ? 'disabled' : ''}`}
-                      onClick={(event) => handleRestartClick(item.id, event)}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleRestartClick(item.id, item.name);
+                      }}
                       disabled={restarting}
                     >
                       {restarting ? 'Restarting...' : 'Restart'}
@@ -210,6 +226,14 @@ function Nodes() {
               </li>
             ))}
           </ul>
+        )}
+      </div>
+      <div className="notification-container">
+        {errorNotification && (
+          <div className="notification error-notification">{errorNotification}</div>
+        )}
+        {successNotification && (
+          <div className="notification success-notification">{successNotification}</div>
         )}
       </div>
     </div>

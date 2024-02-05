@@ -1,15 +1,13 @@
 // Integrations.jsx
 import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
-
-function capitalizeId(inputString) {
-  inputString = inputString.replace(/_/g, ' ');
-  return inputString.replace(/\b\w/g, match => match.toUpperCase());
-}
+import { Link, useNavigate } from 'react-router-dom';
+import { capitalizeId } from '../Utils';
 
 function Integrations() {
   const [data, setData] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [successNotification, setSuccessNotification] = useState(null);
+  const [errorNotification, setErrorNotification] = useState(null);
   const navigate = useNavigate();
 
   const fetchData = () => {
@@ -19,11 +17,17 @@ function Integrations() {
       .then((response) => response.json())
       .then((json) => {
         setData(json); // Convert object to an array of key-value pairs
-        setLoading(false); // Set loading to false when data is fetched
       })
       .catch((error) => {
         console.error('Error fetching integrations data:', error);
-        setLoading(false); // Set loading to false in case of an error
+        setErrorNotification(`${error.message}`);
+        // Clear the notification after a few seconds
+        setTimeout(() => {
+          setErrorNotification(null);
+        }, 5000);
+      })
+      .finally(() => {
+        setLoading(false);
       });
   };
 
@@ -37,11 +41,6 @@ function Integrations() {
     navigate(`/integration/${encodeURIComponent(item.toLowerCase())}`, { state: { jsonData: item[1] } });
   };
 
-  const handleImportNewIntegration = () => {
-    // Navigate to the ImportIntegration page
-    navigate('/import-integration');
-  };
-
   const handleDeleteClick = (item) => {
     const confirmation = window.confirm(`Are you sure you want to delete ${capitalizeId(item)}?`);
     if (confirmation) {
@@ -49,19 +48,24 @@ function Integrations() {
       fetch(`/integrations/${encodeURIComponent(item.toLowerCase())}`, {
         method: 'DELETE',
       })
-        .then((response) => {
-          if (response.ok) {
-            console.log(`Integration ${capitalizeId(item)} successfully deleted.`);
-            // Add any additional logic or update UI as needed
-            fetchData();
-          } else {
-            console.error(`Failed to delete integration ${capitalizeId(item)}.`);
-            // Handle error or update UI accordingly
-          }
-        })
-        .catch((error) => {
-          console.error('Error deleting integration:', error);
-        });
+      .then(() => {
+        console.log(`Integration ${capitalizeId(item)} successfully deleted.`);
+        setSuccessNotification(`${capitalizeId(item)} Deleted`);
+        // Clear the notification after a few seconds
+        setTimeout(() => {
+          setSuccessNotification(null);
+        }, 3000);
+        // Add any additional logic or update UI as needed
+        fetchData();
+      })
+      .catch((error) => {
+        console.error('Error deleting integration:', error);
+        setErrorNotification(`${error.message}`);
+        // Clear the notification after a few seconds
+        setTimeout(() => {
+          setErrorNotification(null);
+        }, 5000);
+      });
     } else {
       // User canceled the deletion
       console.log(`Deletion of ${capitalizeId(item)} canceled.`);
@@ -72,13 +76,10 @@ function Integrations() {
     <div>
       <h1>Integrations</h1>
       <div className="list-container">
-        <button
-          className="button-import"
-          onClick={handleImportNewIntegration}
-          style={{ marginTop: '10px' }}
-        >
+      <Link to="/import-integration" className="import-button">
           + Import Integration
-        </button>
+      </Link>
+      <div style={{ marginTop: '20px' }}>
         {loading ? (
           <p>Loading...</p>
         ) : (
@@ -87,7 +88,7 @@ function Integrations() {
             <ul className="item-list" style={{ paddingTop: '10px' }}>
               {data.map((item, index) => (
                 <li key={index} className="list-item" onClick={() => handleItemClick(item)}>
-                  <span>{capitalizeId(item)}</span>
+                  <span><strong>{capitalizeId(item)}</strong></span>
                   {item !== 'default' && (
                   <button
                     className="delete-button"
@@ -103,6 +104,15 @@ function Integrations() {
               ))}
             </ul>
           </div>
+          )}
+        </div>
+      </div>
+      <div className="notification-container">
+        {errorNotification && (
+          <div className="notification error-notification">{errorNotification}</div>
+        )}
+        {successNotification && (
+          <div className="notification success-notification">{successNotification}</div>
         )}
       </div>
     </div>

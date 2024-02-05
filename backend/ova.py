@@ -29,12 +29,17 @@ class OpenVoiceAssistant:
         
         os.makedirs(self.model_dump, exist_ok = True)
         os.makedirs(self.file_dump, exist_ok = True)
-    
+
+        self.restart()  
+
+    def restart(self):
+        self.load_managers()
+        self.launch_all_components()
+
+    def load_managers(self):
         self.node_manager = NodeManager(self)
         self.integration_manager = IntegrationManager(self)
         self.skill_manager = SkillManager(self)
-        
-        self.launch_all_components()    
 
     def component_exists(self, component_id: Components):
         return component_id in self.components

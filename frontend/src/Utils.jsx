@@ -19,14 +19,13 @@ export const getFieldInput = (fieldName, fieldValue, handleInputChange, json) =>
     );
   
     if (matchingOptionsField) {
-      const baseFieldName = fieldName;
       return (
         <select
           className="dropdown"
-          id={baseFieldName}
-          name={baseFieldName}
-          value={json[baseFieldName]}
-          onChange={(e) => handleInputChange(baseFieldName, e.target.value)}
+          id={fieldName}
+          name={fieldName}
+          value={fieldValue}
+          onChange={(e) => handleInputChange(fieldName, e.target.value)}
         >
           {matchingOptionsField[1].map((option, index) => (
             <option key={index} value={option}>

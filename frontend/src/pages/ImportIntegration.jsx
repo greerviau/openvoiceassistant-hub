@@ -1,28 +1,31 @@
 // ImportIntegration.jsx
 import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-
-function capitalizeId(inputString) {
-    inputString = inputString.replace(/_/g, ' ');
-    return inputString.replace(/\b\w/g, match => match.toUpperCase());
-}
+import { capitalizeId } from '../Utils';
 
 function ImportIntegration() {
   const [data, setData] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [errorNotification, setErrorNotification] = useState(null);
   const navigate = useNavigate();
 
   useEffect(() => {
-    // Fetch data from the /integrations/not_imported API endpoint
+    // Fetch data from the /skills/not_imported API endpoint
     fetch('/integrations/not_imported')
       .then((response) => response.json())
       .then((json) => {
         setData(json); // Convert object to array
-        setLoading(false); // Set loading to false when data is fetched
       })
       .catch((error) => {
         console.error('Error fetching not imported integrations data:', error);
-        setLoading(false); // Set loading to false in case of an error
+        setErrorNotification(`${error.message}`);
+        // Clear the notification after a few seconds
+        setTimeout(() => {
+          setErrorNotification(null);
+        }, 5000);
+      })
+      .finally(() => {
+        setLoading(false);
       });
   }, []);
 
@@ -32,25 +35,31 @@ function ImportIntegration() {
   };
 
   return (
-    <div className="list-container">
-      <h1 style={{ marginBottom: '30px' }}>Import Integrations</h1>
-      <Link to="/integrations" 
-            className="button-import">
-        Back
-      </Link>
+    <div>
+      <h1>Import Integrations</h1>
+      <div className="list-container">
+        <Link to="/integrations" className="import-button">
+          Back
+        </Link>
         <div style={{ marginTop: '20px' }}>
         {loading ? (
-        <p>Loading...</p>
-      ) : (
+          <p>Loading...</p>
+        ) : (
           <ul className="item-list" style={{ paddingTop: '10px' }}>
             {data.map((item, index) => (
-              <li key={index} onClick={() => handleItemClick(item)}>
-                {capitalizeId(item)}
+              <li className="list-item" key={index} onClick={() => handleItemClick(item)}>
+                <strong>{capitalizeId(item)}</strong>
               </li>
             ))}
           </ul>
           )}
         </div>
+        <div className="notification-container">
+          {errorNotification && (
+            <div className="notification error-notification">{errorNotification}</div>
+          )}
+        </div>
+      </div>
     </div>
   );
 }

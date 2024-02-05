@@ -27,30 +27,37 @@ class SkillManager:
     def imported_skills(self):
         return list(self.skills.keys())
 
-    def add_skill(self, skill_id: str):
-        if not self.skill_imported(skill_id):
-            self.__import_skill(skill_id, None)
-        else:
-            raise RuntimeError('Skill is already imported')
+    def skill_imported(self, skill_id: str):
+        return skill_id in self.imported_skill_modules
+
+    def skill_exists(self, skill_id: str):
+        return skill_id in self.available_skills
 
     def remove_skill(self, skill_id: str):
         if self.skill_imported(skill_id):
             skill_config = self.skills.pop(skill_id)
+            self.imported_skill_modules.pop(skill_id)
             self.not_imported.append(skill_id)
             config.set("skills", self.skills)
             return skill_config
         raise RuntimeError("Skill not imported")
 
     def update_skill_config(self, skill_id: str, skill_config: typing.Dict):
-        imported = self.skill_imported(skill_id)
-        self.__import_skill(skill_id, skill_config)
-        if not imported: self.not_imported.remove(skill_id)
+        if self.skill_exists(skill_id):
+            imported = self.skill_imported(skill_id)
+            self.__import_skill(skill_id, skill_config)
+            if not imported: self.not_imported.remove(skill_id)
+        else:
+            raise RuntimeError("Skill does not exist")
         
     def get_skill_config(self, skill_id: str) -> typing.Dict:
-        if self.skill_imported(skill_id):
-            return self.skills[skill_id]
+        if self.skill_exists(skill_id):
+            if self.skill_imported(skill_id):
+                return self.skills[skill_id]
+            else:
+                return self.get_default_skill_config(skill_id)
         else:
-            return self.get_default_skill_config(skill_id)
+            raise RuntimeError('Skill does not exist')
 
     def get_default_skill_config(self, skill_id: str) -> typing.Dict:
         if self.skill_exists(skill_id):
@@ -58,16 +65,12 @@ class SkillManager:
             return module.default_config()
         else:
             raise RuntimeError('Skill does not exist')
-
-    def skill_imported(self, skill_id: str):
-        return skill_id in self.imported_skill_modules
-
-    def skill_exists(self, skill_id: str):
-        return skill_id in self.available_skills
     
     def get_skill_module(self, skill_id: str):
         if self.skill_imported(skill_id):
             return self.imported_skill_modules[skill_id]
+        else:
+            raise RuntimeError("Skill is not imported")
         
     def get_skill_intents(self, skill_id: str):
         if self.skill_exists(skill_id):

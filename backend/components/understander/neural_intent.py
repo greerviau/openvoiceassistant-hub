@@ -32,19 +32,19 @@ def pad_sequence(encoded, seq_length):
 class NeuralIntent:
 
     def __init__(self, ova: 'OpenVoiceAssistant', intents: typing.Dict):
-        embedding_dim = 100
-        hidden_dim = 32
-
+        print("Loading Neural Intent Classifier")
         self.ova = ova
         model_dump = self.ova.model_dump
 
-        print('Loading classifier')
+        embedding_dim = 100
+        hidden_dim = 32
+
         model_file = os.path.join(model_dump, 'neural_intent_model.pt')
         vocab_file = os.path.join(model_dump, 'neural_intent_vocab.p')
 
         x, y, self.max_length = load_training_data(intents)
         labels = list(set(y))
-        print(labels)
+        print(f"Intents : {labels}")
 
         if not os.path.exists(vocab_file):
             print('Vocab file not found')
@@ -118,7 +118,6 @@ class IntentClassifier(nn.Module):
         return torch.nn.functional.softmax(out, dim=1)
     
 def load_training_data(intents: typing.Dict):
-    print("Loading data")
     compiled_data = []
     max_length = 0
     for label, patterns in intents.items():
