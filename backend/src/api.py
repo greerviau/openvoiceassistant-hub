@@ -632,10 +632,14 @@ def create_app(ova: OpenVoiceAssistant):
 
             context['command_audio_file_path'] = audio_file_path
 
+            print(f"Request From {data.node_name}")
+            print(f"- {data.node_id}")
+            print(f"- {data.node_area}")
+            print(f"- {data.hub_callback}")
+
             context['node_id'] = data.node_id
             context['node_name'] = data.node_name
             context['node_area'] = data.node_area
-            context['node_callback'] = data.node_callback
             context['hub_callback'] = data.hub_callback
             context['time_sent'] = data.time_sent
             context['time_recieved'] = time.time()
@@ -665,9 +669,15 @@ def create_app(ova: OpenVoiceAssistant):
         try:
             context = {}
 
+            print(f"Request From {data.node_name}")
+            print(f"- {data.node_id}")
+            print(f"- {data.node_area}")
+            print(f"- {data.hub_callback}")
+
             context['node_id'] = data.node_id
+            context['node_name'] = data.node_name
+            context['node_area'] = data.node_area
             context['command'] = data.command_text
-            context['node_callback'] = data.node_callback
             context['hub_callback'] = data.hub_callback
             context['time_sent'] = data.time_sent
             context['time_recieved'] = time.time()

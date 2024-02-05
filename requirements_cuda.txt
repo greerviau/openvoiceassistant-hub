@@ -125,7 +125,7 @@ pysbd==0.3.4
 PySocks==1.7.1
 python-crfsuite==0.9.9
 python-dateutil==2.8.2
-py3-tts==2.90
+py3-tts==3.5
 pytz==2023.3.post1
 PyYAML==6.0.1
 rapidfuzz==3.5.2

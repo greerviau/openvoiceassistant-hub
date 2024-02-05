@@ -7,7 +7,7 @@ class HASS_Lights:
     def __init__(self, skill_config: typing.Dict, ova: 'OpenVoiceAssistant'):
         self.ova = ova
 
-        self.ha_integration = self.ova.integration_manager.get_integration_module('homeassistant')
+        self.ha_integration = self.ova.integration_manager.get_integration_module('home_assistant')
 
         self.lights = self._get_lights()
         #print('Detected lights')
@@ -17,8 +17,8 @@ class HASS_Lights:
         try:
             entity_id, light_description = self.find_light_entity_id(context)
             #print(entity_id)
-        except:
-            return "No light specified"
+        except Exception as e:
+            return str(e)
 
         data = {
             "entity_id": entity_id
@@ -37,8 +37,8 @@ class HASS_Lights:
         try:
             entity_id, light_description = self.find_light_entity_id(context)
             #print(entity_id)
-        except:
-            return "No light specified"
+        except Exception as e:
+            return str(e)
 
         data = {
             "entity_id": entity_id
@@ -57,8 +57,8 @@ class HASS_Lights:
         try:
             entity_id, light_description = self.find_light_entity_id(context)
             #print(entity_id)
-        except:
-            return "No light specified"
+        except Exception as e:
+            return str(e)
 
         data = {
             "entity_id": entity_id
@@ -80,8 +80,8 @@ class HASS_Lights:
         try:
             entity_id, light_description = self.find_light_entity_id(context)
             #print(entity_id)
-        except:
-            return "No light specified"
+        except Exception as e:
+            return str(e)
         
         command = context['cleaned_command']
         
@@ -139,5 +139,5 @@ def build_skill(skill_config: typing.Dict, ova: 'OpenVoiceAssistant'):
 
 def default_config():
     return {
-        "required_integrations": ["homeassistant"]
+        "required_integrations": ["home_assistant"]
     }

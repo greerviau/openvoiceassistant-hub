@@ -11,32 +11,17 @@ To utilize some of the more advanced AI features, deploy on a GPU capable machin
 ## Installation
 openvoiceassistant-hub is tested on Ubuntu 18.04 with **python >= 3.9**
 
-Clone the repo
-
-```
-git clone https://github.com/greerviau/openvoiceassistant-hub.git
-cd openvoiceassistant-hub
-```
-
 For basic installation
-
 ```
-chmod +x ./scripts/install.sh
+sudo apt install git && \
+git clone https://github.com/greerviau/openvoiceassistant-hub.git && \
+cd openvoiceassistant-hub && \
 sudo ./scripts/install.sh
 ```
 
 The installation will automatically create systemd services for the frontend and backend applications.
 
-For backend development installation
-
-```
-chmod +x ./scripts/install_dev.sh
-sudo ./scripts/install_dev.sh
-source env/bin/activate
-python -m backend
-```
-
-## Frontend (Not Implemented)
+## Frontend
 Navigate to ```localhost:3000``` or ```<ova-server-ip>:3000``` in a web browser to access the frontend UI
 
 From here you can configure OVA nodes, add and configure skills, edit general configuration, view logs and debug information, etc.
@@ -54,7 +39,7 @@ Check out the [list of available integrations](https://github.com/greerviau/open
 If you want to write your own integration, follow the [documentation](https://github.com/greerviau/openvoiceassistant-hub/blob/develop/backend/integrations/README.md#writing-a-custom-integration) for a guideline. 
 
 # Skills
-Skills are available out of the box, no programming required, simply import them from the frontend UI and configure them appropriatley.
+Skills are available out of the box, no programming required. Simply import them from the frontend UI and configure them appropriatley.
 
 Check out the [list of available skills](https://github.com/greerviau/openvoiceassistant-hub/blob/develop/backend/skills/README.md) openvoiceassistant has to offer!
 
@@ -92,7 +77,7 @@ All of the algorithms in the pipeline are customizable, including:
 ## v0.1.0
 - [x] Fix neural intent (get rid of tensorflow)
 - [x] Optimize and improve inference speed
-- [ ] Basic frontend
+- [x] Basic frontend
 
 ## Known Bugs
 * Whisper ```use_gpu = True``` throws error related to using faster_whisper (maybe wrong cudnn libraries?)

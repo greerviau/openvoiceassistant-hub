@@ -5,7 +5,7 @@ class HASS_Vacuum:
     def __init__(self, skill_config: typing.Dict, ova: 'OpenVoiceAssistant'):
         self.ova = ova
         
-        self.ha_integration = self.ova.integration_manager.get_integration_module('homeassistant')
+        self.ha_integration = self.ova.integration_manager.get_integration_module('home_assistant')
 
     def start_vacuum(self, context: typing.Dict):
         data = {
@@ -45,5 +45,5 @@ def build_skill(skill_config: typing.Dict, ova: 'OpenVoiceAssistant'):
 
 def default_config():
     return {
-        "required_integrations": ["homeassistant"]
+        "required_integrations": ["home_assistant"]
     }

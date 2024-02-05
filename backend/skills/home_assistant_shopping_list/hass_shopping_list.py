@@ -5,7 +5,7 @@ class HASS_ShoppingList:
     def __init__(self, skill_config: typing.Dict, ova: 'OpenVoiceAssistant'):
         self.ova = ova
         
-        self.ha_integration = self.ova.integration_manager.get_integration_module('homeassistant')
+        self.ha_integration = self.ova.integration_manager.get_integration_module('home_assistant')
 
     def add_to_shopping_list(self, context: typing.Dict):
         pos_info = context["pos_info"]
@@ -62,5 +62,5 @@ def build_skill(skill_config: typing.Dict, ova: 'OpenVoiceAssistant'):
 
 def default_config():
     return {
-        "required_integrations": ["homeassistant"]
+        "required_integrations": ["home_assistant"]
     }

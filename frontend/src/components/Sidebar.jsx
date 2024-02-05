@@ -4,7 +4,7 @@ import {
     FaCogs,
     FaPlug,
     FaCode,
-    FaRegChartBar,
+    FaHome,
     FaPowerOff
 }from "react-icons/fa";
 import {
@@ -55,7 +55,7 @@ const Sidebar = ({children}) => {
         {
             path:"/",
             name:"Overview",
-            icon:<FaRegChartBar/>
+            icon:<FaHome/>
         },
         {
             path:"/nodes",

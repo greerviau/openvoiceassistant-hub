@@ -46,7 +46,7 @@ def default_config():
     }
 ```
 
-There are 3 main pieces, the Integration class, the ```build_integration function``` and the ```default_config``` function.
+There are 3 main pieces, the Integration class, the ```build_integration``` function and the ```default_config``` function.
 
 The Integration class takes a config dictionary and an instance of ```OpenVoiceAssistant```. You are not required to use either of these, they simply need to be imported for every integration. 
 

@@ -8,7 +8,6 @@ class RespondAudio(BaseModel):
     node_id: str
     node_name: str
     node_area: str
-    node_callback: str = ''
     hub_callback: str = ''
     time_sent: float
     last_time_engaged: float
@@ -18,7 +17,6 @@ class RespondText(BaseModel):
     node_id: str
     node_name: str
     node_area: str
-    node_callback: str = ''
     hub_callback: str = ''
     time_sent: float
     last_time_engaged: float

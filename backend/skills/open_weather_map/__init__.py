@@ -25,7 +25,6 @@ INTENTIONS = [
                 "is it sunny outside", 
                 "is it cloudy",
                 "is it raining",
-                "is it raining",
                 "is it going to rain",
                 "is it gonna be nice",
                 "is it overcast",

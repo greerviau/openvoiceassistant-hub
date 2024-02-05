@@ -122,6 +122,7 @@ function Node() {
   };
 
   const handleCheckboxChange = (field) => {
+    setNewChanges(true);
     setEditedData((prevData) => ({
       ...prevData,
       [field]: !prevData[field], // Toggle the boolean value
@@ -216,6 +217,14 @@ function Node() {
         <h1>{initialData.name}</h1>
         <button
           type="button"
+          className={`info-button ${isRestarting || initialData.status === 'offline' ? 'disabled' : ''}`}
+          onClick={handleRestart}
+          disabled={isRestarting}
+        >
+          {isRestarting ? 'Restarting...' : 'Restart'}
+        </button>
+        <button
+          type="button"
           className={`identify-button ${isIdentifying || initialData.status === 'offline' ? 'disabled' : ''}`}
           onClick={handleIdentify}
           disabled={isIdentifying || initialData.status === 'offline'}
@@ -223,14 +232,14 @@ function Node() {
           {isIdentifying ? 'Identifying...' : 'Identify'}
         </button>
       </div>
-      <Link to="/nodes" className="import-button">
-        Back
-      </Link>
-      <div className="list-container">
+      <div style={{ paddingLeft: "20px"}}>
+        <Link to="/nodes" className="import-button">
+          Back
+        </Link>
         {loading ? (
           <p>Loading data...</p>
         ) : (
-          <div>
+          <div style={{ paddingTop: "20px" }}>
             <h2>Configuration</h2>
             
             <form style={{ paddingTop: "20px"}}>
@@ -344,14 +353,6 @@ function Node() {
                   className={`save-button ${!newChanges ? 'disabled' : ''}`} 
                   disabled={!newChanges} 
                   onClick={handleSaveChanges}>Save Changes</button>
-              <button
-                type="button"
-                className={`info-button ${isRestarting || initialData.status === 'offline' ? 'disabled' : ''}`}
-                onClick={handleRestart}
-                disabled={isRestarting}
-              >
-                {isRestarting ? 'Restarting...' : 'Restart'}
-              </button>
               <div className="notification-container">
                 {errorNotification && (
                   <div className="notification error-notification">{errorNotification}</div>

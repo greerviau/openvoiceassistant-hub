@@ -94,7 +94,7 @@ function Skill() {
 
   return (
     <div>
-      <h1>Edit {capitalizeId(skillId)}</h1>
+      <h1>Configure {capitalizeId(skillId)}</h1>
       <div style={{ padding: "20px"}}>
         <Link to="/skills" className="import-button">
           Back

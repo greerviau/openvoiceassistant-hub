@@ -88,7 +88,7 @@ function Integration() {
 
   return (
     <div>
-      <h1>Edit Integration {capitalizeId(integrationId)}</h1>
+      <h1>Configure {capitalizeId(integrationId)}</h1>
       <div style={{ padding: "20px"}}>
         <Link to="/skills" className="import-button">
             Back
