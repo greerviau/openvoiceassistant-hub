@@ -6,6 +6,8 @@ class ProxyHandler(SimpleHTTPRequestHandler):
         if self.path.startswith('/api'):
             self.proxy_request('GET')
         else:
+            # Serve index.html for any other path
+            self.path = '/index.html'
             super().do_GET()
 
     def do_POST(self):
@@ -29,9 +31,12 @@ class ProxyHandler(SimpleHTTPRequestHandler):
     def proxy_request(self, method):
         # Proxy API requests to another server
         url = 'http://localhost:7123' + self.path
-        response = requests.request(method, url)
+        headers = dict(self.headers)
+        body = self.rfile.read(int(self.headers['Content-Length'])) if 'Content-Length' in self.headers else None
+        response = requests.request(method, url, headers=headers, data=body)
         self.send_response(response.status_code)
-        self.send_header('Content-type', 'application/json')
+        for key, value in response.headers.items():
+            self.send_header(key, value)
         self.end_headers()
         self.wfile.write(response.content)
 

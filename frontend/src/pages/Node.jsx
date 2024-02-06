@@ -414,6 +414,7 @@ function Node() {
                   type="checkbox"
                   checked={editedData.speex_noise_suppression}
                   onChange={(e) => handleCheckboxChange('speex_noise_suppression')}
+                  disabled={!configData.speex_available}
                 />
               </div>
               <div className="form-field">

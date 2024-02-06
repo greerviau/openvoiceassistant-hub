@@ -20,21 +20,21 @@ function Nodes() {
       }
       return response.json();
     })
-      .then((json) => {
-        console.log(json);
-        setData(json);
-      })
-      .catch((error) => {
-        console.error('Error fetching data:', error);
-        setErrorNotification(`${error.message}`);
-        // Clear the notification after a few seconds
-        setTimeout(() => {
-          setErrorNotification(null);
-        }, 5000);
-      })
-      .finally(() => {
-        setRefreshing(false);
-      });
+    .then((json) => {
+      console.log(json);
+      setData(json);
+    })
+    .catch((error) => {
+      console.error('Error fetching data:', error);
+      setErrorNotification(`${error.message}`);
+      // Clear the notification after a few seconds
+      setTimeout(() => {
+        setErrorNotification(null);
+      }, 5000);
+    })
+    .finally(() => {
+      setRefreshing(false);
+    });
   };
 
   useEffect(() => {

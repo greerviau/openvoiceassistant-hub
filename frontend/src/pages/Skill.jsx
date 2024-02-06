@@ -110,22 +110,28 @@ function Skill() {
         <Link to="/skills" className="import-button">
           Back
         </Link>
-        <form style={{ paddingTop: "20px"}}>
-          {editableFields.map(([fieldName, fieldValue], index) => {
-            const inputField = getFieldInput(fieldName, fieldValue, handleInputChange, editableFields);
+        <form style={{ paddingTop: "40px"}}>
+        {editableFields.length === 0 ? (
+            <p style={{ paddingBottom: "30px"}}>No Configuration Needed</p>
+          ) : (
+          <div>
+            {editableFields.map(([fieldName, fieldValue], index) => {
+              const inputField = getFieldInput(fieldName, fieldValue, handleInputChange, editableFields);
 
-            // Skip rendering for fields ending with "_options"
-            if (inputField === null) {
-              return null;
-            }
+              // Skip rendering for fields ending with "_options"
+              if (inputField === null) {
+                return null;
+              }
 
-            return (
-              <div key={index} className="form-field">
-                <label htmlFor={fieldName}>{capitalizeId(fieldName)}</label>
-                {inputField}
-              </div>
-            );
-          })}
+              return (
+                <div key={index} className="form-field">
+                  <label htmlFor={fieldName}>{capitalizeId(fieldName)}</label>
+                  {inputField}
+                </div>
+              );
+            })}
+          </div>
+          )}
           {importMode ? (
             <button 
               type="button" 
