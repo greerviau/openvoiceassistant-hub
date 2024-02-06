@@ -16,19 +16,24 @@ function Skill() {
   useEffect(() => {
     // Fetch configuration data from the API endpoint
     fetch(`/api/skills/${skillId}/config`)
-      .then((response) => response.json())
-      .then((json) => {
-        console.log(json);
-        setJsonData(json);
-      })
-      .catch((error) => {
-        console.error('Error fetching configuration data:', error);
-        setErrorNotification(`${error.message}`);
-        // Clear the notification after a few seconds
-        setTimeout(() => {
-          setErrorNotification(null);
-        }, 5000);
-      });
+    .then((response) => {
+      if (!response.ok) {
+        throw new Error(`HTTP error! Status: ${response.status}`);
+      }
+      return response.json();
+    })
+    .then((json) => {
+      console.log(json);
+      setJsonData(json);
+    })
+    .catch((error) => {
+      console.error('Error fetching configuration data:', error);
+      setErrorNotification(`${error.message}`);
+      // Clear the notification after a few seconds
+      setTimeout(() => {
+        setErrorNotification(null);
+      }, 5000);
+    });
   }, [skillId]);
 
   useEffect(() => {
@@ -57,6 +62,12 @@ function Skill() {
         'Content-Type': 'application/json',
       },
       body: JSON.stringify(jsonData),
+    })
+    .then((response) => {
+      if (!response.ok) {
+        throw new Error(`HTTP error! Status: ${response.status}`);
+      }
+      return response.json();
     })
     .then((json) => {
       setNewChanges(false);

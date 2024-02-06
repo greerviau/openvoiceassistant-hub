@@ -69,7 +69,12 @@ const CollapsibleSection = ({ title, component, config, setConfig, setSuccessNot
       },
       body: JSON.stringify(config),
     })
-    .then((response) => response.json())
+    .then((response) => {
+      if (!response.ok) {
+        throw new Error(`HTTP error! Status: ${response.status}`);
+      }
+      return response.json();
+    })
     .then((json) => {
       setNewChanges(false);
       console.log('Update successful:', json);
@@ -99,7 +104,12 @@ const CollapsibleSection = ({ title, component, config, setConfig, setSuccessNot
     fetch(`/api/${component}/reload`, {
       method: 'POST',
     })
-    .then((response) => response.json())
+    .then((response) => {
+      if (!response.ok) {
+        throw new Error(`HTTP error! Status: ${response.status}`);
+      }
+      return response.json();
+    })
     .then((json) => {
       console.log('Reload successful');
       setSuccessNotification(`${capitalizeId(component)} Reloaded`);

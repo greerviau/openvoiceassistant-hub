@@ -29,7 +29,7 @@ export const getFieldInput = (fieldName, fieldValue, handleInputChange, json) =>
         >
           {matchingOptionsField[1].map((option, index) => (
             <option key={index} value={option}>
-              {option}
+              {capitalizeId(option)}
             </option>
           ))}
         </select>

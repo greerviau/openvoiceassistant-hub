@@ -12,21 +12,26 @@ function ImportSkill() {
   useEffect(() => {
     // Fetch data from the /skills/not_imported API endpoint
     fetch('/api/skills/not_imported')
-      .then((response) => response.json())
-      .then((json) => {
-        setData(json); // Convert object to array
-      })
-      .catch((error) => {
-        console.error('Error fetching not imported skills data:', error);
-        setErrorNotification(`${error.message}`);
-        // Clear the notification after a few seconds
-        setTimeout(() => {
-          setErrorNotification(null);
-        }, 5000);
-      })
-      .finally(() => {
-        setLoading(false);
-      });
+    .then((response) => {
+      if (!response.ok) {
+        throw new Error(`HTTP error! Status: ${response.status}`);
+      }
+      return response.json();
+    })
+    .then((json) => {
+      setData(json); // Convert object to array
+    })
+    .catch((error) => {
+      console.error('Error fetching not imported skills data:', error);
+      setErrorNotification(`${error.message}`);
+      // Clear the notification after a few seconds
+      setTimeout(() => {
+        setErrorNotification(null);
+      }, 5000);
+    })
+    .finally(() => {
+      setLoading(false);
+    });
   }, []);
 
   const handleItemClick = (item) => {

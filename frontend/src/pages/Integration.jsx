@@ -15,19 +15,24 @@ function Integration() {
   useEffect(() => {
     // Fetch configuration data from the API endpoint
     fetch(`/api/integrations/${integrationId}/config`)
-      .then((response) => response.json())
-      .then((json) => {
-        console.log(json);
-        setJsonData(json);
-      })
-      .catch((error) => {
-        console.error('Error fetching configuration data:', error);
-        setErrorNotification(`${error.message}`);
-        // Clear the notification after a few seconds
-        setTimeout(() => {
-          setErrorNotification(null);
-        }, 5000);
-      });
+    .then((response) => {
+      if (!response.ok) {
+        throw new Error(`HTTP error! Status: ${response.status}`);
+      }
+      return response.json();
+    })
+    .then((json) => {
+      console.log(json);
+      setJsonData(json);
+    })
+    .catch((error) => {
+      console.error('Error fetching configuration data:', error);
+      setErrorNotification(`${error.message}`);
+      // Clear the notification after a few seconds
+      setTimeout(() => {
+        setErrorNotification(null);
+      }, 5000);
+    });
   }, [integrationId]);
 
   useEffect(() => {
@@ -56,30 +61,36 @@ function Integration() {
       },
       body: JSON.stringify(jsonData),
     })
-      .then((json) => {
-        setNewChanges(false);
-        if (!importMode) {
-          console.log('Update successful:', json);
-          // Display notification for configuration saved
-          setSuccessNotification(`${capitalizeId(integrationId)} Config Updated`);
-          setTimeout(() => {
-            setSuccessNotification(null);
-          }, 3000);
-        } else {
-          setSuccessNotification(`${capitalizeId(integrationId)} Imported`);
-          setTimeout(() => {
-            setSuccessNotification(null);
-          }, 3000);
-        }
-      })
-      .catch((error) => {
-        console.error('Error fetching integrations data:', error);
-        setErrorNotification(`${error.message}`);
-        // Clear the notification after a few seconds
+    .then((response) => {
+      if (!response.ok) {
+        throw new Error(`HTTP error! Status: ${response.status}`);
+      }
+      return response.json();
+    })
+    .then((json) => {
+      setNewChanges(false);
+      if (!importMode) {
+        console.log('Update successful:', json);
+        // Display notification for configuration saved
+        setSuccessNotification(`${capitalizeId(integrationId)} Config Updated`);
         setTimeout(() => {
-          setErrorNotification(null);
-        }, 5000);
-      });
+          setSuccessNotification(null);
+        }, 3000);
+      } else {
+        setSuccessNotification(`${capitalizeId(integrationId)} Imported`);
+        setTimeout(() => {
+          setSuccessNotification(null);
+        }, 3000);
+      }
+    })
+    .catch((error) => {
+      console.error('Error fetching integrations data:', error);
+      setErrorNotification(`${error.message}`);
+      // Clear the notification after a few seconds
+      setTimeout(() => {
+        setErrorNotification(null);
+      }, 5000);
+    });
   };
 
   const editableFields = Object.entries(jsonData).filter(([fieldName]) => (

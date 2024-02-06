@@ -315,6 +315,7 @@ def create_app(ova: OpenVoiceAssistant):
                         detail='No config provided',
                         headers={'X-Error': 'No config provided'})
         try:
+            print(node_config)
             return ova.node_manager.update_node_config(node_id, jsonable_encoder(node_config))
         except Exception as err:
             #print(repr(err))
@@ -425,7 +426,8 @@ def create_app(ova: OpenVoiceAssistant):
                 "audio_data": context['response_audio_data']
             }
             
-            ova.node_manager.call_node_api('POST', node_id, f'/play/audio', data=data)
+            response = ova.node_manager.call_node_api('POST', node_id, f'/play/audio', json=data)
+            response.raise_for_status()
         
         except Exception as err:
             #print(repr(err))
@@ -435,7 +437,7 @@ def create_app(ova: OpenVoiceAssistant):
                         headers={'X-Error': f'{err}'})
 
     @router.post("/node/{node_id}/upload/wake_word_model")
-    async def upload_wake_word_model(node_id: str, wake_word_model: UploadFile = File(...)):
+    async def upload_wake_word_model(node_id: str, wake_word_model: UploadFile = File(...), tags=["Nodes"]):
         try:
             files = {"file": (wake_word_model.filename, wake_word_model.file.read(), wake_word_model.content_type)}
             response = ova.node_manager.call_node_api("POST", node_id, "/upload/wake_word_model", files=files)

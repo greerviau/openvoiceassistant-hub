@@ -15,7 +15,12 @@ function Skills() {
     // Fetch data from the API endpoint
     setLoading(true);
     fetch('/api/skills/imported')
-    .then((response) => response.json())
+    .then((response) => {
+      if (!response.ok) {
+        throw new Error(`HTTP error! Status: ${response.status}`);
+      }
+      return response.json();
+    })
     .then((json) => {
       setData(json); // Convert object to an array of key-value pairs
     })
@@ -49,7 +54,13 @@ function Skills() {
       fetch(`/api/skills/${encodeURIComponent(item.toLowerCase())}`, {
         method: 'DELETE',
       })
-      .then(() => {
+      .then((response) => {
+        if (!response.ok) {
+          throw new Error(`HTTP error! Status: ${response.status}`);
+        }
+        return response.json();
+      })
+      .then((json) => {
         console.log(`Skill ${capitalizeId(item)} successfully deleted.`);
         setSuccessNotification(`${capitalizeId(item)} Deleted`);
         // Clear the notification after a few seconds

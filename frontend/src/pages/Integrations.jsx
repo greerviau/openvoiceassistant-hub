@@ -14,21 +14,26 @@ function Integrations() {
     // Fetch data from the API endpoint
     setLoading(true);
     fetch('/api/integrations/imported')
-      .then((response) => response.json())
-      .then((json) => {
-        setData(json); // Convert object to an array of key-value pairs
-      })
-      .catch((error) => {
-        console.error('Error fetching integrations data:', error);
-        setErrorNotification(`${error.message}`);
-        // Clear the notification after a few seconds
-        setTimeout(() => {
-          setErrorNotification(null);
-        }, 5000);
-      })
-      .finally(() => {
-        setLoading(false);
-      });
+    .then((response) => {
+      if (!response.ok) {
+        throw new Error(`HTTP error! Status: ${response.status}`);
+      }
+      return response.json();
+    })
+    .then((json) => {
+      setData(json); // Convert object to an array of key-value pairs
+    })
+    .catch((error) => {
+      console.error('Error fetching integrations data:', error);
+      setErrorNotification(`${error.message}`);
+      // Clear the notification after a few seconds
+      setTimeout(() => {
+        setErrorNotification(null);
+      }, 5000);
+    })
+    .finally(() => {
+      setLoading(false);
+    });
   };
 
   useEffect(() => {
@@ -48,7 +53,13 @@ function Integrations() {
       fetch(`/api/integrations/${encodeURIComponent(item.toLowerCase())}`, {
         method: 'DELETE',
       })
-      .then(() => {
+      .then((response) => {
+        if (!response.ok) {
+          throw new Error(`HTTP error! Status: ${response.status}`);
+        }
+        return response.json();
+      })
+      .then((json) => {
         console.log(`Integration ${capitalizeId(item)} successfully deleted.`);
         setSuccessNotification(`${capitalizeId(item)} Deleted`);
         // Clear the notification after a few seconds

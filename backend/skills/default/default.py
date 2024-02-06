@@ -34,7 +34,7 @@ class Default:
         node_config["volume"] = volume_percent
         self.ova.node_manager.update_node_config(node_id, node_config)
 
-        self.ova.node_manager.call_node_api("PUT", node_id, "/set_volume", data={"volume_percent": volume_percent})
+        self.ova.node_manager.call_node_api("PUT", node_id, "/set_volume", json={"volume_percent": volume_percent})
         return response
     
     def date(self, context: typing.Dict):
@@ -79,7 +79,7 @@ class Default:
                             d = t_split[inc_idx - 1]
                             durration += int(d) * m
                 if durration > 0:
-                    self.ova.node_manager.call_node_api("POST", node_id, "/set_timer", data={"durration": durration})
+                    self.ova.node_manager.call_node_api("POST", node_id, "/set_timer", json={"durration": durration})
                     response = f"Setting a timer for {t}"
                 else:
                     context['hub_callback'] = "default.set_timer"
