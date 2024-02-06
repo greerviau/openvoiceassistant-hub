@@ -10,15 +10,16 @@ class NodeManager:
         self.nodes = config.get('nodes')
 
     def update_node_config(self, node_id: str, node_config: typing.Dict):
-        return config.set('nodes', node_id, node_config)
+        self.__save_config(node_id, node_config)
+        return node_config
         
     def node_exists(self, node_id: str):
         return node_id in self.nodes
     
     def get_node_in_area(self, area: str):
-        for id, conf in self.nodes.items():
+        for node_id, conf in self.nodes.items():
             if area in conf['area']:
-                return self.nodes[id]
+                return self.nodes[node_id]
         return {}
     
     def get_node_ids(self):
@@ -31,6 +32,18 @@ class NodeManager:
         if self.node_exists(node_id):
             return self.nodes[node_id]
         raise RuntimeError(f"Node {node_id} does not exist")
+
+    def fix_config_discrepancy(self, node_id: str, node_config: typing.Dict):
+        existing_node_config = self.nodes[node_id]
+        if list(existing_node_config.keys()) == list(node_config.keys()):
+            return
+        update_needed = False
+        for key, value in node_config.items():
+            if key not in existing_node_config:
+                existing_node_config[key] = value
+                update_needed = True
+        if update_needed:
+            self.__save_config(node_id, existing_node_config)
         
     def get_all_node_status(self):
         node_status = []
@@ -62,9 +75,8 @@ class NodeManager:
             node_config = self.nodes[node_id]
         except:
             raise RuntimeError(f"Node {node_id} does not exist")
-        address = node_config['api_url']
         try:
-            resp = requests.get(address, timeout=2)
+            resp = self.call_node_api("GET", node_id, "")
             if resp.status_code == 200 and resp.json()["id"] == node_id:
                 status = 'online'
             else:
@@ -89,10 +101,12 @@ class NodeManager:
 
     def restart_node(self, node_id: str):
         if self.node_exists(node_id):
+            node_config = self.nodes[node_id]
             resp = self.call_node_api('POST', node_id, '/restart')
             if resp.status_code != 200:
                 raise RuntimeError(f"Failed to restart node {node_id}")
-            self.nodes[node_id]["restart_required"] = False
+            node_config["restart_required"] = False
+            self.__save_config(node_id, node_config)
     
     def call_node_api(self, 
                         verb: str, 
@@ -113,3 +127,7 @@ class NodeManager:
         url = address + endpoint
         resp = requests.request(verb, url, timeout=5, files=files, json=json, data=data)
         return resp
+
+    def __save_config(self, node_id: str, node_config: typing.Dict):
+        self.nodes[node_id] = node_config
+        config.set('nodes', node_id, node_config)

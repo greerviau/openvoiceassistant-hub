@@ -16,7 +16,7 @@ class IntegrationManager:
         self.integrations = config.get('integrations')
         self.not_imported = [integration for integration in self.available_integrations if integration not in self.integrations]
 
-        print('Importing integrations...')
+        print('Importing Integrations...')
         for integration_id in self.integrations:
             integration_config = config.get('integrations', integration_id)
             if not integration_config:
@@ -26,7 +26,7 @@ class IntegrationManager:
     @property
     def imported_integrations(self):
         return list(self.integrations.keys())
-    
+
     def integration_imported(self, integration_id: str):
         return integration_id in self.imported_integration_modules
 
@@ -36,8 +36,7 @@ class IntegrationManager:
     def remove_integration(self, integration_id: str):
         if self.integration_imported(integration_id):
             integration_config = self.integrations.pop(integration_id)
-            self.imported_integration_modules.pop(skill_id)
-            self.imported_integrations.remove(integration_id)
+            self.imported_integration_modules.pop(integration_id)
             self.not_imported.append(integration_id)
             config.set("integrations", self.integrations)
             return integration_config
@@ -51,6 +50,20 @@ class IntegrationManager:
         else:
             raise RuntimeError("Integration does not exist")
 
+    def check_for_config_discrepancy(self, integration_id: str, integration_config: typing.Dict):
+        default_integration_config = self.get_default_integration_config(integration_id)
+        if list(default_integration_config.keys()) == list(integration_config.keys()):
+            return integration_config
+        integration_config_clone = integration_config.copy()
+        for key, value in default_integration_config.items():
+            if key not in integration_config:
+                integration_config_clone[key] = value
+                update_needed = True
+        for key, value in integration_config.items():
+            if key not in default_integration_config:
+                integration_config_clone.pop(key)
+        return integration_config_clone
+        
     def get_integration_config(self, integration_id: str) -> typing.Dict:
         if self.integration_exists(integration_id):
             if self.integration_imported(integration_id):
@@ -70,21 +83,37 @@ class IntegrationManager:
     def get_integration_module(self, integration_id: str):
         if self.integration_imported(integration_id):
             return self.imported_integration_modules[integration_id]
+        else:
+            raise RuntimeError("Integration is not imported")
+        
+    def get_integration_intents(self, integration_id: str):
+        if self.integration_exists(integration_id):
+            module = importlib.import_module(f'backend.integrations.{integration_id}')
+            return module.INTENTIONS
+        else:
+            raise RuntimeError('Integration does not exist')
 
     def __import_integration(self, integration_id: str, integration_config: typing.Dict):
         if self.integration_exists(integration_id):
             print('Importing ', integration_id)
             if not integration_config:
                 integration_config = self.get_default_integration_config(integration_id)
-                self.__save_config(integration_id, integration_config)
+            else:
+                integration_config = self.check_for_config_discrepancy(integration_id, integration_config)
+            
+            self.__save_config(integration_id, integration_config)
             try:
                 module = importlib.import_module(f'backend.integrations.{integration_id}')
                 self.imported_integration_modules[integration_id] = module.build_integration(integration_config, self.ova)
-                self.__save_config(integration_id, integration_config)
             except Exception as e:
                 raise RuntimeError(f'Failed to load {integration_id} | Exception {repr(e)}')
+                # TODO
+                # use this exception in the future to extablish that integration is crashed
+                # update flag in config and display on FE
+                # can do same thing for integrations and even components
         else:
-            raise RuntimeError('integration does not exist')
+            raise RuntimeError('Integration does not exist')
         
     def __save_config(self, integration_id: str, integration_config: typing.Dict):
+        self.integrations[integration_id] = integration_config
         config.set('integrations', integration_id, integration_config)

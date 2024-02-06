@@ -1,5 +1,4 @@
 from pydantic import BaseModel
-from typing import Dict
 
 class TranscribeAudio(BaseModel):
     command_audio_data: str

@@ -49,6 +49,20 @@ class SkillManager:
             if not imported: self.not_imported.remove(skill_id)
         else:
             raise RuntimeError("Skill does not exist")
+
+    def check_for_config_discrepancy(self, skill_id: str, skill_config: typing.Dict):
+        default_skill_config = self.get_default_skill_config(skill_id)
+        if list(default_skill_config.keys()) == list(skill_config.keys()):
+            return skill_config
+        skill_config_clone = skill_config.copy()
+        for key, value in default_skill_config.items():
+            if key not in skill_config:
+                skill_config_clone[key] = value
+                update_needed = True
+        for key, value in skill_config.items():
+            if key not in default_skill_config:
+                skill_config_clone.pop(key)
+        return skill_config_clone
         
     def get_skill_config(self, skill_id: str) -> typing.Dict:
         if self.skill_exists(skill_id):
@@ -84,15 +98,22 @@ class SkillManager:
             print('Importing ', skill_id)
             if not skill_config:
                 skill_config = self.get_default_skill_config(skill_id)
-                self.__save_config(skill_id, skill_config)
+            else:
+                skill_config = self.check_for_config_discrepancy(skill_id, skill_config)
+            
+            self.__save_config(skill_id, skill_config)
             try:
                 module = importlib.import_module(f'backend.skills.{skill_id}')
                 self.imported_skill_modules[skill_id] = module.build_skill(skill_config, self.ova)
-                self.__save_config(skill_id, skill_config)
             except Exception as e:
                 raise RuntimeError(f'Failed to load {skill_id} | Exception {repr(e)}')
+                # TODO
+                # use this exception in the future to extablish that skill is crashed
+                # update flag in config and display on FE
+                # can do same thing for integrations and even components
         else:
             raise RuntimeError('Skill does not exist')
         
     def __save_config(self, skill_id: str, skill_config: typing.Dict):
+        self.skills[skill_id] = skill_config
         config.set('skills', skill_id, skill_config)

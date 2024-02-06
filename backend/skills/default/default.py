@@ -140,5 +140,6 @@ def build_skill(skill_config: typing.Dict, ova: 'OpenVoiceAssistant'):
 def default_config():
     return {
         "timezone": "US/Eastern",
+        "timezone_options": pytz.all_timezones,
         "24_hour_format": False
     }

@@ -76,7 +76,7 @@ def create_app(ova: OpenVoiceAssistant):
                         headers={'X-Error': 'Could not find transcriber config'})
         
     @router.put('/transcriber/config', tags=["Transcriber"])
-    async def put_transcriber_config(component_config: Dict):
+    async def put_transcriber_config(component_config: typing.Dict):
         try:
             config.set('transcriber', component_config)
             return component_config
@@ -148,7 +148,7 @@ def create_app(ova: OpenVoiceAssistant):
                         headers={'X-Error': 'Could not find understander config'})
         
     @router.put('/understander/config', tags=["Understander"])
-    async def put_understander_config(component_config: Dict):
+    async def put_understander_config(component_config: typing.Dict):
         try:
             config.set('understander', component_config)
             return component_config
@@ -212,7 +212,7 @@ def create_app(ova: OpenVoiceAssistant):
                         headers={'X-Error': 'Could not find synthesizer config'})
         
     @router.put('/synthesizer/config', tags=["Synthesizer"])
-    async def put_synthesizer_config(component_config: Dict):
+    async def put_synthesizer_config(component_config: typing.Dict):
         try:
             config.set('synthesizer', component_config)
             return component_config
@@ -308,7 +308,7 @@ def create_app(ova: OpenVoiceAssistant):
                         headers={'X-Error': f'{err}'})
 
     @router.put('/node/{node_id}/config', tags=["Nodes"])
-    async def put_node_config(node_id: str, node_config: dict):
+    async def put_node_config(node_id: str, node_config: typing.Dict):
         if not node_config:
             raise fastapi.HTTPException(
                         status_code=400,
@@ -316,7 +316,7 @@ def create_app(ova: OpenVoiceAssistant):
                         headers={'X-Error': 'No config provided'})
         try:
             print(node_config)
-            return ova.node_manager.update_node_config(node_id, jsonable_encoder(node_config))
+            return ova.node_manager.update_node_config(node_id, node_config)
         except Exception as err:
             #print(repr(err))
             raise fastapi.HTTPException(
@@ -325,14 +325,14 @@ def create_app(ova: OpenVoiceAssistant):
                         headers={'X-Error': f'{err}'})
 
     @router.put('/node/{node_id}/sync_up', tags=["Nodes"])
-    async def node_sync_up(node_id: str, node_config: dict):
+    async def node_sync_up(node_id: str, node_config: typing.Dict):
         if not node_config:
             raise fastapi.HTTPException(
                         status_code=400,
                         detail='No config provided',
                         headers={'X-Error': 'No config provided'})
         try:
-            return ova.node_manager.update_node_config(node_id, jsonable_encoder(node_config))
+            return ova.node_manager.update_node_config(node_id, node_config)
         
         except Exception as err:
             #print(repr(err))
@@ -342,7 +342,7 @@ def create_app(ova: OpenVoiceAssistant):
                         headers={'X-Error': f'{err}'})
 
     @router.put('/node/{node_id}/sync_down', tags=["Nodes"])
-    async def node_sync_down(node_id: str, node_config: dict):
+    async def node_sync_down(node_id: str, node_config: typing.Dict):
         if not node_config:
             raise fastapi.HTTPException(
                         status_code=400,
@@ -350,8 +350,9 @@ def create_app(ova: OpenVoiceAssistant):
                         headers={'X-Error': 'No config provided'})
         try:
             if not ova.node_manager.node_exists(node_id):
-                return ova.node_manager.update_node_config(node_id, jsonable_encoder(node_config))
+                return ova.node_manager.update_node_config(node_id, node_config)
             else:
+                ova.node_manager.fix_config_discrepancy(node_id, node_config)
                 sync_node_config = ova.node_manager.get_node_config(node_id)
                 sync_node_config["restart_required"] = False
                 return ova.node_manager.update_node_config(node_id, sync_node_config)
@@ -436,8 +437,8 @@ def create_app(ova: OpenVoiceAssistant):
                         detail=repr(err),
                         headers={'X-Error': f'{err}'})
 
-    @router.post("/node/{node_id}/upload/wake_word_model")
-    async def upload_wake_word_model(node_id: str, wake_word_model: UploadFile = File(...), tags=["Nodes"]):
+    @router.post("/node/{node_id}/upload/wake_word_model", tags=["Nodes"])
+    async def upload_wake_word_model(node_id: str, wake_word_model: UploadFile = File(...)):
         try:
             files = {"file": (wake_word_model.filename, wake_word_model.file.read(), wake_word_model.content_type)}
             response = ova.node_manager.call_node_api("POST", node_id, "/upload/wake_word_model", files=files)
