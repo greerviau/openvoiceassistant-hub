@@ -19,60 +19,78 @@ function Node() {
   const [microphones, setMicrophones] = useState([]);
   const [speakers, setSpeakers] = useState([]);
   const [wakeWords, setWakeWords] = useState([]);
+  const [selectedWakeWord, setSelectedWakeWord] = useState(null);
+  const [wakeWordFile, setWakeWordFile] = useState(null);
 
   useEffect(() => {
     if (initialData) {
       // Fetch configuration data from the API endpoint
-      fetch(`/node/${initialData.id}/config`)
-        .then((response) => response.json())
-        .then((json) => {
-          console.log(json)
-          setConfigData(json);
-          setEditedData(json);
-        })
-        .catch((error) => {
-          console.error('Error fetching configuration data:', error);
-          setErrorNotification(`${error.message}`);
-          // Clear the notification after a few seconds
-          setTimeout(() => {
-            setErrorNotification(null);
-          }, 5000);
-        })
-        .finally(() => {
-          setLoading(false);
-        });
+      fetch(`/api/node/${initialData.id}/config`)
+      .then((response) => {
+        if (!response.ok) {
+          throw new Error(`HTTP error! Status: ${response.status}`);
+        }
+        return response.json();
+      })
+      .then((json) => {
+        console.log(json)
+        setConfigData(json);
+        setEditedData(json);
+        setSelectedWakeWord(json.wake_word);
+      })
+      .catch((error) => {
+        console.error('Error fetching configuration data:', error);
+        setErrorNotification(`${error.message}`);
+        // Clear the notification after a few seconds
+        setTimeout(() => {
+          setErrorNotification(null);
+        }, 5000);
+      })
+      .finally(() => {
+        setLoading(false);
+      });
 
       // Fetch microphone data from the microphones endpoint using api_url
-      fetch(`/node/${initialData.id}/hardware`)
-        .then((response) => response.json())
-        .then((json) => {
-          console.log(json)
-          setMicrophones(json.microphones);
-          setSpeakers(json.speakers);
-        })
-        .catch((error) => {
-          console.error('Error fetching hardware data:', error);
-          setErrorNotification(`${error.message}`);
-          // Clear the notification after a few seconds
-          setTimeout(() => {
-            setErrorNotification(null);
-          }, 5000);
-        });
+      fetch(`/api/node/${initialData.id}/hardware`)
+      .then((response) => {
+        if (!response.ok) {
+          throw new Error(`HTTP error! Status: ${response.status}`);
+        }
+        return response.json();
+      })
+      .then((json) => {
+        console.log(json)
+        setMicrophones(json.microphones);
+        setSpeakers(json.speakers);
+      })
+      .catch((error) => {
+        console.error('Error fetching hardware data:', error);
+        setErrorNotification(`${error.message}`);
+        // Clear the notification after a few seconds
+        setTimeout(() => {
+          setErrorNotification(null);
+        }, 5000);
+      });
 
-      fetch(`/node/${initialData.id}/wake_words`)
-        .then((response) => response.json())
-        .then((json) => {
-          console.log(json)
-          setWakeWords(json);
-        })
-        .catch((error) => {
-          console.error('Error fetching wake word data:', error);
-          setErrorNotification(`${error.message}`);
-          // Clear the notification after a few seconds
-          setTimeout(() => {
-            setErrorNotification(null);
-          }, 5000);
-        });
+      fetch(`/api/node/${initialData.id}/wake_words`)
+      .then((response) => {
+        if (!response.ok) {
+          throw new Error(`HTTP error! Status: ${response.status}`);
+        }
+        return response.json();
+      })
+      .then((json) => {
+        console.log(json)
+        setWakeWords(json);
+      })
+      .catch((error) => {
+        console.error('Error fetching wake word data:', error);
+        setErrorNotification(`${error.message}`);
+        // Clear the notification after a few seconds
+        setTimeout(() => {
+          setErrorNotification(null);
+        }, 5000);
+      });
     }
   }, [initialData]);
 
@@ -81,8 +99,14 @@ function Node() {
     setIsIdentifying(true);
   
     // API call to announce "Hello World"
-    fetch(`/node/${initialData.id}/announce/Hello%20World`, {
+    fetch(`/api/node/${initialData.id}/announce/Hello%20World`, {
       method: 'POST',
+    })
+    .then((response) => {
+      if (!response.ok) {
+        throw new Error(`HTTP error! Status: ${response.status}`);
+      }
+      return response.json();
     })
     .then((json) => {
       console.log('Announcement initiated:', json);
@@ -131,17 +155,16 @@ function Node() {
   };
 
   const handleSaveChanges = () => {
-    // Set restart_required to true before making the API call
-    const dataWithRestart = { ...editedData, restart_required: true };
-  
-    // API call to update node configuration
-    fetch(`/node/${initialData.id}/config`, {
-      method: 'PUT',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify(dataWithRestart),
-    })
+
+    const updateConfig = (data) => {
+      // API call to update node configuration
+      fetch(`/api/node/${initialData.id}/config`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(data),
+      })
       .then((response) => {
         if (!response.ok) {
           throw new Error(`HTTP error! Status: ${response.status}`);
@@ -156,7 +179,7 @@ function Node() {
         setTimeout(() => {
           setSuccessNotification(null);
         }, 3000);
-  
+
         if (initialData.status === 'online') {
           // Display notification for node restart required
           setInfoNotification('Node Restart Required');
@@ -164,7 +187,7 @@ function Node() {
             setInfoNotification(null);
           }, 3000);
         }
-  
+
         // Enable the restart button
         setConfigData((prevData) => ({ ...prevData, restart_required: true }));
       })
@@ -176,6 +199,43 @@ function Node() {
           setErrorNotification(null);
         }, 5000);
       });
+    };
+
+    if (wakeWordFile) {
+      const formData = new FormData();
+      formData.append('wake_word_model', wakeWordFile);
+      fetch(`/node/${initialData.id}/upload/wake_word_model`, {
+        method: 'POST',
+        body: formData,
+      })
+      .then((response) => {
+        if (!response.ok) {
+          throw new Error(`HTTP error! Status: ${response.status}`);
+        }
+        return response.json();
+      })
+      .then((json) => {
+        console.log('Wake Word Model uploaded:', json);
+        console.log(selectedWakeWord);
+        const data = { ...editedData, wake_word: selectedWakeWord, restart_required: true };
+        updateConfig(data);
+        setEditedData((prevData) => ({
+          ...prevData,
+          wake_word: selectedWakeWord,
+        }));
+      })
+      .catch((error) => {
+        console.error('Error uploading wake word:', error);
+        setErrorNotification(`${error.message}`);
+        // Clear the notification after a few seconds
+        setTimeout(() => {
+          setErrorNotification(null);
+        }, 5000);
+      });
+    } else {
+      const data = { ...editedData, restart_required: true };
+      updateConfig(data);
+    }
   };
 
   const handleRestart = () => {
@@ -183,8 +243,14 @@ function Node() {
     setIsRestarting(true);
 
     // API call to restart node
-    fetch(`/node/${initialData.id}/restart`, {
+    fetch(`/api/node/${initialData.id}/restart`, {
       method: 'POST',
+    })
+    .then((response) => {
+      if (!response.ok) {
+        throw new Error(`HTTP error! Status: ${response.status}`);
+      }
+      return response.json();
     })
     .then((json) => {
       console.log('Node restarted:', json);
@@ -205,6 +271,35 @@ function Node() {
       // Set the loading state to false after the API call is completed
       setIsRestarting(null);
     });
+  };
+
+  const handleWakeWordOptionChange = (e) => {
+    const newSelectedWakeWord = e.target.value;
+
+    if (newSelectedWakeWord === 'file-upload') {
+      // If the selected option is 'file-upload', trigger file upload
+      document.getElementById('file-upload-input').click();
+      return;
+    }
+
+    setSelectedWakeWord(newSelectedWakeWord);
+    setEditedData((prevData) => ({
+      ...prevData,
+      wake_word: newSelectedWakeWord,
+    }));
+    setNewChanges(true);
+  };
+
+  const handleWakeWordUploadSelection = (file) => {
+    if (!file) {
+      return;
+    }
+    setWakeWordFile(file);
+    const fileName = file.name.replace(/.onnx/g, '');
+    console.log(fileName);
+    setWakeWords((prevData) => [...prevData, fileName]);
+    setSelectedWakeWord(fileName);
+    setNewChanges(true);
   };
 
   if (!initialData) {
@@ -260,19 +355,27 @@ function Node() {
                 />
               </div>
               <div className="form-field">
-                <label>WakeWord</label>
+                <label>Wake Word</label>
                 <select
                   className="dropdown"
-                  value={editedData.wake_word}
-                  onChange={(e) => handleInputChange('wake_word', e.target.value)}
+                  value={selectedWakeWord}
+                  onChange={handleWakeWordOptionChange}
                 >
-                  {wakeWords.map((wake_word, index) => (
-                    <option key={index} value={wake_word}>
-                      {capitalizeId(wake_word)}
+                  {wakeWords.map((wakeWord, index) => (
+                    <option key={index} value={wakeWord}>
+                      {capitalizeId(wakeWord)}
                     </option>
                   ))}
+                  <option value="file-upload">Upload Wake Word</option>
                 </select>
               </div>
+              <input
+                id="file-upload-input"
+                type="file"
+                accept=".onnx"
+                onChange={(e) => handleWakeWordUploadSelection(e.target.files[0])}
+                style={{ display: 'none' }}
+              />
               <div className="form-field">
                 <label>Wake Word Confidence</label>
                 <input

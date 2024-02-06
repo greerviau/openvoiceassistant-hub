@@ -28,7 +28,7 @@ const Sidebar = ({children}) => {
         
         if (confirmRestart) {
             // Call the /restart API or any other action on power off click
-            fetch('/restart', {
+            fetch('/api/restart', {
                 method: 'POST',
                 // Add any required headers or credentials
             })
@@ -52,11 +52,13 @@ const Sidebar = ({children}) => {
     };
 
     const menuItem=[
+        /*
         {
             path:"/",
             name:"Overview",
             icon:<FaHome/>
         },
+        */
         {
             path:"/nodes",
             name:"Nodes",
@@ -77,11 +79,13 @@ const Sidebar = ({children}) => {
             name:"Settings",
             icon:<FiSettings/>
         },
+        /*
         {
             path:"/logs",
             name:"Logs",
             icon:<FaCode/>
         }
+        */
     ]
     return (
         <div className="container">

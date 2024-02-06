@@ -1,6 +1,6 @@
 // Nodes.js
 import React, { useState, useEffect } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 
 function Nodes() {
   const [data, setData] = useState([]);
@@ -13,8 +13,13 @@ function Nodes() {
   const fetchData = () => {
     setRefreshing(true);
     // Fetch data from the API endpoint
-    fetch('/node/status')
-      .then((response) => response.json())
+    fetch('/api/node/status')
+    .then((response) => {
+      if (!response.ok) {
+        throw new Error(`HTTP error! Status: ${response.status}`);
+      }
+      return response.json();
+    })
       .then((json) => {
         console.log(json);
         setData(json);
@@ -61,35 +66,35 @@ function Nodes() {
       setRestarting(true);
     
       // API call to restart node
-      fetch(`/node/${id}/restart`, {
+      fetch(`/api/node/${id}/restart`, {
         method: 'POST',
       })
-        .then((response) => {
-          if (!response.ok) {
-            throw new Error(`HTTP error! Status: ${response.status}`);
-          }
-          return response.json();
-        })
-        .then((json) => {
-          console.log(`Node with ID ${id} restarted:`, json);
-          setSuccessNotification(`${name} Restarted`);
-          // Clear the notification after a few seconds
-          setTimeout(() => {
-            setSuccessNotification(null);
-          }, 3000);
-          fetchData();
-        })
-        .catch((error) => {
-          console.error(`Error restarting node with ID ${id}:`, error);
-          setErrorNotification(`${error.message}`);
-          // Clear the notification after a few seconds
-          setTimeout(() => {
-            setErrorNotification(null);
-          }, 5000);
-        })
-        .finally(() => {
-          setRestarting(false);
-        });
+      .then((response) => {
+        if (!response.ok) {
+          throw new Error(`HTTP error! Status: ${response.status}`);
+        }
+        return response.json();
+      })
+      .then((json) => {
+        console.log(`Node with ID ${id} restarted:`, json);
+        setSuccessNotification(`${name} Restarted`);
+        // Clear the notification after a few seconds
+        setTimeout(() => {
+          setSuccessNotification(null);
+        }, 3000);
+        fetchData();
+      })
+      .catch((error) => {
+        console.error(`Error restarting node with ID ${id}:`, error);
+        setErrorNotification(`${error.message}`);
+        // Clear the notification after a few seconds
+        setTimeout(() => {
+          setErrorNotification(null);
+        }, 5000);
+      })
+      .finally(() => {
+        setRestarting(false);
+      });
     };
   
     const handleItemIdentify = (id, event) => {
@@ -99,63 +104,64 @@ function Nodes() {
       // Set loading state to true for the corresponding item
       setIdentifying(true);
       // Call the identify API for the specific node
-      fetch(`/node/${id}/announce/Hello%20World`, {
+      fetch(`/api/node/${id}/announce/Hello%20World`, {
         method: 'POST',
       })
-        .then((response) => {
-          if (!response.ok) {
-            throw new Error(`HTTP error! Status: ${response.status}`);
-          }
-          return response.json();
-        })
-        .then((json) => {
-          console.log('Node identified:', json);
-          // Add any additional logic you need after successful identification
-        })
-        .catch((error) => {
-          console.error('Error identifying node:', error);
-          setErrorNotification(`${error.message}`);
-          // Clear the notification after a few seconds
-          setTimeout(() => {
-            setErrorNotification(null);
-          }, 5000);
-          // Handle the error, if needed
-          
-        }).finally(() => {
-          setIdentifying(false);
-        });
+      .then((response) => {
+        if (!response.ok) {
+          throw new Error(`HTTP error! Status: ${response.status}`);
+        }
+        return response.json();
+      })
+      .then((json) => {
+        console.log('Node identified:', json);
+        // Add any additional logic you need after successful identification
+      })
+      .catch((error) => {
+        console.error('Error identifying node:', error);
+        setErrorNotification(`${error.message}`);
+        // Clear the notification after a few seconds
+        setTimeout(() => {
+          setErrorNotification(null);
+        }, 5000);
+        // Handle the error, if needed
+        
+      }).finally(() => {
+        setIdentifying(false);
+      });
     };
   
     const handleDeleteClick = (id, name) => {
       const confirmation = window.confirm(`Are you sure you want to delete ${name}?`);
       if (confirmation) {
         // Call the API to remove the node
-        fetch(`/node/${id}`, {
+        fetch(`/api/node/${id}`, {
           method: 'DELETE',
         })
-          .then((response) => {
-            if (response.ok) {
-              console.log(`${name} successfully deleted.`);
-              // Add any additional logic or update UI as needed
-              setSuccessNotification(`${name} Deleted`);
-              // Clear the notification after a few seconds
-              setTimeout(() => {
-                setSuccessNotification(null);
-              }, 3000);
-              fetchData();
-            } else {
-              console.error(`Failed to delete ${name}.`);
-              // Handle error or update UI accordingly
-            }
-          })
-          .catch((error) => {
-            console.error('Error deleting node:', error);
-            setErrorNotification(`${error.message}`);
-            // Clear the notification after a few seconds
-            setTimeout(() => {
-              setErrorNotification(null);
-            }, 5000);
-          });
+        .then((response) => {
+          if (!response.ok) {
+            throw new Error(`HTTP error! Status: ${response.status}`);
+          }
+          return response.json();
+        })
+        .then((response) => {
+          console.log(`${name} successfully deleted.`);
+          // Add any additional logic or update UI as needed
+          setSuccessNotification(`${name} Deleted`);
+          // Clear the notification after a few seconds
+          setTimeout(() => {
+            setSuccessNotification(null);
+          }, 3000);
+          fetchData();
+        })
+        .catch((error) => {
+          console.error('Error deleting node:', error);
+          setErrorNotification(`${error.message}`);
+          // Clear the notification after a few seconds
+          setTimeout(() => {
+            setErrorNotification(null);
+          }, 5000);
+        });
       } else {
         // User canceled the deletion
         console.log(`Deletion of ${name} canceled.`);
@@ -165,13 +171,11 @@ function Nodes() {
     return (
       <li className="list-item" key={nodeItem.id} onClick={() => handleItemClick(nodeItem.id)}>
         <span>
-          <Link to="#" style={{ color: 'inherit' }}>
-            <strong>Name:</strong> {nodeItem.name} |{' '}
-            <strong>Status:</strong>{' '}
-            <span style={{ color: nodeItem.status === 'online' ? 'green' : 'red' }}>
-              {nodeItem.status}
-            </span>
-          </Link>
+          <strong>Name:</strong> {nodeItem.name} |{' '}
+          <strong>Status:</strong>{' '}
+          <span style={{ color: nodeItem.status === 'online' ? 'green' : 'red' }}>
+            {nodeItem.status}
+          </span>
           {nodeItem.status === 'online' && (
             <button
               className={`identify-button ${identifying ? 'disabled' : ''}`}

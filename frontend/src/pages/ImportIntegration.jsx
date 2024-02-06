@@ -11,7 +11,7 @@ function ImportIntegration() {
 
   useEffect(() => {
     // Fetch data from the /skills/not_imported API endpoint
-    fetch('/integrations/not_imported')
+    fetch('/api/integrations/not_imported')
       .then((response) => response.json())
       .then((json) => {
         setData(json); // Convert object to array
@@ -36,15 +36,20 @@ function ImportIntegration() {
 
   return (
     <div>
-      <h1>Import Integrations</h1>
+      <h1>Import Integration</h1>
       <div className="list-container">
         <Link to="/integrations" className="import-button">
           Back
         </Link>
+        <h2 style={{ marginTop: '20px' }}>Available Integrations</h2>
         <div style={{ marginTop: '20px' }}>
         {loading ? (
           <p>Loading...</p>
         ) : (
+          <div>
+          {data.length === 0 ? (
+            <p>No Available Integrations</p>
+          ) : (
           <ul className="item-list" style={{ paddingTop: '10px' }}>
             {data.map((item, index) => (
               <li className="list-item" key={index} onClick={() => handleItemClick(item)}>
@@ -53,6 +58,8 @@ function ImportIntegration() {
             ))}
           </ul>
           )}
+          </div>
+        )}
         </div>
         <div className="notification-container">
           {errorNotification && (

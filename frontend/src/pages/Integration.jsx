@@ -14,7 +14,7 @@ function Integration() {
 
   useEffect(() => {
     // Fetch configuration data from the API endpoint
-    fetch(`/integrations/${integrationId}/config`)
+    fetch(`/api/integrations/${integrationId}/config`)
       .then((response) => response.json())
       .then((json) => {
         console.log(json);
@@ -49,7 +49,7 @@ function Integration() {
   };
 
   const handleSaveChanges = () => {
-    fetch(`/integrations/${integrationId}/config`, {
+    fetch(`/api/integrations/${integrationId}/config`, {
       method: 'PUT',
       headers: {
         'Content-Type': 'application/json',

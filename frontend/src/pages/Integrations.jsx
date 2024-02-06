@@ -13,7 +13,7 @@ function Integrations() {
   const fetchData = () => {
     // Fetch data from the API endpoint
     setLoading(true);
-    fetch('/integrations/imported')
+    fetch('/api/integrations/imported')
       .then((response) => response.json())
       .then((json) => {
         setData(json); // Convert object to an array of key-value pairs
@@ -45,7 +45,7 @@ function Integrations() {
     const confirmation = window.confirm(`Are you sure you want to delete ${capitalizeId(item)}?`);
     if (confirmation) {
       // Call the API to remove the integration
-      fetch(`/integrations/${encodeURIComponent(item.toLowerCase())}`, {
+      fetch(`/api/integrations/${encodeURIComponent(item.toLowerCase())}`, {
         method: 'DELETE',
       })
       .then(() => {

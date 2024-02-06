@@ -94,7 +94,7 @@ class NodeManager:
                 raise RuntimeError(f"Failed to restart node {node_id}")
             self.nodes[node_id]["restart_required"] = False
     
-    def call_node_api(self, verb: str, node_id: str, endpoint: str, data: typing.Dict = {}):
+    def call_node_api(self, verb: str, node_id: str, endpoint: str, files: typing.Dict = {}, data: typing.Dict = {}):
         verb = verb.upper()
         if verb not in ['GET', 'POST', 'PUT', 'DELETE']:
             raise RuntimeError('Invalid api verb')
@@ -105,5 +105,5 @@ class NodeManager:
         address = node_config['api_url']
         url = address + endpoint
         print(url)
-        resp = requests.request(verb, url, timeout=10, json=data)
+        resp = requests.request(verb, url, timeout=5, files=files, data=data)
         return resp

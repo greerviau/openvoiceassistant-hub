@@ -15,7 +15,7 @@ function Skill() {
 
   useEffect(() => {
     // Fetch configuration data from the API endpoint
-    fetch(`/skills/${skillId}/config`)
+    fetch(`/api/skills/${skillId}/config`)
       .then((response) => response.json())
       .then((json) => {
         console.log(json);
@@ -51,7 +51,7 @@ function Skill() {
   };
 
   const handleSaveChanges = () => {
-    fetch(`/skills/${skillId}/config`, {
+    fetch(`/api/skills/${skillId}/config`, {
       method: 'PUT',
       headers: {
         'Content-Type': 'application/json',

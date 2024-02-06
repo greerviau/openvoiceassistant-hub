@@ -62,59 +62,59 @@ const CollapsibleSection = ({ title, component, config, setConfig, setSuccessNot
   };
 
   const handleSaveChanges = () => {
-    fetch(`/${component}/config`, {
+    fetch(`/api/${component}/config`, {
       method: 'PUT',
       headers: {
         'Content-Type': 'application/json',
       },
       body: JSON.stringify(config),
     })
-      .then((response) => response.json())
-      .then((json) => {
-        setNewChanges(false);
-        console.log('Update successful:', json);
-        // Display notification for configuration saved
-        setSuccessNotification(`Saved ${capitalizeId(component)} Config`);
-        setTimeout(() => {
-          setSuccessNotification(null);
-        }, 3000);
+    .then((response) => response.json())
+    .then((json) => {
+      setNewChanges(false);
+      console.log('Update successful:', json);
+      // Display notification for configuration saved
+      setSuccessNotification(`Saved ${capitalizeId(component)} Config`);
+      setTimeout(() => {
+        setSuccessNotification(null);
+      }, 3000);
 
-        setInfoNotification(`${capitalizeId(component)} Reload Required`);
-        setTimeout(() => {
-          setInfoNotification(null);
-        }, 3000);
-      })
-      .catch((error) => {
-        console.error(`Error updating ${component} configuration:`, error);
-        setErrorNotification(`${error.message}`);
-        // Clear the notification after a few seconds
-        setTimeout(() => {
-          setErrorNotification(null);
-        }, 5000);
-      });
+      setInfoNotification(`${capitalizeId(component)} Reload Required`);
+      setTimeout(() => {
+        setInfoNotification(null);
+      }, 3000);
+    })
+    .catch((error) => {
+      console.error(`Error updating ${component} configuration:`, error);
+      setErrorNotification(`${error.message}`);
+      // Clear the notification after a few seconds
+      setTimeout(() => {
+        setErrorNotification(null);
+      }, 5000);
+    });
   };
 
   const handleReload = () => {
     // Call the reload API
-    fetch(`/${component}/reload`, {
+    fetch(`/api/${component}/reload`, {
       method: 'POST',
     })
-      .then((response) => response.json())
-      .then((json) => {
-        console.log('Reload successful');
-        setSuccessNotification(`${capitalizeId(component)} Reloaded`);
-        setTimeout(() => {
-          setSuccessNotification(null);
-        }, 3000);
-      })
-      .catch((error) => {
-        console.error(`Error reloading ${component} configuration:`, error);
-        setErrorNotification(`${error.message}`);
-        // Clear the notification after a few seconds
-        setTimeout(() => {
-          setErrorNotification(null);
-        }, 5000);
-      });
+    .then((response) => response.json())
+    .then((json) => {
+      console.log('Reload successful');
+      setSuccessNotification(`${capitalizeId(component)} Reloaded`);
+      setTimeout(() => {
+        setSuccessNotification(null);
+      }, 3000);
+    })
+    .catch((error) => {
+      console.error(`Error reloading ${component} configuration:`, error);
+      setErrorNotification(`${error.message}`);
+      // Clear the notification after a few seconds
+      setTimeout(() => {
+        setErrorNotification(null);
+      }, 5000);
+    });
   };
 
   const toggleSection = () => {
@@ -194,52 +194,52 @@ function Settings() {
     // Initial fetch
     console.log('Pulling config data')
     // Fetch configuration data for Transcriber
-    fetch('/transcriber/config')
-      .then((response) => response.json())
-      .then((json) => {
-        console.log(json);
-        setTranscriberConfig(json);
-      })
-      .catch((error) => {
-        console.error('Error fetching transcriber config:', error);
-        setErrorNotification(`${error.message}`);
-        // Clear the notification after a few seconds
-        setTimeout(() => {
-          setErrorNotification(null);
-        }, 5000);
-      });
+    fetch('/api/transcriber/config')
+    .then((response) => response.json())
+    .then((json) => {
+      console.log(json);
+      setTranscriberConfig(json);
+    })
+    .catch((error) => {
+      console.error('Error fetching transcriber config:', error);
+      setErrorNotification(`${error.message}`);
+      // Clear the notification after a few seconds
+      setTimeout(() => {
+        setErrorNotification(null);
+      }, 5000);
+    });
 
     // Fetch configuration data for Understander
-    fetch('/understander/config')
-      .then((response) => response.json())
-      .then((json) => {
-        console.log(json);
-        setUnderstanderConfig(json);
-      })
-      .catch((error) => {
-        console.error('Error fetching understander config:', error);
-        setErrorNotification(`${error.message}`);
-        // Clear the notification after a few seconds
-        setTimeout(() => {
-          setErrorNotification(null);
-        }, 5000);
-      });
+    fetch('/api/understander/config')
+    .then((response) => response.json())
+    .then((json) => {
+      console.log(json);
+      setUnderstanderConfig(json);
+    })
+    .catch((error) => {
+      console.error('Error fetching understander config:', error);
+      setErrorNotification(`${error.message}`);
+      // Clear the notification after a few seconds
+      setTimeout(() => {
+        setErrorNotification(null);
+      }, 5000);
+    });
 
     // Fetch configuration data for Synthesizer
-    fetch('/synthesizer/config')
-      .then((response) => response.json())
-      .then((json) => {
-        console.log(json);
-        setSynthesizerConfig(json);
-      })
-      .catch((error) => {
-        console.error('Error fetching synthesizer config:', error);
-        setErrorNotification(`${error.message}`);
-        // Clear the notification after a few seconds
-        setTimeout(() => {
-          setErrorNotification(null);
-        }, 5000);
-      });
+    fetch('/api/synthesizer/config')
+    .then((response) => response.json())
+    .then((json) => {
+      console.log(json);
+      setSynthesizerConfig(json);
+    })
+    .catch((error) => {
+      console.error('Error fetching synthesizer config:', error);
+      setErrorNotification(`${error.message}`);
+      // Clear the notification after a few seconds
+      setTimeout(() => {
+        setErrorNotification(null);
+      }, 5000);
+    });
   }, []);  
 
   return (

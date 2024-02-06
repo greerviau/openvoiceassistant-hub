@@ -14,22 +14,22 @@ function Skills() {
   const fetchData = () => {
     // Fetch data from the API endpoint
     setLoading(true);
-    fetch('/skills/imported')
-      .then((response) => response.json())
-      .then((json) => {
-        setData(json); // Convert object to an array of key-value pairs
-      })
-      .catch((error) => {
-        console.error('Error fetching skills data:', error);
-        setErrorNotification(`${error.message}`);
-        // Clear the notification after a few seconds
-        setTimeout(() => {
-          setErrorNotification(null);
-        }, 5000);
-      })
-      .finally(() => {
-        setLoading(false);
-      });
+    fetch('/api/skills/imported')
+    .then((response) => response.json())
+    .then((json) => {
+      setData(json); // Convert object to an array of key-value pairs
+    })
+    .catch((error) => {
+      console.error('Error fetching skills data:', error);
+      setErrorNotification(`${error.message}`);
+      // Clear the notification after a few seconds
+      setTimeout(() => {
+        setErrorNotification(null);
+      }, 5000);
+    })
+    .finally(() => {
+      setLoading(false);
+    });
   };
 
   useEffect(() => {
@@ -46,7 +46,7 @@ function Skills() {
     const confirmation = window.confirm(`Are you sure you want to delete ${capitalizeId(item)}?`);
     if (confirmation) {
       // Call the API to remove the skill
-      fetch(`/skills/${encodeURIComponent(item.toLowerCase())}`, {
+      fetch(`/api/skills/${encodeURIComponent(item.toLowerCase())}`, {
         method: 'DELETE',
       })
       .then(() => {
