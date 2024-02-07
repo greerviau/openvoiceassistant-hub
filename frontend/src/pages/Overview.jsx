@@ -11,35 +11,32 @@ const Overview = () => {
   const audioRef = useRef();
 
   const handleRecord = async () => {
-    setRecording(true);
-    const audioChunks = [];
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      const mediaRecorder = new MediaRecorder(stream);
+      setMediaRecorder(mediaRecorder);
+      const audioChunks = [];
 
-    navigator.mediaDevices.getUserMedia({ audio: true })
-    .then((stream) => {
-        const mediaRecorder = new MediaRecorder(stream);
-        setMediaRecorder(mediaRecorder);
-        mediaRecorder.ondataavailable = (e) => {
-            audioChunks.push(e.data);
-        };
+      mediaRecorder.ondataavailable = (e) => {
+        audioChunks.push(e.data);
+      };
 
-        mediaRecorder.onstop = () => {
-            const audioBlob = new Blob(audioChunks, { type: 'audio/wav' });
-            const audioUrl = URL.createObjectURL(audioBlob);
-            if (audioRef.current) {
-                audioRef.current.src = audioUrl;
-            }
-            sendAudioData(audioBlob);
-        };
+      mediaRecorder.onstop = async () => {
+        const audioBlob = new Blob(audioChunks, { type: 'audio/wav' });
+        const audioUrl = URL.createObjectURL(audioBlob);
+        setAudioUrl(audioUrl);
+        sendAudioData(audioBlob);
+      };
 
-        mediaRecorder.start();
-    })
-    .catch((error) => {
-        console.error('Error accessing microphone:', error);
-        setErrorNotification(`${error.message}`);
-        setTimeout(() => {
+      mediaRecorder.start();
+      setRecording(true);
+    } catch (error) {
+      console.error('Error accessing microphone:', error);
+      setErrorNotification(`${error.message}`);
+      setTimeout(() => {
         setErrorNotification(null);
-        }, 5000);
-    });
+      }, 5000);
+    }
   };
 
   const sendAudioData = async (audioBlob) => {

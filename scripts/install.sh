@@ -20,6 +20,12 @@ python -m pip install -r requirements_full.txt
 python -m spacy download en_core_web_sm
 python -m nltk.downloader stopwords
 
+FRONTEND_DIR="$CWD/frontend"
+
+cd "$FRONTEND_DIR" || exit 1
+rm -rf build
+npm run build 
+
 cat <<EOF > "/etc/systemd/system/ova_hub_backend.service"
 [Unit]
 Description=openvoiceassistant HUB backend
@@ -37,6 +43,7 @@ EOF
 systemctl enable ova_hub_backend.service
 systemctl restart ova_hub_backend.service
 
+: ' MAY BE ABLE TO REMOVE
 #FRONTEND INSTALL
 FRONTEND_DIR="$CWD/frontend"
 
@@ -61,3 +68,4 @@ EOF
 
 systemctl enable ova_hub_frontend.service
 systemctl restart ova_hub_frontend.service
+'

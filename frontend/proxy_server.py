@@ -42,7 +42,7 @@ class ProxyHandler(SimpleHTTPRequestHandler):
 
 def run(server_class=HTTPServer, handler_class=ProxyHandler, port=5000):
     # Start the HTTP server
-    server_address = ('', port)
+    server_address = ('0.0.0.0', port)
     httpd = server_class(server_address, handler_class)
     print(f'Starting server on port {port}...')
     httpd.serve_forever()

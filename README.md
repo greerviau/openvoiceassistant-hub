@@ -22,14 +22,14 @@ sudo ./scripts/install.sh
 The installation will automatically create systemd services for the frontend and backend applications.
 
 ## Frontend
-Navigate to ```<ova-server-ip>:5000``` in a web browser to access the frontend UI
+Navigate to ```localhost:7123``` in a web browser to access the frontend UI
 
 From here you can configure OVA nodes, add and configure skills, edit general configuration, view logs and debug information, etc.
 
 OVA nodes on your local network should auto discover the HUB on your LAN and automatically sync. Once synced their information will be available from here where you can configure them to your needs, control remotely, view debug logs, etc.
 
 ## REST API
-Navigate to ```<ova-server-ip>:7123/docs``` to access the swagger UI for the REST API.
+Navigate to ```localhost:7123/docs``` to access the swagger UI for the REST API.
 
 # Integrations
 Integrations are an augmentation for skills that might need similar capabilities. Ex. Home Assistant api that multiple skills need to utilize
