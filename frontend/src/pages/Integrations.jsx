@@ -86,8 +86,8 @@ function Integrations() {
   return (
     <div>
       <h1>Integrations</h1>
-      <div className="list-container">
-      <Link to="/import-integration" className="import-button">
+      <div className="page-container">
+      <Link to="/import-integration" className="big-info-button">
           + Import Integration
       </Link>
       <div style={{ marginTop: '20px' }}>

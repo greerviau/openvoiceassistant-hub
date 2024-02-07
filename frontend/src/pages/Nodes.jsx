@@ -10,7 +10,7 @@ function Nodes() {
   const [errorNotification, setErrorNotification] = useState(null);
   const navigate = useNavigate();
 
-  const fetchData = () => {
+  const refreshStatus = () => {
     setRefreshing(true);
     // Fetch data from the API endpoint
     fetch('/api/node/status')
@@ -40,11 +40,11 @@ function Nodes() {
   useEffect(() => {
     // Initial fetch
     setLoading(true);
-    fetchData();
+    refreshStatus();
     setLoading(false);
 
     // Fetch data every minute (60,000 milliseconds)
-    const intervalId = setInterval(fetchData, 60000);
+    const intervalId = setInterval(refreshStatus, 60000);
 
     // Cleanup the interval when the component unmounts
     return () => clearInterval(intervalId);
@@ -82,7 +82,7 @@ function Nodes() {
         setTimeout(() => {
           setSuccessNotification(null);
         }, 3000);
-        fetchData();
+        refreshStatus();
       })
       .catch((error) => {
         console.error(`Error restarting node with ID ${id}:`, error);
@@ -152,7 +152,7 @@ function Nodes() {
           setTimeout(() => {
             setSuccessNotification(null);
           }, 3000);
-          fetchData();
+          refreshStatus();
         })
         .catch((error) => {
           console.error('Error deleting node:', error);
@@ -178,7 +178,7 @@ function Nodes() {
           </span>
           {nodeItem.status === 'online' && (
             <button
-              className={`identify-button ${identifying ? 'disabled' : ''}`}
+              className={`submit-button ${identifying ? 'disabled' : ''}`}
               onClick={(event) => handleItemIdentify(nodeItem.id, event)}
               disabled={identifying}
             >
@@ -216,16 +216,16 @@ function Nodes() {
   return (
     <div>
       <h1>Nodes</h1>
-      <div className="list-container">
+      <div className="page-container">
         <button
-          onClick={fetchData}
-          className={`import-button ${refreshing ? 'disabled' : ''}`}
+          onClick={refreshStatus}
+          className={`big-info-button ${refreshing ? 'disabled' : ''}`}
           disabled={refreshing}
         >
           {refreshing ? 'Refreshing...' : 'Refresh'}
         </button>
         {loading ? (
-          <p>Loading...</p>
+          <p style={{ paddingTop: "30px" }}>Loading...</p>
         ) : (
           <ul className="item-list">
             {data.map((item) => (

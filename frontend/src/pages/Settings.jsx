@@ -175,7 +175,7 @@ const CollapsibleSection = ({ title, component, config, setConfig, setSuccessNot
               })}
               <button
                 type="button"
-                className={`save-button ${!newChanges ? 'disabled' : ''}`}
+                className={`submit-button ${!newChanges ? 'disabled' : ''}`}
                 disabled={!newChanges}
                 onClick={handleSaveChanges}
               >
@@ -255,7 +255,7 @@ function Settings() {
   return (
     <div>
       <h1>Settings</h1>
-      <div className="settings-container">
+      <div className="page-container">
         <CollapsibleSection 
               title="Transcriber" 
               component="transcriber"

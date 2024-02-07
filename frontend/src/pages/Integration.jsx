@@ -100,8 +100,8 @@ function Integration() {
   return (
     <div>
       <h1>Configure {capitalizeId(integrationId)}</h1>
-      <div style={{ padding: "20px"}}>
-        <Link to="/skills" className="import-button">
+      <div className='page-container'>
+        <Link to="/skills" className="big-info-button">
             Back
         </Link>
         <form style={{ paddingTop: "40px"}}>
@@ -129,7 +129,7 @@ function Integration() {
           {importMode ? (
             <button 
               type="button" 
-              className={`import-button ${!newChanges ? 'disabled' : ''}`}
+              className={`info-button ${!newChanges ? 'disabled' : ''}`}
               onClick={handleSaveChanges}
               disabled={!newChanges}>
               Import
@@ -137,7 +137,7 @@ function Integration() {
           ) : (
             <button
               type="button"
-              className={`save-button ${!newChanges ? 'disabled' : ''}`}
+              className={`submit-button ${!newChanges ? 'disabled' : ''}`}
               disabled={!newChanges}
               onClick={handleSaveChanges}
             >

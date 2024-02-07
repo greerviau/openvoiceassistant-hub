@@ -125,7 +125,10 @@ class NodeManager:
             raise RuntimeError(f"Node {node_id} does not exist")
         address = node_config['api_url']
         url = address + endpoint
-        resp = requests.request(verb, url, timeout=5, files=files, json=json, data=data)
+        try:
+            resp = requests.request(verb, url, timeout=5, files=files, json=json, data=data)
+        except:
+            raise RuntimeError(f"Failed to make request to {endpoint} on node {node_id} | Timed out")
         return resp
 
     def __save_config(self, node_id: str, node_config: typing.Dict):

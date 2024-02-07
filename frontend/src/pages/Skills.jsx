@@ -91,8 +91,8 @@ function Skills() {
   return (
     <div>
       <h1>Skills</h1>
-      <div className="list-container">
-      <Link to="/import-skill" className="import-button">
+      <div className="page-container">
+      <Link to="/import-skill" className="big-info-button">
           + Import Skill
       </Link>
       <div style={{ marginTop: '20px' }}>

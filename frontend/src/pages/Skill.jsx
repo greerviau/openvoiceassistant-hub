@@ -106,8 +106,8 @@ function Skill() {
   return (
     <div>
       <h1>Configure {capitalizeId(skillId)}</h1>
-      <div style={{ padding: "20px"}}>
-        <Link to="/skills" className="import-button">
+      <div className="page-container" >
+        <Link to="/skills" className="big-info-button">
           Back
         </Link>
         <form style={{ paddingTop: "40px"}}>
@@ -135,7 +135,7 @@ function Skill() {
           {importMode ? (
             <button 
               type="button" 
-              className={`import-button ${!newChanges ? 'disabled' : ''}`}
+              className={`info-button ${!newChanges ? 'disabled' : ''}`}
               onClick={handleSaveChanges}
               disabled={!newChanges}>
               Import
@@ -143,7 +143,7 @@ function Skill() {
           ) : (
             <button
               type="button"
-              className={`save-button ${!newChanges ? 'disabled' : ''}`}
+              className={`submit-button ${!newChanges ? 'disabled' : ''}`}
               disabled={!newChanges}
               onClick={handleSaveChanges}
             >

@@ -3,7 +3,11 @@ import time
 import os
 import fastapi
 import uuid
+import json
+import io
+
 from fastapi import FastAPI, File, UploadFile, HTTPException
+from fastapi.responses import StreamingResponse, Response
 from fastapi.encoders import jsonable_encoder
 from fastapi.openapi.utils import get_openapi
 
@@ -264,8 +268,8 @@ def create_app(ova: OpenVoiceAssistant):
                         detail=repr(err),
                         headers={'X-Error': f'{err}'})
 
-        response_file_path = context['response_file_path']
-
+        response_file_path = context['response_audio_file_path']
+        
         def iterfile():
             with open(response_file_path, mode="rb") as file_like: 
                 yield from file_like 
@@ -647,10 +651,10 @@ def create_app(ova: OpenVoiceAssistant):
 
             context['command_audio_file_path'] = audio_file_path
 
-            print(f"Request From {data.node_name}")
-            print(f"- {data.node_id}")
-            print(f"- {data.node_area}")
-            print(f"- {data.hub_callback}")
+            print(f"Request From {data.node_id}")
+            print(f"- Node Name:    {data.node_name}")
+            print(f"- Node Area:    {data.node_area}")
+            print(f"- HUB Callback: {data.hub_callback}")
 
             context['node_id'] = data.node_id
             context['node_name'] = data.node_name
@@ -679,15 +683,67 @@ def create_app(ova: OpenVoiceAssistant):
                         detail=repr(err),
                         headers={'X-Error': f'{err}'})
 
+    @router.post('/respond/audio_file', tags=["Pipeline"])
+    async def respond_to_audio_file(audio_file: UploadFile = File(...)):
+        try:
+            context = {}
+
+            file_dump = ova.file_dump
+
+            audio_file_path = os.path.join(file_dump, audio_file.filename)
+            with open(audio_file_path, 'wb') as file:
+                file.write(await audio_file.read())
+
+            context['command_audio_file_path'] = audio_file_path
+
+            print(f"Request From Frontend")
+
+            context['node_id'] = ""
+            context['node_name'] = ""
+            context['node_area'] = ""
+            context['hub_callback'] = ""
+            context['time_sent'] = 0.0
+            context['time_recieved'] = time.time()
+            context['last_time_engaged'] = 0.0
+
+            ova.run_pipeline(
+                Components.Transcriber,
+                Components.Understander,
+                Components.Actor,
+                Components.Synthesizer,
+                context=context
+            )
+
+            context['time_returned'] = time.time()
+
+            context.pop("response_audio_data")
+
+            response_file_path = context['response_audio_file_path']
+            with open(response_file_path, "rb") as file:
+                wav_data = file.read()
+
+            response_headers = {"Content-Type": "application/json"}
+            response_headers["X-JSON-Data"] = json.dumps(context)
+            
+            return Response(content=wav_data , headers=response_headers, media_type="audio/wav")
+        
+        except Exception as err:
+            #print(repr(err))
+            raise fastapi.HTTPException(
+                        status_code=400,
+                        detail=repr(err),
+                        headers={'X-Error': f'{err}'})
+
     @router.post('/respond/text', tags=["Pipeline"])
     async def respond_to_text(data: RespondText):
         try:
             context = {}
 
-            print(f"Request From {data.node_name}")
-            print(f"- {data.node_id}")
-            print(f"- {data.node_area}")
-            print(f"- {data.hub_callback}")
+            print(f"Request From {data.node_id}")
+            print(f"- Node Name:    {data.node_name}")
+            print(f"- Node Area:    {data.node_area}")
+            print(f"- HUB Callback: {data.hub_callback}")
+            print(f"- Command:      {data.command_text}")
 
             context['node_id'] = data.node_id
             context['node_name'] = data.node_name
@@ -707,7 +763,16 @@ def create_app(ova: OpenVoiceAssistant):
 
             context['time_returned'] = time.time()
             
-            return context
+            context.pop("response_audio_data")
+
+            response_file_path = context['response_audio_file_path']
+            with open(response_file_path, "rb") as file:
+                wav_data = file.read()
+
+            response_headers = {"Content-Type": "application/json"}
+            response_headers["X-JSON-Data"] = json.dumps(context)
+            
+            return Response(content=wav_data , headers=response_headers, media_type="audio/wav")
         except Exception as err:
             #print(repr(err))
             raise fastapi.HTTPException(

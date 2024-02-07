@@ -42,8 +42,8 @@ function ImportSkill() {
   return (
     <div>
       <h1>Import Skill</h1>
-      <div className="list-container">
-        <Link to="/skills" className="import-button">
+      <div className="page-container">
+        <Link to="/skills" className="big-info-button">
           Back
         </Link>
         <h2 style={{ marginTop: '20px' }}>Available Skills</h2>

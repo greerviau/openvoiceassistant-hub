@@ -4,16 +4,15 @@
   text-decoration: none;
 }
 
-.container{
-  display:flex;
-}
-
 main{
   width: 100%;
   padding: 20px;
 }
 
 /* SIDEBAR */
+.sidebar-container{
+  display:flex;
+}
 
 .sidebar{
   position: sticky;
@@ -104,11 +103,24 @@ html {
   font-family: Roboto, Helvetica, sans-serif;
 }
 
-/* ITEM LIST */
+/* CONTAINERS */
 
-.list-container {
+.page-container {
   padding: 20px;
 }
+
+
+.notification-container {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  position: fixed;
+  top: 10px;
+  right: 10px;
+  z-index: 1000; /* Adjust as needed */
+}
+
+/* ITEM LIST */
 
 .item-list {
   list-style-type: none;
@@ -142,7 +154,7 @@ html {
   cursor: pointer;
 }
 
-/* Nodes.css */
+/* FORMS */
 
 .form-field {
   margin-bottom: 15px;
@@ -161,15 +173,7 @@ input {
   border-radius: 4px;
 }
 
-.notification-container {
-  display: flex;
-  flex-direction: column;
-  align-items: flex-end;
-  position: fixed;
-  top: 10px;
-  right: 10px;
-  z-index: 1000; /* Adjust as needed */
-}
+/* NOTIFICATIONS */
 
 .notification {
   margin-bottom: 10px;
@@ -204,6 +208,8 @@ input {
   }
 }
 
+/* HEADERS */
+
 .node-header {
   display: flex;
   align-items: center;
@@ -212,7 +218,7 @@ input {
 
 /* BUTTONS */
 
-.save-button {
+.submit-button {
   margin-left: 10px;
   background-color: #4caf50;
   color: #fff;
@@ -222,14 +228,29 @@ input {
   cursor: pointer;
 }
 
-.save-button.disabled {
+.big-submit-button {
+  margin-bottom: 10px;
+  padding: 12px 20px;
+  font-size: 16px;
+  border-radius: 5px;
+  background-color: #4caf50;
+  color: #fff;
+  border: none;
+  cursor: pointer;
+}
+
+.submit-button:hover, .big-submit-button:hover {
+  background-color: #3f9142; /* Change hover color based on your design */
+}
+
+.submit-button.disabled, .big-submit-button:disabled {
   background-color: #ccc;
   cursor: not-allowed;
 }
 
 .info-button {
   margin-left: 10px;
-  background-color: #2196f3;
+  background-color: #3498db;
   color: #fff;
   padding: 10px;
   border: none;
@@ -237,42 +258,22 @@ input {
   cursor: pointer;
 }
 
-.info-button.disabled {
-  background-color: #ccc;
-  cursor: not-allowed;
-}
-
-.identify-button {
-  margin-left: 10px;
-  background-color: #4caf50;
-  color: #fff;
-  padding: 10px;
-  border: none;
-  border-radius: 5px;
-  cursor: pointer;
-}
-
-.identify-button.disabled {
-  background-color: #ccc;
-  cursor: not-allowed;
-}
-
-.import-button {
+.big-info-button {
   margin-bottom: 10px;
   padding: 12px 20px;
   font-size: 16px;
   border-radius: 5px;
-  background-color: #3498db;
+  background-color: #2980b9;
   color: #fff;
   border: none;
   cursor: pointer;
 }
 
-.import-button:hover {
+.import-button:hover, .big-info-button:hover {
   background-color: #2980b9;
 }
 
-.import-button.disabled {
+.info-button.disabled, .big-info-button:disabled {
   background-color: #ccc;
   cursor: not-allowed;
 }
@@ -299,6 +300,25 @@ input {
   color: #2980b9; /* Change hover color based on your design */
 }
 
+.record-button {
+  margin-bottom: 10px;
+  padding: 12px 20px;
+  font-size: 16px;
+  border-radius: 5px;
+  cursor: pointer;
+  border: none;
+  color: white;
+  background-color: #c50052; /* Change color based on your design */
+}
+
+.record-button:hover {
+  background-color: #a10043; /* Change hover color based on your design */
+}
+
+.record-button.disabled {
+  background-color: #ccc;
+  cursor: not-allowed;
+}
 
 /* DROPDOWNS */
 
@@ -329,21 +349,7 @@ input {
   box-shadow: 0 0 5px rgba(0, 0, 0, 0.3);
 }
 
-/* COLLAPSABLE */
-
-/* Settings.css (or your preferred CSS file) */
-
-.settings-container {
-  padding: 20px;
-}
-
-.collapsible-section {
-  margin-bottom: 20px;
-  border: 1px solid #ddd;
-  border-radius: 5px;
-  overflow: hidden;
-  transition: height 0.3s ease-in-out;
-}
+/* COLLAPSABLE SECTION */
 
 .section-header {
   display: flex;
@@ -360,8 +366,12 @@ input {
   font-size: 16px;
 }
 
-.section-header span {
-  font-size: 20px;
+.collapsible-section {
+  margin-bottom: 20px;
+  border: 1px solid #ddd;
+  border-radius: 5px;
+  overflow: hidden;
+  transition: height 0.3s ease-in-out;
 }
 
 .section-content {
@@ -375,13 +385,19 @@ input {
   border: none;
 }
 
-/* Add transition effect for the +/- icon rotation */
-.collapsible-section.collapsed .section-header span {
-  transform: rotate(45deg);
+/* OVERVIEW PAGE SPECIFIC */
+
+.overview-field {
+  width: 800px;
+  height: 50px;
+  padding: 10px;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  font-size: 16px;
+  color: #333;
 }
 
-.collapsible-section .section-content {
-  max-height: 500px;
-  overflow: hidden;
-  transition: max-height 0.3s ease-in-out;
+.overview-field:focus {
+  outline: none;
+  border-color: #007bff;
 }

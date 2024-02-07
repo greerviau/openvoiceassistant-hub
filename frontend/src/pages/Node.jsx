@@ -320,19 +320,19 @@ function Node() {
         </button>
         <button
           type="button"
-          className={`identify-button ${isIdentifying || initialData.status === 'offline' ? 'disabled' : ''}`}
+          className={`submit-button ${isIdentifying || initialData.status === 'offline' ? 'disabled' : ''}`}
           onClick={handleIdentify}
           disabled={isIdentifying || initialData.status === 'offline'}
         >
           {isIdentifying ? 'Identifying...' : 'Identify'}
         </button>
       </div>
-      <div style={{ paddingLeft: "20px"}}>
-        <Link to="/nodes" className="import-button">
+      <div className="page-container">
+        <Link to="/nodes" className="big-info-button">
           Back
         </Link>
         {loading ? (
-          <p>Loading data...</p>
+          <p style={{ paddingTop: "30px" }}>Loading data...</p>
         ) : (
           <div style={{ paddingTop: "20px" }}>
             <h2>Configuration</h2>
@@ -454,7 +454,7 @@ function Node() {
                 />
               </div>
               <button type="button" 
-                  className={`save-button ${!newChanges ? 'disabled' : ''}`} 
+                  className={`submit-button ${!newChanges ? 'disabled' : ''}`} 
                   disabled={!newChanges} 
                   onClick={handleSaveChanges}>Save Changes</button>
               <div className="notification-container">

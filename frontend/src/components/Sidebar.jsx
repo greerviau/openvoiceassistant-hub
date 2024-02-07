@@ -52,13 +52,11 @@ const Sidebar = ({children}) => {
     };
 
     const menuItem=[
-        /*
         {
             path:"/",
             name:"Overview",
             icon:<FaHome/>
         },
-        */
         {
             path:"/nodes",
             name:"Nodes",
@@ -88,7 +86,7 @@ const Sidebar = ({children}) => {
         */
     ]
     return (
-        <div className="container">
+        <div className="sidebar-container">
            <div style={{width: isOpen ? "200px" : "50px"}} className="sidebar">
                <div className="top-section">
                    <h1 style={{display: isOpen ? "block" : "none"}} className="logo">v0.0.1</h1>

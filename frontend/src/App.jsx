@@ -20,7 +20,7 @@ const App = () => {
     <BrowserRouter>
       <Sidebar>
         <Routes>
-          <Route path="/" element={<Nodes />} />
+          <Route path="/" element={<Overview />} />
           <Route path="/overview" element={<Overview />} />
           <Route path="/nodes" element={<Nodes />} />
           <Route path="/node/:nodeId" element={<Node />} />
