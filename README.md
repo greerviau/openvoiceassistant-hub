@@ -11,7 +11,6 @@ To utilize some of the more advanced AI features, deploy on a GPU capable machin
 ## Installation
 openvoiceassistant-hub is tested on Ubuntu 18.04 with **python >= 3.9**
 
-For basic installation
 ```
 sudo apt install git && \
 git clone https://github.com/greerviau/openvoiceassistant-hub.git && \
@@ -57,9 +56,6 @@ Actions performed and associated responses are dependant on skills that you can 
 Responses from OVA-hub are synthesized into speech audio and returned to the origin OVA-node along with metadata.
 
 All of the algorithms in the pipeline are customizable, including:
-* Audio Transcription
-* Understanding
-* Voice Synthesis
 
 ## Audio Transcription
 * Kaldi (default)
@@ -75,7 +71,7 @@ All of the algorithms in the pipeline are customizable, including:
 * Piper TTS
 
 ## v0.1.0
-- [x] Fix neural intent (get rid of tensorflow)
+- [x] Fix neural intent (use pytorch)
 - [x] Optimize and improve inference speed
 - [x] Basic frontend
 

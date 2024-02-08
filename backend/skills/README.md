@@ -116,7 +116,7 @@ The action functions themselves take a dictionary ```context``` as a parameter a
 
 ```default_config``` contains the default configuration you want for the skill when first imported. There are no required fields, only what is necessary to configure your skill. You can then change this configuration from the UI once the skill has been imported.
 
-However if you are writing a skill that uses an integration, then it is required to add a field to your configuration called ```required_integrations```. For example if you are making a Home Assistant based skill, and want to utilize the Home Assistant integration, you need the following for your ```default_config```:
+If you are writing a skill that uses an integration, then it is required to add a field to your configuration called ```required_integrations```. For example if you are making a Home Assistant based skill, and want to utilize the Home Assistant integration, you need the following for your ```default_config```:
 
 ```python
 def default_config():
