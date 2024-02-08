@@ -113,7 +113,7 @@ pysbd==0.3.4
 PySocks==1.7.1
 python-crfsuite==0.9.9
 python-dateutil==2.8.2
-py3-tts==2.90
+py3-tts==3.5
 pytz==2023.3.post1
 PyYAML==6.0.1
 rapidfuzz==3.5.2
@@ -166,3 +166,4 @@ wget==3.2
 word2number==1.1
 yarl==1.9.4
 zipp==3.17.0
+python-multipart==0.0.7

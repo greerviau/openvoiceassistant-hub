@@ -1,20 +1,19 @@
-// Skills.jsx
+// Integrations.jsx
 import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { capitalizeId } from '../Utils';
 
-function Skills() {
+function Integrations() {
   const [data, setData] = useState([]);
   const [loading, setLoading] = useState(true);
   const [successNotification, setSuccessNotification] = useState(null);
-  const [infoNotification, setInfoNotification] = useState(null);
   const [errorNotification, setErrorNotification] = useState(null);
   const navigate = useNavigate();
 
   const fetchData = () => {
     // Fetch data from the API endpoint
     setLoading(true);
-    fetch('/api/skills/imported')
+    fetch('/api/integrations/imported')
     .then((response) => {
       if (!response.ok) {
         throw new Error(`HTTP error! Status: ${response.status}`);
@@ -25,7 +24,7 @@ function Skills() {
       setData(json); // Convert object to an array of key-value pairs
     })
     .catch((error) => {
-      console.error('Error fetching skills data:', error);
+      console.error('Error fetching integrations data:', error);
       setErrorNotification(`${error.message}`);
       // Clear the notification after a few seconds
       setTimeout(() => {
@@ -38,20 +37,20 @@ function Skills() {
   };
 
   useEffect(() => {
-    // Fetch data from the /skills/imported API endpoint
+    // Fetch data from the /integrations/imported API endpoint
     fetchData();
   }, []);
 
   const handleItemClick = (item) => {
     // Use item[0] as the key (name) and item[1] as the value (object)
-    navigate(`/skill/${encodeURIComponent(item.toLowerCase())}`, { state: { jsonData: item[1] } });
+    navigate(`/integration/${encodeURIComponent(item.toLowerCase())}`, { state: { jsonData: item[1] } });
   };
 
   const handleDeleteClick = (item) => {
     const confirmation = window.confirm(`Are you sure you want to delete ${capitalizeId(item)}?`);
     if (confirmation) {
-      // Call the API to remove the skill
-      fetch(`/api/skills/${encodeURIComponent(item.toLowerCase())}`, {
+      // Call the API to remove the integration
+      fetch(`/api/integrations/${encodeURIComponent(item.toLowerCase())}`, {
         method: 'DELETE',
       })
       .then((response) => {
@@ -61,21 +60,17 @@ function Skills() {
         return response.json();
       })
       .then((json) => {
-        console.log(`Skill ${capitalizeId(item)} successfully deleted.`);
+        console.log(`Integration ${capitalizeId(item)} successfully deleted.`);
         setSuccessNotification(`${capitalizeId(item)} Deleted`);
         // Clear the notification after a few seconds
         setTimeout(() => {
           setSuccessNotification(null);
         }, 3000);
-        setInfoNotification(`Understander Restart Required`);
-        // Clear the notification after a few seconds
-        setTimeout(() => {
-          setInfoNotification(null);
-        }, 3000);
+        // Add any additional logic or update UI as needed
         fetchData();
       })
       .catch((error) => {
-        console.error('Error deleting skill:', error);
+        console.error('Error deleting integration:', error);
         setErrorNotification(`${error.message}`);
         // Clear the notification after a few seconds
         setTimeout(() => {
@@ -90,10 +85,10 @@ function Skills() {
 
   return (
     <div>
-      <h1>Skills</h1>
+      <h1>Integrations</h1>
       <div className="page-container">
-      <Link to="/import-skill" className="big-info-button">
-          + Import Skill
+      <Link to="/import-integration" className="big-info-button">
+          + Import Integration
       </Link>
       <div style={{ marginTop: '20px' }}>
         {loading ? (
@@ -130,12 +125,9 @@ function Skills() {
         {successNotification && (
           <div className="notification success-notification">{successNotification}</div>
         )}
-        {infoNotification && (
-          <div className="notification info-notification">{infoNotification}</div>
-        )}
       </div>
     </div>
   );
 }
 
-export default Skills;
+export default Integrations;

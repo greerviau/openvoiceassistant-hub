@@ -2,7 +2,7 @@ import time
 import importlib
 import os
 import json
-from typing import List
+import typing
 
 from backend.enums import Components
 from backend import config
@@ -33,7 +33,7 @@ class Understander:
         except:
             config.set(Components.Understander.value, 'config', default_config)
 
-    def load_intents(self, imported_skills: List):
+    def load_intents(self, imported_skills: typing.List):
         tagged_intents = {}
         for skill in imported_skills:
             intents = self.ova.skill_manager.get_skill_intents(skill)
@@ -44,7 +44,7 @@ class Understander:
                 tagged_intents[label] = patterns
         return tagged_intents
     
-    def load_vocab(self, patterns: List[List[str]]):
+    def load_vocab(self, patterns: typing.List[typing.List[str]]):
         all_words = []
         for pattern_list in patterns:
             all_words.extend(pattern_list)
@@ -56,6 +56,14 @@ class Understander:
                 unique.append(word)
         return unique
     
+    def get_algorithm_default_config(self, algorithm_id: str) -> typing.Dict:
+        try:
+            module = importlib.import_module(f'backend.components.understander.{algorithm_id}')
+            return module.default_config()
+        except Exception as e:
+            print(repr(e))
+            raise RuntimeError('Understander algorithm does not exist')
+
     def run_stage(self, context: Context):
         print("Understanding Stage")
         start = time.time()

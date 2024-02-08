@@ -96,6 +96,7 @@ INTENTIONS = [
         {
             "action":"time_remaining",
             "patterns":[
+                "how much time is left",
                 "how much time is left on the timer",
                 "how long on the timer",
                 "how much longer on the timer",

@@ -12,6 +12,7 @@ from backend import config
 
 class Piper:
     def __init__(self, ova: 'OpenVoiceAssistant'):
+        print("Loading Piper Synthesizer")
         self.ova = ova
         file_dump = ova.model_dump
         model_name = config.get(Components.Synthesizer.value, 'config', 'model')
@@ -30,16 +31,12 @@ class Piper:
 
         self.voice = PiperVoice.load(model, config_path=model_config, use_cuda=use_gpu)
 
-    def synthesize(self, context: Context):
-        text = context['response']
-        file_path = context['response_audio_file_path']
+    def synthesize(self, text: str, file_path: str):
         if os.path.isfile(file_path):
             os.remove(file_path)
 
         with wave.open(file_path, "wb") as wav_file:
             self.voice.synthesize(text, wav_file)
-
-        return True
 
 def build_engine(ova: 'OpenVoiceAssistant') -> Piper:
     return Piper(ova)
@@ -49,5 +46,5 @@ def default_config() -> typing.Dict:
         "id": "piper",
         "model": "en_US-lessac-medium",
         "use_gpu": False,
-        "available_models": list(get_voices('./').keys())
+        "model_options": list(get_voices('./').keys())
     }

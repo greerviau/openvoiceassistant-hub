@@ -4,12 +4,12 @@ class Context(typing.TypedDict):
     node_id: str
     node_name: str
     node_area: str
-    node_callback: str
     time_sent: float
     engaged: bool
     last_time_engaged: float
     command_audio_file_path: str
     command: str
+    synth_command: str
     cleaned_command: str
     encoded_command: str
     pos_info: typing.Dict

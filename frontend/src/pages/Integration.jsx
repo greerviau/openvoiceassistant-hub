@@ -1,21 +1,20 @@
-// Skill.jsx
+// Integration.jsx
 import React, { useState, useEffect } from 'react';
 import { Link, useParams, useLocation } from 'react-router-dom';
 import { capitalizeId, getFieldInput} from '../Utils';
 
-function Skill() {
-  const { skillId } = useParams(); // Access the skillId from URL params
+function Integration() {
+  const { integrationId } = useParams(); // Access the integrationId from URL params
   const location = useLocation();
   const [newChanges, setNewChanges] = useState(false);
   const [successNotification, setSuccessNotification] = useState(null);
-  const [infoNotification, setInfoNotification] = useState(null);
   const [errorNotification, setErrorNotification] = useState(null);
   const [jsonData, setJsonData] = useState([]);
   const [importMode, setImportMode] = useState(false);
 
   useEffect(() => {
     // Fetch configuration data from the API endpoint
-    fetch(`/api/skills/${skillId}/config`)
+    fetch(`/api/integrations/${integrationId}/config`)
     .then((response) => {
       if (!response.ok) {
         throw new Error(`HTTP error! Status: ${response.status}`);
@@ -34,13 +33,12 @@ function Skill() {
         setErrorNotification(null);
       }, 5000);
     });
-  }, [skillId]);
+  }, [integrationId]);
 
   useEffect(() => {
     // Check if import mode is true
     if (location.state && location.state.import) {
       setImportMode(true);
-      setNewChanges(true);
     }
   }, [location.state]);
 
@@ -56,7 +54,7 @@ function Skill() {
   };
 
   const handleSaveChanges = () => {
-    fetch(`/api/skills/${skillId}/config`, {
+    fetch(`/api/integrations/${integrationId}/config`, {
       method: 'PUT',
       headers: {
         'Content-Type': 'application/json',
@@ -74,18 +72,14 @@ function Skill() {
       if (!importMode) {
         console.log('Update successful:', json);
         // Display notification for configuration saved
-        setSuccessNotification(`${capitalizeId(skillId)} Config Updated`);
+        setSuccessNotification(`${capitalizeId(integrationId)} Config Updated`);
         setTimeout(() => {
           setSuccessNotification(null);
         }, 3000);
       } else {
-        setSuccessNotification(`${capitalizeId(skillId)} Imported`);
+        setSuccessNotification(`${capitalizeId(integrationId)} Imported`);
         setTimeout(() => {
           setSuccessNotification(null);
-        }, 3000);
-        setInfoNotification('Understander Restart Required');
-        setTimeout(() => {
-          setInfoNotification(null);
         }, 3000);
       }
     })
@@ -105,10 +99,10 @@ function Skill() {
 
   return (
     <div>
-      <h1>Configure {capitalizeId(skillId)}</h1>
-      <div className="page-container" >
+      <h1>Configure {capitalizeId(integrationId)}</h1>
+      <div className='page-container'>
         <Link to="/skills" className="big-info-button">
-          Back
+            Back
         </Link>
         <form style={{ paddingTop: "40px"}}>
         {editableFields.length === 0 ? (
@@ -157,14 +151,11 @@ function Skill() {
             {successNotification && (
               <div className="notification success-notification">{successNotification}</div>
             )}
-            {infoNotification && (
-              <div className="notification info-notification">{infoNotification}</div>
-            )}
           </div>
-        </form>
-      </div>        
+        </form>  
+      </div>
     </div>
   );
 }
 
-export default Skill;
+export default Integration;

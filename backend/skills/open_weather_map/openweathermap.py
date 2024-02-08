@@ -40,15 +40,13 @@ class OpenWeatherMap:
         w, loc = self._get_weather(context)
         command = context["command"]
 
-        sky = self.sky(context)
+        sky = self.__sky(context)
         temp = int(w.temperature(self.unit)["temp"])
         humidity = int(w.humidity)
 
-        response = f"{sky}. The temperature{loc} is {temp} degrees with a humidity of {humidity} percent."
+        context['response'] = f"{sky}. The temperature{loc} is {temp} degrees with a humidity of {humidity} percent."
 
-        return response
-
-    def sky(self, context: typing.Dict):
+    def __sky(self, context: typing.Dict):
         MAIN_STATUS_MAPPING = {
             "thunderstorm": ["thunderstorming"],
             "drizzle": ["drizzling"],
@@ -93,9 +91,10 @@ class OpenWeatherMap:
         else:
             condition = random.choice(DETAILED_STATUS_MAPPING[detailed_status])
 
-        response = (random.choice(RESPONSE_TEMPLATES) % (condition)) + loc
+        return (random.choice(RESPONSE_TEMPLATES) % (condition)) + loc
 
-        return response
+    def sky(self, context: typing.Dict):
+        context['response'] = self.__sky(context)
 
     def air(self, context: typing.Dict):
         RESPONSE_TEMPLATES = [
@@ -110,9 +109,7 @@ class OpenWeatherMap:
 
         template = random.choice(RESPONSE_TEMPLATES)
 
-        response = template % (f"{humidity} percent humidity") + loc
-
-        return response
+        context['response'] = template % (f"{humidity} percent humidity") + loc
 
     def temperature(self, context: typing.Dict):
         RESPONSE_TEMPLATES = [
@@ -127,16 +124,13 @@ class OpenWeatherMap:
 
         template = random.choice(RESPONSE_TEMPLATES)
 
-        response = template % (f"{temp} degrees") + loc
-
-        return response
+        context['response'] = template % (f"{temp} degrees") + loc
 
 def build_skill(skill_config: typing.Dict, ova: 'OpenVoiceAssistant'):
     return OpenWeatherMap(skill_config, ova)
 
 def default_config():
     return {
-        "name": "Open Weather Map",
         "api_key": "",
         "latitude": 0,
         "longitude": 0,

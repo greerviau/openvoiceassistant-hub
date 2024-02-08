@@ -41,19 +41,21 @@ class Synthesizer:
         print('Synthesizer Stage')
         start = time.time()
 
-        response = context['response']
+        response = context['synth_response']
         print('Response: ', response)
         if response:
             if 'node_id' in context:
-                id = context['node_id']
+                _id = context['node_id']
             else:
-                id = uuid.uuid4().hex
+                _id = uuid.uuid4().hex
             
-            response_file_path = os.path.join(self.file_dump, f'response_{id}.wav')
+            response_file_path = os.path.join(self.file_dump, f'response_{_id}.wav')
             context['response_audio_file_path'] = response_file_path
                 
-            if not self.engine.synthesize(context):
-                raise RuntimeError('Failed to synthesize')
+            try:
+                self.engine.synthesize(response, response_file_path)
+            except Exception as e:
+                raise RuntimeError(f'Failed to synthesize | {repr(e)}')
 
             context['response_audio_data'] = open(response_file_path, 'rb').read().hex()
 

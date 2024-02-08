@@ -7,18 +7,19 @@ class HASS_Lights:
     def __init__(self, skill_config: typing.Dict, ova: 'OpenVoiceAssistant'):
         self.ova = ova
 
-        self.ha_integration = self.ova.integration_manager.get_integration_module('homeassistant')
+        self.ha_integration = self.ova.integration_manager.get_integration_module('home_assistant')
 
         self.lights = self._get_lights()
         #print('Detected lights')
-        print(self.lights)
+        print(f"Lights : {self.lights}")
 
     def light_on(self, context: typing.Dict):
         try:
             entity_id, light_description = self.find_light_entity_id(context)
             #print(entity_id)
-        except:
-            return "No light specified"
+        except Exception as e:
+            context['response'] = str(e)
+            return
 
         data = {
             "entity_id": entity_id
@@ -27,18 +28,21 @@ class HASS_Lights:
         resp = self.ha_integration.post_services('light', 'turn_on', data)
         if resp.status_code == 200:
             if light_description:
-                return f"Turning on {light_description}"
+                response = f"Turning on {light_description}"
             else:
-                return ""
+                response = ""
+        else:
+            response = f"Failed to turn on {light_description}"
         
-        return f"Failed to turn on {light_description}"
+        context['response'] = response
 
     def light_off(self, context: typing.Dict):    
         try:
             entity_id, light_description = self.find_light_entity_id(context)
             #print(entity_id)
-        except:
-            return "No light specified"
+        except Exception as e:
+            context['response'] = str(e)
+            return
 
         data = {
             "entity_id": entity_id
@@ -47,18 +51,22 @@ class HASS_Lights:
         resp = self.ha_integration.post_services('light', 'turn_off', data)
         if resp.status_code == 200:
             if light_description:
-                return f"Turning off {light_description}"
+                response = f"Turning off {light_description}"
             else:
-                return ""
-        
-        return f"Failed to turn off {light_description}"
+                response = ""
+        else:
+            response = f"Failed to turn off {light_description}"
+
+        context['response'] = response
     
     def light_toggle(self, context: typing.Dict):
         try:
             entity_id, light_description = self.find_light_entity_id(context)
             #print(entity_id)
-        except:
-            return "No light specified"
+        except Exception as e:
+            context['response'] = str(e)
+            return
+            
 
         data = {
             "entity_id": entity_id
@@ -70,18 +78,21 @@ class HASS_Lights:
         resp = self.ha_integration.post_services('light', 'toggle', data)
         if resp.status_code == 200:
             if light_description:
-                return f"Turning {light_mode} {light_description}"
+                response = f"Turning {light_mode} {light_description}"
             else:
-                return ""
-        
-        return f"Failed to turn {light_mode} {light_description}"
+                response = ""
+        else:
+            response =  f"Failed to turn {light_mode} {light_description}"
+
+        context['response'] = response
     
     def light_brightness(self, context: typing.Dict):
         try:
             entity_id, light_description = self.find_light_entity_id(context)
             #print(entity_id)
-        except:
-            return "No light specified"
+        except Exception as e:
+            context['response'] = str(e)
+            return
         
         command = context['cleaned_command']
         
@@ -97,13 +108,15 @@ class HASS_Lights:
             resp = self.ha_integration.post_services('light', 'turn_on', data)
             if resp.status_code == 200:
                 if light_description:
-                    return f"Setting the {light_description} brightness to {percent} percent"
+                    response = f"Setting the {light_description} brightness to {percent} percent"
                 else:
-                    return ""
+                    response = ""
             
-            return f"Failed to set the {light_description} brightness"
+            response = f"Failed to set the {light_description} brightness"
         else:
-            return f"Please specify a brighness level"
+            response = f"Please specify a brighness level"
+
+        context['response'] = response
     
     def find_light_entity_id(self, context: typing.Dict):
         try:
@@ -132,13 +145,12 @@ class HASS_Lights:
             entities = self.ha_integration.get_states()
             return [entity["entity_id"] for entity in entities if "light" in entity["entity_id"].split('.')[0]]
         except:
-            raise RuntimeError("Failed to get list of light entites")
+            return []
 
 def build_skill(skill_config: typing.Dict, ova: 'OpenVoiceAssistant'):
     return HASS_Lights(skill_config, ova)
 
 def default_config():
     return {
-        "name": "Home Assistant Lights",
-        "required_integrations": ["homeassistant"]
+        "required_integrations": ["home_assistant"]
     }

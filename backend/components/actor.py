@@ -20,8 +20,9 @@ class Actor:
             context['response'] = ''
         else:
             if self.ova.skill_manager.skill_imported(skill):
-                method = getattr(self.ova.skill_manager.get_skill_module(skill), action)
-                context['response'] = method(context)
+                getattr(self.ova.skill_manager.get_skill_module(skill), action)(context)
+                if 'synth_response' not in context:
+                    context['synth_response'] = context['response']
             else:
                 context['response'] = 'Skill is not imported'
 

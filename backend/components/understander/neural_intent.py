@@ -14,37 +14,52 @@ from backend.schemas import Context
 from backend.enums import Components
 from backend.utils.nlp import clean_text
 
-def encode_word_vec(text, vocab):
-    encoded = np.zeros(len(text.split()))
-    for i, word in enumerate(text.split()):
-        if word in vocab.keys():
-            encoded[i] = vocab[word]
-    return np.array(encoded)
-
-def pad_sequence(encoded, seq_length):
-    padding = np.zeros(seq_length)
-    if len(encoded) > seq_length:
-        padding = encoded[:seq_length]
-    else:
-        padding[:len(encoded)] = encoded
-    return padding
+class IntentDataset(Dataset):
+    def __init__(self, X, Y):
+        self.x = X
+        self.y = Y
+        
+    def __len__(self):
+        return len(self.x)
+    
+    def __getitem__(self, idx):
+        return self.x[idx], self.y[idx]   
+    
+class IntentClassifier(nn.Module):
+    def __init__(self, vocab_size, embedding_dim, hidden_dim_1, hidden_dim_2, num_classes):
+        super(IntentClassifier, self).__init__()
+        self.embedding = nn.Embedding(vocab_size, embedding_dim)
+        self.lstm1 = nn.LSTM(embedding_dim, hidden_dim_1, batch_first=True)
+        self.lstm2 = nn.LSTM(hidden_dim_1, hidden_dim_2, batch_first=True)
+        self.fc = nn.Linear(hidden_dim_2, num_classes)
+        self.drop = nn.Dropout(p=0.2)
+        
+    def forward(self, x):
+        embed = self.embedding(x)
+        out, _ = self.lstm1(embed)
+        out, _ = self.lstm2(out)
+        out = out[:, -1, :]
+        out = self.drop(out)
+        out = self.fc(out)
+        return torch.nn.functional.softmax(out, dim=1)
 
 class NeuralIntent:
 
     def __init__(self, ova: 'OpenVoiceAssistant', intents: typing.Dict):
-        embedding_dim = 100
-        hidden_dim = 32
-
+        print("Loading Neural Intent Classifier")
         self.ova = ova
         model_dump = self.ova.model_dump
 
-        print('Loading classifier')
+        embedding_dim = 100
+        hidden_dim_1 = 64
+        hidden_dim_2 = 32
+
         model_file = os.path.join(model_dump, 'neural_intent_model.pt')
         vocab_file = os.path.join(model_dump, 'neural_intent_vocab.p')
 
         x, y, self.max_length = load_training_data(intents)
         labels = list(set(y))
-        print(labels)
+        print(f"Intents : {labels}")
 
         if not os.path.exists(vocab_file):
             print('Vocab file not found')
@@ -60,9 +75,10 @@ class NeuralIntent:
                 pickle.dump([self.word_to_int, int_to_word, label_to_int, self.int_to_label, n_vocab, n_labels, labels, self.max_length], open(vocab_file, 'wb'))  
             print('Model file not found')
             X, Y = preprocess_data(x, y, self.word_to_int, self.max_length, label_to_int)
-            train_classifier(X, Y, embedding_dim, hidden_dim, n_labels, n_vocab, model_file)
+            self.intent_model = IntentClassifier(n_vocab, embedding_dim, hidden_dim_1, hidden_dim_2, n_labels)
+            train_classifier(X, Y, self.intent_model, model_file)
         
-        self.intent_model = IntentClassifier(n_vocab, embedding_dim, hidden_dim, n_labels)
+        self.intent_model = IntentClassifier(n_vocab, embedding_dim, hidden_dim_1, hidden_dim_2, n_labels)
         self.intent_model.load_state_dict(torch.load(model_file))
         self.intent_model.eval()
 
@@ -74,11 +90,10 @@ class NeuralIntent:
         with torch.no_grad():
             inputs = torch.LongTensor(np.array([padded]))
             prediction = self.intent_model(inputs)
-            argmax = torch.argmax(prediction, dim=1).item()
-            conf = torch.max(prediction, dim=1)[0]
-            label = self.int_to_label[argmax]
+            conf, idx = torch.max(prediction, dim=1)
+            label = self.int_to_label[idx.item()]
             skill, action = label.split('-')
-            return skill, action, round(float(conf)*100, 3)
+            return skill, action, round(float(conf.item()) * 100, 3)
 
     def understand(self, context: Context) -> typing.Tuple[str, str, float]:
         encoded_command = context['encoded_command']
@@ -89,36 +104,23 @@ class NeuralIntent:
             pass_threshold = False
     
         return skill, action, conf, pass_threshold
-    
-class IntentDataset(Dataset):
-    def __init__(self, X, Y):
-        self.x = X
-        self.y = Y
-        
-    def __len__(self):
-        return len(self.x)
-    
-    def __getitem__(self, idx):
-        return self.x[idx], self.y[idx]   
-    
-class IntentClassifier(nn.Module):
-    def __init__(self, vocab_size, embedding_dim, hidden_dim, num_classes):
-        super(IntentClassifier, self).__init__()
-        self.embedding = nn.Embedding(vocab_size, embedding_dim)
-        self.lstm = nn.LSTM(embedding_dim, hidden_dim, batch_first=True)
-        self.fc = nn.Linear(hidden_dim, num_classes)
-        self.drop = nn.Dropout(p=0.2)
-        
-    def forward(self, x):
-        embed = self.embedding(x)
-        out, _ = self.lstm(embed)
-        out = out[:, -1, :]
-        #out = self.drop(out)
-        out = self.fc(out)
-        return torch.nn.functional.softmax(out, dim=1)
+
+def encode_word_vec(text, vocab):
+    encoded = np.zeros(len(text.split()))
+    for i, word in enumerate(text.split()):
+        if word in vocab.keys():
+            encoded[i] = vocab[word]
+    return np.array(encoded)
+
+def pad_sequence(encoded, seq_length):
+    padding = np.zeros(seq_length)
+    if len(encoded) > seq_length:
+        padding = encoded[:seq_length]
+    else:
+        padding[:len(encoded)] = encoded
+    return padding
     
 def load_training_data(intents: typing.Dict):
-    print("Loading data")
     compiled_data = []
     max_length = 0
     for label, patterns in intents.items():
@@ -163,26 +165,21 @@ def preprocess_data(x, y, word_to_int, max_length, label_to_int):
         encoded = encode_word_vec(text, word_to_int)
         padded = pad_sequence(encoded, max_length)
         data_x.append(padded)
-        data_y.append([label_to_int[label]])
+        data_y.append(label_to_int[label])
 
     X = np.array(data_x)
-    onehot_encoder = OneHotEncoder(sparse=False)
-    Y = onehot_encoder.fit_transform(data_y)
-    Y = np.array(Y)
+    Y = np.array(data_y, dtype=np.int64)
 
     print(X[0], Y[0])
 
     return X, Y
     
-def train_classifier(X, Y, embedding_dim, hidden_dim, num_classes, vocab_size, model_file):
+def train_classifier(X, Y, model, model_file):
     print('Training classifier')
     # Training parameters
     batch_size = 16
-    num_epochs = 50
+    num_epochs = 100
     learning_rate = 0.001
-
-    # Create the model
-    model = IntentClassifier(vocab_size, embedding_dim, hidden_dim, num_classes)
 
     # Define the loss function and optimizer
     criterion = nn.CrossEntropyLoss()
@@ -198,9 +195,11 @@ def train_classifier(X, Y, embedding_dim, hidden_dim, num_classes, vocab_size, m
         model.train()
         total_loss = 0.0
         total_samples = 0
+        correct = 0
+
         for x_batch, y_batch in train_loader:
             x = x_batch.type(torch.LongTensor)
-            y = y_batch.type(torch.FloatTensor)
+            y = y_batch.type(torch.LongTensor)  # Use LongTensor for integer labels
             y_pred = model(x)
             loss = criterion(y_pred, y)
             loss.backward()
@@ -210,9 +209,14 @@ def train_classifier(X, Y, embedding_dim, hidden_dim, num_classes, vocab_size, m
             total_loss += loss.item() * len(x)
             total_samples += len(x)
 
-        avg_loss = total_loss / total_samples
+            # Calculate accuracy
+            _, predicted = torch.max(y_pred, 1)
+            correct += (predicted == y).sum().item()
 
-        print(f"Epoch {epoch+1}/{num_epochs}, Train Loss: {avg_loss:.4f}")
+        avg_loss = total_loss / total_samples
+        accuracy = 100 * correct / total_samples
+
+        print(f"Epoch {epoch+1}/{num_epochs} | Train Loss: {avg_loss:.4f} | Accuracy: {accuracy:.2f}%")
 
     torch.save(model.state_dict(), model_file)
         

@@ -15,7 +15,12 @@ INTENTIONS = [
         {
             "action":"pause_vacuum",
             "patterns":[
-                "pause the vacuum"
+                "pause the vacuum",
+                "pause the vacuum",
+                "pause the vacuum",
+                "pause the vacuum",
+                "pause the vacuum",
+                "pause the vacuum",
             ]
         },
         {
@@ -23,6 +28,10 @@ INTENTIONS = [
             "patterns":[
                 "stop the vacuum",
                 "stop vacuuming",
+                "stop the vacuum",
+                "stop vacuuming",
+                "stop the vacuum",
+                "stop vacuuming"
             ]
         }
     ]

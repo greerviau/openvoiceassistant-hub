@@ -11,13 +11,13 @@ from backend import config
 class Rapidfuzz:
 
     def __init__(self, ova: 'OpenVoiceAssistant', intents: typing.Dict):
+        print("Loading Rapid Fuzz Classifier")
         self.ova = ova
         self.intents = intents
-
         self.conf_thresh = config.get(Components.Understander.value, 'config', 'conf_thresh')
         self.ratio = config.get(Components.Understander.value, 'config', 'ratio')
-        self.ration_options = config.get(Components.Understander.value, 'config', 'ration_options')
-        assert self.ratio in self.ration_options
+        self.ratio_options = config.get(Components.Understander.value, 'config', 'ratio_options')
+        assert self.ratio in self.ratio_options
 
     def understand(self, context: Context):
         encoded_command = context['encoded_command']
@@ -47,7 +47,7 @@ def default_config() -> typing.Dict:
         "id": "rapid_fuzz",
         "conf_thresh": 80,
         "ratio": "ratio",
-        "ration_options": [
+        "ratio_options": [
             "ratio",
             "partial_ratio",
             "token_sort_ratio",
