@@ -9,7 +9,7 @@ Deploy on a single server on your LAN. OVA-hub can be deployed on anything from 
 To utilize some of the more advanced AI features, deploy on a GPU capable machine with CUDA support.
 
 ## Installation
-openvoiceassistant-hub is tested on Ubuntu 18.04 with **python >= 3.9**
+openvoiceassistant-hub is tested on Ubuntu 20.04 with **python >= 3.9**
 
 ```
 sudo apt install git && \
