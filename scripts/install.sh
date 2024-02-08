@@ -9,6 +9,7 @@ echo $CWD
 
 #core INSTALL
 
+rm -rf $CWD/env
 python3 -m venv $CWD/env
 
 source $CWD/env/bin/activate
@@ -25,6 +26,8 @@ FRONTEND_DIR="$CWD/frontend"
 cd "$FRONTEND_DIR" || exit 1
 rm -rf build
 npm run build 
+
+cd $CWD
 
 cat <<EOF > "/etc/systemd/system/ova_hub_core.service"
 [Unit]
