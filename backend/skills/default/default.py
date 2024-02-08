@@ -14,7 +14,7 @@ class Default:
         self.hour_format = "%H" if skill_config["24_hour_format"] else "%I"
 
     def introduction(self, context: typing.Dict):
-        return "Hello. My name is ova. I am an opensource voice assistant designed to be a locally controlled alternative to popular voice assistants on the market like Alexa and Google home."
+        context['response'] = "Hello. My name is ova. I am an opensource voice assistant designed to be a locally controlled alternative to popular voice assistants on the market like Alexa and Google home."
 
     def volume(self, context: typing.Dict):
         node_id = context["node_id"]
@@ -35,28 +35,27 @@ class Default:
         self.ova.node_manager.update_node_config(node_id, node_config)
 
         self.ova.node_manager.call_node_api("PUT", node_id, "/set_volume", json={"volume_percent": volume_percent})
-        return response
+        context['response'] = response
     
     def date(self, context: typing.Dict):
-        date = format_readable_date(datetime.now(self.tz))
+        date = datetime.now(self.tz).strftime("%B %d, %Y")
+        readable_date = format_readable_date(datetime.now(self.tz))
 
-        response = f"Today is {date}"
-
-        return response
+        context['synth_response'] = f"Today is {readable_date}"
+        context['response'] = f"Today is {date}"
 
     def time(self, context: typing.Dict):
-        time = format_readable_time(datetime.now(self.tz), self.hour_format)
+        time = datetime.now(self.tz).strftime(f"{self.hour_format}:%M").lstrip("0")
+        readable_time = format_readable_time(datetime.now(self.tz), self.hour_format)
 
-        response = f"It is {time}"
-
-        return response
+        context['synth_response'] = f"It is {readable_time}"
+        context['response'] = f"It is {time}"
 
     def day_of_week(self, context: typing.Dict):
         dow = datetime.now(self.tz).strftime('%A')
 
         response = f"It is {dow}"
-
-        return response
+        context['response'] = response
 
     def set_timer(self, context: typing.Dict):
         entities = context['pos_info']['ENTITIES']
@@ -81,16 +80,18 @@ class Default:
                 if durration > 0:
                     self.ova.node_manager.call_node_api("POST", node_id, "/set_timer", json={"durration": durration})
                     response = f"Setting a timer for {t}"
+                    if response[-1] != 's': # This is hacky but it works ¯\_(ツ)_/¯
+                        response += 's' 
                 else:
                     context['hub_callback'] = "default.set_timer"
-                    return "How long should I set a timer for?"
+                    response = "How long should I set a timer for?"
             else:
                 context['hub_callback'] = "default.set_timer"
-                return "How long should I set a timer for?"
+                response = "How long should I set a timer for?"
         else:
-            return "There is already a timer running"
+            response = "There is already a timer running"
 
-        return response  
+        context['response'] = response 
 
     def time_remaining(self, context: typing.Dict):
         node_id = context["node_id"]
@@ -125,14 +126,14 @@ class Default:
             else:
                 response += f" {pieces[0]}"
             response += " remaining"
-            return response
         else:
-            return "There is no timer currently running"
+            reponse = "There is no timer currently running"
+        context['response'] = response
     
     def stop_timer(self, context: typing.Dict):
         node_id = context["node_id"]
         resp = self.ova.node_manager.call_node_api("GET", node_id, "/stop_timer")
-        return "Stopping the timer"
+        context['response'] =  "Stopping the timer"
 
 def build_skill(skill_config: typing.Dict, ova: 'OpenVoiceAssistant'):
     return Default(skill_config, ova)

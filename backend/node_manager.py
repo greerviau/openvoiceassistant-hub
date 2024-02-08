@@ -33,10 +33,10 @@ class NodeManager:
             return self.nodes[node_id]
         raise RuntimeError(f"Node {node_id} does not exist")
 
-    def fix_config_discrepancy(self, node_id: str, node_config: typing.Dict):
+    def check_for_config_discrepancy(self, node_id: str, node_config: typing.Dict):
         existing_node_config = self.nodes[node_id]
         if list(existing_node_config.keys()) == list(node_config.keys()):
-            return
+            return existing_node_config
         update_needed = False
         for key, value in node_config.items():
             if key not in existing_node_config:
@@ -44,6 +44,7 @@ class NodeManager:
                 update_needed = True
         if update_needed:
             self.__save_config(node_id, existing_node_config)
+        return existing_node_config
         
     def get_all_node_status(self):
         node_status = []

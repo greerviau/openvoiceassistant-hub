@@ -1,4 +1,4 @@
-import React, { useState, useRef } from 'react';
+import React, { useState } from 'react';
 
 const Overview = () => {
   const [textInput, setTextInput] = useState('');
@@ -8,7 +8,6 @@ const Overview = () => {
   const [mediaRecorder, setMediaRecorder] = useState(null);
   const [audioUrl, setAudioUrl] = useState(null);
   const [errorNotification, setErrorNotification] = useState(null);
-  const audioRef = useRef();
 
   const handleRecord = async () => {
     try {

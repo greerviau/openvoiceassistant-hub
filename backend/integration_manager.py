@@ -56,10 +56,9 @@ class IntegrationManager:
             return integration_config
         integration_config_clone = integration_config.copy()
         for key, value in default_integration_config.items():
-            if key not in integration_config:
+            if key not in integration_config_clone:
                 integration_config_clone[key] = value
-                update_needed = True
-        for key, value in integration_config.items():
+        for key, value in integration_config_clone.items():
             if key not in default_integration_config:
                 integration_config_clone.pop(key)
         return integration_config_clone

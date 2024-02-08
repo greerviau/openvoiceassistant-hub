@@ -18,13 +18,8 @@ class Coqui:
 
         self.tts = TTS(model_name=model_name, progress_bar=False, gpu=gpu).to(device)
 
-    def synthesize(self, context: Context):
-        text = context['response']
-        file_path = context['response_audio_file_path']
-
+    def synthesize(self, text: str, file_path: str):
         self.tts.tts_to_file(text=text, file_path=file_path)
-
-        return True
 
 def build_engine(ova: 'OpenVoiceAssistant') -> Coqui:
     return Coqui(ova)

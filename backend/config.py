@@ -3,10 +3,9 @@ import json
 import typing
 
 from backend.enums import Components
-from backend.skills.default import default_config
+from backend.skills import default
 
 DEFAULT_CONFIG = {
-        "engage_delay": 30,
         Components.Transcriber.value: {
             "algorithm": "kaldi",
             "algorithm_options": [
@@ -32,7 +31,7 @@ DEFAULT_CONFIG = {
         "nodes": {},
         "integrations":{},
         "skills": {
-            "default": default_config()
+            "default": default.default_config()
         }
     }
 
@@ -50,7 +49,7 @@ def get(*keys: typing.List[str]):
             return None
     return dic
 
-def set(*keys: typing.List[str]):
+def set(*keys: typing.List[typing.Any]):
     global config
     keys = list(keys)
     value = keys.pop(-1)
@@ -71,6 +70,20 @@ def save_config():
     with open(config_path, 'w') as config_file:
         config_file.write(json.dumps(config, indent=4))
 
+def verify_config():
+    global config
+    if list(DEFAULT_CONFIG.keys()) == list(config.keys()):
+        return
+    config_clone = config.copy()
+    for key, value in DEFAULT_CONFIG.items():
+        if key not in config_clone:
+            set(key, value)
+    for key, value in config.items():
+        if key not in DEFAULT_CONFIG:
+            config_clone.pop(key)
+    config = config_clone
+    save_config()
+
 def load_config() -> typing.Dict:  # TODO use TypedDict
     global config, config_path
     print(f'Loading config: {config_path}')
@@ -81,5 +94,6 @@ def load_config() -> typing.Dict:  # TODO use TypedDict
     else:
         print('Loading existing config')
         config = json.load(open(config_path, 'r'))
+        verify_config
 
 load_config()

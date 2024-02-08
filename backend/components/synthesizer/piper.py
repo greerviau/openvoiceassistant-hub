@@ -31,16 +31,12 @@ class Piper:
 
         self.voice = PiperVoice.load(model, config_path=model_config, use_cuda=use_gpu)
 
-    def synthesize(self, context: Context):
-        text = context['response']
-        file_path = context['response_audio_file_path']
+    def synthesize(self, text: str, file_path: str):
         if os.path.isfile(file_path):
             os.remove(file_path)
 
         with wave.open(file_path, "wb") as wav_file:
             self.voice.synthesize(text, wav_file)
-
-        return True
 
 def build_engine(ova: 'OpenVoiceAssistant') -> Piper:
     return Piper(ova)

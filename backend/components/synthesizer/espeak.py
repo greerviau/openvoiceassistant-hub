@@ -14,9 +14,7 @@ class Espeak:
         print("Loading Espeak Synthesizer")
         self.ova = ova
 
-    def synthesize(self, context: Context):
-        text = context['response']
-        file_path = context['response_audio_file_path']
+    def synthesize(self, text: str, file_path: str):
         if os.path.isfile(file_path):
             os.remove(file_path)
 
@@ -25,8 +23,6 @@ class Espeak:
         tts_engine.runAndWait()
         while not os.path.exists(file_path):
             time.sleep(0.1)
-
-        return True
 
 
 

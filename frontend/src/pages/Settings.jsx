@@ -12,20 +12,30 @@ const CollapsibleSection = ({ title, component, config, setConfig, setSuccessNot
       const newSelectedOption = e.target.value;
 
       setSelectedOption(newSelectedOption);
-
-      try {
-        const response = await fetch(`/${component.toLowerCase()}/${newSelectedOption.toLowerCase()}/config/default`);
-        const json = await response.json();
+      fetch(`/api/${component.toLowerCase()}/${newSelectedOption.toLowerCase()}/config/default`)
+      .then((response) => {
+        if (!response.ok) {
+          throw new Error(`HTTP error! Status: ${response.status}`);
+        }
+        return response.json();
+      })
+      .then((json) => {
         console.log(json);
         setConfig((prevData) => ({
           ...prevData,
           config: json,
           algorithm: newSelectedOption,
         }));
-      } catch (error) {
+        setNewChanges(true);
+      })
+      .catch((error) => {
         console.error(`Error fetching ${component} configuration:`, error);
-      }
-      setNewChanges(true);
+        setErrorNotification(`${error.message}`);
+        // Clear the notification after a few seconds
+        setTimeout(() => {
+          setErrorNotification(null);
+        }, 5000);
+      });
     };
 
     return (
@@ -205,7 +215,12 @@ function Settings() {
     console.log('Pulling config data')
     // Fetch configuration data for Transcriber
     fetch('/api/transcriber/config')
-    .then((response) => response.json())
+    .then((response) => {
+      if (!response.ok) {
+        throw new Error(`HTTP error! Status: ${response.status}`);
+      }
+      return response.json();
+    })
     .then((json) => {
       console.log(json);
       setTranscriberConfig(json);
@@ -221,7 +236,12 @@ function Settings() {
 
     // Fetch configuration data for Understander
     fetch('/api/understander/config')
-    .then((response) => response.json())
+    .then((response) => {
+      if (!response.ok) {
+        throw new Error(`HTTP error! Status: ${response.status}`);
+      }
+      return response.json();
+    })
     .then((json) => {
       console.log(json);
       setUnderstanderConfig(json);
@@ -237,7 +257,12 @@ function Settings() {
 
     // Fetch configuration data for Synthesizer
     fetch('/api/synthesizer/config')
-    .then((response) => response.json())
+    .then((response) => {
+      if (!response.ok) {
+        throw new Error(`HTTP error! Status: ${response.status}`);
+      }
+      return response.json();
+    })
     .then((json) => {
       console.log(json);
       setSynthesizerConfig(json);

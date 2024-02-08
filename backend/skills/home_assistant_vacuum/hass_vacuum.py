@@ -14,9 +14,11 @@ class HASS_Vacuum:
         
         resp = self.ha_integration.post_services('vacuum', 'start', data)
         if resp.status_code == 200:
-            return "Starting the vacuum"
-        
-        return "Failed to start the vacuum"
+            response = "Starting the vacuum"
+        else:
+            response = "Failed to start the vacuum"
+
+        context['response'] = response
 
     def pause_vacuum(self, context: typing.Dict):
         data = {
@@ -25,9 +27,11 @@ class HASS_Vacuum:
         
         resp = self.ha_integration.post_services('vacuum', 'stop', data)
         if resp.status_code == 200:
-            return "Pausing the vacuum"
-        
-        return "Failed to pause the vacuum"
+            response = "Pausing the vacuum"
+        else:
+            response = "Failed to pause the vacuum"
+
+        context['response'] = response
 
     def stop_vacuum(self, context: typing.Dict):
         data = {
@@ -36,9 +40,11 @@ class HASS_Vacuum:
         
         resp = self.ha_integration.post_services('vacuum', 'return_to_base', data)
         if resp.status_code == 200:
-            return "Sending the vacuum back home"
-        
-        return "Failed to send the vacuum back home"
+            response = "Sending the vacuum back home"
+        else:
+            response = "Failed to send the vacuum back home"
+
+        context['response'] = response
 
 def build_skill(skill_config: typing.Dict, ova: 'OpenVoiceAssistant'):
     return HASS_Vacuum(skill_config, ova)

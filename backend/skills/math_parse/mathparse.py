@@ -21,10 +21,10 @@ class Mathparse:
 
             response = math_command + f" is {round(res, 2)}"
 
-            return response
+            context['response'] = response
+
         except Exception as e:
-            print(repr(e))
-            return "Couldnt perform that math equation"
+            context['response'] = "I couldn't perform that math equation"
 
 def build_skill(skill_config: typing.Dict, ova: 'OpenVoiceAssistant'):
     return Mathparse(skill_config, ova)

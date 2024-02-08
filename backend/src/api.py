@@ -360,8 +360,7 @@ def create_app(ova: OpenVoiceAssistant):
             if not ova.node_manager.node_exists(node_id):
                 return ova.node_manager.update_node_config(node_id, node_config)
             else:
-                ova.node_manager.fix_config_discrepancy(node_id, node_config)
-                sync_node_config = ova.node_manager.get_node_config(node_id)
+                sync_node_config = ova.node_manager.check_for_config_discrepancy(node_id, node_config)
                 sync_node_config["restart_required"] = False
                 return ova.node_manager.update_node_config(node_id, sync_node_config)
         

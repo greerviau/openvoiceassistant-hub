@@ -9,6 +9,7 @@ class Context(typing.TypedDict):
     last_time_engaged: float
     command_audio_file_path: str
     command: str
+    synth_command: str
     cleaned_command: str
     encoded_command: str
     pos_info: typing.Dict

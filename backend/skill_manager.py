@@ -56,10 +56,9 @@ class SkillManager:
             return skill_config
         skill_config_clone = skill_config.copy()
         for key, value in default_skill_config.items():
-            if key not in skill_config:
+            if key not in skill_config_clone:
                 skill_config_clone[key] = value
-                update_needed = True
-        for key, value in skill_config.items():
+        for key, value in skill_config_clone.items():
             if key not in default_skill_config:
                 skill_config_clone.pop(key)
         return skill_config_clone

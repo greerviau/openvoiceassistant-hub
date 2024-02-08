@@ -50,7 +50,6 @@ def format_readable_date(dt):
 
 def format_readable_time(dt, hour_format: str):
     time = dt.strftime(f"{hour_format}:%M")
-
     hour = time.split(":")[0].lstrip("0")
     minutes = time.split(":")[1]
 
