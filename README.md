@@ -18,7 +18,7 @@ cd openvoiceassistant-hub && \
 sudo ./scripts/install.sh
 ```
 
-The installation will automatically create systemd services for the frontend and backend applications.
+The installation will automatically create a systemd service to host everything.
 
 ## Frontend
 Navigate to ```localhost:7123``` in a web browser to access the frontend UI
@@ -33,16 +33,16 @@ Navigate to ```localhost:7123/docs``` to access the swagger UI for the REST API.
 # Integrations
 Integrations are an augmentation for skills that might need similar capabilities. Ex. Home Assistant api that multiple skills need to utilize
 
-Check out the [list of available integrations](https://github.com/greerviau/openvoiceassistant-hub/blob/develop/backend/integrations/README.md)
+Check out the [list of available integrations](https://github.com/greerviau/openvoiceassistant-hub/blob/develop/core/integrations/README.md)
 
-If you want to write your own integration, follow the [documentation](https://github.com/greerviau/openvoiceassistant-hub/blob/develop/backend/integrations/README.md#writing-a-custom-integration) for a guideline. 
+If you want to write your own integration, follow the [documentation](https://github.com/greerviau/openvoiceassistant-hub/blob/develop/core/integrations/README.md#writing-a-custom-integration) for a guideline. 
 
 # Skills
 Skills are available out of the box, no programming required. Simply import them from the frontend UI and configure them appropriatley.
 
-Check out the [list of available skills](https://github.com/greerviau/openvoiceassistant-hub/blob/develop/backend/skills/README.md) openvoiceassistant has to offer!
+Check out the [list of available skills](https://github.com/greerviau/openvoiceassistant-hub/blob/develop/core/skills/README.md) openvoiceassistant has to offer!
 
-If you want to write your own skills, follow the [documentation](https://github.com/greerviau/openvoiceassistant-hub/blob/develop/backend/skills/README.md#writing-a-custom-skill) for a guideline. 
+If you want to write your own skills, follow the [documentation](https://github.com/greerviau/openvoiceassistant-hub/blob/develop/core/skills/README.md#writing-a-custom-skill) for a guideline. 
 
 Users are encouraged to create their own skills and contribute them so others may use them!
 
