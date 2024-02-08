@@ -7,7 +7,7 @@ CWD=$(pwd)
 
 echo $CWD
 
-#BACKEND INSTALL
+#core INSTALL
 
 python3 -m venv $CWD/env
 
@@ -26,12 +26,12 @@ cd "$FRONTEND_DIR" || exit 1
 rm -rf build
 npm run build 
 
-cat <<EOF > "/etc/systemd/system/ova_hub_backend.service"
+cat <<EOF > "/etc/systemd/system/ova_hub_core.service"
 [Unit]
-Description=openvoiceassistant HUB backend
+Description=openvoiceassistant HUB core
 
 [Service]
-ExecStart=/bin/bash $CWD/scripts/start_backend.sh
+ExecStart=/bin/bash $CWD/scripts/start_core.sh
 WorkingDirectory=$CWD
 Restart=always
 User=$USER
@@ -40,32 +40,5 @@ User=$USER
 WantedBy=multi-user.target
 EOF
 
-systemctl enable ova_hub_backend.service
-systemctl restart ova_hub_backend.service
-
-: ' MAY BE ABLE TO REMOVE
-#FRONTEND INSTALL
-FRONTEND_DIR="$CWD/frontend"
-
-cd "$FRONTEND_DIR" || exit 1
-rm -rf build
-npm run build 
-
-# Create and configure the nginx server block
-cat <<EOF > "/etc/systemd/system/ova_hub_frontend.service"
-[Unit]
-Description=openvoiceassistant HUB frontend
-
-[Service]
-ExecStart=/bin/bash $CWD/scripts/start_frontend.sh
-WorkingDirectory=$CWD
-Restart=always
-User=$USER
-
-[Install]
-WantedBy=multi-user.target
-EOF
-
-systemctl enable ova_hub_frontend.service
-systemctl restart ova_hub_frontend.service
-'
+systemctl enable ova_hub_core.service
+systemctl restart ova_hub_core.service

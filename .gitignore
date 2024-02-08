@@ -151,13 +151,8 @@ cython_debug/
 #  option (not recommended) you can uncomment the following to ignore the entire idea folder.
 #.idea/
 
-backend/config.json
-
-backend/components/synthesizer/gradtts/grad_tts/model/monotonic_align/model
-backend/components/synthesizer/gradtts/grad_tts/model/monotonic_align/build
-backend/components/synthesizer/gradtts/grad_tts/model/monotonic_align/core.c
-
+core/config.json
 envs/
 env/
-backend/model_dump
-backend/file_dump
+core/model_dump
+core/file_dump
