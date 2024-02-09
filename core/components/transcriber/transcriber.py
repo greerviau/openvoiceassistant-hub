@@ -42,7 +42,7 @@ class Transcriber:
         command = self.engine.transcribe(context).strip()
 
         if not command:
-            raise RuntimeError('No command')
+            context['command'] = ""
         
         context['command'] = command
         print(f'Command: {command}')

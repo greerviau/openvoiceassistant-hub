@@ -20,7 +20,11 @@ class Actor:
             context['response'] = ''
         else:
             if self.ova.skill_manager.skill_imported(skill):
-                getattr(self.ova.skill_manager.get_skill_module(skill), action)(context)
+                try:
+                    getattr(self.ova.skill_manager.get_skill_module(skill), action)(context)
+                except Exception as e:
+                    context['response'] = f"Sorry, I encountered the following problem executing that action. {str(e)}"
+                    
                 if 'synth_response' not in context:
                     context['synth_response'] = context['response']
             else:

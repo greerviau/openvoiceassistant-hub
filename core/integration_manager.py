@@ -17,11 +17,15 @@ class IntegrationManager:
         self.not_imported = [integration for integration in self.available_integrations if integration not in self.integrations]
 
         print('Importing Integrations...')
-        for integration_id in self.integrations:
+        for integration_id in list(self.integrations.keys()):
             integration_config = config.get('integrations', integration_id)
             if not integration_config:
                 integration_config = self.get_default_integration_config(integration_id)
-            self.__import_integration(integration_id, integration_config)
+            try:
+                self.__import_integration(integration_id, integration_config)
+            except:
+                self.integrations.pop(integration_id)
+                print(f"Removing {integration_id}")
 
     @property
     def imported_integrations(self):
@@ -105,9 +109,10 @@ class IntegrationManager:
                 module = importlib.import_module(f'core.integrations.{integration_id}')
                 self.imported_integration_modules[integration_id] = module.build_integration(integration_config, self.ova)
             except Exception as e:
-                raise RuntimeError(f'Failed to load {integration_id} | Exception {repr(e)}')
+                print(f'Failed to load {integration_id} | Exception {repr(e)}')
                 # TODO
-                # use this exception in the future to extablish that integration is crashed
+                # custom exception for this
+                # in the future use it to extablish that integration is crashed
                 # update flag in config and display on FE
                 # can do same thing for integrations and even components
         else:

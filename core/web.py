@@ -660,11 +660,10 @@ def create_app(ova: OpenVoiceAssistant):
 
     @core.post('/respond/audio', tags=["Pipeline"])
     async def respond_to_audio(data: RespondAudio):
+
+        context = {}
         try:
-            context = {}
-
             file_dump = ova.file_dump
-
             audio_file_path = os.path.join(file_dump, f"command_{data.node_id}.wav")
 
             command_audio_data = bytes.fromhex(data.command_audio_data)
@@ -707,9 +706,9 @@ def create_app(ova: OpenVoiceAssistant):
 
     @core.post('/respond/audio_file', tags=["Pipeline"])
     async def respond_to_audio_file(audio_file: fastapi.UploadFile = fastapi.File(...)):
-        try:
-            context = {}
 
+        context = {}
+        try:
             file_dump = ova.file_dump
 
             audio_file_path = os.path.join(file_dump, audio_file.filename)
@@ -758,9 +757,9 @@ def create_app(ova: OpenVoiceAssistant):
 
     @core.post('/respond/text', tags=["Pipeline"])
     async def respond_to_text(data: RespondText):
+        
+        context = {}
         try:
-            context = {}
-
             print(f"Request From {data.node_id}")
             print(f"- Node Name:    {data.node_name}")
             print(f"- Node Area:    {data.node_area}")

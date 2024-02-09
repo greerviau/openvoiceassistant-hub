@@ -19,8 +19,6 @@ class Espeak:
         while not os.path.exists(file_path):
             time.sleep(0.1)
 
-
-
 def build_engine(ova: 'OpenVoiceAssistant') -> Espeak:
     return Espeak(ova)
 
