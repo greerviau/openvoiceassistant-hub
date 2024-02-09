@@ -29,12 +29,12 @@ npm run build
 
 cd $CWD
 
-cat <<EOF > "/etc/systemd/system/ova_hub_core.service"
+cat <<EOF > "/etc/systemd/system/ova_hub.service"
 [Unit]
-Description=openvoiceassistant HUB core
+Description=openvoiceassistant HUB
 
 [Service]
-ExecStart=/bin/bash $CWD/scripts/start_core.sh
+ExecStart=/bin/bash $CWD/scripts/start_hub.sh
 WorkingDirectory=$CWD
 Restart=always
 User=$USER
@@ -43,5 +43,5 @@ User=$USER
 WantedBy=multi-user.target
 EOF
 
-systemctl enable ova_hub_core.service
-systemctl restart ova_hub_core.service
+systemctl enable ova_hub.service
+systemctl restart ova_hub.service
