@@ -156,3 +156,4 @@ envs/
 env/
 core/model_dump
 core/file_dump
+**/false_positives.txt

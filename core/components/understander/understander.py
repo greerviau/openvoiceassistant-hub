@@ -1,11 +1,13 @@
 import time
 import importlib
 import typing
+import random
 
 from core.enums import Components
 from core import config
 from core.schemas import Context
 from core.utils.nlp import clean_text, information_extraction, encode_command
+from core.utils.false_positives import FALSE_POSITIVES
 
 class Understander:
     def __init__(self, ova: "OpenVoiceAssistant"):
@@ -33,13 +35,21 @@ class Understander:
 
     def load_intents(self, imported_skills: typing.List):
         tagged_intents = {}
+        pattern_count = 0
         for skill in imported_skills:
             intents = self.ova.skill_manager.get_skill_intents(skill)
             for intent in intents:
                 tag = intent['action']
                 patterns = intent['patterns']
+                pattern_count += len(patterns)
                 label = f'{skill}-{tag}'
                 tagged_intents[label] = patterns
+        random.shuffle(FALSE_POSITIVES)
+        if len(FALSE_POSITIVES) > pattern_count:
+            false_samples = FALSE_POSITIVES[:pattern_count]
+        else:
+            false_samples = FALSE_POSITIVES
+        tagged_intents["NO_COMMAND"] = false_samples
         return tagged_intents
     
     def load_vocab(self, patterns: typing.List[typing.List[str]]):
