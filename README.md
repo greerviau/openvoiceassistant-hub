@@ -74,6 +74,3 @@ All of the algorithms in the pipeline are customizable, including:
 - [x] Fix neural intent (use pytorch)
 - [x] Optimize and improve inference speed
 - [x] Basic frontend
-
-## Known Bugs
-* Whisper ```use_gpu = True``` throws error related to using faster_whisper (maybe wrong cudnn libraries?)
