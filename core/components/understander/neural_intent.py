@@ -1,6 +1,7 @@
 import os
 import pickle
 import typing
+import math
 
 import numpy as np
 
@@ -11,7 +12,7 @@ from torch.utils.data import Dataset, DataLoader
 from core import config
 from core.schemas import Context
 from core.enums import Components
-from core.utils.nlp import clean_text
+from core.utils.nlp.preprocessing import clean_text
 
 class IntentDataset(Dataset):
     def __init__(self, X, Y):
@@ -49,9 +50,11 @@ class NeuralIntent:
         self.ova = ova
         model_dump = self.ova.model_dump
 
+        retrain = config.get(Components.Understander.value, 'config', 'retrain')
+
         embedding_dim = 100
-        hidden_dim_1 = 64
-        hidden_dim_2 = 32
+        hidden_dim_1 = 128
+        hidden_dim_2 = 64
 
         model_file = os.path.join(model_dump, 'neural_intent_model.pt')
         vocab_file = os.path.join(model_dump, 'neural_intent_vocab.p')
@@ -59,24 +62,24 @@ class NeuralIntent:
         x, y, self.max_length = load_training_data(intents)
         labels = list(set(y))
         print(f"Intents : {labels}")
-
-        if not os.path.exists(vocab_file):
-            print('Vocab file not found')
-            label_to_int, self.int_to_label, self.word_to_int, int_to_word, n_vocab, n_labels = build_vocab(x, y)
-            pickle.dump([self.word_to_int, int_to_word, label_to_int, self.int_to_label, n_vocab, n_labels, labels, self.max_length], open(vocab_file, 'wb'))  
+ 
         if os.path.exists(vocab_file):
             self.word_to_int, int_to_word, label_to_int, self.int_to_label, n_vocab, n_labels, loaded_labels, self.max_length = pickle.load(open(vocab_file, 'rb'))
 
-        if not os.path.exists(model_file) or sorted(labels) != sorted(loaded_labels):
-            if sorted(labels) != sorted(loaded_labels):
-                print("Vocab mismatch, rebuilding vocab")
-                label_to_int, self.int_to_label, self.word_to_int, int_to_word, n_vocab, n_labels = build_vocab(x, y)
-                pickle.dump([self.word_to_int, int_to_word, label_to_int, self.int_to_label, n_vocab, n_labels, labels, self.max_length], open(vocab_file, 'wb'))  
-            print('Model file not found')
+        if retrain or not os.path.exists(vocab_file) or not os.path.exists(model_file) or sorted(labels) != sorted(loaded_labels):
+            print("Retraining Neural Intent Model")
+
+            try: os.remove(model_file)
+            except: pass
+            try: os.remove(vocab_file)
+            except: pass
+
+            label_to_int, self.int_to_label, self.word_to_int, int_to_word, n_vocab, n_labels = build_vocab(x, y)
+            pickle.dump([self.word_to_int, int_to_word, label_to_int, self.int_to_label, n_vocab, n_labels, labels, self.max_length], open(vocab_file, 'wb'))
             X, Y = preprocess_data(x, y, self.word_to_int, self.max_length, label_to_int)
-            self.intent_model = IntentClassifier(n_vocab, embedding_dim, hidden_dim_1, hidden_dim_2, n_labels)
-            train_classifier(X, Y, self.intent_model, model_file)
-        
+            train_classifier(X, Y, n_vocab, embedding_dim, hidden_dim_1, hidden_dim_2, n_labels, model_file)
+            config.set(Components.Understander.value, 'config', 'retrain', False)
+            
         self.intent_model = IntentClassifier(n_vocab, embedding_dim, hidden_dim_1, hidden_dim_2, n_labels)
         self.intent_model.load_state_dict(torch.load(model_file))
         self.intent_model.eval()
@@ -151,8 +154,8 @@ def build_vocab(X: np.array, y: np.array):
     n_vocab = len(word_to_int)
     n_labels = len(labels)
 
-    print('N vocab: ', n_vocab)
-    print('N labels: ', n_labels)
+    print(f'N vocab: {n_vocab}')
+    print(f'N labels: {n_labels}')
 
     return label_to_int, int_to_label, word_to_int, int_to_word, n_vocab, n_labels
 
@@ -169,55 +172,70 @@ def preprocess_data(x, y, word_to_int, max_length, label_to_int):
     X = np.array(data_x)
     Y = np.array(data_y, dtype=np.int64)
 
-    print(X[0], Y[0])
+    print(f"N Samples: {len(X)}")
+    print(f"X shape: {X.shape}")
+    print(f"Y shape: {Y.shape}")
 
     return X, Y
     
-def train_classifier(X, Y, model, model_file):
+def train_classifier(X, Y, n_vocab, embedding_dim, hidden_dim_1, hidden_dim_2, n_labels, model_file):
     print('Training classifier')
     # Training parameters
     batch_size = 16
-    num_epochs = 100
     learning_rate = 0.001
-
-    # Define the loss function and optimizer
-    criterion = nn.CrossEntropyLoss()
-    optimizer = torch.optim.Adam(model.parameters(), lr=learning_rate)
 
     # Create data loaders for the training and validation sets
     train_dataset = IntentDataset(X, Y)
-
     train_loader = DataLoader(train_dataset, batch_size=batch_size, shuffle=True)
 
-    # Iterate over the training data for the specified number of epochs
-    for epoch in range(num_epochs):
-        model.train()
-        total_loss = 0.0
-        total_samples = 0
-        correct = 0
+    trained = False
+    while not trained:
+        num_epochs = 50
+        try:
+            model = IntentClassifier(n_vocab, embedding_dim, hidden_dim_1, hidden_dim_2, n_labels)
+            # Define the loss function and optimizer
+            criterion = nn.CrossEntropyLoss()
+            optimizer = torch.optim.Adam(model.parameters(), lr=learning_rate)
 
-        for x_batch, y_batch in train_loader:
-            x = x_batch.type(torch.LongTensor)
-            y = y_batch.type(torch.LongTensor)  # Use LongTensor for integer labels
-            y_pred = model(x)
-            loss = criterion(y_pred, y)
-            loss.backward()
-            optimizer.step()
-            optimizer.zero_grad()
+            # Iterate over the training data for the specified number of epochs
+            epoch = 0
+            accuracy = 0
+            while accuracy < 95:
+                if num_epochs >= 150:
+                    raise RuntimeError("Failed to train Neural Intent model")
+                while epoch <= num_epochs:
+                    epoch += 1
+                    model.train()
+                    total_loss = 0.0
+                    total_samples = 0
+                    correct = 0
 
-            total_loss += loss.item() * len(x)
-            total_samples += len(x)
+                    for x_batch, y_batch in train_loader:
+                        x = x_batch.type(torch.LongTensor)
+                        y = y_batch.type(torch.LongTensor)  # Use LongTensor for integer labels
+                        y_pred = model(x)
+                        loss = criterion(y_pred, y)
+                        loss.backward()
+                        optimizer.step()
+                        optimizer.zero_grad()
 
-            # Calculate accuracy
-            _, predicted = torch.max(y_pred, 1)
-            correct += (predicted == y).sum().item()
+                        total_loss += loss.item() * len(x)
+                        total_samples += len(x)
 
-        avg_loss = total_loss / total_samples
-        accuracy = 100 * correct / total_samples
+                        # Calculate accuracy
+                        _, predicted = torch.max(y_pred, 1)
+                        correct += (predicted == y).sum().item()
 
-        print(f"Epoch {epoch+1}/{num_epochs} | Train Loss: {avg_loss:.4f} | Accuracy: {accuracy:.2f}%")
+                    avg_loss = total_loss / total_samples
+                    accuracy = 100 * correct / total_samples
 
-    torch.save(model.state_dict(), model_file)
+                    print(f"Epoch {epoch}/{num_epochs} | Train Loss: {avg_loss:.4f} | Accuracy: {accuracy:.2f}%")
+                num_epochs += 20
+
+            torch.save(model.state_dict(), model_file)
+            trained = True
+        except RuntimeError:
+            print("Failed to train classifier, retrying")
         
 def build_engine(ova: 'OpenVoiceAssistant', intents: typing.Dict) -> NeuralIntent:
     return NeuralIntent(ova, intents)
@@ -225,5 +243,6 @@ def build_engine(ova: 'OpenVoiceAssistant', intents: typing.Dict) -> NeuralInten
 def default_config() -> typing.Dict:
     return {
         "id": "neural_intent",
-        "conf_thresh": 80
+        "conf_thresh": 80,
+        "retrain": False
     }

@@ -10,13 +10,13 @@ class Whisper:
         print("Loading Whisper Transcriber")
         self.ova = ova
         model_size = config.get(Components.Transcriber.value, 'config', 'model_size')
-        gpu = config.get(Components.Transcriber.value, 'config', 'use_gpu')
+        use_gpu = config.get(Components.Transcriber.value, 'config', 'use_gpu')
+        use_gpu = torch.cuda.is_available() and use_gpu
+        config.set(Components.Transcriber.value, 'config', 'use_gpu', use_gpu)
 
-        use_gpu = torch.cuda.is_available() and gpu
+        device = "cuda" if use_gpu else "cpu"
 
-        device = "cuda" if torch.cuda.is_available() and gpu else "cpu"
-
-        self.model = WhisperModel(model_size, device=device, compute_type="int8_float16" if use_gpu else "int8")
+        self.model = WhisperModel(model_size, device=device, compute_type="float32" if use_gpu else "int8")
 
     def transcribe(self, context: Context):
 

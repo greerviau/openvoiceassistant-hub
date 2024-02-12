@@ -16,8 +16,8 @@ class Piper:
         file_dump = ova.model_dump
         model_name = config.get(Components.Synthesizer.value, 'config', 'model')
         use_gpu = config.get(Components.Synthesizer.value, 'config', 'use_gpu')
-
         use_gpu = torch.cuda.is_available() and use_gpu
+        config.set(Components.Synthesizer.value, 'config', 'use_gpu', use_gpu)
 
         data_dir = [file_dump]
         download_dir = data_dir[0]

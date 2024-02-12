@@ -4,6 +4,7 @@ import { capitalizeId, getFieldInput} from '../Utils';
 const CollapsibleSection = ({ title, component, config, setConfig, setSuccessNotification, setInfoNotification, setErrorNotification}) => {
   const [newChanges, setNewChanges] = useState(false);
   const [isExpanded, setIsExpanded] = useState(false);
+  const [isReloading, setIsReloading] = useState(false);
 
   const DropdownMenu = ({ options, initialValue, component }) => {
     const [selectedOption, setSelectedOption] = useState(initialValue || '');
@@ -110,6 +111,7 @@ const CollapsibleSection = ({ title, component, config, setConfig, setSuccessNot
   };
 
   const handleReload = () => {
+    setIsReloading(true);
     // Call the reload API
     fetch(`/api/${component}/reload`, {
       method: 'POST',
@@ -126,6 +128,7 @@ const CollapsibleSection = ({ title, component, config, setConfig, setSuccessNot
       setTimeout(() => {
         setSuccessNotification(null);
       }, 3000);
+      setIsReloading(false);
     })
     .catch((error) => {
       console.error(`Error reloading ${component} configuration:`, error);
@@ -152,11 +155,12 @@ const CollapsibleSection = ({ title, component, config, setConfig, setSuccessNot
             {title}
             <button className="reload-button" 
               style={{ marginLeft: '10px' }} 
+              disabled={isReloading}
               onClick={(e) => {
                 e.stopPropagation();
                 handleReload();
               }}>
-              <i className="fas fa-sync"></i>
+              <i className={`fas fa-sync${isReloading ? ' fa-spin' : ''}`}></i>
             </button>
             <span style={{ marginLeft: '10px' }}>
           {config && config.algorithm_options && (

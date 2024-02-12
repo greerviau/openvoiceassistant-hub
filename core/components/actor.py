@@ -23,12 +23,13 @@ class Actor:
                 try:
                     getattr(self.ova.skill_manager.get_skill_module(skill), action)(context)
                 except Exception as e:
-                    context['response'] = f"Sorry, I encountered the following problem executing that action. {str(e)}"
-                    
-                if 'synth_response' not in context:
-                    context['synth_response'] = context['response']
+                    context['response'] = f"Sorry. While executing that action, I encountered the following problem. {str(e)}"
             else:
                 context['response'] = 'Skill is not imported'
+        if 'response' not in context:
+            context['response'] = ""
+        if 'synth_response' not in context:
+            context['synth_response'] = context['response']
 
         dt = time.time() - start
         print("Time to run action: ", dt)

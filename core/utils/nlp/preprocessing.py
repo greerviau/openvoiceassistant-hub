@@ -2,12 +2,10 @@ import string
 import datetime
 import typing
 import re
-import spacy
-from spacy.matcher import DependencyMatcher
 from word2number import w2n
 from nltk.corpus import stopwords
-
-nlp = spacy.load('en_core_web_sm')
+from rapidfuzz import fuzz
+from rapidfuzz import utils as fuzzutils
 
 STOPWORDS = list(set(stopwords.words('english')))
 STOPWORDS.extend(['some', 'what'])
@@ -48,13 +46,13 @@ DAY_OF_MONTH = {
 }
 DAY_EXTENTIONS = ['rd', 'th', 'st', 'nd']
 
-def try_parse_word_number(word):
+def try_parse_word_number(word: str):
     try:
         return str(w2n.word_to_num(word))
     except:
         return word
 
-def parse_time(text):
+def parse_time(text: str):
     text = text.lower()
     time = None
     time_str = ''
@@ -113,7 +111,7 @@ def parse_time(text):
         return (int(time.strftime('%I%M')), time, time_str, tod)
     return (None, None, '', False)
 
-def parse_date(text):
+def parse_date(text: str):
     text = text.lower()
     today = datetime.date.today()
 
@@ -183,78 +181,48 @@ def parse_date(text):
 
     return None, None
 
-def information_extraction(sentence):
-    doc = nlp(sentence)
-
-    parsed = {}
-    parsed["SUBJECT"], parsed["OBJECT"], parsed["COMP"] = [], [], []
-
-    for token in doc:
-        #print(f"{token.text} -> {token.dep_}")
-        if (token.dep_=='nsubj'):
-            parsed["SUBJECT"].append(token.text)
-
-        elif (token.dep_=='dobj'):
-            parsed["OBJECT"].append(token.text)
-
-        elif (token.dep_=='compound'):
-            parsed["COMP"].append(token.text)
-
-    parsed["ENTITIES"] = dict([(ent.label_, ent.text) for ent in doc.ents])
-
-    parsed['NOUN_CHUNKS'] = []
-    for chunk in doc.noun_chunks:
-        parsed['NOUN_CHUNKS'].append(chunk.text)
-
-    object_pattern = [
-        {
-            "RIGHT_ID": "target",
-            "RIGHT_ATTRS": {"POS": "NOUN"}
-        },
-        # founded -> subject
-        {
-            "LEFT_ID": "target",
-            "REL_OP": ">",
-            "RIGHT_ID": "modifier",
-            "RIGHT_ATTRS": {"DEP": {"IN": ["amod", "nummod"]}}
-        }
-    ]
-
-    matcher = DependencyMatcher(nlp.vocab)
-    matcher.add("OBJ", [object_pattern])   
-
-    parsed["MOD_OBJECT"] = []
-    for match_id, (modifier, target) in matcher(doc):
-        parsed["MOD_OBJECT"].append(' '.join([doc[modifier].text, doc[target].text]))
-
-    return parsed
-
-def remove_stop_words(phrase):
+def remove_stop_words(phrase: str):
     for word in STOPWORDS:
         phrase = phrase.replace(word, '')
     return phrase.strip()
 
-def extract_numbers(sentence):
+def extract_numbers(sentence: str):
     return re.findall(r'\d+', sentence)
+
+def find_string_match(guess: str, possibilities: typing.List[str]):
+    if not possibilities:
+        return None
+    conf = 0
+    answer = None
+    for p in possibilities:
+        r = fuzz.WRatio(guess, p, processor=fuzzutils.default_process)
+        if r > conf:
+            conf = r
+            answer = p
+    print(conf)
+    return answer
+
+def replace_punctuation(text: str, replace_with: str = ""):
+    return re.sub('[^a-zA-Z0-9 \n\.]', replace_with, text)
+
+def get_after(text: str, split_token: str):
+    return text.split(split_token)[-1]
 
 '''
 RELATED TO INTENT CLASSIFICATION
 '''
 
-def get_after(text, token):
-    return text.split(token)[-1]
-
-def clean_text(text):
+def clean_text(text: str):
     text = text.lower()
     text = text.replace('%', ' percent')
-    text = text.replace('-', '  ')
+    text = text.replace('-', ' ')
     text = ' '.join([try_parse_word_number(word) for word in text.split()])
     table = str.maketrans('', '', string.punctuation)
     text = ' '.join([w.translate(table) for w in text.split()])
     text = text.strip()
     return text
 
-def encode_command(command: str, vocab):
+def encode_command(command: str, vocab: typing.List[str]):
     last_blank = False
     words = []
     for word in command.split():

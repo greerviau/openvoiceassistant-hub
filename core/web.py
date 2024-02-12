@@ -443,6 +443,7 @@ def create_app(ova: OpenVoiceAssistant):
 
             context['node_id'] = node_id
             context['response'] = text
+            context['synth_response'] = text
 
             ova.run_pipeline(
                 Components.Synthesizer,
@@ -698,7 +699,7 @@ def create_app(ova: OpenVoiceAssistant):
             return context
         
         except Exception as err:
-            #print(repr(err))
+            print(repr(err))
             raise fastapi.HTTPException(
                         status_code=400,
                         detail=repr(err),
@@ -719,9 +720,9 @@ def create_app(ova: OpenVoiceAssistant):
 
             print(f"Request From Frontend")
 
-            context['node_id'] = ""
-            context['node_name'] = ""
-            context['node_area'] = ""
+            context['node_id'] = "frontend"
+            context['node_name'] = "Frontend"
+            context['node_area'] = "frontend"
             context['hub_callback'] = ""
             context['time_sent'] = 0.0
             context['time_recieved'] = time.time()
@@ -749,7 +750,7 @@ def create_app(ova: OpenVoiceAssistant):
             return Response(content=wav_data , headers=response_headers, media_type="audio/wav")
         
         except Exception as err:
-            #print(repr(err))
+            print(repr(err))
             raise fastapi.HTTPException(
                         status_code=400,
                         detail=repr(err),
@@ -795,7 +796,7 @@ def create_app(ova: OpenVoiceAssistant):
             
             return Response(content=wav_data , headers=response_headers, media_type="audio/wav")
         except Exception as err:
-            #print(repr(err))
+            print(repr(err))
             raise fastapi.HTTPException(
                         status_code=400,
                         detail=repr(err),

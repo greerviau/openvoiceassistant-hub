@@ -5,7 +5,7 @@ import time
 from core.enums import Components
 from core import config
 from core.schemas import Context
-from core.utils.nlp import clean_text
+from core.utils.nlp.preprocessing import clean_text
 
 class Transcriber:
     def __init__(self, ova: 'OpenVoiceAssistant'):    

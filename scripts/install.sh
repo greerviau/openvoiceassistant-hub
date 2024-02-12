@@ -4,7 +4,6 @@ apt-get update && apt-get install -y python3-pip python3-dev python3-venv nginx 
 curl -fsSL https://deb.nodesource.com/setup_21.x | sudo -E bash - && sudo apt-get install -y nodejs
 
 CWD=$(pwd)
-
 echo $CWD
 
 #core INSTALL

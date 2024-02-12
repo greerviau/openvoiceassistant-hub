@@ -8,7 +8,6 @@
     * Shopping List
     * Vacuum
 * PyJokes
-* Mathparse
 * Open Weather Map
 
 # Writing a Custom Skill
