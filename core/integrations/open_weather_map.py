@@ -1,6 +1,8 @@
 import typing
 import time
 import threading
+import random
+from datetime import datetime
 from pyowm import OWM
 
 class OpenWeatherMap:
@@ -21,6 +23,10 @@ class OpenWeatherMap:
         self._current_weather = None
         self._hourly_forecast = None
         self._daily_forecast = None
+        
+        self._morning_weather = None
+        self._afternoon_weather = None
+        self._evening_weather = None
 
         def _update_weather():
             while True:
@@ -38,7 +44,20 @@ class OpenWeatherMap:
                     try:
                         self._daily_forecast = mgr.forecast_at_coords(lat=lat, lon=lon, interval='daily').forecast
                     except:
-                        raise RuntimeError("Cannot make daily forecast requests with free API key")
+                        print("Cannot make daily forecast requests with free API key")
+
+                for weather in self._hourly_forecast:
+                    print(weather.ref_time)
+                    dt = datetime.fromtimestamp(weather.ref_time)
+                    print(dt)
+                    if dt.day > datetime.today().day:
+                        break
+                    if dt.hour < 12 and dt.hour + 3 > 12:
+                        self._morning_weather = weather
+                    elif dt.hour < 17 and dt.hour + 3 > 17:
+                        self._afternoon_weather = weather
+                    else:
+                        self._evening_weather = weather
                 print("Current Location Weather Updated")
                 time.sleep(update_interval)
 
@@ -53,6 +72,52 @@ class OpenWeatherMap:
     
     def get_daily_forecast(self):
         return self._daily_forecast
+
+    def get_morning_weather(self):
+        return self._morning_weather
+
+    def get_afternoon_weather(self):
+        return self._afternoon_weather
+
+    def get_evening_weather(self):
+        return self._evening_weather
+
+    def get_full_day_forecast(self):
+        return self._morning_weather, self._afternoon_weather ,self._evening_weather
+    
+    def get_sky_conditions(self, weather):
+        MAIN_STATUS_MAPPING = {
+            "thunderstorm": ["thunderstorming"],
+            "drizzle": ["drizzling"],
+            "rain": ["raining"],
+            "snow": ["snowing"],
+            "clear": ["sunny", "clear", "clear skies"]
+        }
+        DETAILED_STATUS_MAPPING = {
+            "few clouds": ["mostly clear"],
+            "scattered clouds": ["scattered clouds"],
+            "broken clouds": ["broken clouds"],
+            "overcast clouds": ["overcast"],
+            "mist": ["misty"],
+            "smoke": ["smokey"],
+            "haze": ["hazy"],
+            "dust": ["dusty"],
+            "fog": ["foggy"],
+            "sand": ["sandy"],
+            "ash": ["ashy"],
+            "squall": ["slightly stormy", "a squall"],
+            "tornado": ["a tornado"],
+        }
+
+        main_status = weather.status.lower()
+        detailed_status = weather.detailed_status.lower()
+
+        if main_status in list(MAIN_STATUS_MAPPING.keys()):
+            condition = random.choice(MAIN_STATUS_MAPPING[main_status])
+        else:
+            condition = random.choice(DETAILED_STATUS_MAPPING[detailed_status])
+
+        return condition
 
 def build_integration(skill_config: typing.Dict, ova: 'OpenVoiceAssistant'):
     return OpenWeatherMap(skill_config, ova)

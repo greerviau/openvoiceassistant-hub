@@ -29,6 +29,9 @@ class Actor:
         if 'synth_response' not in context:
             context['synth_response'] = context['response']
 
+        context["response"] = context["response"].strip()
+        context["synth_response"] = context["synth_response"].strip()
+
         dt = time.time() - start
         print("Time to run action: ", dt)
         context['time_to_action'] = dt
