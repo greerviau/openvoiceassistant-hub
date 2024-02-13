@@ -15,8 +15,6 @@ class Actor:
         pass_threshold = context['pass_threshold']
 
         if not pass_threshold:
-            context['response'] = 'Sorry, I did not understand'
-        elif skill in ["NO_COMMAND"]:
             context['response'] = ''
         else:
             if self.ova.skill_manager.skill_imported(skill):
@@ -25,7 +23,7 @@ class Actor:
                 except Exception as e:
                     context['response'] = f"Sorry. While executing that action, I encountered the following problem. {str(e)}"
             else:
-                context['response'] = 'Skill is not imported'
+                context['response'] = 'Skill is not imported.'
         if 'response' not in context:
             context['response'] = ""
         if 'synth_response' not in context:

@@ -9,42 +9,19 @@ class OpenWeatherMap:
     def __init__(self, skill_config: typing.Dict, ova: 'OpenVoiceAssistant'):
         self.ova = ova
 
-        api_key = skill_config["api_key"]
-        self.lat = skill_config["latitude"]
-        self.lon = skill_config["longitude"]
-        self.unit = skill_config["unit"]
+        self.owm_integration = self.ova.integration_manager.get_integration_module('open_weather_map')
 
-        owm = OWM(api_key)
-        self.mgr = owm.weather_manager()
-
-        self._current_weather = None
-
-        def _update_weather():
-            while True:
-                self._current_weather = self.mgr.weather_at_coords(lat=self.lat, lon=self.lon).weather
-                print("Current Location Weather Updated")
-                time.sleep(3600) # Wait 1 hour
-
-        self.weather_thread = threading.Thread(target=_update_weather, daemon=True)
-        self.weather_thread.start()
-
-    def _get_weather(self, context: typing.Dict):
-        ents = context["pos_info"]["ENTITIES"]
-        location = ents["GPE"] if "GPE" in ents else ents["PERSON"] if "PERSON" in ents else None
-        if location:
-            return self.mgr.weather_at_place(location).weather, f" in {location}"
-        else:
-            return self._current_weather, ""
+        self.unit = skill_config["temperature_unit"]
 
     def weather(self, context: typing.Dict):
-        w, loc = self._get_weather(context)
+        weather = self.owm_integration.get_current_weather()
         command = context["command"]
 
         sky = self.__sky(context)
-        temp = int(w.temperature(self.unit)["temp"])
-        humidity = int(w.humidity)
+        temp = int(weather.temperature(self.unit)["temp"])
+        humidity = int(weather.humidity)
 
-        context['response'] = f"{sky}. The temperature{loc} is {temp} degrees with a humidity of {humidity} percent."
+        context['response'] = f"{sky}. The temperature is {temp} degrees with a humidity of {humidity} percent."
 
     def __sky(self, context: typing.Dict):
         MAIN_STATUS_MAPPING = {
@@ -77,21 +54,20 @@ class OpenWeatherMap:
             "It's %s right now",
             "Right now it's %s outside",
             "Right now it's %s",
-            "Outside it's %s",
-
+            "Outside it's %s"
         ]
 
-        w, loc = self._get_weather(context)
+        weather = self.owm_integration.get_current_weather()
 
-        main_status = w.status.lower()
-        detailed_status = w.detailed_status.lower()
+        main_status = weather.status.lower()
+        detailed_status = weather.detailed_status.lower()
 
         if main_status in list(MAIN_STATUS_MAPPING.keys()):
             condition = random.choice(MAIN_STATUS_MAPPING[main_status])
         else:
             condition = random.choice(DETAILED_STATUS_MAPPING[detailed_status])
 
-        return (random.choice(RESPONSE_TEMPLATES) % (condition)) + loc
+        return (random.choice(RESPONSE_TEMPLATES) % (condition))
 
     def sky(self, context: typing.Dict):
         context['response'] = self.__sky(context)
@@ -103,13 +79,13 @@ class OpenWeatherMap:
             "Its currently %s right now"
         ]
 
-        w, loc = self._get_weather(context)
+        weather = self.owm_integration.get_current_weather()
 
-        humidity = int(w.humidity)
+        humidity = int(weather.humidity)
 
         template = random.choice(RESPONSE_TEMPLATES)
 
-        context['response'] = template % (f"{humidity} percent humidity") + loc
+        context['response'] = template % (f"{humidity} percent humidity")
 
     def temperature(self, context: typing.Dict):
         RESPONSE_TEMPLATES = [
@@ -118,22 +94,20 @@ class OpenWeatherMap:
             "Its currently %s right now"
         ]
 
-        w, loc = self._get_weather(context)
+        weather = self.owm_integration.get_current_weather()
 
-        temp = int(w.temperature(self.unit)["temp"])
+        temp = int(weather.temperature(self.unit)["temp"])
 
         template = random.choice(RESPONSE_TEMPLATES)
 
-        context['response'] = template % (f"{temp} degrees") + loc
+        context['response'] = template % (f"{temp} degrees")
 
 def build_skill(skill_config: typing.Dict, ova: 'OpenVoiceAssistant'):
     return OpenWeatherMap(skill_config, ova)
 
 def default_config():
     return {
-        "api_key": "",
-        "latitude": 0,
-        "longitude": 0,
-        "unit": "fahrenheit",
-        "unit_options": ["fahrenheit", "celsius"]
+        "temperature_unit": "fahrenheit",
+        "temperature_unit_options": ["fahrenheit", "celsius"],
+        "required_integrations": ["open_weather_map"]
     }

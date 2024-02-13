@@ -18,13 +18,14 @@ class SkillManager:
 
         print('Importing Skills...')
         for skill_id in list(self.skills.keys()):
-            skill_config = config.get('skills', skill_id)
-            if not skill_config:
-                skill_config = self.get_default_skill_config(skill_id)
-            try:
+            if self.skill_exists(skill_id):
+                skill_config = config.get('skills', skill_id)
+                if not skill_config:
+                    skill_config = self.get_default_skill_config(skill_id)
                 self.__import_skill(skill_id, skill_config)
-            except:
+            else:
                 self.skills.pop(skill_id)
+                config.set('skills', self.skills)
                 print(f"Removing {skill_id}")
 
     @property
@@ -62,7 +63,7 @@ class SkillManager:
         for key, value in default_skill_config.items():
             if key not in skill_config_clone:
                 skill_config_clone[key] = value
-        for key, value in skill_config_clone.items():
+        for key, value in skill_config.items():
             if key not in default_skill_config:
                 skill_config_clone.pop(key)
         return skill_config_clone

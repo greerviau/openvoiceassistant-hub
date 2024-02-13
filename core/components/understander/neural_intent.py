@@ -31,13 +31,13 @@ class IntentClassifier(nn.Module):
         self.embedding = nn.Embedding(vocab_size, embedding_dim)
         self.lstm1 = nn.LSTM(embedding_dim, hidden_dim_1, batch_first=True)
         self.lstm2 = nn.LSTM(hidden_dim_1, hidden_dim_2, batch_first=True)
-        self.fc = nn.Linear(hidden_dim_2, num_classes)
+        self.fc = nn.Linear(hidden_dim_1, num_classes)
         self.drop = nn.Dropout(p=0.2)
         
     def forward(self, x):
         embed = self.embedding(x)
         out, _ = self.lstm1(embed)
-        out, _ = self.lstm2(out)
+        #out, _ = self.lstm2(out)
         out = out[:, -1, :]
         out = self.drop(out)
         out = self.fc(out)
@@ -53,8 +53,8 @@ class NeuralIntent:
         retrain = config.get(Components.Understander.value, 'config', 'retrain')
 
         embedding_dim = 100
-        hidden_dim_1 = 128
-        hidden_dim_2 = 64
+        hidden_dim_1 = 64
+        hidden_dim_2 = 32
 
         model_file = os.path.join(model_dump, 'neural_intent_model.pt')
         vocab_file = os.path.join(model_dump, 'neural_intent_vocab.p')
@@ -201,7 +201,7 @@ def train_classifier(X, Y, n_vocab, embedding_dim, hidden_dim_1, hidden_dim_2, n
             epoch = 0
             accuracy = 0
             while accuracy < 95:
-                if num_epochs >= 150:
+                if num_epochs > 150:
                     raise RuntimeError("Failed to train Neural Intent model")
                 while epoch <= num_epochs:
                     epoch += 1

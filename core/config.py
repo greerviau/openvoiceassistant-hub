@@ -1,6 +1,7 @@
 import os
 import json
 import typing
+import pytz
 
 from core.enums import Components
 from core.skills import default
@@ -27,6 +28,10 @@ DEFAULT_CONFIG = {
                 "coqui",
                 "piper"
             ]
+        },
+        "settings": {
+            "timezone": "US/Eastern",
+            "timezone_options": pytz.all_timezones
         },
         "nodes": {},
         "integrations":{},
@@ -77,7 +82,7 @@ def verify_config():
     config_clone = config.copy()
     for key, value in DEFAULT_CONFIG.items():
         if key not in config_clone:
-            set(key, value)
+            config_clone[key] = value
     for key, value in config.items():
         if key not in DEFAULT_CONFIG:
             config_clone.pop(key)
@@ -94,6 +99,6 @@ def load_config() -> typing.Dict:  # TODO use TypedDict
     else:
         print('Loading existing config')
         config = json.load(open(config_path, 'r'))
-        verify_config
+        verify_config()
 
 load_config()

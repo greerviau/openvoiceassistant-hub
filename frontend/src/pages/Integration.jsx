@@ -101,7 +101,7 @@ function Integration() {
     <div>
       <h1>Configure {capitalizeId(integrationId)}</h1>
       <div className='page-container'>
-        <Link to="/skills" className="big-info-button">
+        <Link to="/integrations" className="big-info-button">
             Back
         </Link>
         <form style={{ paddingTop: "40px"}}>

@@ -18,13 +18,14 @@ class IntegrationManager:
 
         print('Importing Integrations...')
         for integration_id in list(self.integrations.keys()):
-            integration_config = config.get('integrations', integration_id)
-            if not integration_config:
-                integration_config = self.get_default_integration_config(integration_id)
-            try:
+            if self.integration_exists(integration_id):
+                integration_config = config.get('integrations', integration_id)
+                if not integration_config:
+                    integration_config = self.get_default_integration_config(integration_id)
                 self.__import_integration(integration_id, integration_config)
-            except:
+            else:
                 self.integrations.pop(integration_id)
+                config.set('integrations', self.integrations)
                 print(f"Removing {integration_id}")
 
     @property

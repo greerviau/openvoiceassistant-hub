@@ -1,6 +1,5 @@
 import typing
 from datetime import datetime
-import pytz
 
 from core.utils.nlp.preprocessing import extract_numbers
 from core.utils.nlp.formatting import format_readable_date, format_readable_time
@@ -10,7 +9,6 @@ class Default:
     def __init__(self, skill_config: typing.Dict, ova: 'OpenVoiceAssistant'):
         self.ova = ova
 
-        self.tz = pytz.timezone(skill_config["timezone"])
         self.hour_format = "%H" if skill_config["24_hour_format"] else "%I"
 
     def introduction(self, context: typing.Dict):
@@ -38,21 +36,21 @@ class Default:
         context['response'] = response
     
     def date(self, context: typing.Dict):
-        date = datetime.now(self.tz).strftime("%B %d, %Y")
-        readable_date = format_readable_date(datetime.now(self.tz))
-
+        date = datetime.now().strftime("%B %d, %Y")
+        readable_date = format_readable_date(datetime.now())
+        
         context['synth_response'] = f"Today is {readable_date}"
         context['response'] = f"Today is {date}"
 
     def time(self, context: typing.Dict):
-        time = datetime.now(self.tz).strftime(f"{self.hour_format}:%M").lstrip("0")
-        readable_time = format_readable_time(datetime.now(self.tz), self.hour_format)
+        time = datetime.now().strftime(f"{self.hour_format}:%M").lstrip("0")
+        readable_time = format_readable_time(datetime.now(), self.hour_format)
 
         context['synth_response'] = f"It is {readable_time}"
         context['response'] = f"It is {time}"
 
     def day_of_week(self, context: typing.Dict):
-        dow = datetime.now(self.tz).strftime('%A')
+        dow = datetime.now().strftime('%A')
 
         response = f"It is {dow}"
         context['response'] = response
@@ -164,7 +162,5 @@ def build_skill(skill_config: typing.Dict, ova: 'OpenVoiceAssistant'):
 
 def default_config():
     return {
-        "timezone": "US/Eastern",
-        "timezone_options": pytz.all_timezones,
         "24_hour_format": False
     }

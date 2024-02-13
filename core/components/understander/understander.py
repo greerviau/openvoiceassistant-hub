@@ -8,7 +8,7 @@ from core import config
 from core.schemas import Context
 from core.utils.nlp.preprocessing import clean_text, encode_command
 from core.utils.nlp.information_extraction import extract_information
-from core.utils.nlp.false_positives import FALSE_POSITIVES
+from core.utils.nlp.false_positives import FALSE_POSITIVES, add_false_positive
 
 class Understander:
     def __init__(self, ova: "OpenVoiceAssistant"):
@@ -52,13 +52,14 @@ class Understander:
         return tagged_intents, pattern_count
 
     def add_negative_samples(self, intents: typing.Dict, n_samples: int):
-        random.shuffle(FALSE_POSITIVES)
+        false_positives = list(set([encode_command(sample, self.vocab_list) for sample in FALSE_POSITIVES]))
+        random.shuffle(false_positives)
         n_false_samples = n_samples // 2
-        print(f'N Negative Samples: {n_false_samples}')
-        if len(FALSE_POSITIVES) > n_false_samples:
-            false_samples = FALSE_POSITIVES[:n_false_samples]
+        if len(false_positives) > n_false_samples:
+            false_samples = false_positives[:n_false_samples]
         else:
-            false_samples = FALSE_POSITIVES
+            false_samples = false_positives
+        print(f'N Negative Samples: {len(false_samples)}')
         intents["NO_COMMAND-NO_ACTION"] = false_samples
     
     def load_vocab(self, patterns: typing.List[typing.List[str]]):
@@ -108,7 +109,7 @@ class Understander:
             skill = "NO_COMMAND"
             action = "NO_ACTION"
             conf = 100
-            pass_threshold = True
+            pass_threshold = False
         else:
             hub_callback = context["hub_callback"] if "hub_callback" in context else None
             if hub_callback:
@@ -121,6 +122,9 @@ class Understander:
                     raise RuntimeError("Failed to parse callback")
             else:
                 skill, action, conf, pass_threshold = self.engine.understand(context)
+                if skill in ['NO_COMMAND'] or action in ['NO_ACTION']:
+                    pass_threshold = False
+                    add_false_positive(cleaned_command)
         
         print(f'Skill: {skill}')
         print(f'Action: {action}')

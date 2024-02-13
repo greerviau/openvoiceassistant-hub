@@ -2,12 +2,12 @@ import os
 import typing
 import time
 
+from core import config
 from core.schemas import Context
 from core.enums import Components
 from core.node_manager import NodeManager
 from core.skill_manager import SkillManager
 from core.integration_manager import IntegrationManager
-
 from core.components.actor import Actor
 from core.components.understander import Understander
 from core.components.transcriber import Transcriber
@@ -32,6 +32,12 @@ class OpenVoiceAssistant:
         self.restart()  
 
     def restart(self):
+        self.settings = config.get("settings")
+        
+        timezone = self.settings["timezone"]
+        os.environ["TZ"] = timezone
+        time.tzset()
+
         self.load_managers()
         self.launch_all_components()
 
