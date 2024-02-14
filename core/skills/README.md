@@ -9,6 +9,7 @@
     * Vacuum
 * PyJokes
 * Open Weather Map
+* What to Wear
 
 # Writing a Custom Skill
 Skills are designed as python modules that are imported by the Skill Manager.
@@ -91,8 +92,7 @@ class PyJokes:
         self.ova = ova
 
     def tell_joke(self, context: typing.Dict):
-        return pyjokes.get_joke()
-
+        context["response"] = pyjokes.get_joke()
 
 def build_skill(skill_config: typing.Dict, ova: 'OpenVoiceAssistant'):
     return Jokes(skill_config, ova)
@@ -109,7 +109,7 @@ The only required functions are whatever actions you have in your ```INTENTIONS`
 
 The action functions can perform any actions auxilary actions you want. You can utilize any integrations that you have imported. You can access an integration via the integration manager ```OpenVoiceAssistant.integration_manager.get_integration_module("<integration>")```.
 
-The action functions themselves take a dictionary ```context``` as a parameter and must return a string response that you want to send to the user.
+The action functions themselves take a dictionary ```context``` as a parameter. The function must ultimately set the ```response``` field in the context dictionary with the response to provide to the user. If no response is set, then the assistant will not audibly respond (sometimes this is desired). You can also set the ```synth_response``` if you need to format your response with a text formatting that would be easier for the TTS engine to synthesize (see default/time for example).
 
 ```build_skill``` function simple returns an instance of the Skill class.
 

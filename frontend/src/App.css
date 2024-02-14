@@ -279,12 +279,17 @@ input {
 }
 
 .delete-button {
-  background-color: #f44336; /* Red color */
-  color: white;
+  margin-left: 10px;
+  background-color: #f44336;
+  color: #fff;
+  padding: 10px 12px;
   border: none;
-  padding: 8px 16px;
-  border-radius: 4px;
+  border-radius: 5px;
   cursor: pointer;
+}
+
+.delete-button:hover {
+  background-color: #d4392d;
 }
 
 .reload-button {

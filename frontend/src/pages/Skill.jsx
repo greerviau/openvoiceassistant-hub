@@ -50,6 +50,7 @@ function Skill() {
       ...prevData,
       [fieldName]: value,
     }));
+    console.log(jsonData);
 
     // Mark changes as unsaved
     setNewChanges(true);

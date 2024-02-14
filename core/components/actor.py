@@ -25,7 +25,10 @@ class Actor:
             else:
                 context['response'] = 'Skill is not imported.'
         if 'response' not in context:
-            context['response'] = ""
+            if 'synth_response' in context:
+                context['response'] = context['synth_response']
+            else:
+                context['response'] = ""
         if 'synth_response' not in context:
             context['synth_response'] = context['response']
 
