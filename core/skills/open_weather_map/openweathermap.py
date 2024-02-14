@@ -21,6 +21,20 @@ class OpenWeatherMap:
 
         self.unit = skill_config["temperature_unit"]
 
+    def _preprocess_time_of_day(self, command, morning, afternoon, evening):
+        if any(x in command.split() for x in ['morning']):
+            afternoon, evening = None, None
+        elif any(x in command.split() for x in ['afternoon']):
+            morning, evening = None, None
+        elif any(x in command.split() for x in ['tonight', 'evening']):
+            morning, afternoon = None, None
+        elif any(x in command.split() for x in ['later']):
+            if morning:
+                morning = None
+            elif afternoon:
+                afternoon = None
+        return morning, afternoon, evening
+
     def weather_current(self, context: typing.Dict):
         weather = self.owm_integration.get_current_weather()
         sky_conditions = self.owm_integration.get_sky_conditions(weather)
@@ -36,6 +50,8 @@ class OpenWeatherMap:
 
     def weather_forecast(self, context: typing.Dict):
         morning, afternoon, evening = self.owm_integration.get_full_day_forecast()
+        command = context['cleaned_command']
+        morning, afternoon, evening = self._preprocess_time_of_day(command, morning, afternoon, evening)
 
         response = ""
         if morning:
@@ -52,8 +68,10 @@ class OpenWeatherMap:
         if evening:
             sky = self.owm_integration.get_sky_conditions(evening)
             temp = int(evening.temperature(self.unit)["temp"])
-            if not afternoon or morning:
+            if not afternoon:
                 response += f"This evening it will be {temp} degrees and {sky}. "
+            elif morning:
+                response += f"Tonight it will be {temp} degrees and {sky}. "
             else:
                 response += f"In the evening it will be {temp} degrees and {sky}. "
         context["response"] = response
@@ -67,6 +85,8 @@ class OpenWeatherMap:
 
     def sky_forecast(self, context: typing.Dict):
         morning, afternoon, evening = self.owm_integration.get_full_day_forecast()
+        command = context['cleaned_command']
+        morning, afternoon, evening = self._preprocess_time_of_day(command, morning, afternoon, evening)
 
         response = ""
         if morning:
@@ -80,8 +100,10 @@ class OpenWeatherMap:
                 response += f"In the afternoon it will be {sky}. "
         if evening:
             sky = self.owm_integration.get_sky_conditions(evening)
-            if not afternoon or morning:
+            if not afternoon:
                 response += f"This evening it will be {sky}. "
+            elif morning:
+                response += f"Tonight it will be {sky}. "
             else:
                 response += f"In the evening it will be {sky}. "
         context["response"] = response
@@ -108,6 +130,8 @@ class OpenWeatherMap:
     
     def humidity_forecast(self, context: typing.Dict):
         morning, afternoon, evening = self.owm_integration.get_full_day_forecast()
+        command = context['cleaned_command']
+        morning, afternoon, evening = self._preprocess_time_of_day(command, morning, afternoon, evening)
 
         response = ""
         if morning:
@@ -121,8 +145,10 @@ class OpenWeatherMap:
                 response += f"In the afternoon it will be {humidity} percent humidity. "
         if evening:
             humidity = int(weather.humidity)
-            if not afternoon or morning:
+            if not afternoon:
                 response += f"This evening it will be {humidity} percent humidity. "
+            elif morning:
+                response += f"Tonight it will be {humidity} percent humidity. "
             else:
                 response += f"In the evening it will be {humidity} percent humidity. "
         context["response"] = response
@@ -161,6 +187,10 @@ class OpenWeatherMap:
         context['response'] = template % (temperature_string)
 
     def temperature_forecast(self, context: typing.Dict):
+        morning, afternoon, evening = self.owm_integration.get_full_day_forecast()
+        command = context['cleaned_command']
+        morning, afternoon, evening = self._preprocess_time_of_day(command, morning, afternoon, evening)
+
         response = ""
         if morning:
             temp = int(morning.temperature(self.unit)["temp"])
@@ -173,8 +203,10 @@ class OpenWeatherMap:
                 response += f"In the afternoon it will be {temp} degrees. "
         if evening:
             temp = int(evening.temperature(self.unit)["temp"])
-            if not afternoon or morning:
+            if not afternoon:
                 response += f"This evening it will be {temp} degrees. "
+            elif morning:
+                response += f"Tonight it will be {temp} degrees. "
             else:
                 response += f"In the evening it will be {temp} degrees. "
         context["response"] = response
