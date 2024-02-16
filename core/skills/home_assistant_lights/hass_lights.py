@@ -1,6 +1,6 @@
 import typing
 
-from core.utils.nlp import extract_numbers
+from core.utils.nlp.preprocessing import extract_numbers, find_string_match, replace_punctuation
 
 class HASS_Lights:
 
@@ -28,11 +28,11 @@ class HASS_Lights:
         resp = self.ha_integration.post_services('light', 'turn_on', data)
         if resp.status_code == 200:
             if light_description:
-                response = f"Turning on {light_description}"
+                response = f"Turning on the {light_description}"
             else:
                 response = ""
         else:
-            response = f"Failed to turn on {light_description}"
+            response = f"Failed to turn on the {light_description}"
         
         context['response'] = response
 
@@ -51,11 +51,11 @@ class HASS_Lights:
         resp = self.ha_integration.post_services('light', 'turn_off', data)
         if resp.status_code == 200:
             if light_description:
-                response = f"Turning off {light_description}"
+                response = f"Turning off the {light_description}"
             else:
                 response = ""
         else:
-            response = f"Failed to turn off {light_description}"
+            response = f"Failed to turn off the {light_description}"
 
         context['response'] = response
     
@@ -78,11 +78,11 @@ class HASS_Lights:
         resp = self.ha_integration.post_services('light', 'toggle', data)
         if resp.status_code == 200:
             if light_description:
-                response = f"Turning {light_mode} {light_description}"
+                response = f"Turning {light_mode} the {light_description}"
             else:
                 response = ""
         else:
-            response =  f"Failed to turn {light_mode} {light_description}"
+            response =  f"Failed to turn {light_mode} the {light_description}"
 
         context['response'] = response
     
@@ -119,24 +119,30 @@ class HASS_Lights:
         context['response'] = response
     
     def find_light_entity_id(self, context: typing.Dict):
-        try:
-            light = '_'.join(context["pos_info"]["COMP"])
-            if not light:
-                raise
-            light_description = context['pos_info']["NOUN_CHUNKS"][0]
-        except Exception as err:
-            #print(err)
-            light = context["node_area"]
-            #print(light)
+        if context["pos_info"]["COMP"]:
+            light_id = ' '.join(context["pos_info"]["COMP"])
+        elif context['pos_info']["NOUN_CHUNKS"]:
+            light_id = ' '.join(context['pos_info']["NOUN_CHUNKS"])
+        elif context["node_area"]:
+            light_id = context["node_area"]
             light_description = ""
 
-        if not light:
+        if not light_id:
             raise RuntimeError("No light specified")
 
+        light_id = replace_punctuation(light_id, " ")
+
         try:
-            light_id = [l for l in self.lights if light in l][0]
+            light_id = find_string_match(light_id, self.lights)
+            if not light_id:
+                raise
         except:
             raise RuntimeError("Could not find the light specified")
+
+        try:
+            light_description
+        except:
+            light_description = replace_punctuation(light_id.split('.')[-1], " ")
 
         return light_id, light_description
     

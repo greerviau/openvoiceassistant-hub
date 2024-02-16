@@ -11,11 +11,13 @@ class Coqui:
         print("Loading Coqui Synthesizer")
         self.ova = ova
         model_name = config.get(Components.Synthesizer.value, 'config', 'model')
-        gpu = config.get(Components.Synthesizer.value, 'config', 'use_gpu')
+        use_gpu = config.get(Components.Synthesizer.value, 'config', 'use_gpu')
+        use_gpu = torch.cuda.is_available() and use_gpu
+        config.set(Components.Synthesizer.value, 'config', 'use_gpu', use_gpu)
 
-        device = "cuda" if torch.cuda.is_available() and gpu else "cpu"
+        device = "cuda" if use_gpu else "cpu"
 
-        self.tts = TTS(model_name=model_name, progress_bar=False, gpu=gpu).to(device)
+        self.tts = TTS(model_name=model_name, progress_bar=False, gpu=use_gpu).to(device)
 
     def synthesize(self, text: str, file_path: str):
         self.tts.tts_to_file(text=text, file_path=file_path)

@@ -2,138 +2,217 @@ import typing
 import time
 import threading
 import random
+from datetime import datetime
 from pyowm import OWM
+
+RESPONSE_TEMPLATES = [
+    "Right now it's %s",
+    "Currently it's %s",
+    "Outside it's' %s",
+    "It's currently %s"
+]
 
 class OpenWeatherMap:
 
     def __init__(self, skill_config: typing.Dict, ova: 'OpenVoiceAssistant'):
         self.ova = ova
 
-        api_key = skill_config["api_key"]
-        self.lat = skill_config["latitude"]
-        self.lon = skill_config["longitude"]
-        self.unit = skill_config["unit"]
+        self.owm_integration = self.ova.integration_manager.get_integration_module('open_weather_map')
 
-        owm = OWM(api_key)
-        self.mgr = owm.weather_manager()
+        self.unit = skill_config["temperature_unit"]
 
-        self._current_weather = None
+    def _preprocess_time_of_day(self, command, morning, afternoon, evening):
+        if any(x in command.split() for x in ['morning']):
+            afternoon, evening = None, None
+        elif any(x in command.split() for x in ['afternoon']):
+            morning, evening = None, None
+        elif any(x in command.split() for x in ['tonight', 'evening']):
+            morning, afternoon = None, None
+        elif any(x in command.split() for x in ['later']):
+            if morning:
+                morning = None
+            elif afternoon:
+                afternoon = None
+        return morning, afternoon, evening
 
-        def _update_weather():
-            while True:
-                self._current_weather = self.mgr.weather_at_coords(lat=self.lat, lon=self.lon).weather
-                print("Current Location Weather Updated")
-                time.sleep(3600) # Wait 1 hour
-
-        self.weather_thread = threading.Thread(target=_update_weather, daemon=True)
-        self.weather_thread.start()
-
-    def _get_weather(self, context: typing.Dict):
-        ents = context["pos_info"]["ENTITIES"]
-        location = ents["GPE"] if "GPE" in ents else ents["PERSON"] if "PERSON" in ents else None
-        if location:
-            return self.mgr.weather_at_place(location).weather, f" in {location}"
+    def weather_current(self, context: typing.Dict):
+        weather = self.owm_integration.get_current_weather()
+        sky_conditions = self.owm_integration.get_sky_conditions(weather)
+        temp_data = weather.temperature(self.unit)
+        temp = int(temp_data["temp"]) 
+        feels_like = int(temp_data["feels_like"])
+        if abs(temp - feels_like) > 10:
+            temp_response = f"It's {temp} degrees, but it feels like {feels_like}"
         else:
-            return self._current_weather, ""
+            temp_response = f"It's {temp} degrees"
+        humidity = int(weather.humidity)
+        context["response"] = f"Right now it's {sky_conditions} outside. {temp_response}, with a {humidity} percent humidity"
 
-    def weather(self, context: typing.Dict):
-        w, loc = self._get_weather(context)
-        command = context["command"]
+    def weather_forecast(self, context: typing.Dict):
+        morning, afternoon, evening = self.owm_integration.get_full_day_forecast()
+        command = context['cleaned_command']
+        morning, afternoon, evening = self._preprocess_time_of_day(command, morning, afternoon, evening)
 
-        sky = self.__sky(context)
-        temp = int(w.temperature(self.unit)["temp"])
-        humidity = int(w.humidity)
+        response = ""
+        if morning:
+            sky = self.owm_integration.get_sky_conditions(morning)
+            temp = int(morning.temperature(self.unit)["temp"])
+            response += f"This morning it will be {temp} degrees and {sky}. "
+        if afternoon:
+            sky = self.owm_integration.get_sky_conditions(afternoon)
+            temp = int(afternoon.temperature(self.unit)["temp"])
+            if not morning:
+                response += f"This afternoon it will be {temp} degrees and {sky}. "
+            else:
+                response += f"In the afternoon it will be {temp} degrees and {sky}. "
+        if evening:
+            sky = self.owm_integration.get_sky_conditions(evening)
+            temp = int(evening.temperature(self.unit)["temp"])
+            if not afternoon:
+                response += f"This evening it will be {temp} degrees and {sky}. "
+            elif morning:
+                response += f"Tonight it will be {temp} degrees and {sky}. "
+            else:
+                response += f"In the evening it will be {temp} degrees and {sky}. "
+        context["response"] = response
 
-        context['response'] = f"{sky}. The temperature{loc} is {temp} degrees with a humidity of {humidity} percent."
-
-    def __sky(self, context: typing.Dict):
-        MAIN_STATUS_MAPPING = {
-            "thunderstorm": ["thunderstorming"],
-            "drizzle": ["drizzling"],
-            "rain": ["raining"],
-            "snow": ["snowing"],
-            "clear": ["sunny", "clear", "clear skies"]
-        }
-        DETAILED_STATUS_MAPPING = {
-            "few clouds": ["mostly clear"],
-            "scattered clouds": ["scattered clouds"],
-            "broken clouds": ["broken clouds"],
-            "overcast clouds": ["overcast"],
-            "mist": ["misty"],
-            "smoke": ["smokey"],
-            "haze": ["hazy"],
-            "dust": ["dusty"],
-            "fog": ["foggy"],
-            "sand": ["sandy"],
-            "ash": ["ashy"],
-            "squall": ["slightly stormy"],
-            "tornado": ["a tornado"],
-        }
-
-        RESPONSE_TEMPLATES = [
-            "It looks like it's %s outside",
-            "It appears to be %s outside",
-            "It's %s outside",
-            "It's %s right now",
-            "Right now it's %s outside",
-            "Right now it's %s",
-            "Outside it's %s",
-
-        ]
-
-        w, loc = self._get_weather(context)
-
-        main_status = w.status.lower()
-        detailed_status = w.detailed_status.lower()
-
-        if main_status in list(MAIN_STATUS_MAPPING.keys()):
-            condition = random.choice(MAIN_STATUS_MAPPING[main_status])
-        else:
-            condition = random.choice(DETAILED_STATUS_MAPPING[detailed_status])
-
-        return (random.choice(RESPONSE_TEMPLATES) % (condition)) + loc
-
-    def sky(self, context: typing.Dict):
-        context['response'] = self.__sky(context)
-
-    def air(self, context: typing.Dict):
-        RESPONSE_TEMPLATES = [
-            "Today will be %s",
-            "It is %s outside",
-            "Its currently %s right now"
-        ]
-
-        w, loc = self._get_weather(context)
-
-        humidity = int(w.humidity)
+    def sky_current(self, context: typing.Dict):
+        weather = self.owm_integration.get_current_weather()
+        sky_conditions = self.owm_integration.get_sky_conditions(weather)
 
         template = random.choice(RESPONSE_TEMPLATES)
+        context['response'] = template % (sky_conditions)
 
-        context['response'] = template % (f"{humidity} percent humidity") + loc
+    def sky_forecast(self, context: typing.Dict):
+        morning, afternoon, evening = self.owm_integration.get_full_day_forecast()
+        command = context['cleaned_command']
+        morning, afternoon, evening = self._preprocess_time_of_day(command, morning, afternoon, evening)
 
-    def temperature(self, context: typing.Dict):
-        RESPONSE_TEMPLATES = [
-            "Today will be %s",
-            "It is %s outside",
-            "Its currently %s right now"
-        ]
+        response = ""
+        if morning:
+            sky = self.owm_integration.get_sky_conditions(morning)
+            response += f"This morning it will be {sky}. "
+        if afternoon:
+            sky = self.owm_integration.get_sky_conditions(afternoon)
+            if not morning:
+                response += f"This afternoon it will be {sky}. "
+            else:
+                response += f"In the afternoon it will be {sky}. "
+        if evening:
+            sky = self.owm_integration.get_sky_conditions(evening)
+            if not afternoon:
+                response += f"This evening it will be {sky}. "
+            elif morning:
+                response += f"Tonight it will be {sky}. "
+            else:
+                response += f"In the evening it will be {sky}. "
+        context["response"] = response
 
-        w, loc = self._get_weather(context)
+    def humidity_current(self, context: typing.Dict):
+        command = context['cleaned_command']
+        weather = self.owm_integration.get_current_weather()
+        humidity = int(weather.humidity)
 
-        temp = int(w.temperature(self.unit)["temp"])
+        if any(x in command.split() for x in ['muggy', 'humid', 'dry']):
+            if humidity < 30:
+                humidity_string = "very dry"
+            elif humidity < 40:
+                humidity_string = "fairly dry",
+            elif humidity >= 40 and humidity <= 60:
+                humidity_string = "quite comfortable"
+            else:
+                humidity_string = "very humid"
+        else:  
+            humidity_string = f"{humidity} percent humidity"
 
         template = random.choice(RESPONSE_TEMPLATES)
+        context['response'] = template % (humidity_string)
+    
+    def humidity_forecast(self, context: typing.Dict):
+        morning, afternoon, evening = self.owm_integration.get_full_day_forecast()
+        command = context['cleaned_command']
+        morning, afternoon, evening = self._preprocess_time_of_day(command, morning, afternoon, evening)
 
-        context['response'] = template % (f"{temp} degrees") + loc
+        response = ""
+        if morning:
+            humidity = int(weather.humidity)
+            response += f"This morning it will be {humidity} percent humidity. "
+        if afternoon:
+            humidity = int(weather.humidity)
+            if not morning:
+                response += f"This afternoon it will be {humidity} percent humidity. "
+            else:
+                response += f"In the afternoon it will be {humidity} percent humidity. "
+        if evening:
+            humidity = int(weather.humidity)
+            if not afternoon:
+                response += f"This evening it will be {humidity} percent humidity. "
+            elif morning:
+                response += f"Tonight it will be {humidity} percent humidity. "
+            else:
+                response += f"In the evening it will be {humidity} percent humidity. "
+        context["response"] = response
+
+    def temperature_current(self, context: typing.Dict):
+        command = context['cleaned_command']
+        weather = self.owm_integration.get_current_weather()
+        temp_data = weather.temperature(self.unit)
+        temp = int(temp_data["temp"]) 
+        feels_like = int(temp_data["feels_like"])
+
+        if any(x in command.split() for x in ['hot', 'warm', 'cold', 'chilly', 'comfortable']):
+            measure_temp = int(weather.temperature('celsius')["temp"])
+            if measure_temp < -7:   # ~20F
+                temperature_string = "very cold"
+            elif measure_temp < 5:  # ~40 F
+                temperature_string = "cold"
+            elif measure_temp < 10: # 50F
+                temperature_string = "fairly cold",
+            elif measure_temp >= 10 and measure_temp <= 24: # 50F - ~75F
+                temperature_string = "quite comfortable"
+            elif measure_temp > 24 and measure_temp <= 32:  # ~75F - ~90F
+                temperature_string = "warm"
+            else:
+                temperature_string = "very hot" 
+        else:
+            temperature_string = f"{temp} degrees"
+            if abs(temp - feels_like) > 10:
+                temperature_string += f", but it feels like {feels_like}"
+
+        template = random.choice(RESPONSE_TEMPLATES)
+        context['response'] = template % (temperature_string)
+
+    def temperature_forecast(self, context: typing.Dict):
+        morning, afternoon, evening = self.owm_integration.get_full_day_forecast()
+        command = context['cleaned_command']
+        morning, afternoon, evening = self._preprocess_time_of_day(command, morning, afternoon, evening)
+
+        response = ""
+        if morning:
+            temp = int(morning.temperature(self.unit)["temp"])
+            response += f"This morning it will be {temp} degrees. "
+        if afternoon:
+            temp = int(afternoon.temperature(self.unit)["temp"])
+            if not morning:
+                response += f"This afternoon it will be {temp} degrees. "
+            else:
+                response += f"In the afternoon it will be {temp} degrees. "
+        if evening:
+            temp = int(evening.temperature(self.unit)["temp"])
+            if not afternoon:
+                response += f"This evening it will be {temp} degrees. "
+            elif morning:
+                response += f"Tonight it will be {temp} degrees. "
+            else:
+                response += f"In the evening it will be {temp} degrees. "
+        context["response"] = response
 
 def build_skill(skill_config: typing.Dict, ova: 'OpenVoiceAssistant'):
     return OpenWeatherMap(skill_config, ova)
 
 def default_config():
     return {
-        "api_key": "",
-        "latitude": 0,
-        "longitude": 0,
-        "unit": "fahrenheit",
-        "unit_options": ["fahrenheit", "celsius"]
+        "temperature_unit": "fahrenheit",
+        "temperature_unit_options": ["fahrenheit", "celsius", "kelvin"],
+        "required_integrations": ["open_weather_map"]
     }

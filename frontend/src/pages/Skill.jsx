@@ -50,6 +50,7 @@ function Skill() {
       ...prevData,
       [fieldName]: value,
     }));
+    console.log(jsonData);
 
     // Mark changes as unsaved
     setNewChanges(true);
@@ -150,19 +151,19 @@ function Skill() {
               Save Changes
             </button>
           )}
-          <div className="notification-container">
-            {errorNotification && (
-              <div className="notification error-notification">{errorNotification}</div>
-            )}
-            {successNotification && (
-              <div className="notification success-notification">{successNotification}</div>
-            )}
-            {infoNotification && (
-              <div className="notification info-notification">{infoNotification}</div>
-            )}
-          </div>
         </form>
-      </div>        
+      </div>  
+      <div className="notification-container">
+        {errorNotification && (
+          <div className="notification error-notification">{errorNotification}</div>
+        )}
+        {successNotification && (
+          <div className="notification success-notification">{successNotification}</div>
+        )}
+        {infoNotification && (
+          <div className="notification info-notification">{infoNotification}</div>
+        )}
+      </div>      
     </div>
   );
 }

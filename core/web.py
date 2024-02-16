@@ -16,9 +16,6 @@ from core import config
 from core.ova import OpenVoiceAssistant
 from core.enums import Components
 
-class TranscribeAudio(BaseModel):
-    command_audio_data: str
-    
 class RespondAudio(BaseModel):
     node_id: str = ""
     node_name: str = ""
@@ -67,7 +64,17 @@ def create_app(ova: OpenVoiceAssistant):
             raise fastapi.HTTPException(
                         status_code=400,
                         detail='no config',
-                        headers={'X-Error': 'Could not find OVA default config'})
+                        headers={'X-Error': 'Could not find OVA default config'})            
+
+    @core.put('/config/settings', tags=["Core"])
+    async def put_settings(settings: typing.Dict):
+        try:
+            return config.set('settings', settings)
+        except Exception as err:
+            raise fastapi.HTTPException(
+                        status_code=400,
+                        detail='no config',
+                        headers={'X-Error': 'Failed to set OVA settings'})
 
     @core.post('/restart', tags=["Core"])
     async def restart():
@@ -105,8 +112,7 @@ def create_app(ova: OpenVoiceAssistant):
     @core.put('/transcriber/config', tags=["Transcriber"])
     async def put_transcriber_config(component_config: typing.Dict):
         try:
-            config.set('transcriber', component_config)
-            return component_config
+            return config.set('transcriber', component_config)
         except Exception as err:
             #print(repr(err))
             raise fastapi.HTTPException(
@@ -124,32 +130,6 @@ def create_app(ova: OpenVoiceAssistant):
                         status_code=400,
                         detail='Transcriber algorithm default config does not exist',
                         headers={'X-Error': 'Transcriber algorithm default config does not exist'})
-        
-    
-    @core.post('/transcriber/transcribe/audio/', tags=["Transcriber"])
-    async def transcribe_audio(data: TranscribeAudio):
-        context = {}
-
-        file_dump = ova.file_dump
-
-        audio_file_path = os.path.join(file_dump, f"command_{uuid.uuid4().hex}.wav")
-
-        command_audio_data = bytes.fromhex(data.command_audio_data)
-        with open(audio_file_path, 'wb') as file:
-            file.write(command_audio_data)
-
-        context['command_audio_file_path'] = audio_file_path
-
-        try:
-            ova.run_pipeline(Components.Transcriber, context=context)
-        except Exception as err:
-            #print(repr(err))
-            raise fastapi.HTTPException(
-                        status_code=400,
-                        detail=repr(err),
-                        headers={'X-Error': f'{err}'})
-
-        return context
         
     # UNDERSTANDER
 
@@ -177,8 +157,7 @@ def create_app(ova: OpenVoiceAssistant):
     @core.put('/understander/config', tags=["Understander"])
     async def put_understander_config(component_config: typing.Dict):
         try:
-            config.set('understander', component_config)
-            return component_config
+            return config.set('understander', component_config)
         except Exception as err:
             #print(repr(err))
             raise fastapi.HTTPException(
@@ -241,8 +220,7 @@ def create_app(ova: OpenVoiceAssistant):
     @core.put('/synthesizer/config', tags=["Synthesizer"])
     async def put_synthesizer_config(component_config: typing.Dict):
         try:
-            config.set('synthesizer', component_config)
-            return component_config
+            return config.set('synthesizer', component_config)
         except Exception as err:
             #print(repr(err))
             raise fastapi.HTTPException(
@@ -342,7 +320,6 @@ def create_app(ova: OpenVoiceAssistant):
                         detail='No config provided',
                         headers={'X-Error': 'No config provided'})
         try:
-            print(node_config)
             return ova.node_manager.update_node_config(node_id, node_config)
         except Exception as err:
             #print(repr(err))
@@ -381,6 +358,7 @@ def create_app(ova: OpenVoiceAssistant):
             else:
                 sync_node_config = ova.node_manager.check_for_config_discrepancy(node_id, node_config)
                 sync_node_config["restart_required"] = False
+                sync_node_config["version"] = node_config["version"]
                 return ova.node_manager.update_node_config(node_id, sync_node_config)
         
         except Exception as err:
@@ -443,6 +421,7 @@ def create_app(ova: OpenVoiceAssistant):
 
             context['node_id'] = node_id
             context['response'] = text
+            context['synth_response'] = text
 
             ova.run_pipeline(
                 Components.Synthesizer,
@@ -467,7 +446,7 @@ def create_app(ova: OpenVoiceAssistant):
     async def upload_wake_word_model(node_id: str, wake_word_model: fastapi.UploadFile = fastapi.File(...)):
         try:
             files = {"file": (wake_word_model.filename, wake_word_model.file.read(), wake_word_model.content_type)}
-            response = ova.node_manager.call_node_api("POST", node_id, "/upload/wake_word_model", files=files)
+            response = ova.node_manager.call_node_api("POST", node_id, "/wake_word_models/upload/", files=files)
             response.raise_for_status()
         except Exception as err:
             #print(repr(err))
@@ -481,7 +460,7 @@ def create_app(ova: OpenVoiceAssistant):
     @core.get('/skills/available', tags=["Skills"])
     async def get_available_skills():
         try:
-            return ova.skill_manager.available_skills
+            return sorted(ova.skill_manager.available_skills)
         except RuntimeError as err:
                 #print(repr(err))
                 raise fastapi.HTTPException(
@@ -492,7 +471,7 @@ def create_app(ova: OpenVoiceAssistant):
     @core.get('/skills/imported', tags=["Skills"])
     async def get_imported_skills():
         try:
-            return ova.skill_manager.imported_skills
+            return sorted(ova.skill_manager.imported_skills)
         except RuntimeError as err:
             #print(repr(err))
             raise fastapi.HTTPException(
@@ -503,7 +482,7 @@ def create_app(ova: OpenVoiceAssistant):
     @core.get('/skills/not_imported', tags=["Skills"])
     async def get_not_imported_skills():
         try:
-            return ova.skill_manager.not_imported
+            return sorted(ova.skill_manager.not_imported)
         except RuntimeError as err:
             #print(repr(err))
             raise fastapi.HTTPException(
@@ -571,7 +550,7 @@ def create_app(ova: OpenVoiceAssistant):
     @core.get('/integrations/available', tags=["Integrations"])
     async def get_available_integrations():
         try:
-            return ova.integration_manager.available_integrations
+            return sorted(ova.integration_manager.available_integrations)
         except RuntimeError as err:
                 #print(repr(err))
                 raise fastapi.HTTPException(
@@ -582,7 +561,7 @@ def create_app(ova: OpenVoiceAssistant):
     @core.get('/integrations/imported', tags=["Integrations"])
     async def get_imported_integrations():
         try:
-            return ova.integration_manager.imported_integrations
+            return sorted(ova.integration_manager.imported_integrations)
         except RuntimeError as err:
             #print(repr(err))
             raise fastapi.HTTPException(
@@ -593,7 +572,7 @@ def create_app(ova: OpenVoiceAssistant):
     @core.get('/integrations/not_imported', tags=["Integrations"])
     async def get_not_imported_integrations():
         try:
-            return ova.integration_manager.not_imported
+            return sorted(ova.integration_manager.not_imported)
         except RuntimeError as err:
             #print(repr(err))
             raise fastapi.HTTPException(
@@ -660,11 +639,10 @@ def create_app(ova: OpenVoiceAssistant):
 
     @core.post('/respond/audio', tags=["Pipeline"])
     async def respond_to_audio(data: RespondAudio):
+
+        context = {}
         try:
-            context = {}
-
             file_dump = ova.file_dump
-
             audio_file_path = os.path.join(file_dump, f"command_{data.node_id}.wav")
 
             command_audio_data = bytes.fromhex(data.command_audio_data)
@@ -683,7 +661,7 @@ def create_app(ova: OpenVoiceAssistant):
             context['node_area'] = data.node_area
             context['hub_callback'] = data.hub_callback
             context['time_sent'] = data.time_sent
-            context['time_recieved'] = time.time()
+            context['time_received'] = time.time()
             context['last_time_engaged'] = data.last_time_engaged
 
             ova.run_pipeline(
@@ -699,7 +677,7 @@ def create_app(ova: OpenVoiceAssistant):
             return context
         
         except Exception as err:
-            #print(repr(err))
+            print(repr(err))
             raise fastapi.HTTPException(
                         status_code=400,
                         detail=repr(err),
@@ -707,9 +685,9 @@ def create_app(ova: OpenVoiceAssistant):
 
     @core.post('/respond/audio_file', tags=["Pipeline"])
     async def respond_to_audio_file(audio_file: fastapi.UploadFile = fastapi.File(...)):
-        try:
-            context = {}
 
+        context = {}
+        try:
             file_dump = ova.file_dump
 
             audio_file_path = os.path.join(file_dump, audio_file.filename)
@@ -720,12 +698,12 @@ def create_app(ova: OpenVoiceAssistant):
 
             print(f"Request From Frontend")
 
-            context['node_id'] = ""
-            context['node_name'] = ""
-            context['node_area'] = ""
+            context['node_id'] = "frontend"
+            context['node_name'] = "Frontend"
+            context['node_area'] = "frontend"
             context['hub_callback'] = ""
             context['time_sent'] = 0.0
-            context['time_recieved'] = time.time()
+            context['time_received'] = time.time()
             context['last_time_engaged'] = 0.0
 
             ova.run_pipeline(
@@ -750,7 +728,7 @@ def create_app(ova: OpenVoiceAssistant):
             return Response(content=wav_data , headers=response_headers, media_type="audio/wav")
         
         except Exception as err:
-            #print(repr(err))
+            print(repr(err))
             raise fastapi.HTTPException(
                         status_code=400,
                         detail=repr(err),
@@ -758,9 +736,9 @@ def create_app(ova: OpenVoiceAssistant):
 
     @core.post('/respond/text', tags=["Pipeline"])
     async def respond_to_text(data: RespondText):
+        
+        context = {}
         try:
-            context = {}
-
             print(f"Request From {data.node_id}")
             print(f"- Node Name:    {data.node_name}")
             print(f"- Node Area:    {data.node_area}")
@@ -773,7 +751,7 @@ def create_app(ova: OpenVoiceAssistant):
             context['command'] = data.command_text
             context['hub_callback'] = data.hub_callback
             context['time_sent'] = data.time_sent
-            context['time_recieved'] = time.time()
+            context['time_received'] = time.time()
             context['last_time_engaged'] = data.last_time_engaged
 
             ova.run_pipeline(
@@ -796,7 +774,7 @@ def create_app(ova: OpenVoiceAssistant):
             
             return Response(content=wav_data , headers=response_headers, media_type="audio/wav")
         except Exception as err:
-            #print(repr(err))
+            print(repr(err))
             raise fastapi.HTTPException(
                         status_code=400,
                         detail=repr(err),

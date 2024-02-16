@@ -28,10 +28,10 @@ INTENTIONS = [
             "patterns":[
                 "stop the vacuum",
                 "stop vacuuming",
-                "stop the vacuum",
-                "stop vacuuming",
-                "stop the vacuum",
-                "stop vacuuming"
+                "quit vacuuming",
+                "send the vacuum home",
+                "stop cleaning",
+                "quit cleaning"
             ]
         }
     ]

@@ -54,11 +54,11 @@ class NodeManager:
     
     def get_node_hardware(self, node_id: str):
         hardware = {}
-        resp = self.call_node_api("GET", node_id, "/microphones")
+        resp = self.call_node_api("GET", node_id, "/hardware/microphones")
         if resp.status_code != 200:
             raise RuntimeError(f"Failed to get microphones from node {node_id}")
         hardware["microphones"] = resp.json()
-        resp = self.call_node_api("GET", node_id, "/speakers")
+        resp = self.call_node_api("GET", node_id, "/hardware/speakers")
         if resp.status_code != 200:
             raise RuntimeError(f"Failed to get speakers from node {node_id}")
         hardware["speakers"] = resp.json()
@@ -76,21 +76,28 @@ class NodeManager:
         except:
             raise RuntimeError(f"Node {node_id} does not exist")
         try:
-            resp = self.call_node_api("GET", node_id, "")
+            resp = self.call_node_api("GET", node_id)
             if resp.status_code == 200 and resp.json()["id"] == node_id:
-                status = 'online'
+                data = resp.json()
+                return {
+                    'id': node_id,
+                    'name': node_config['name'],
+                    'status': data["status"],
+                    'restart_required': node_config['restart_required'],
+                    'update_available': data["update_available"],
+                    'version': node_config["version"]
+                }
             else:
                 raise
         except Exception as e:
-            #print(e)
-            status = 'offline'
-        
-        return {
-            'id': node_id,
-            'name': node_config['name'],
-            'status': status,
-            'restart_required': node_config['restart_required']
-        }
+            return {
+                    'id': node_id,
+                    'name': node_config['name'],
+                    'status': 'offline',
+                    'restart_required': node_config['restart_required'],
+                    'update_available': False,
+                    'version': node_config["version"]
+                }
     
     def remove_node(self, node_id: str):
         if self.node_exists(node_id):
@@ -111,7 +118,7 @@ class NodeManager:
     def call_node_api(self, 
                         verb: str, 
                         node_id: str, 
-                        endpoint: str, 
+                        endpoint: str = "", 
                         files: typing.Dict = None, 
                         json: typing.Dict = None, 
                         data: typing.Dict = None

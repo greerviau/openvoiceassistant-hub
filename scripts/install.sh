@@ -4,10 +4,7 @@ apt-get update && apt-get install -y python3-pip python3-dev python3-venv nginx 
 curl -fsSL https://deb.nodesource.com/setup_21.x | sudo -E bash - && sudo apt-get install -y nodejs
 
 CWD=$(pwd)
-
 echo $CWD
-
-#core INSTALL
 
 rm -rf $CWD/env
 python3 -m venv $CWD/env
@@ -29,12 +26,12 @@ npm run build
 
 cd $CWD
 
-cat <<EOF > "/etc/systemd/system/ova_hub_core.service"
+cat <<EOF > "/etc/systemd/system/ova_hub.service"
 [Unit]
-Description=openvoiceassistant HUB core
+Description=openvoiceassistant HUB
 
 [Service]
-ExecStart=/bin/bash $CWD/scripts/start_core.sh
+ExecStart=/bin/bash $CWD/scripts/start_hub.sh
 WorkingDirectory=$CWD
 Restart=always
 User=$USER
@@ -43,5 +40,5 @@ User=$USER
 WantedBy=multi-user.target
 EOF
 
-systemctl enable ova_hub_core.service
-systemctl restart ova_hub_core.service
+systemctl enable ova_hub.service
+systemctl restart ova_hub.service

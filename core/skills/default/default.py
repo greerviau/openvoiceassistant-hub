@@ -1,20 +1,18 @@
 import typing
 from datetime import datetime
-import pytz
 
-from core.utils.nlp import extract_numbers
-from core.utils.formatting import format_readable_date, format_readable_time
+from core.utils.nlp.preprocessing import extract_numbers
+from core.utils.nlp.formatting import format_readable_date, format_readable_time
 
 class Default:
 
     def __init__(self, skill_config: typing.Dict, ova: 'OpenVoiceAssistant'):
         self.ova = ova
 
-        self.tz = pytz.timezone(skill_config["timezone"])
         self.hour_format = "%H" if skill_config["24_hour_format"] else "%I"
 
     def introduction(self, context: typing.Dict):
-        context['response'] = "Hello. My name is ova. I am an opensource voice assistant designed to be a locally controlled alternative to popular voice assistants on the market like Alexa and Google home."
+        context['response'] = "Hello. My name is ova. I am an opensource and locally controlled voice assistant. I am designed to be an offline alternative to popular voice assistants like Alexa and Google home."
 
     def volume(self, context: typing.Dict):
         node_id = context["node_id"]
@@ -34,25 +32,25 @@ class Default:
         node_config["volume"] = volume_percent
         self.ova.node_manager.update_node_config(node_id, node_config)
 
-        self.ova.node_manager.call_node_api("PUT", node_id, "/set_volume", json={"volume_percent": volume_percent})
+        self.ova.node_manager.call_node_api("PUT", node_id, "/volume/set", json={"volume_percent": volume_percent})
         context['response'] = response
     
     def date(self, context: typing.Dict):
-        date = datetime.now(self.tz).strftime("%B %d, %Y")
-        readable_date = format_readable_date(datetime.now(self.tz))
-
+        date = datetime.now().strftime("%B %d, %Y")
+        readable_date = format_readable_date(datetime.now())
+        
         context['synth_response'] = f"Today is {readable_date}"
         context['response'] = f"Today is {date}"
 
     def time(self, context: typing.Dict):
-        time = datetime.now(self.tz).strftime(f"{self.hour_format}:%M").lstrip("0")
-        readable_time = format_readable_time(datetime.now(self.tz), self.hour_format)
+        time = datetime.now().strftime(f"{self.hour_format}:%M").lstrip("0")
+        readable_time = format_readable_time(datetime.now(), self.hour_format)
 
         context['synth_response'] = f"It is {readable_time}"
         context['response'] = f"It is {time}"
 
     def day_of_week(self, context: typing.Dict):
-        dow = datetime.now(self.tz).strftime('%A')
+        dow = datetime.now().strftime('%A')
 
         response = f"It is {dow}"
         context['response'] = response
@@ -60,32 +58,38 @@ class Default:
     def set_timer(self, context: typing.Dict):
         entities = context['pos_info']['ENTITIES']
 
-        node_id = context["node_id"]
-        resp = self.ova.node_manager.call_node_api("GET", node_id, "/timer_remaining_time")
-        remaining = resp.json()['time_remaining']
-
-        response = ""
+        try:
+            node_id = context["node_id"]
+            resp = self.ova.node_manager.call_node_api("GET", node_id, "/timer/remaining")
+            remaining = resp.json()['time_remaining']
+        except:
+            context["response"] = "Failed to start the timer."
+            return
 
         if remaining == 0:
-            if 'TIME' in entities:
-                t = entities['TIME']
-                #print(t)
-                t_split = t.split()
-                durration = 0
-                for inc, m in {'second': 1, 'minute': 60, 'hour': 3600}.items():
-                    for inc_idx, sec in enumerate(t_split):
-                        if inc in sec:
-                            d = t_split[inc_idx - 1]
-                            durration += int(d) * m
-                if durration > 0:
-                    self.ova.node_manager.call_node_api("POST", node_id, "/set_timer", json={"durration": durration})
-                    response = f"Setting a timer for {t}"
-                    if response[-1] != 's': # This is hacky but it works ¯\_(ツ)_/¯
-                        response += 's' 
+            try:
+                if 'TIME' in entities:
+                    t = entities['TIME']
+                    #print(t)
+                    t_split = t.split()
+                    if t_split[0] in ['a', 'an']:
+                        t_split[0] = 1
+                    durration = 0
+                    for inc, m in {'second': 1, 'minute': 60, 'hour': 3600}.items():
+                        for inc_idx, sec in enumerate(t_split):
+                            if inc in sec:
+                                d = t_split[inc_idx - 1]
+                                durration += int(d) * m
+                    if durration > 0:
+                        self.ova.node_manager.call_node_api("POST", node_id, "/timer/set", json={"durration": durration})
+                        response = f"Setting a timer for {t}"
+                        if response[-1] != 's': # This is hacky but it works ¯\_(ツ)_/¯
+                            response += 's' 
+                    else:
+                        raise RuntimeError("Need time durration")
                 else:
-                    context['hub_callback'] = "default.set_timer"
-                    response = "How long should I set a timer for?"
-            else:
+                    raise RuntimeError("No time durration specified")
+            except RuntimeError:
                 context['hub_callback'] = "default.set_timer"
                 response = "How long should I set a timer for?"
         else:
@@ -94,15 +98,21 @@ class Default:
         context['response'] = response 
 
     def time_remaining(self, context: typing.Dict):
-        node_id = context["node_id"]
-        resp = self.ova.node_manager.call_node_api("GET", node_id, "/timer_remaining_time")
-        remaining = resp.json()['time_remaining']
+        try:
+            node_id = context["node_id"]
+            resp = self.ova.node_manager.call_node_api("GET", node_id, "/timer/remaining")
+            remaining = resp.json()['time_remaining']
+        except:
+            context["response"] = "I was unable to get the remaining time."
+            return
+
         if remaining > 0:
             hours = 0
             minutes = 0
             seconds = 0
             if remaining == 0:
-                return "The timer is up"
+                context['response'] = "The timer is up"
+                return
             if remaining % 3600 > 0:
                 hours = remaining // 3600
                 remaining = remaining % 3600
@@ -127,12 +137,24 @@ class Default:
                 response += f" {pieces[0]}"
             response += " remaining"
         else:
-            reponse = "There is no timer currently running"
+            response = "There is no timer currently running"
         context['response'] = response
     
     def stop_timer(self, context: typing.Dict):
+        try:
+            node_id = context["node_id"]
+            resp = self.ova.node_manager.call_node_api("GET", node_id, "/timer/remaining")
+            remaining = resp.json()['time_remaining']
+        except:
+            context["response"] = "I was unable to get the remaining time."
+            return
+
+        if remaining == 0:
+            context["response"] = "There is no timer currently running"
+            return
+
         node_id = context["node_id"]
-        resp = self.ova.node_manager.call_node_api("GET", node_id, "/stop_timer")
+        resp = self.ova.node_manager.call_node_api("GET", node_id, "/timer/stop")
         context['response'] =  "Stopping the timer"
 
 def build_skill(skill_config: typing.Dict, ova: 'OpenVoiceAssistant'):
@@ -140,7 +162,5 @@ def build_skill(skill_config: typing.Dict, ova: 'OpenVoiceAssistant'):
 
 def default_config():
     return {
-        "timezone": "US/Eastern",
-        "timezone_options": pytz.all_timezones,
         "24_hour_format": False
     }

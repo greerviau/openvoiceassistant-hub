@@ -173,7 +173,7 @@ function Nodes() {
         <span>
           <strong>Name:</strong> {nodeItem.name} |{' '}
           <strong>Status:</strong>{' '}
-          <span style={{ color: nodeItem.status === 'online' ? 'green' : 'red' }}>
+          <span style={{ color: nodeItem.status === 'online' ? 'green' : (nodeItem.status === 'crashed' ? 'orange' : 'red') }}>
             {nodeItem.status}
           </span>
           {nodeItem.status === 'online' && (
@@ -185,7 +185,7 @@ function Nodes() {
               {identifying ? 'Identifying...' : 'Identify'}
             </button>
           )}
-          {nodeItem.restart_required && nodeItem.status === 'online' && (
+          {(nodeItem.restart_required || nodeItem.status === 'crashed') && nodeItem.status !== 'offline' && (
             <button
               className={`info-button ${restarting ? 'disabled' : ''}`}
               onClick={(e) => {

@@ -1,5 +1,6 @@
 # Integrations
 * Home Assistant
+* Open Weather Map
 
 # Writing a Custom Integration
 Integrations are designed as python modules that are imported by the Integration Manager. The main purpose of integrations is to augment an api that needs to be used my multiple skills and consolidating the configuration for the api to a single module.

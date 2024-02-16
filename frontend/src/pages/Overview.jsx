@@ -83,7 +83,12 @@ const Overview = () => {
         headers: {
         'Content-Type': 'application/json'
         },
-        body: JSON.stringify({ command_text: textInput })
+        body: JSON.stringify({ 
+          command_text: textInput, 
+          node_id: 'frontend',
+          node_name: 'Frontend',
+          node_area: 'frontend'
+        })
     });
     if (!response.ok) {
         throw new Error('Failed to submit text');

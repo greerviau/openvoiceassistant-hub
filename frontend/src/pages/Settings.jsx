@@ -4,6 +4,7 @@ import { capitalizeId, getFieldInput} from '../Utils';
 const CollapsibleSection = ({ title, component, config, setConfig, setSuccessNotification, setInfoNotification, setErrorNotification}) => {
   const [newChanges, setNewChanges] = useState(false);
   const [isExpanded, setIsExpanded] = useState(false);
+  const [isReloading, setIsReloading] = useState(false);
 
   const DropdownMenu = ({ options, initialValue, component }) => {
     const [selectedOption, setSelectedOption] = useState(initialValue || '');
@@ -110,6 +111,7 @@ const CollapsibleSection = ({ title, component, config, setConfig, setSuccessNot
   };
 
   const handleReload = () => {
+    setIsReloading(true);
     // Call the reload API
     fetch(`/api/${component}/reload`, {
       method: 'POST',
@@ -126,6 +128,7 @@ const CollapsibleSection = ({ title, component, config, setConfig, setSuccessNot
       setTimeout(() => {
         setSuccessNotification(null);
       }, 3000);
+      setIsReloading(false);
     })
     .catch((error) => {
       console.error(`Error reloading ${component} configuration:`, error);
@@ -152,11 +155,12 @@ const CollapsibleSection = ({ title, component, config, setConfig, setSuccessNot
             {title}
             <button className="reload-button" 
               style={{ marginLeft: '10px' }} 
+              disabled={isReloading}
               onClick={(e) => {
                 e.stopPropagation();
                 handleReload();
               }}>
-              <i className="fas fa-sync"></i>
+              <i className={`fas fa-sync${isReloading ? ' fa-spin' : ''}`}></i>
             </button>
             <span style={{ marginLeft: '10px' }}>
           {config && config.algorithm_options && (
@@ -203,6 +207,8 @@ const CollapsibleSection = ({ title, component, config, setConfig, setSuccessNot
 };
 
 function Settings() {
+  const [settingsConfig, setSettingsConfig] = useState({});
+  const [newSettingsChanges, setNewSettingsChanges] = useState(false);
   const [transcriberConfig, setTranscriberConfig] = useState({});
   const [understanderConfig, setUnderstanderConfig] = useState({});
   const [synthesizerConfig, setSynthesizerConfig] = useState({});
@@ -214,7 +220,7 @@ function Settings() {
     // Initial fetch
     console.log('Pulling config data')
     // Fetch configuration data for Transcriber
-    fetch('/api/transcriber/config')
+    fetch('/api/config')
     .then((response) => {
       if (!response.ok) {
         throw new Error(`HTTP error! Status: ${response.status}`);
@@ -223,19 +229,29 @@ function Settings() {
     })
     .then((json) => {
       console.log(json);
-      setTranscriberConfig(json);
+      setSettingsConfig(json.settings);
+      setTranscriberConfig(json.transcriber);
+      setUnderstanderConfig(json.understander);
+      setSynthesizerConfig(json.synthesizer);
     })
     .catch((error) => {
-      console.error('Error fetching transcriber config:', error);
+      console.error('Error fetching config:', error);
       setErrorNotification(`${error.message}`);
       // Clear the notification after a few seconds
       setTimeout(() => {
         setErrorNotification(null);
       }, 5000);
     });
+  }, []);
 
-    // Fetch configuration data for Understander
-    fetch('/api/understander/config')
+  const handleSaveSettingsChanges = () => {
+    fetch(`/api/config/settings`, {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(settingsConfig),
+    })
     .then((response) => {
       if (!response.ok) {
         throw new Error(`HTTP error! Status: ${response.status}`);
@@ -243,39 +259,40 @@ function Settings() {
       return response.json();
     })
     .then((json) => {
-      console.log(json);
-      setUnderstanderConfig(json);
-    })
-    .catch((error) => {
-      console.error('Error fetching understander config:', error);
-      setErrorNotification(`${error.message}`);
-      // Clear the notification after a few seconds
+      setNewSettingsChanges(false);
+      console.log('Update successful:', json);
+      // Display notification for configuration saved
+      setSuccessNotification(`Saved Settings`);
       setTimeout(() => {
-        setErrorNotification(null);
-      }, 5000);
-    });
+        setSuccessNotification(null);
+      }, 3000);
 
-    // Fetch configuration data for Synthesizer
-    fetch('/api/synthesizer/config')
-    .then((response) => {
-      if (!response.ok) {
-        throw new Error(`HTTP error! Status: ${response.status}`);
-      }
-      return response.json();
-    })
-    .then((json) => {
-      console.log(json);
-      setSynthesizerConfig(json);
+      setInfoNotification(`Restart Required`);
+      setTimeout(() => {
+        setInfoNotification(null);
+      }, 3000);
     })
     .catch((error) => {
-      console.error('Error fetching synthesizer config:', error);
+      console.error(`Error updating settings:`, error);
       setErrorNotification(`${error.message}`);
       // Clear the notification after a few seconds
       setTimeout(() => {
         setErrorNotification(null);
       }, 5000);
     });
-  }, []);  
+  };
+
+  const handleInputSettingsChange = (fieldName, value) => {
+    // Update the state with the new input value
+    setSettingsConfig((prevData) => ({
+      ...prevData,
+      [fieldName]: value
+    }));
+    // Mark changes as unsaved
+    setNewSettingsChanges(true);
+  };
+
+  const editableSettings = Object.entries(settingsConfig);
 
   return (
     <div>
@@ -305,6 +322,33 @@ function Settings() {
               setSuccessNotification={setSuccessNotification}
               setInfoNotification={setInfoNotification}
               setErrorNotification={setErrorNotification}/>
+        <form style={{ paddingTop: "40px"}}>
+          <div>
+            {editableSettings.map(([fieldName, fieldValue], index) => {
+              const inputField = getFieldInput(fieldName, fieldValue, handleInputSettingsChange, editableSettings);
+
+              // Skip rendering for fields ending with "_options"
+              if (inputField === null) {
+                return null;
+              }
+
+              return (
+                <div key={index} className="form-field">
+                  <label htmlFor={fieldName}>{capitalizeId(fieldName)}</label>
+                  {inputField}
+                </div>
+              );
+            })}
+          </div>
+          <button
+            type="button"
+            className={`submit-button ${!newSettingsChanges ? 'disabled' : ''}`}
+            disabled={!newSettingsChanges}
+            onClick={handleSaveSettingsChanges}
+          >
+            Save Changes
+          </button>
+        </form>
         <div className="notification-container">
           {successNotification && (
             <div className="notification success-notification">{successNotification}</div>

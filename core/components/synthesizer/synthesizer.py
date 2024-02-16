@@ -4,8 +4,8 @@ import typing
 import time
 import uuid
 
-from core.enums import Components
 from core import config
+from core.enums import Components
 from core.schemas import Context
 
 class Synthesizer:
@@ -40,18 +40,18 @@ class Synthesizer:
     def run_stage(self, context: Context):
         print('Synthesizer Stage')
         start = time.time()
+        
+        if 'node_id' in context:
+            _id = context['node_id']
+        else:
+            _id = uuid.uuid4().hex
+        
+        response_file_path = os.path.join(self.file_dump, f'response_{_id}.wav')
+        context['response_audio_file_path'] = response_file_path
 
         response = context['synth_response']
         print('Response: ', response)
         if response:
-            if 'node_id' in context:
-                _id = context['node_id']
-            else:
-                _id = uuid.uuid4().hex
-            
-            response_file_path = os.path.join(self.file_dump, f'response_{_id}.wav')
-            context['response_audio_file_path'] = response_file_path
-                
             try:
                 self.engine.synthesize(response, response_file_path)
             except Exception as e:

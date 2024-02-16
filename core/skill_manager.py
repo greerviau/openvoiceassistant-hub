@@ -17,11 +17,16 @@ class SkillManager:
         self.not_imported = [skill for skill in self.available_skills if skill not in self.skills]
 
         print('Importing Skills...')
-        for skill_id in self.skills:
-            skill_config = config.get('skills', skill_id)
-            if not skill_config:
-                skill_config = self.get_default_skill_config(skill_id)
-            self.__import_skill(skill_id, skill_config)
+        for skill_id in list(self.skills.keys()):
+            if self.skill_exists(skill_id):
+                skill_config = config.get('skills', skill_id)
+                if not skill_config:
+                    skill_config = self.get_default_skill_config(skill_id)
+                self.__import_skill(skill_id, skill_config)
+            else:
+                self.skills.pop(skill_id)
+                config.set('skills', self.skills)
+                print(f"Removing {skill_id}")
 
     @property
     def imported_skills(self):
@@ -58,7 +63,7 @@ class SkillManager:
         for key, value in default_skill_config.items():
             if key not in skill_config_clone:
                 skill_config_clone[key] = value
-        for key, value in skill_config_clone.items():
+        for key, value in skill_config.items():
             if key not in default_skill_config:
                 skill_config_clone.pop(key)
         return skill_config_clone
@@ -105,9 +110,10 @@ class SkillManager:
                 module = importlib.import_module(f'core.skills.{skill_id}')
                 self.imported_skill_modules[skill_id] = module.build_skill(skill_config, self.ova)
             except Exception as e:
-                raise RuntimeError(f'Failed to load {skill_id} | Exception {repr(e)}')
+                print(f'Failed to load {skill_id} | Exception {repr(e)}')
                 # TODO
-                # use this exception in the future to extablish that skill is crashed
+                # custom exception for this
+                # in the future use it to extablish that skill is crashed
                 # update flag in config and display on FE
                 # can do same thing for integrations and even components
         else:

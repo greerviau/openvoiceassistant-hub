@@ -8,7 +8,9 @@ INTENTIONS = [
                 "what are you", 
                 "who are you",
                 "explain who you are",
-                "tell me about yourself"
+                "explain what you are",
+                "tell us about yourself",
+                "tell everyone who you are"
             ]
         },
         {
@@ -89,7 +91,6 @@ INTENTIONS = [
                 "set a timer for BLANK hours and BLANK minutes",
                 "start a timer",
                 "start a timer for BLANK",
-                "start a timer for BLANK",
                 "start a BLANK minute timer"
             ]
         },
@@ -100,7 +101,11 @@ INTENTIONS = [
                 "how much time is left on the timer",
                 "how long on the timer",
                 "how much longer on the timer",
+                "how much time is remaining",
+                "how much longer",
+                "how much longer on the timer",
                 "what is the time remaining"
+                "what is the remaining time"
             ]
         },
         {
