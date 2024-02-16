@@ -180,7 +180,7 @@ function Node() {
           setSuccessNotification(null);
         }, 3000);
 
-        if (initialData.status === 'online') {
+        if (initialData.status !== 'offline') {
           // Display notification for node restart required
           setInfoNotification('Node Restart Required');
           setTimeout(() => {
@@ -320,9 +320,9 @@ function Node() {
         </button>
         <button
           type="button"
-          className={`submit-button ${isIdentifying || initialData.status === 'offline' ? 'disabled' : ''}`}
+          className={`submit-button ${isIdentifying || initialData.status !== 'online' ? 'disabled' : ''}`}
           onClick={handleIdentify}
-          disabled={isIdentifying || initialData.status === 'offline'}
+          disabled={isIdentifying || initialData.status !== 'online'}
         >
           {isIdentifying ? 'Identifying...' : 'Identify'}
         </button>

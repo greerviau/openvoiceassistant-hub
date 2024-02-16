@@ -11,14 +11,14 @@ class Stocks:
         reports = []
         for ticker, info in tickers.tickers.items():
             try:
-                open_price = info.info['open']
+                open_price = int(info.info['open'])
                 name = info.info['shortName']
                 reports.append(f"the {name} opened at {open_price}")
             except:
                 pass
         if reports:
             response = "Today "
-            response += ".".join(reports)
+            response += ". ".join(reports)
         else:
             response = "No stocks provided to check"
 

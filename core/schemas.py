@@ -5,6 +5,8 @@ class Context(typing.TypedDict):
     node_name: str
     node_area: str
     time_sent: float
+    time_received: float
+    time_returned: float
     engaged: bool
     last_time_engaged: float
     command_audio_file_path: str

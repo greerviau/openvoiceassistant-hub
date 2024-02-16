@@ -6,6 +6,17 @@ class Actor:
     def __init__(self, ova: 'OpenVoiceAssistant'):
         self.ova = ova
 
+    def process_response(self, text: str):
+        if not text:
+            return text
+        text = text.strip()
+        text = '. '.join([sentence.strip().capitalize() for sentence in text.split('.')])
+        text = text.replace(' i ', 'I')
+        text = text.strip()
+        if text[0] == 'i': text[0] = 'I'
+        if text[-1] != '.': text += '.'
+        return text
+
     def run_stage(self, context: Context):
         print('Action Stage')
         start = time.time()
@@ -24,6 +35,7 @@ class Actor:
                     context['response'] = f"Sorry. While executing that action, I encountered the following problem. {str(e)}"
             else:
                 context['response'] = 'Skill is not imported.'
+
         if 'response' not in context:
             if 'synth_response' in context:
                 context['response'] = context['synth_response']
@@ -32,8 +44,8 @@ class Actor:
         if 'synth_response' not in context:
             context['synth_response'] = context['response']
 
-        context["response"] = context["response"].strip()
-        context["synth_response"] = context["synth_response"].strip()
+        context["response"] = self.process_response(context["response"])
+        context["synth_response"] = self.process_response(context["synth_response"])
 
         dt = time.time() - start
         print("Time to run action: ", dt)

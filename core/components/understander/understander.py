@@ -16,7 +16,7 @@ class Understander:
         imported_skills = list(config.get('skills').keys())
         self.intents, n_samples = self.load_intents(imported_skills)
         self.vocab_list = self.load_vocab(self.intents.values())
-        self.add_negative_samples(self.intents, n_samples)
+        self.add_negative_samples(n_samples)
         self.engage_delay = config.get("engage_delay")
     
         self.algo = config.get(Components.Understander.value, "algorithm").lower().replace(" ", "_")
@@ -39,11 +39,13 @@ class Understander:
         tagged_intents = {}
         pattern_count = 0
         for skill in imported_skills:
-            intents = self.ova.skill_manager.get_skill_intents(skill)
+            intents = self.ova.skill_manager.get_skill_intents(skill).copy()
             for intent in intents:
                 tag = intent['action']
-                patterns = intent['patterns']
-                patterns.extend([f"BLANK {pattern}" for pattern in patterns])
+                print(tag)
+                patterns = intent['patterns'].copy()
+                print(len(patterns))
+                #patterns.extend([f"BLANK {pattern}" for pattern in patterns])
                 pattern_count += len(patterns)
                 label = f'{skill}-{tag}'
                 tagged_intents[label] = patterns
@@ -51,16 +53,16 @@ class Understander:
         print(f'N Positive Samples: {pattern_count}')
         return tagged_intents, pattern_count
 
-    def add_negative_samples(self, intents: typing.Dict, n_samples: int):
+    def add_negative_samples(self, n_samples: int):
         false_positives = list(set([encode_command(sample, self.vocab_list) for sample in FALSE_POSITIVES]))
         random.shuffle(false_positives)
-        n_false_samples = n_samples // 2
+        n_false_samples = n_samples
         if len(false_positives) > n_false_samples:
             false_samples = false_positives[:n_false_samples]
         else:
             false_samples = false_positives
         print(f'N Negative Samples: {len(false_samples)}')
-        intents["NO_COMMAND-NO_ACTION"] = false_samples
+        self.intents["NO_COMMAND-NO_ACTION"] = false_samples
     
     def load_vocab(self, patterns: typing.List[typing.List[str]]):
         all_words = []

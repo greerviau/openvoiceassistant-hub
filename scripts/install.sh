@@ -6,8 +6,6 @@ curl -fsSL https://deb.nodesource.com/setup_21.x | sudo -E bash - && sudo apt-ge
 CWD=$(pwd)
 echo $CWD
 
-#core INSTALL
-
 rm -rf $CWD/env
 python3 -m venv $CWD/env
 

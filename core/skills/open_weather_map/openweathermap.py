@@ -7,8 +7,8 @@ from pyowm import OWM
 
 RESPONSE_TEMPLATES = [
     "Right now it's %s",
-    "Currently it's %s"
-    "It is %s outside",
+    "Currently it's %s",
+    "Outside it's' %s",
     "It's currently %s"
 ]
 
@@ -159,13 +159,9 @@ class OpenWeatherMap:
         temp_data = weather.temperature(self.unit)
         temp = int(temp_data["temp"]) 
         feels_like = int(temp_data["feels_like"])
-        if abs(temp - feels_like) > 10:
-            temp_response = f"It's {temp} degrees but it feels like {feels_like}"
-        else:
-            temp_response = f"It's {temp} degrees"
 
         if any(x in command.split() for x in ['hot', 'warm', 'cold', 'chilly', 'comfortable']):
-            measure_temp = weather.temperature('celsius')
+            measure_temp = int(weather.temperature('celsius')["temp"])
             if measure_temp < -7:   # ~20F
                 temperature_string = "very cold"
             elif measure_temp < 5:  # ~40 F

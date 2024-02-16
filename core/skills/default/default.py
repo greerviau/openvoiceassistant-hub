@@ -32,7 +32,7 @@ class Default:
         node_config["volume"] = volume_percent
         self.ova.node_manager.update_node_config(node_id, node_config)
 
-        self.ova.node_manager.call_node_api("PUT", node_id, "/set_volume", json={"volume_percent": volume_percent})
+        self.ova.node_manager.call_node_api("PUT", node_id, "/volume/set", json={"volume_percent": volume_percent})
         context['response'] = response
     
     def date(self, context: typing.Dict):
@@ -60,7 +60,7 @@ class Default:
 
         try:
             node_id = context["node_id"]
-            resp = self.ova.node_manager.call_node_api("GET", node_id, "/timer_remaining_time")
+            resp = self.ova.node_manager.call_node_api("GET", node_id, "/timer/remaining")
             remaining = resp.json()['time_remaining']
         except:
             context["response"] = "Failed to start the timer."
@@ -81,7 +81,7 @@ class Default:
                                 d = t_split[inc_idx - 1]
                                 durration += int(d) * m
                     if durration > 0:
-                        self.ova.node_manager.call_node_api("POST", node_id, "/set_timer", json={"durration": durration})
+                        self.ova.node_manager.call_node_api("POST", node_id, "/timer/set", json={"durration": durration})
                         response = f"Setting a timer for {t}"
                         if response[-1] != 's': # This is hacky but it works ¯\_(ツ)_/¯
                             response += 's' 
@@ -100,7 +100,7 @@ class Default:
     def time_remaining(self, context: typing.Dict):
         try:
             node_id = context["node_id"]
-            resp = self.ova.node_manager.call_node_api("GET", node_id, "/timer_remaining_time")
+            resp = self.ova.node_manager.call_node_api("GET", node_id, "/timer/remaining")
             remaining = resp.json()['time_remaining']
         except:
             context["response"] = "I was unable to get the remaining time."
@@ -143,7 +143,7 @@ class Default:
     def stop_timer(self, context: typing.Dict):
         try:
             node_id = context["node_id"]
-            resp = self.ova.node_manager.call_node_api("GET", node_id, "/timer_remaining_time")
+            resp = self.ova.node_manager.call_node_api("GET", node_id, "/timer/remaining")
             remaining = resp.json()['time_remaining']
         except:
             context["response"] = "I was unable to get the remaining time."
@@ -154,7 +154,7 @@ class Default:
             return
 
         node_id = context["node_id"]
-        resp = self.ova.node_manager.call_node_api("GET", node_id, "/stop_timer")
+        resp = self.ova.node_manager.call_node_api("GET", node_id, "/timer/stop")
         context['response'] =  "Stopping the timer"
 
 def build_skill(skill_config: typing.Dict, ova: 'OpenVoiceAssistant'):

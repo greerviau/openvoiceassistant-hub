@@ -109,13 +109,17 @@ INTENTIONS = [
         {
             "action": "temperature_current",
             "patterns": [
-                "is it cold outside",
                 "whats the temperature outside",
                 "whats the temp",
                 "whats the temperature right now"
                 "what is the temperature",
                 "how hot is it right now",
                 "how cold is it",
+                "is it hot",
+                "is it cold",
+                "hows the temp",
+                "hows the temperature",
+                "is it cold outside",
                 "is it hot outside",
                 "whats the heat",
                 "how hot is it outside",
@@ -135,6 +139,8 @@ INTENTIONS = [
                 "is it gonna be cold today",
                 "how cold will it be today",
                 "how hot will it be today",
+                "hows the temp today",
+                "whats the tempeature today",
                 "whats the forecast for temperature today"
             ]
         }

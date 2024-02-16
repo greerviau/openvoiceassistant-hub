@@ -320,7 +320,6 @@ def create_app(ova: OpenVoiceAssistant):
                         detail='No config provided',
                         headers={'X-Error': 'No config provided'})
         try:
-            print(node_config)
             return ova.node_manager.update_node_config(node_id, node_config)
         except Exception as err:
             #print(repr(err))
@@ -359,6 +358,7 @@ def create_app(ova: OpenVoiceAssistant):
             else:
                 sync_node_config = ova.node_manager.check_for_config_discrepancy(node_id, node_config)
                 sync_node_config["restart_required"] = False
+                sync_node_config["version"] = node_config["version"]
                 return ova.node_manager.update_node_config(node_id, sync_node_config)
         
         except Exception as err:
@@ -446,7 +446,7 @@ def create_app(ova: OpenVoiceAssistant):
     async def upload_wake_word_model(node_id: str, wake_word_model: fastapi.UploadFile = fastapi.File(...)):
         try:
             files = {"file": (wake_word_model.filename, wake_word_model.file.read(), wake_word_model.content_type)}
-            response = ova.node_manager.call_node_api("POST", node_id, "/upload/wake_word_model", files=files)
+            response = ova.node_manager.call_node_api("POST", node_id, "/wake_word_models/upload/", files=files)
             response.raise_for_status()
         except Exception as err:
             #print(repr(err))
@@ -460,7 +460,7 @@ def create_app(ova: OpenVoiceAssistant):
     @core.get('/skills/available', tags=["Skills"])
     async def get_available_skills():
         try:
-            return ova.skill_manager.available_skills
+            return sorted(ova.skill_manager.available_skills)
         except RuntimeError as err:
                 #print(repr(err))
                 raise fastapi.HTTPException(
@@ -471,7 +471,7 @@ def create_app(ova: OpenVoiceAssistant):
     @core.get('/skills/imported', tags=["Skills"])
     async def get_imported_skills():
         try:
-            return ova.skill_manager.imported_skills
+            return sorted(ova.skill_manager.imported_skills)
         except RuntimeError as err:
             #print(repr(err))
             raise fastapi.HTTPException(
@@ -482,7 +482,7 @@ def create_app(ova: OpenVoiceAssistant):
     @core.get('/skills/not_imported', tags=["Skills"])
     async def get_not_imported_skills():
         try:
-            return ova.skill_manager.not_imported
+            return sorted(ova.skill_manager.not_imported)
         except RuntimeError as err:
             #print(repr(err))
             raise fastapi.HTTPException(
@@ -550,7 +550,7 @@ def create_app(ova: OpenVoiceAssistant):
     @core.get('/integrations/available', tags=["Integrations"])
     async def get_available_integrations():
         try:
-            return ova.integration_manager.available_integrations
+            return sorted(ova.integration_manager.available_integrations)
         except RuntimeError as err:
                 #print(repr(err))
                 raise fastapi.HTTPException(
@@ -561,7 +561,7 @@ def create_app(ova: OpenVoiceAssistant):
     @core.get('/integrations/imported', tags=["Integrations"])
     async def get_imported_integrations():
         try:
-            return ova.integration_manager.imported_integrations
+            return sorted(ova.integration_manager.imported_integrations)
         except RuntimeError as err:
             #print(repr(err))
             raise fastapi.HTTPException(
@@ -572,7 +572,7 @@ def create_app(ova: OpenVoiceAssistant):
     @core.get('/integrations/not_imported', tags=["Integrations"])
     async def get_not_imported_integrations():
         try:
-            return ova.integration_manager.not_imported
+            return sorted(ova.integration_manager.not_imported)
         except RuntimeError as err:
             #print(repr(err))
             raise fastapi.HTTPException(
@@ -661,7 +661,7 @@ def create_app(ova: OpenVoiceAssistant):
             context['node_area'] = data.node_area
             context['hub_callback'] = data.hub_callback
             context['time_sent'] = data.time_sent
-            context['time_recieved'] = time.time()
+            context['time_received'] = time.time()
             context['last_time_engaged'] = data.last_time_engaged
 
             ova.run_pipeline(
@@ -703,7 +703,7 @@ def create_app(ova: OpenVoiceAssistant):
             context['node_area'] = "frontend"
             context['hub_callback'] = ""
             context['time_sent'] = 0.0
-            context['time_recieved'] = time.time()
+            context['time_received'] = time.time()
             context['last_time_engaged'] = 0.0
 
             ova.run_pipeline(
@@ -751,7 +751,7 @@ def create_app(ova: OpenVoiceAssistant):
             context['command'] = data.command_text
             context['hub_callback'] = data.hub_callback
             context['time_sent'] = data.time_sent
-            context['time_recieved'] = time.time()
+            context['time_received'] = time.time()
             context['last_time_engaged'] = data.last_time_engaged
 
             ova.run_pipeline(

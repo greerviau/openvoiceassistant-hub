@@ -63,10 +63,7 @@ class OpenVoiceAssistant:
         for component_id in COMPONENTS.keys():
             self.launch_component(component_id)
 
-    def run_pipeline(self, *stages: typing.List[Components], context: Context = None):
-        if not context:
-            context = {}
-
+    def run_pipeline(self, *stages: typing.List[Components], context: Context = {}):
         start = time.time()
         
         for stage in stages:
