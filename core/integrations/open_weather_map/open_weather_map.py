@@ -47,9 +47,7 @@ class OpenWeatherMap:
                         print("Cannot make daily forecast requests with free API key")
 
                 for weather in self._hourly_forecast:
-                    print(weather.ref_time)
                     dt = datetime.fromtimestamp(weather.ref_time)
-                    print(dt)
                     if dt.day > datetime.today().day:
                         break
                     if dt.hour < 12 and dt.hour + 3 > 12:
@@ -91,7 +89,7 @@ class OpenWeatherMap:
             "drizzle": ["drizzling"],
             "rain": ["raining"],
             "snow": ["snowing"],
-            "clear": ["sunny", "clear", "clear skies"]
+            "clear": ["clear", "clear skies"]
         }
         DETAILED_STATUS_MAPPING = {
             "few clouds": ["mostly clear"],
@@ -118,15 +116,3 @@ class OpenWeatherMap:
             condition = random.choice(DETAILED_STATUS_MAPPING[detailed_status])
 
         return condition
-
-def build_integration(skill_config: typing.Dict, ova: 'OpenVoiceAssistant'):
-    return OpenWeatherMap(skill_config, ova)
-
-def default_config():
-    return {
-        "api_key": "",
-        "latitude": 0,
-        "longitude": 0,
-        "update_interval": "hourly",
-        "update_interval_options": ["hourly", "daily", "onecall_hourly", "onecall_daily"]
-    }

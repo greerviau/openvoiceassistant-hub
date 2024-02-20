@@ -2,7 +2,7 @@ import typing
 
 from core.utils.nlp.preprocessing import extract_numbers, find_string_match, replace_punctuation
 
-class HASS_Lights:
+class HASSLights:
 
     def __init__(self, skill_config: typing.Dict, ova: 'OpenVoiceAssistant'):
         self.ova = ova
@@ -152,11 +152,3 @@ class HASS_Lights:
             return [entity["entity_id"] for entity in entities if "light" in entity["entity_id"].split('.')[0]]
         except:
             return []
-
-def build_skill(skill_config: typing.Dict, ova: 'OpenVoiceAssistant'):
-    return HASS_Lights(skill_config, ova)
-
-def default_config():
-    return {
-        "required_integrations": ["home_assistant"]
-    }

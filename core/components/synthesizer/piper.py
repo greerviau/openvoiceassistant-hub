@@ -6,20 +6,20 @@ import torch
 from piper.download import ensure_voice_exists, find_voice, get_voices
 from piper import PiperVoice
 
-from core.enums import Components
 from core import config
+from core.dir import MODELDIR
+from core.enums import Components
 
 class Piper:
     def __init__(self, ova: 'OpenVoiceAssistant'):
         print("Loading Piper Synthesizer")
         self.ova = ova
-        file_dump = ova.model_dump
         model_name = config.get(Components.Synthesizer.value, 'config', 'model')
         use_gpu = config.get(Components.Synthesizer.value, 'config', 'use_gpu')
         use_gpu = torch.cuda.is_available() and use_gpu
         config.set(Components.Synthesizer.value, 'config', 'use_gpu', use_gpu)
 
-        data_dir = [file_dump]
+        data_dir = [MODELDIR]
         download_dir = data_dir[0]
 
         voices_info = get_voices(download_dir)

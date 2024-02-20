@@ -8,6 +8,9 @@ class NodeManager:
         self.ova = ova
         self.nodes = config.get('nodes')
 
+    def update_node(self, node_id: str):
+        resp = self.call_node_api("POST", node_id, "/update")
+
     def update_node_config(self, node_id: str, node_config: typing.Dict):
         self.__save_config(node_id, node_config)
         return node_config
@@ -85,6 +88,7 @@ class NodeManager:
                     'status': data["status"],
                     'restart_required': node_config['restart_required'],
                     'update_available': data["update_available"],
+                    'update_version': data["update_version"],
                     'version': node_config["version"]
                 }
             else:
@@ -94,8 +98,9 @@ class NodeManager:
                     'id': node_id,
                     'name': node_config['name'],
                     'status': 'offline',
-                    'restart_required': node_config['restart_required'],
+                    'restart_required': False,
                     'update_available': False,
+                    'update_version': "",
                     'version': node_config["version"]
                 }
     

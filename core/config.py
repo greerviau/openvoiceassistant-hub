@@ -30,13 +30,14 @@ DEFAULT_CONFIG = {
             ]
         },
         "settings": {
+            "augment_intent_data_percent": 0,
             "timezone": "US/Eastern",
             "timezone_options": pytz.all_timezones
         },
         "nodes": {},
         "integrations":{},
         "skills": {
-            "default": default.default_config()
+            "default": default.manifest()
         }
     }
 
@@ -75,19 +76,17 @@ def save_config():
     with open(config_path, 'w') as config_file:
         config_file.write(json.dumps(config, indent=4))
 
-def verify_config():
-    global config
-    if list(DEFAULT_CONFIG.keys()) == list(config.keys()):
-        return
+def verify_config(config: typing.Dict, default:typing.Dict):
+    if list(default.keys()) == list(config.keys()):
+        return config
     config_clone = config.copy()
-    for key, value in DEFAULT_CONFIG.items():
+    for key, value in default.items():
         if key not in config_clone:
             config_clone[key] = value
     for key, value in config.items():
-        if key not in DEFAULT_CONFIG:
+        if key not in default:
             config_clone.pop(key)
-    config = config_clone
-    save_config()
+    return config_clone
 
 def load_config() -> typing.Dict:  # TODO use TypedDict
     global config, config_path
@@ -99,6 +98,8 @@ def load_config() -> typing.Dict:  # TODO use TypedDict
     else:
         print('Loading existing config')
         config = json.load(open(config_path, 'r'))
-        verify_config()
+        config = verify_config(config, DEFAULT_CONFIG)
+        config["settings"] = verify_config(config["settings"], DEFAULT_CONFIG["settings"])
+        save_config()
 
 load_config()

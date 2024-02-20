@@ -43,15 +43,14 @@ function Skills() {
   }, []);
 
   const handleItemClick = (item) => {
-    // Use item[0] as the key (name) and item[1] as the value (object)
-    navigate(`/skill/${encodeURIComponent(item.toLowerCase())}`, { state: { jsonData: item[1] } });
+    navigate(`/skill/${encodeURIComponent(item.id)}`, { state: { jsonData: item } });
   };
 
   const handleDeleteClick = (item) => {
-    const confirmation = window.confirm(`Are you sure you want to delete ${capitalizeId(item)}?`);
+    const confirmation = window.confirm(`Are you sure you want to delete ${item.name}?`);
     if (confirmation) {
       // Call the API to remove the skill
-      fetch(`/api/skills/${encodeURIComponent(item.toLowerCase())}`, {
+      fetch(`/api/skills/${item.id}`, {
         method: 'DELETE',
       })
       .then((response) => {
@@ -61,8 +60,8 @@ function Skills() {
         return response.json();
       })
       .then((json) => {
-        console.log(`Skill ${capitalizeId(item)} successfully deleted.`);
-        setSuccessNotification(`${capitalizeId(item)} Deleted`);
+        console.log(`Skill ${capitalizeId(item.name)} successfully deleted.`);
+        setSuccessNotification(`${capitalizeId(item.name)} Deleted`);
         // Clear the notification after a few seconds
         setTimeout(() => {
           setSuccessNotification(null);
@@ -84,7 +83,7 @@ function Skills() {
       });
     } else {
       // User canceled the deletion
-      console.log(`Deletion of ${capitalizeId(item)} canceled.`);
+      console.log(`Deletion of ${item.name} canceled.`);
     }
   };
 
@@ -104,8 +103,8 @@ function Skills() {
             <ul className="item-list" style={{ paddingTop: '10px' }}>
               {data.map((item, index) => (
                 <li key={index} className="list-item" onClick={() => handleItemClick(item)}>
-                  <span><strong>{capitalizeId(item)}</strong></span>
-                  {item !== 'default' && (
+                  <span><strong>{item.name}</strong></span>
+                  {item.id !== 'default' && (
                   <button
                     className="delete-button"
                     onClick={(e) => {

@@ -36,7 +36,7 @@ function ImportSkill() {
 
   const handleItemClick = (item) => {
     // Use item[0] as the key (name) and item[1] as the value (object)
-    navigate(`/skill/${encodeURIComponent(item.toLowerCase())}`, { state: { jsonData: item[1], import: true } });
+    navigate(`/skill/${encodeURIComponent(item.id)}`, { state: { jsonData: item, import: true } });
   };
 
   return (
@@ -58,7 +58,7 @@ function ImportSkill() {
           <ul className="item-list" style={{ paddingTop: '10px' }}>
             {data.map((item, index) => (
               <li className="list-item" key={index} onClick={() => handleItemClick(item)}>
-                <strong>{capitalizeId(item)}</strong>
+                <strong>{item.name}</strong>
               </li>
             ))}
           </ul>

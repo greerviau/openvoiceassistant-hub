@@ -13,7 +13,7 @@ def add_false_positive(text: str):
         file.write(f"\n{text}")
 
 if __name__ == "__main__":
-    from nlp import clean_text
-    filtered = "\n".join(list(set([f"\"{clean_text(phrase)}\"," for phrase in FALSE_POSITIVES])))
+    from preprocessing import clean_text
+    filtered = "\n".join(list(set([clean_text(phrase) for phrase in FALSE_POSITIVES])))
     with open(false_positives_path, 'w') as file:
         file.write(filtered)

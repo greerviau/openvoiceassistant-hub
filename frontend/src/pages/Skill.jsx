@@ -6,7 +6,10 @@ import { capitalizeId, getFieldInput} from '../Utils';
 function Skill() {
   const { skillId } = useParams(); // Access the skillId from URL params
   const location = useLocation();
+  const manifestData = location.state?.jsonData;
+
   const [newChanges, setNewChanges] = useState(false);
+  const [saving, setSaving] = useState(false);
   const [successNotification, setSuccessNotification] = useState(null);
   const [infoNotification, setInfoNotification] = useState(null);
   const [errorNotification, setErrorNotification] = useState(null);
@@ -57,6 +60,7 @@ function Skill() {
   };
 
   const handleSaveChanges = () => {
+    setSaving(true);
     fetch(`/api/skills/${skillId}/config`, {
       method: 'PUT',
       headers: {
@@ -75,12 +79,12 @@ function Skill() {
       if (!importMode) {
         console.log('Update successful:', json);
         // Display notification for configuration saved
-        setSuccessNotification(`${capitalizeId(skillId)} Config Updated`);
+        setSuccessNotification(`${manifestData.name} Config Updated`);
         setTimeout(() => {
           setSuccessNotification(null);
         }, 3000);
       } else {
-        setSuccessNotification(`${capitalizeId(skillId)} Imported`);
+        setSuccessNotification(`${manifestData.name} Imported`);
         setTimeout(() => {
           setSuccessNotification(null);
         }, 3000);
@@ -97,6 +101,9 @@ function Skill() {
       setTimeout(() => {
         setErrorNotification(null);
       }, 5000);
+    })
+    .finally(() => {
+      setSaving(false);
     });
   };
 
@@ -106,9 +113,9 @@ function Skill() {
 
   return (
     <div>
-      <h1>Configure {capitalizeId(skillId)}</h1>
+      <h1>Configure {manifestData.name}</h1>
       <div className="page-container" >
-        <Link to="/skills" className="big-info-button">
+        <Link to={importMode ? "/import-skill" : "/skills"} className="big-info-button">
           Back
         </Link>
         <form style={{ paddingTop: "40px"}}>
@@ -136,19 +143,19 @@ function Skill() {
           {importMode ? (
             <button 
               type="button" 
-              className={`info-button ${!newChanges ? 'disabled' : ''}`}
+              className={`info-button ${(!newChanges || saving) ? 'disabled' : ''}`}
               onClick={handleSaveChanges}
-              disabled={!newChanges}>
-              Import
+              disabled={!newChanges || saving}>
+              {saving ? 'Importing...' : 'Import'}
             </button>
           ) : (
             <button
               type="button"
-              className={`submit-button ${!newChanges ? 'disabled' : ''}`}
-              disabled={!newChanges}
+              className={`submit-button ${(!newChanges || saving) ? 'disabled' : ''}`}
+              disabled={!newChanges || saving}
               onClick={handleSaveChanges}
             >
-              Save Changes
+              {saving ? 'Saving...' : 'Save Changes'}
             </button>
           )}
         </form>

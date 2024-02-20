@@ -5,13 +5,13 @@ import time
 import uuid
 
 from core import config
+from core.dir import FILESDIR
 from core.enums import Components
 from core.schemas import Context
 
 class Synthesizer:
     def __init__(self, ova: 'OpenVoiceAssistant'):
         self.ova = ova
-        self.file_dump = self.ova.file_dump
 
         self.algo = config.get(Components.Synthesizer.value, 'algorithm').lower().replace(' ', '_')
         self.module = importlib.import_module(f'core.components.synthesizer.{self.algo}')
@@ -41,12 +41,11 @@ class Synthesizer:
         print('Synthesizer Stage')
         start = time.time()
         
-        if 'node_id' in context:
-            _id = context['node_id']
-        else:
+        _id = context['node_id'] if 'node_id' in context else ""
+        if not _id:
             _id = uuid.uuid4().hex
         
-        response_file_path = os.path.join(self.file_dump, f'response_{_id}.wav')
+        response_file_path = os.path.join(FILESDIR, f'response_{_id}.wav')
         context['response_audio_file_path'] = response_file_path
 
         response = context['synth_response']

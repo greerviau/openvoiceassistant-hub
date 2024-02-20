@@ -7,6 +7,7 @@ function Integrations() {
   const [data, setData] = useState([]);
   const [loading, setLoading] = useState(true);
   const [successNotification, setSuccessNotification] = useState(null);
+  const [infoNotification, setInfoNotification] = useState(null);
   const [errorNotification, setErrorNotification] = useState(null);
   const navigate = useNavigate();
 
@@ -42,15 +43,14 @@ function Integrations() {
   }, []);
 
   const handleItemClick = (item) => {
-    // Use item[0] as the key (name) and item[1] as the value (object)
-    navigate(`/integration/${encodeURIComponent(item.toLowerCase())}`, { state: { jsonData: item[1] } });
+    navigate(`/integration/${encodeURIComponent(item.id)}`, { state: { jsonData: item } });
   };
 
   const handleDeleteClick = (item) => {
-    const confirmation = window.confirm(`Are you sure you want to delete ${capitalizeId(item)}?`);
+    const confirmation = window.confirm(`Are you sure you want to delete ${item.name}?`);
     if (confirmation) {
       // Call the API to remove the integration
-      fetch(`/api/integrations/${encodeURIComponent(item.toLowerCase())}`, {
+      fetch(`/api/integrations/${item.id}`, {
         method: 'DELETE',
       })
       .then((response) => {
@@ -60,13 +60,17 @@ function Integrations() {
         return response.json();
       })
       .then((json) => {
-        console.log(`Integration ${capitalizeId(item)} successfully deleted.`);
-        setSuccessNotification(`${capitalizeId(item)} Deleted`);
+        console.log(`Integration ${capitalizeId(item.name)} successfully deleted.`);
+        setSuccessNotification(`${capitalizeId(item.name)} Deleted`);
         // Clear the notification after a few seconds
         setTimeout(() => {
           setSuccessNotification(null);
         }, 3000);
-        // Add any additional logic or update UI as needed
+        setInfoNotification(`Understander Restart Required`);
+        // Clear the notification after a few seconds
+        setTimeout(() => {
+          setInfoNotification(null);
+        }, 3000);
         fetchData();
       })
       .catch((error) => {
@@ -79,7 +83,7 @@ function Integrations() {
       });
     } else {
       // User canceled the deletion
-      console.log(`Deletion of ${capitalizeId(item)} canceled.`);
+      console.log(`Deletion of ${item.name} canceled.`);
     }
   };
 
@@ -99,8 +103,8 @@ function Integrations() {
             <ul className="item-list" style={{ paddingTop: '10px' }}>
               {data.map((item, index) => (
                 <li key={index} className="list-item" onClick={() => handleItemClick(item)}>
-                  <span><strong>{capitalizeId(item)}</strong></span>
-                  {item !== 'default' && (
+                  <span><strong>{item.name}</strong></span>
+                  {item.id !== 'default' && (
                   <button
                     className="delete-button"
                     onClick={(e) => {
@@ -124,6 +128,9 @@ function Integrations() {
         )}
         {successNotification && (
           <div className="notification success-notification">{successNotification}</div>
+        )}
+        {infoNotification && (
+          <div className="notification info-notification">{infoNotification}</div>
         )}
       </div>
     </div>

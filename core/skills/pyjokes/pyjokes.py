@@ -8,10 +8,3 @@ class PyJokes:
 
     def tell_joke(self, context: typing.Dict):
         context['response'] = pyjokes.get_joke()
-
-
-def build_skill(skill_config: typing.Dict, ova: 'OpenVoiceAssistant'):
-    return PyJokes(skill_config, ova)
-
-def default_config():
-    return {}

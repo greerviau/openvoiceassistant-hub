@@ -1,4 +1,4 @@
-from .default import Default, build_skill, default_config
+import typing
 
 INTENTIONS = [
         {
@@ -120,3 +120,17 @@ INTENTIONS = [
             ]
         }
     ]
+
+def build_skill(skill_config: typing.Dict, ova: 'OpenVoiceAssistant'):
+    from .default import Default
+    return Default(skill_config, ova)
+
+def manifest():
+    return {
+        "name": "Default",
+        "id": "default",
+        "category": "default",
+        "config": {
+            "24_hour_format": False
+        }
+    }

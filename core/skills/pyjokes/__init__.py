@@ -1,4 +1,4 @@
-from .pyjokes import PyJokes, build_skill, default_config
+import typing
 
 INTENTIONS = [
         {
@@ -15,3 +15,15 @@ INTENTIONS = [
             ]
         }
     ]
+
+def build_skill(skill_config: typing.Dict, ova: 'OpenVoiceAssistant'):
+    from .pyjokes import PyJokes
+    return PyJokes(skill_config, ova)
+
+def manifest():
+    return {
+        "name": "PyJokes",
+        "id": "pyjokes",
+        "category": "jokes",
+        "requirements": ["pyjokes==0.6.0"]
+    }

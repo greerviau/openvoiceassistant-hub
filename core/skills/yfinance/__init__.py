@@ -1,5 +1,4 @@
-from .stocks import Stocks, build_skill, default_config
-
+import typing
 INTENTIONS = [
         {
             "action": "market_overview",
@@ -20,3 +19,22 @@ INTENTIONS = [
             ]
         }
     ]
+
+def build_skill(skill_config: typing.Dict, ova: 'OpenVoiceAssistant'):
+    from .yfinance import YFinance
+    return YFinance(skill_config, ova)
+
+def manifest():
+    return {
+        "name": "Yahoo Finance",
+        "id": "yfinance",
+        "category": "stock_market",
+        "requirements": ["yfinance==0.2.36"],
+        "config": {
+            "watch_list": [
+                "^GSPC",
+                "VTI",
+                "BND"
+            ]
+        }
+    }

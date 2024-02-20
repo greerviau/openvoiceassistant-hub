@@ -100,11 +100,3 @@ class WhatToWear:
             response += f" It also may rain today, so maybe bring a raincoat or an umbrella."
                     
         context["response"] = response
-
-def build_skill(skill_config: typing.Dict, ova: 'OpenVoiceAssistant'):
-    return WhatToWear(skill_config, ova)
-
-def default_config():
-    return {
-        "required_integrations": ["open_weather_map"]
-    }

@@ -22,19 +22,10 @@ COMPONENTS = {
 
 class OpenVoiceAssistant:
     def __init__(self):
-        self.base_dir = os.path.realpath(os.path.dirname(__file__))
-        self.model_dump = os.path.join(self.base_dir, "model_dump")
-        self.file_dump = os.path.join(self.base_dir, "file_dump")
-        
-        os.makedirs(self.model_dump, exist_ok = True)
-        os.makedirs(self.file_dump, exist_ok = True)
-
         self.restart()  
 
     def restart(self):
-        self.settings = config.get("settings")
-        
-        timezone = self.settings["timezone"]
+        timezone = config.get("settings", "timezone")
         os.environ["TZ"] = timezone
         time.tzset()
 

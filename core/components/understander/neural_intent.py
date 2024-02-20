@@ -10,6 +10,7 @@ from torch import nn
 from torch.utils.data import Dataset, DataLoader
 
 from core import config
+from core.dir import MODELDIR
 from core.schemas import Context
 from core.enums import Components
 from core.utils.nlp.preprocessing import clean_text
@@ -31,13 +32,14 @@ class IntentClassifier(nn.Module):
         self.embedding = nn.Embedding(vocab_size, embedding_dim)
         self.lstm1 = nn.LSTM(embedding_dim, hidden_dim_1, batch_first=True)
         self.lstm2 = nn.LSTM(hidden_dim_1, hidden_dim_2, batch_first=True)
-        self.fc = nn.Linear(hidden_dim_1, num_classes)
-        self.drop = nn.Dropout(p=0.2)
+        self.fc = nn.Linear(hidden_dim_2, num_classes)
+        self.drop = nn.Dropout(p=0.5)
         
     def forward(self, x):
+        x = x.long()
         embed = self.embedding(x)
         out, _ = self.lstm1(embed)
-        #out, _ = self.lstm2(out)
+        out, _ = self.lstm2(out)
         out = out[:, -1, :]
         out = self.drop(out)
         out = self.fc(out)
@@ -48,16 +50,22 @@ class NeuralIntent:
     def __init__(self, ova: 'OpenVoiceAssistant', intents: typing.Dict):
         print("Loading Neural Intent Classifier")
         self.ova = ova
-        model_dump = self.ova.model_dump
 
         retrain = config.get(Components.Understander.value, 'config', 'retrain')
+        use_gpu = config.get(Components.Transcriber.value, 'config', 'use_gpu')
+        self.conf_thresh = config.get(Components.Understander.value, 'config', 'conf_thresh')
+        use_gpu = torch.cuda.is_available() and use_gpu
+        config.set(Components.Transcriber.value, 'config', 'use_gpu', use_gpu)
+
+        self.device = torch.device("cuda" if use_gpu else "cpu")
+        print(f"Using device: {self.device}")
 
         embedding_dim = 100
         hidden_dim_1 = 64
         hidden_dim_2 = 32
 
-        model_file = os.path.join(model_dump, 'neural_intent_model.pt')
-        vocab_file = os.path.join(model_dump, 'neural_intent_vocab.p')
+        model_file = os.path.join(MODELDIR, 'neural_intent_model.pt')
+        vocab_file = os.path.join(MODELDIR, 'neural_intent_vocab.p')
 
         x, y, self.max_length = load_training_data(intents)
         labels = list(set(y))
@@ -77,20 +85,18 @@ class NeuralIntent:
             label_to_int, self.int_to_label, self.word_to_int, int_to_word, n_vocab, n_labels = build_vocab(x, y)
             pickle.dump([self.word_to_int, int_to_word, label_to_int, self.int_to_label, n_vocab, n_labels, labels, self.max_length], open(vocab_file, 'wb'))
             X, Y = preprocess_data(x, y, self.word_to_int, self.max_length, label_to_int)
-            train_classifier(X, Y, n_vocab, embedding_dim, hidden_dim_1, hidden_dim_2, n_labels, model_file)
+            train_classifier(X, Y, n_vocab, embedding_dim, hidden_dim_1, hidden_dim_2, n_labels, model_file, self.device)
             config.set(Components.Understander.value, 'config', 'retrain', False)
             
-        self.intent_model = IntentClassifier(n_vocab, embedding_dim, hidden_dim_1, hidden_dim_2, n_labels)
-        self.intent_model.load_state_dict(torch.load(model_file))
+        self.intent_model = IntentClassifier(n_vocab, embedding_dim, hidden_dim_1, hidden_dim_2, n_labels).to(self.device)
+        self.intent_model.load_state_dict(torch.load(model_file, map_location=self.device))
         self.intent_model.eval()
-
-        self.conf_thresh = config.get(Components.Understander.value, 'config', 'conf_thresh')
 
     def predict_intent(self, text: str) -> typing.Tuple[str, str, float]:
         encoded = encode_word_vec(text, self.word_to_int)
         padded = pad_sequence(encoded, self.max_length)
         with torch.no_grad():
-            inputs = torch.LongTensor(np.array([padded]))
+            inputs = torch.LongTensor(np.array([padded])).to(self.device)
             prediction = self.intent_model(inputs)
             conf, idx = torch.max(prediction, dim=1)
             label = self.int_to_label[idx.item()]
@@ -178,31 +184,40 @@ def preprocess_data(x, y, word_to_int, max_length, label_to_int):
 
     return X, Y
     
-def train_classifier(X, Y, n_vocab, embedding_dim, hidden_dim_1, hidden_dim_2, n_labels, model_file):
+def train_classifier(X, Y, n_vocab, embedding_dim, hidden_dim_1, hidden_dim_2, n_labels, model_file, device):
+
+    def weight_reset(m):
+        if isinstance(m, nn.LSTM) or isinstance(m, nn.Linear):
+            m.reset_parameters()
+
+    # Convert X and Y to PyTorch tensors and move them to the specified device
+    X_tensor = torch.tensor(X).to(device)
+    Y_tensor = torch.tensor(Y).to(device)
+
     print('Training classifier')
     # Training parameters
     batch_size = 16
     learning_rate = 0.001
 
     # Create data loaders for the training and validation sets
-    train_dataset = IntentDataset(X, Y)
+    train_dataset = IntentDataset(X_tensor, Y_tensor)
     train_loader = DataLoader(train_dataset, batch_size=batch_size, shuffle=True)
+
+    model = IntentClassifier(n_vocab, embedding_dim, hidden_dim_1, hidden_dim_2, n_labels).to(device)
+    # Define the loss function and optimizer
+    criterion = nn.CrossEntropyLoss()
+    optimizer = torch.optim.Adam(model.parameters(), lr=learning_rate)
 
     trained = False
     while not trained:
-        num_epochs = 50
+        num_epochs = 40
         try:
-            model = IntentClassifier(n_vocab, embedding_dim, hidden_dim_1, hidden_dim_2, n_labels)
-            # Define the loss function and optimizer
-            criterion = nn.CrossEntropyLoss()
-            optimizer = torch.optim.Adam(model.parameters(), lr=learning_rate)
+            model.apply(weight_reset)
 
             # Iterate over the training data for the specified number of epochs
             epoch = 0
             accuracy = 0
             while accuracy < 95:
-                if num_epochs > 150:
-                    raise RuntimeError("Failed to train Neural Intent model")
                 while epoch <= num_epochs:
                     epoch += 1
                     model.train()
@@ -211,8 +226,8 @@ def train_classifier(X, Y, n_vocab, embedding_dim, hidden_dim_1, hidden_dim_2, n
                     correct = 0
 
                     for x_batch, y_batch in train_loader:
-                        x = x_batch.type(torch.LongTensor)
-                        y = y_batch.type(torch.LongTensor)  # Use LongTensor for integer labels
+                        x = x_batch.to(device)
+                        y = y_batch.to(device)  # Move data to GPU
                         y_pred = model(x)
                         loss = criterion(y_pred, y)
                         loss.backward()
@@ -230,12 +245,15 @@ def train_classifier(X, Y, n_vocab, embedding_dim, hidden_dim_1, hidden_dim_2, n
                     accuracy = 100 * correct / total_samples
 
                     print(f"Epoch {epoch}/{num_epochs} | Train Loss: {avg_loss:.4f} | Accuracy: {accuracy:.2f}%")
+                
+                if num_epochs >= 200:
+                    raise RuntimeError("Failed to train Neural Intent model")
                 num_epochs += 20
 
             torch.save(model.state_dict(), model_file)
             trained = True
         except RuntimeError:
-            print("Failed to train classifier, retrying")
+            print("Failed to train neural intent model, retrying...")
         
 def build_engine(ova: 'OpenVoiceAssistant', intents: typing.Dict) -> NeuralIntent:
     return NeuralIntent(ova, intents)
@@ -244,5 +262,6 @@ def default_config() -> typing.Dict:
     return {
         "id": "neural_intent",
         "conf_thresh": 80,
+        "use_gpu": False,
         "retrain": False
     }

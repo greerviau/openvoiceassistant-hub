@@ -6,8 +6,12 @@ import { capitalizeId, getFieldInput} from '../Utils';
 function Integration() {
   const { integrationId } = useParams(); // Access the integrationId from URL params
   const location = useLocation();
+  const manifestData = location.state?.jsonData;
+
   const [newChanges, setNewChanges] = useState(false);
+  const [saving, setSaving] = useState(false);
   const [successNotification, setSuccessNotification] = useState(null);
+  const [infoNotification, setInfoNotification] = useState(null);
   const [errorNotification, setErrorNotification] = useState(null);
   const [jsonData, setJsonData] = useState([]);
   const [importMode, setImportMode] = useState(false);
@@ -39,6 +43,7 @@ function Integration() {
     // Check if import mode is true
     if (location.state && location.state.import) {
       setImportMode(true);
+      setNewChanges(true);
     }
   }, [location.state]);
 
@@ -48,12 +53,14 @@ function Integration() {
       ...prevData,
       [fieldName]: value,
     }));
+    console.log(jsonData);
 
     // Mark changes as unsaved
     setNewChanges(true);
   };
 
   const handleSaveChanges = () => {
+    setSaving(true);
     fetch(`/api/integrations/${integrationId}/config`, {
       method: 'PUT',
       headers: {
@@ -72,14 +79,18 @@ function Integration() {
       if (!importMode) {
         console.log('Update successful:', json);
         // Display notification for configuration saved
-        setSuccessNotification(`${capitalizeId(integrationId)} Config Updated`);
+        setSuccessNotification(`${manifestData.name} Config Updated`);
         setTimeout(() => {
           setSuccessNotification(null);
         }, 3000);
       } else {
-        setSuccessNotification(`${capitalizeId(integrationId)} Imported`);
+        setSuccessNotification(`${manifestData.name} Imported`);
         setTimeout(() => {
           setSuccessNotification(null);
+        }, 3000);
+        setInfoNotification('Understander Restart Required');
+        setTimeout(() => {
+          setInfoNotification(null);
         }, 3000);
       }
     })
@@ -90,6 +101,9 @@ function Integration() {
       setTimeout(() => {
         setErrorNotification(null);
       }, 5000);
+    })
+    .finally(() => {
+      setSaving(false);
     });
   };
 
@@ -99,10 +113,10 @@ function Integration() {
 
   return (
     <div>
-      <h1>Configure {capitalizeId(integrationId)}</h1>
-      <div className='page-container'>
-        <Link to="/integrations" className="big-info-button">
-            Back
+      <h1>Configure {manifestData.name}</h1>
+      <div className="page-container" >
+        <Link to={importMode ? "/import-integration" : "/integrations"} className="big-info-button">
+          Back
         </Link>
         <form style={{ paddingTop: "40px"}}>
         {editableFields.length === 0 ? (
@@ -129,31 +143,34 @@ function Integration() {
           {importMode ? (
             <button 
               type="button" 
-              className={`info-button ${!newChanges ? 'disabled' : ''}`}
+              className={`info-button ${(!newChanges || saving) ? 'disabled' : ''}`}
               onClick={handleSaveChanges}
-              disabled={!newChanges}>
-              Import
+              disabled={!newChanges || saving}>
+              {saving ? 'Importing...' : 'Import'}
             </button>
           ) : (
             <button
               type="button"
-              className={`submit-button ${!newChanges ? 'disabled' : ''}`}
-              disabled={!newChanges}
+              className={`submit-button ${(!newChanges || saving) ? 'disabled' : ''}`}
+              disabled={!newChanges || saving}
               onClick={handleSaveChanges}
             >
-              Save Changes
+              {saving ? 'Saving...' : 'Save Changes'}
             </button>
           )}
-          <div className="notification-container">
-            {errorNotification && (
-              <div className="notification error-notification">{errorNotification}</div>
-            )}
-            {successNotification && (
-              <div className="notification success-notification">{successNotification}</div>
-            )}
-          </div>
-        </form>  
-      </div>
+        </form>
+      </div>  
+      <div className="notification-container">
+        {errorNotification && (
+          <div className="notification error-notification">{errorNotification}</div>
+        )}
+        {successNotification && (
+          <div className="notification success-notification">{successNotification}</div>
+        )}
+        {infoNotification && (
+          <div className="notification info-notification">{infoNotification}</div>
+        )}
+      </div>      
     </div>
   );
 }

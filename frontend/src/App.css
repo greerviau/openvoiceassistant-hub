@@ -1,20 +1,20 @@
-*{
+* {
   margin:0;
   padding:0;
   text-decoration: none;
 }
 
-main{
+main {
   width: 100%;
   padding: 20px;
 }
 
 /* SIDEBAR */
-.sidebar-container{
+.sidebar-container {
   display:flex;
 }
 
-.sidebar{
+.sidebar {
   position: sticky;
   top: 0;
   background: #000;
@@ -26,15 +26,15 @@ main{
 }
 
 .sidebar.collapsed {
-  width: 60px; /* Adjust the width when collapsed */
+  width: 60px;
 }
 
 .sidebar.collapsed + main {
-  margin-left: 60px; /* Adjust the margin when the sidebar is collapsed */
-  width: calc(100% - 60px); /* Adjust the width when the sidebar is collapsed */
+  margin-left: 60px;
+  width: calc(100% - 60px);
 }
 
-.top-section{
+.top-section {
   display: flex;
   align-items:center;
   padding:20px 15px;
@@ -42,17 +42,17 @@ main{
   width: 100%;
 }
 
-.logo{
+.logo {
   font-size: 30px;
 }
 
-.bars{
+.bars {
   display: flex;
   font-size: 25px;
   margin-left: 50px;
 }
 
-.sidebar-item, .sidebar-power{
+.sidebar-item, .sidebar-power {
   display: flex;
   color: #fff;
   padding: 10px 15px;
@@ -67,31 +67,31 @@ main{
   width: calc(100% - 30px);
 }
 
-.sidebar-power:hover{
+.sidebar-power:hover {
   background:lightskyblue;
   color: #000;
   transition: all 0.5s;
   cursor: pointer;
 }
 
-.sidebar-item:hover{
+.sidebar-item:hover {
   background:lightskyblue;
   color: #000;
   transition: all 0.5s;
 }
 
-.link:hover{
+.link:hover {
   background:lightskyblue;
   color: #000;
   transition: all 0.5s;
 }
 
-.active{
+.active {
   background: lightskyblue;
   color: #000;
 }
 
-.sidebar-icon, .sidebar-text{
+.sidebar-icon, .sidebar-text {
   font-size: 20px;
 }
 
@@ -117,7 +117,7 @@ html {
   position: fixed;
   top: 10px;
   right: 10px;
-  z-index: 1000; /* Adjust as needed */
+  z-index: 1000;
 }
 
 /* ITEM LIST */
@@ -177,11 +177,11 @@ input {
 
 .notification {
   margin-bottom: 10px;
-  width: 200px; /* Adjust as needed */
+  width: 200px;
 }
 
 .success-notification, .error-notification, .info-notification {
-  background-color: #4caf50; /* Green for success */
+  background-color: #4caf50;
   color: #fff;
   padding: 15px;
   border-radius: 5px;
@@ -190,11 +190,11 @@ input {
 }
 
 .error-notification {
-  background-color: #f44336; /* Red for error */
+  background-color: #f44336;
 }
 
 .info-notification {
-  background-color: #2196f3; /* Blue for info */
+  background-color: #2196f3;
 }
 
 @keyframes fadeInOut {
@@ -213,13 +213,12 @@ input {
 .node-header {
   display: flex;
   align-items: center;
-  margin-bottom: 20px; /* Adjust the margin as needed */
+  margin-bottom: 20px;
 }
 
 /* BUTTONS */
 
 .submit-button {
-  margin-left: 10px;
   background-color: #4caf50;
   color: #fff;
   padding: 10px;
@@ -240,16 +239,10 @@ input {
 }
 
 .submit-button:hover, .big-submit-button:hover {
-  background-color: #3f9142; /* Change hover color based on your design */
-}
-
-.submit-button.disabled, .big-submit-button:disabled {
-  background-color: #ccc;
-  cursor: not-allowed;
+  background-color: #3f9142;
 }
 
 .info-button {
-  margin-left: 10px;
   background-color: #3498db;
   color: #fff;
   padding: 10px;
@@ -269,17 +262,24 @@ input {
   cursor: pointer;
 }
 
-.import-button:hover, .big-info-button:hover {
+.info-button:hover, .big-info-button:hover {
   background-color: #2980b9;
 }
 
-.info-button.disabled, .big-info-button:disabled {
-  background-color: #ccc;
-  cursor: not-allowed;
+.update-button {
+  background-color: #e87c09;
+  color: #fff;
+  padding: 10px;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+.update-button:hover {
+  background-color: #c56907;
 }
 
 .delete-button {
-  margin-left: 10px;
   background-color: #f44336;
   color: #fff;
   padding: 10px 12px;
@@ -298,11 +298,11 @@ input {
   cursor: pointer;
   padding: 0;
   font-size: 1rem;
-  color: #3498db; /* Change color based on your design */
+  color: #3498db;
 }
 
 .reload-button:hover {
-  color: #2980b9; /* Change hover color based on your design */
+  color: #2980b9;
 }
 
 .record-button {
@@ -313,14 +313,17 @@ input {
   cursor: pointer;
   border: none;
   color: white;
-  background-color: #c50052; /* Change color based on your design */
+  background-color: #c50052;
 }
 
 .record-button:hover {
-  background-color: #a10043; /* Change hover color based on your design */
+  background-color: #a10043;
 }
 
-.record-button.disabled {
+.info-button.disabled, .big-info-button:disabled, 
+.update-button.disabled, .submit-button.disabled, 
+.big-submit-button:disabled, .delete-button.disabled,
+.reload-button.disabled, .record-button.disabled {
   background-color: #ccc;
   cursor: not-allowed;
 }

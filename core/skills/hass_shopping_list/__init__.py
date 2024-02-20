@@ -1,4 +1,4 @@
-from .hass_shopping_list import HASS_ShoppingList, build_skill, default_config
+import typing
 
 INTENTIONS = [
         {
@@ -27,11 +27,28 @@ INTENTIONS = [
             "action":"read_shopping_list",
             "patterns":[
                 "whats on my shopping list",
+                "whats on the shopping list",
                 "whats on the grocery list",
                 "what do i have on my shopping list",
                 "what do i have on the shopping list",
                 "what do i have on my grocery list",
-                "what do i have on the grocery list"
+                "what do i have on the grocery list",
+                "read my shopping list",
+                "read whats on my shopping list",
+                "show my shopping list",
+                "show me wahts on my shopping list"
             ]
         }
     ]
+
+def build_skill(skill_config: typing.Dict, ova: 'OpenVoiceAssistant'):
+    from .hass_shopping_list import HASSShoppingList
+    return HASSShoppingList(skill_config, ova)
+
+def manifest():
+    return {
+        "name": "HASS Shopping List",
+        "id": "hass_shopping_list",
+        "category": "shopping_list",
+        "required_integrations": ["home_assistant"]
+    }

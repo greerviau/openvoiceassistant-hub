@@ -145,13 +145,3 @@ class HomeAssistant:
 
     def post_intent_handle(self, data: typing.Dict):
         return requests.post(f"{self.api}/intent/handle", headers=self.headers, json=data)
-
-def build_integration(integration_config: typing.Dict, ova: 'OpenVoiceAssistant'):
-    return HomeAssistant(integration_config, ova)
-
-def default_config():
-    return {
-        "host": "",
-        "port": 8123,
-        "acccess_token": ""
-    }

@@ -19,7 +19,11 @@ class Default:
         command = context['cleaned_command']
 
         numbers = extract_numbers(command)
-        value = int(numbers[0])
+        try:
+            value = int(numbers[0])
+        except:
+            context['response'] = "No volume percentage specified"
+            return
 
         if 'percent' in command or value > 10:
             response = f"Setting the volume to {value} percent"
@@ -32,7 +36,12 @@ class Default:
         node_config["volume"] = volume_percent
         self.ova.node_manager.update_node_config(node_id, node_config)
 
-        self.ova.node_manager.call_node_api("PUT", node_id, "/volume/set", json={"volume_percent": volume_percent})
+        resp = self.ova.node_manager.call_node_api("PUT", node_id, "/volume/set", json={"volume_percent": volume_percent})
+        try:
+            resp.raise_for_status()
+        except:
+            response = "Failed to set timer"
+
         context['response'] = response
     
     def date(self, context: typing.Dict):
@@ -86,7 +95,7 @@ class Default:
                         if response[-1] != 's': # This is hacky but it works ¯\_(ツ)_/¯
                             response += 's' 
                     else:
-                        raise RuntimeError("Need time durration")
+                        raise RuntimeError("No time durration specified")
                 else:
                     raise RuntimeError("No time durration specified")
             except RuntimeError:
@@ -156,11 +165,3 @@ class Default:
         node_id = context["node_id"]
         resp = self.ova.node_manager.call_node_api("GET", node_id, "/timer/stop")
         context['response'] =  "Stopping the timer"
-
-def build_skill(skill_config: typing.Dict, ova: 'OpenVoiceAssistant'):
-    return Default(skill_config, ova)
-
-def default_config():
-    return {
-        "24_hour_format": False
-    }

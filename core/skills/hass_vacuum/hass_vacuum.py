@@ -1,6 +1,6 @@
 import typing
 
-class HASS_Vacuum:
+class HASSVacuum:
 
     def __init__(self, skill_config: typing.Dict, ova: 'OpenVoiceAssistant'):
         self.ova = ova
@@ -45,11 +45,3 @@ class HASS_Vacuum:
             response = "Failed to send the vacuum back home"
 
         context['response'] = response
-
-def build_skill(skill_config: typing.Dict, ova: 'OpenVoiceAssistant'):
-    return HASS_Vacuum(skill_config, ova)
-
-def default_config():
-    return {
-        "required_integrations": ["home_assistant"]
-    }

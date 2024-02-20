@@ -7,6 +7,7 @@ function Nodes() {
   const [loading, setLoading] = useState(false);
   const [refreshing, setRefreshing] = useState(false);
   const [successNotification, setSuccessNotification] = useState(null);
+  const [infoNotification, setInfoNotification] = useState(null);
   const [errorNotification, setErrorNotification] = useState(null);
   const navigate = useNavigate();
 
@@ -53,6 +54,7 @@ function Nodes() {
   const NodeItem = ({nodeItem}) => {
     const [restarting, setRestarting] = useState(false);
     const [identifying, setIdentifying] = useState(false);
+    const [updating, setUpdating] = useState(nodeItem.status === 'updating');
 
     const handleItemClick = (id) => {
       const selectedData = data.find((item) => item.id === id);
@@ -94,6 +96,41 @@ function Nodes() {
       })
       .finally(() => {
         setRestarting(false);
+      });
+    };
+
+    const handleUpdateClick = (id, name) => {
+      // Set loading state to true for the corresponding item
+      setUpdating(true);
+    
+      // API call to restart node
+      fetch(`/api/node/${id}/update`, {
+        method: 'POST',
+      })
+      .then((response) => {
+        if (!response.ok) {
+          throw new Error(`HTTP error! Status: ${response.status}`);
+        }
+        return response.json();
+      })
+      .then((json) => {
+        console.log(`Node with ID ${id} updating:`, json);
+        setInfoNotification(`${name} Updating`);
+        nodeItem.status = "updating";
+        nodeItem.update_available = false;
+        // Clear the notification after a few seconds
+        setTimeout(() => {
+          setInfoNotification(null);
+        }, 3000);
+        refreshStatus();
+      })
+      .catch((error) => {
+        console.error(`Error updating node with ID ${id}:`, error);
+        setErrorNotification(`${error.message}`);
+        // Clear the notification after a few seconds
+        setTimeout(() => {
+          setErrorNotification(null);
+        }, 5000);
       });
     };
   
@@ -169,15 +206,20 @@ function Nodes() {
     };
 
     return (
-      <li className="list-item" key={nodeItem.id} onClick={() => handleItemClick(nodeItem.id)}>
+      <li 
+        className="list-item" 
+        key={nodeItem.id} 
+        onClick={!updating ? () => handleItemClick(nodeItem.id) : null}>
         <span>
           <strong>Name:</strong> {nodeItem.name} |{' '}
+          <strong>Version:</strong> {nodeItem.version} |{' '}
           <strong>Status:</strong>{' '}
-          <span style={{ color: nodeItem.status === 'online' ? 'green' : (nodeItem.status === 'crashed' ? 'orange' : 'red') }}>
+          <span style={{ color: nodeItem.status === 'online' ? 'green' : ((nodeItem.status === 'crashed' || updating) ? 'orange' : 'red') }}>
             {nodeItem.status}
           </span>
           {nodeItem.status === 'online' && (
             <button
+              style={{marginLeft: "10px"}}
               className={`submit-button ${identifying ? 'disabled' : ''}`}
               onClick={(event) => handleItemIdentify(nodeItem.id, event)}
               disabled={identifying}
@@ -185,8 +227,9 @@ function Nodes() {
               {identifying ? 'Identifying...' : 'Identify'}
             </button>
           )}
-          {(nodeItem.restart_required || nodeItem.status === 'crashed') && nodeItem.status !== 'offline' && (
+          {(nodeItem.restart_required || nodeItem.status === 'crashed') && nodeItem.status !== 'offline' && !updating && (
             <button
+              style={{marginLeft: "10px"}}
               className={`info-button ${restarting ? 'disabled' : ''}`}
               onClick={(e) => {
                 e.stopPropagation();
@@ -195,6 +238,19 @@ function Nodes() {
               disabled={restarting}
             >
               {restarting ? 'Restarting...' : 'Restart'}
+            </button>
+          )}
+          {nodeItem.update_available && nodeItem.status !== 'offline' && (
+            <button
+              style={{marginLeft: "10px"}}
+              className={`update-button ${updating ? 'disabled' : ''}`}
+              onClick={(e) => {
+                e.stopPropagation();
+                handleUpdateClick(nodeItem.id, nodeItem.name);
+              }}
+              disabled={updating}
+            >
+              {updating ? 'Updating...' : `Update: ${nodeItem.update_version}`}
             </button>
           )}
         </span>
@@ -240,6 +296,9 @@ function Nodes() {
         )}
         {successNotification && (
           <div className="notification success-notification">{successNotification}</div>
+        )}
+        {infoNotification && (
+          <div className="notification info-notification">{infoNotification}</div>
         )}
       </div>
     </div>

@@ -1,4 +1,4 @@
-from .what_to_wear import WhatToWear, build_skill, default_config
+import typing
 
 INTENTIONS = [
         {
@@ -15,3 +15,15 @@ INTENTIONS = [
             ]
         }
     ]
+
+def build_skill(skill_config: typing.Dict, ova: 'OpenVoiceAssistant'):
+    from .what_to_wear import WhatToWear
+    return WhatToWear(skill_config, ova)
+
+def manifest():
+    return {
+        "name": "What to Wear",
+        "id": "what_to_wear",
+        "category": "weather.suggestion",
+        "required_integrations": ["open_weather_map"]
+    }

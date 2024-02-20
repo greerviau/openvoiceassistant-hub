@@ -1,4 +1,4 @@
-from .hass_vacuum import HASS_Vacuum, build_skill, default_config
+import typing
 
 INTENTIONS = [
         {
@@ -35,3 +35,15 @@ INTENTIONS = [
             ]
         }
     ]
+
+def build_skill(skill_config: typing.Dict, ova: 'OpenVoiceAssistant'):
+    from .hass_vacuum import HASSVacuum
+    return HASSVacuum(skill_config, ova)
+
+def manifest():
+    return {
+        "name": "HASS Vacuum",
+        "id": "hass_vacuum",
+        "category": "iot_control.vacuum",
+        "required_integrations": ["home_assistant"]
+    }

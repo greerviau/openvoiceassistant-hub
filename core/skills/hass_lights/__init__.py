@@ -1,4 +1,4 @@
-from .hass_lights import HASS_Lights, build_skill, default_config
+import typing
 
 INTENTIONS = [
         {
@@ -36,6 +36,8 @@ INTENTIONS = [
             "patterns":[
                 "lights",
                 "lights",
+                "lights",
+                "lights"
                 "lights please",
                 "BLANK lights",
                 "toggle the lights",
@@ -62,3 +64,15 @@ INTENTIONS = [
             ]
         }
     ]
+
+def build_skill(skill_config: typing.Dict, ova: 'OpenVoiceAssistant'):
+    from .hass_lights import HASSLights
+    return HASSLights(skill_config, ova)
+
+def manifest():
+    return {
+        "name": "HASS Lights",
+        "id": "hass_lights",
+        "category": "iot_control.lights",
+        "required_integrations": ["home_assistant"]
+    }

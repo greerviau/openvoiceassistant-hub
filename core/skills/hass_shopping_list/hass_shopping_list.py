@@ -1,6 +1,6 @@
 import typing
 
-class HASS_ShoppingList:
+class HASSShoppingList:
 
     def __init__(self, skill_config: typing.Dict, ova: 'OpenVoiceAssistant'):
         self.ova = ova
@@ -41,9 +41,9 @@ class HASS_ShoppingList:
         
         resp = self.ha_integration.post_services('shopping_list', 'remove_item', data)
         if resp.status_code == 200:
-            response = f"Removing {item_to_remove} to your shopping list"
+            response = f"Removing {item_to_remove} from your shopping list"
         else:
-            response = f"Failed to remove {item_to_remove} to your shopping list"
+            response = f"Failed to remove {item_to_remove} from your shopping list"
 
         context['response'] = response
 
@@ -65,11 +65,3 @@ class HASS_ShoppingList:
             response = "You dont have anything on your shopping list"
 
         context['response'] = response
-
-def build_skill(skill_config: typing.Dict, ova: 'OpenVoiceAssistant'):
-    return HASS_ShoppingList(skill_config, ova)
-
-def default_config():
-    return {
-        "required_integrations": ["home_assistant"]
-    }

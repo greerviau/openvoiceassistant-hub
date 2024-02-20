@@ -10,7 +10,7 @@ function ImportIntegration() {
   const navigate = useNavigate();
 
   useEffect(() => {
-    // Fetch data from the /skills/not_imported API endpoint
+    // Fetch data from the /integrations/not_imported API endpoint
     fetch('/api/integrations/not_imported')
     .then((response) => {
       if (!response.ok) {
@@ -36,7 +36,7 @@ function ImportIntegration() {
 
   const handleItemClick = (item) => {
     // Use item[0] as the key (name) and item[1] as the value (object)
-    navigate(`/integration/${encodeURIComponent(item.toLowerCase())}`, { state: { jsonData: item[1], import: true } });
+    navigate(`/integration/${encodeURIComponent(item.id)}`, { state: { jsonData: item, import: true } });
   };
 
   return (
@@ -58,7 +58,7 @@ function ImportIntegration() {
           <ul className="item-list" style={{ paddingTop: '10px' }}>
             {data.map((item, index) => (
               <li className="list-item" key={index} onClick={() => handleItemClick(item)}>
-                <strong>{capitalizeId(item)}</strong>
+                <strong>{item.name}</strong>
               </li>
             ))}
           </ul>

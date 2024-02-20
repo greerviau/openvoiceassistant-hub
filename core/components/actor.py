@@ -11,7 +11,7 @@ class Actor:
             return text
         text = text.strip()
         text = '. '.join([sentence.strip().capitalize() for sentence in text.split('.')])
-        text = text.replace(' i ', 'I')
+        text = text.replace(' i ', ' I ')
         text = text.strip()
         if text[0] == 'i': text[0] = 'I'
         if text[-1] != '.': text += '.'

@@ -2,6 +2,9 @@ import time
 import importlib
 import typing
 import random
+import nltk
+nltk.download('wordnet')
+from nltk.corpus import wordnet
 
 from core.enums import Components
 from core import config
@@ -13,10 +16,29 @@ from core.utils.nlp.false_positives import FALSE_POSITIVES, add_false_positive
 class Understander:
     def __init__(self, ova: "OpenVoiceAssistant"):
         self.ova = ova
+        augment_data_percent = config.get("settings", "augment_intent_data_percent")
+        if augment_data_percent > 1:
+            augment_data_percent = 1
+            config.set("settings", "augment_intent_data_percent", augment_data_percent)
+        elif augment_data_percent < 0:
+            augment_data_percent = 0
+            config.set("settings", "augment_intent_data_percent", augment_data_percent)
+
         imported_skills = list(config.get('skills').keys())
-        self.intents, n_samples = self.load_intents(imported_skills)
-        self.vocab_list = self.load_vocab(self.intents.values())
-        self.add_negative_samples(n_samples)
+        intents, n_samples = self.load_intents(imported_skills)
+        self.vocab_list = self.load_vocab(intents.values())
+        intents = self.add_negative_samples(intents, n_samples)
+        if augment_data_percent > 0:
+            intents = self.augment_data(intents, self.vocab_list, augment_data_percent)
+
+        positive_samples = []
+        negative_samples = []
+        for tag, patterns in intents.items():
+            negative_samples.extend(patterns) if tag == "NO_COMMAND-NO_ACTION" else positive_samples.extend(patterns)
+
+        print(f"Positive Sampels: {len(positive_samples)}")
+        print(f"Negative Sampels: {len(negative_samples)}")
+        
         self.engage_delay = config.get("engage_delay")
     
         self.algo = config.get(Components.Understander.value, "algorithm").lower().replace(" ", "_")
@@ -24,7 +46,7 @@ class Understander:
 
         self.verify_config()
 
-        self.engine = self.module.build_engine(ova, self.intents)
+        self.engine = self.module.build_engine(ova, intents)
 
     def verify_config(self):
         current_config = config.get(Components.Understander.value, 'config')
@@ -42,18 +64,21 @@ class Understander:
             intents = self.ova.skill_manager.get_skill_intents(skill).copy()
             for intent in intents:
                 tag = intent['action']
-                print(tag)
                 patterns = intent['patterns'].copy()
-                print(len(patterns))
-                #patterns.extend([f"BLANK {pattern}" for pattern in patterns])
                 pattern_count += len(patterns)
                 label = f'{skill}-{tag}'
                 tagged_intents[label] = patterns
         
-        print(f'N Positive Samples: {pattern_count}')
         return tagged_intents, pattern_count
 
-    def add_negative_samples(self, n_samples: int):
+    def load_vocab(self, all_patterns: typing.List[typing.List[str]]):
+        words = []
+        for patterns in all_patterns:
+            for pattern in patterns:
+                words.extend([clean_text(word) for word in pattern.split()])
+        return list(set(words))
+
+    def add_negative_samples(self, intents: typing.Dict, n_samples: int):
         false_positives = list(set([encode_command(sample, self.vocab_list) for sample in FALSE_POSITIVES]))
         random.shuffle(false_positives)
         n_false_samples = n_samples
@@ -61,20 +86,111 @@ class Understander:
             false_samples = false_positives[:n_false_samples]
         else:
             false_samples = false_positives
-        print(f'N Negative Samples: {len(false_samples)}')
-        self.intents["NO_COMMAND-NO_ACTION"] = false_samples
+        intents["NO_COMMAND-NO_ACTION"] = false_samples
+        return intents
     
-    def load_vocab(self, patterns: typing.List[typing.List[str]]):
-        all_words = []
-        for pattern_list in patterns:
-            all_words.extend(pattern_list)
-        all_words = ' '.join(all_words)
-        unique = []
-        for word in all_words.split():
-            word = clean_text(word)
-            if word not in unique:
-                unique.append(word)
-        return unique
+    def augment_data(self, intents: typing.Dict, vocab_list: typing.List[str], augment_data_percent:float):
+        print(f"Augmenting {augment_data_percent*100}% of data")
+        def get_synonyms(word):
+            synonyms = set()
+            for syn in wordnet.synsets(word):
+                for lemma in syn.lemmas():
+                    synonyms.add(lemma.name())
+            return list(synonyms)
+
+        synonym_map = {word: get_synonyms(word) for word in vocab_list}
+
+        augmented_intents = {}
+        for tag, patterns in intents.items():
+            augmented_patterns = patterns.copy()  # Make a shallow copy to avoid modifying the original list
+
+            # Augment data by randomly replacing words with BLANK
+            for pattern in patterns:
+                if random.random() < augment_data_percent:
+                    words = pattern.split()
+                    num_words = len(words)
+                    if num_words > 3:
+                        num_blanks = min(2, num_words)  # Choose a maximum of 2 words to replace with BLANK
+                        for _ in range(num_blanks):
+                            index = random.randint(0, num_words - 1)
+                            words[index] = "BLANK"
+                        augmented_patterns.append(" ".join(words))
+                    else:
+                        augmented_patterns.append(pattern)
+
+            # Augment data by randomly removing words from each pattern
+            for pattern in patterns:
+                if random.random() < augment_data_percent:
+                    words = pattern.split()
+                    num_words = len(words)
+                    if num_words > 3:
+                        num_words_to_remove = max(1, int(0.1 * num_words))  # Remove up to 10% of words
+                        for _ in range(num_words_to_remove):
+                            if words:
+                                index = random.randint(0, len(words) - 1)
+                                del words[index]
+                        augmented_patterns.append(" ".join(words))
+                    else:
+                        augmented_patterns.append(pattern)
+
+            # Random BLANK Insertion
+            for pattern in patterns:
+                if random.random() < augment_data_percent:
+                    words = pattern.split()
+                    num_words = len(words)
+                    if num_words > 3:
+                        num_insertions = min(2, num_words)  # Choose a maximum of 2 words to insert
+                        for _ in range(num_insertions):
+                            index = random.randint(0, num_words)
+                            inserted_word = "BLANK"
+                            words.insert(index, inserted_word)
+                        augmented_patterns.append(" ".join(words))
+                    else:
+                        augmented_patterns.append(pattern)
+            
+            # Random Word Insertion
+            '''
+            for pattern in patterns:
+                words = pattern.split()
+                num_words = len(words)
+                num_insertions = min(2, num_words)  # Choose a maximum of 2 words to insert
+                for _ in range(num_insertions):
+                    index = random.randint(0, num_words)
+                    inserted_word = random.choice(vocab_list)
+                    words.insert(index, inserted_word)
+                augmented_patterns.append(" ".join(words))
+            '''
+
+            # Random Swap
+            for pattern in patterns:
+                if random.random() < augment_data_percent:
+                    words = pattern.split()
+                    num_words = len(words)
+                    if num_words > 3:
+                        index1, index2 = random.sample(range(num_words), 2)
+                        words[index1], words[index2] = words[index2], words[index1]
+                        augmented_patterns.append(" ".join(words))
+                    else:
+                        augmented_patterns.append(pattern)
+
+            # Random Synonym Replacement
+            for pattern in patterns:
+                if random.random() < augment_data_percent:
+                    words = pattern.split()
+                    if len(words) > 3:
+                        for i, word in enumerate(words):
+                            if random.random() < 0.1:  # Probability of 10% for replacement
+                                if word in synonym_map:
+                                    synonyms = synonym_map[word]
+                                    if synonyms:
+                                        words[i] = random.choice(synonyms)
+                        augmented_patterns.append(" ".join(words))
+                    else:
+                        augmented_patterns.append(pattern)
+
+            augmented_intents[tag] = augmented_patterns
+
+        return augmented_intents
     
     def get_algorithm_default_config(self, algorithm_id: str) -> typing.Dict:
         try:
@@ -125,8 +241,10 @@ class Understander:
             else:
                 skill, action, conf, pass_threshold = self.engine.understand(context)
                 if skill in ['NO_COMMAND'] or action in ['NO_ACTION']:
-                    pass_threshold = False
-                    add_false_positive(cleaned_command)
+                    if not pass_threshold:
+                        add_false_positive(cleaned_command)
+                    else:
+                        pass_threshold = False
         
         print(f'Skill: {skill}')
         print(f'Action: {action}')

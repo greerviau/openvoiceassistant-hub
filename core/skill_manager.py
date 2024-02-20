@@ -1,5 +1,6 @@
 import importlib
 import typing
+import subprocess
 from pkgutil import iter_modules
 
 from core import config
@@ -12,17 +13,14 @@ class SkillManager:
         self.imported_skill_modules = {}
 
         self.available_skills = [submodule.name for submodule in iter_modules(skills.__path__)]
+        self.available_skills = {skill: self.get_skill_manifest(skill) for skill in self.available_skills}
 
         self.skills = config.get('skills')
-        self.not_imported = [skill for skill in self.available_skills if skill not in self.skills]
 
         print('Importing Skills...')
-        for skill_id in list(self.skills.keys()):
+        for skill_id, manifest in self.skills.items():
             if self.skill_exists(skill_id):
-                skill_config = config.get('skills', skill_id)
-                if not skill_config:
-                    skill_config = self.get_default_skill_config(skill_id)
-                self.__import_skill(skill_id, skill_config)
+                self.__import_skill(skill_id, manifest)
             else:
                 self.skills.pop(skill_id)
                 config.set('skills', self.skills)
@@ -30,7 +28,11 @@ class SkillManager:
 
     @property
     def imported_skills(self):
-        return list(self.skills.keys())
+        return [manifest for manifest in self.skills.values()]
+
+    @property
+    def not_imported_skills(self):
+        return [manifest for _id, manifest in self.available_skills.items() if _id not in self.skills]
 
     def skill_imported(self, skill_id: str):
         return skill_id in self.imported_skill_modules
@@ -40,38 +42,49 @@ class SkillManager:
 
     def remove_skill(self, skill_id: str):
         if self.skill_imported(skill_id):
-            skill_config = self.skills.pop(skill_id)
+            manifest = self.skills.pop(skill_id)
             self.imported_skill_modules.pop(skill_id)
-            self.not_imported.append(skill_id)
             config.set("skills", self.skills)
-            return skill_config
+            return manifest
         raise RuntimeError("Skill not imported")
 
-    def update_skill_config(self, skill_id: str, skill_config: typing.Dict):
+    def update_skill(self, skill_id: str, skill_config: typing.Dict):
         if self.skill_exists(skill_id):
-            imported = self.skill_imported(skill_id)
-            self.__import_skill(skill_id, skill_config)
-            if not imported: self.not_imported.remove(skill_id)
+            if not self.skill_imported(skill_id):
+                manifest = self.get_skill_manifest(skill_id)
+                if skill_config:
+                    manifest["config"] = skill_config
+                if "requirements" in manifest:
+                    requirements = manifest["requirements"]
+                    command = ["pip", "install"] + requirements
+                    try:
+                        subprocess.check_output(command)
+                    except Exception as e:
+                        raise RuntimeError(f"Failed to install skill requirements | {repr(e)}")
+            else:
+                manifest = self.skills[skill_id]
+                if skill_config:
+                    manifest["config"] = skill_config
+            self.__import_skill(skill_id, manifest)
         else:
             raise RuntimeError("Skill does not exist")
 
-    def check_for_config_discrepancy(self, skill_id: str, skill_config: typing.Dict):
-        default_skill_config = self.get_default_skill_config(skill_id)
-        if list(default_skill_config.keys()) == list(skill_config.keys()):
-            return skill_config
-        skill_config_clone = skill_config.copy()
-        for key, value in default_skill_config.items():
-            if key not in skill_config_clone:
-                skill_config_clone[key] = value
-        for key, value in skill_config.items():
-            if key not in default_skill_config:
-                skill_config_clone.pop(key)
-        return skill_config_clone
+    def check_for_discrepancy(self, new: typing.Dict, default: typing.Dict):
+        if list(default.keys()) == list(new.keys()):
+            return new
+        new_clone = new.copy()
+        for key, value in default.items():
+            if key not in new_clone:
+                new_clone[key] = value
+        for key, value in new.items():
+            if key not in default:
+                new_clone.pop(key)
+        return new_clone
         
     def get_skill_config(self, skill_id: str) -> typing.Dict:
         if self.skill_exists(skill_id):
-            if self.skill_imported(skill_id):
-                return self.skills[skill_id]
+            if self.skill_imported(skill_id) and "config" in self.skills[skill_id]:
+                return self.skills[skill_id]["config"]
             else:
                 return self.get_default_skill_config(skill_id)
         else:
@@ -79,8 +92,26 @@ class SkillManager:
 
     def get_default_skill_config(self, skill_id: str) -> typing.Dict:
         if self.skill_exists(skill_id):
+            manifest = self.get_skill_manifest(skill_id)
+            if "config" in manifest:
+                return manifest["config"]
+            return {}
+        else:
+            raise RuntimeError('Skill does not exist')
+        
+    def get_skill_manifest(self, skill_id: str) -> typing.Dict:
+        if self.skill_exists(skill_id):
+            if self.skill_imported(skill_id):
+                return self.skills[skill_id]
+            else:
+                return self.get_default_skill_manifest(skill_id)
+        else:
+            raise RuntimeError('Skill does not exist')
+
+    def get_default_skill_manifest(self, skill_id: str) -> typing.Dict:
+        if self.skill_exists(skill_id):
             module = importlib.import_module(f'core.skills.{skill_id}')
-            return module.default_config()
+            return module.manifest()
         else:
             raise RuntimeError('Skill does not exist')
     
@@ -97,15 +128,23 @@ class SkillManager:
         else:
             raise RuntimeError('Skill does not exist')
 
-    def __import_skill(self, skill_id: str, skill_config: typing.Dict):
+    def __import_skill(self, skill_id: str, manifest: typing.Dict):
         if self.skill_exists(skill_id):
             print('Importing ', skill_id)
-            if not skill_config:
-                skill_config = self.get_default_skill_config(skill_id)
+            default_manifest = self.get_default_skill_manifest(skill_id)
+            manifest = self.check_for_discrepancy(manifest, default_manifest)
+            if "config" in manifest:
+                skill_config = manifest["config"]
+                default_config = self.get_default_skill_config(skill_id)
+                if not skill_config:
+                    skill_config = default_config
+                else:
+                    skill_config = self.check_for_discrepancy(skill_config, default_config)
+                manifest["config"] = skill_config
             else:
-                skill_config = self.check_for_config_discrepancy(skill_id, skill_config)
-            
-            self.__save_config(skill_id, skill_config)
+                skill_config = {}
+            self.skills[skill_id] = manifest
+            config.set('skills', self.skills)
             try:
                 module = importlib.import_module(f'core.skills.{skill_id}')
                 self.imported_skill_modules[skill_id] = module.build_skill(skill_config, self.ova)
@@ -118,7 +157,3 @@ class SkillManager:
                 # can do same thing for integrations and even components
         else:
             raise RuntimeError('Skill does not exist')
-        
-    def __save_config(self, skill_id: str, skill_config: typing.Dict):
-        self.skills[skill_id] = skill_config
-        config.set('skills', skill_id, skill_config)
