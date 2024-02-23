@@ -1,7 +1,6 @@
 #!/bin/bash
-apt-get update && apt-get install -y python3-pip python3-dev python3-venv nginx wget git bash systemd ffmpeg espeak libespeak-dev npm
-
-curl -fsSL https://deb.nodesource.com/setup_21.x | sudo -E bash - && sudo apt-get install -y nodejs
+export DEBIAN_FRONTEND=noninteractive
+apt-get update && apt-get install -y python3-pip python3-dev python3-venv wget git bash systemd ffmpeg espeak libespeak-dev npm
 
 CWD=$(pwd)
 echo $CWD
@@ -13,7 +12,7 @@ source $CWD/env/bin/activate
 
 python -m pip install --upgrade pip
 python -m pip install --upgrade wheel
-python -m pip install -r requirements_full.txt
+python -m pip install -r requirements.txt
 
 python -m spacy download en_core_web_sm
 python -m nltk.downloader stopwords
@@ -22,6 +21,7 @@ FRONTEND_DIR="$CWD/frontend"
 
 cd "$FRONTEND_DIR" || exit 1
 rm -rf build
+npm install
 npm run build 
 
 cd $CWD
