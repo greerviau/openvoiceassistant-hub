@@ -7,7 +7,6 @@ anyio==4.2.0
 async-timeout==4.0.3
 attrs==23.2.0
 audioread==3.0.1
-av==10.0.0
 Babel==2.14.0
 bangla==0.0.2
 blinker==1.7.0
