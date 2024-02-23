@@ -24,7 +24,6 @@ coloredlogs==15.0.1
 confection==0.1.4
 contourpy==1.2.0
 coqpit==0.0.17
-ctranslate2==3.24.0
 cycler==0.12.1
 cymem==2.0.8
 Cython==3.0.8
