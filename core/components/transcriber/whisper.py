@@ -17,16 +17,14 @@ class Whisper:
 
         device = "cuda" if use_gpu else "cpu"
 
-        self.model = WhisperModel(model_size, device=device, compute_type="float32" if use_gpu else "float32")
+        self.model = WhisperModel(model_size, device=device, compute_type="float32" if use_gpu else "int8")
 
     def transcribe(self, context: Context):
 
         file_path = context['command_audio_file_path']
         segments, _ = self.model.transcribe(file_path, 
                                             vad_filter=self.use_vad, 
-                                            vad_parameters=dict(min_silence_duration_ms=500),
-                                            condition_on_previous_text=False,
-                                            suppress_tokens=[])
+                                            vad_parameters=dict(min_silence_duration_ms=500))
         segments = list(segments)
         print(segments)
         return " ".join([segment.text for segment in segments])
@@ -39,5 +37,6 @@ def default_config():
         "id": "whisper",
         "model_size": "tiny.en",
         "model_size_options": ["tiny.en", "tiny", "base.en", "base", "small.en", "small", "medium.en", "medium", "large"],
-        "use_gpu": False
+        "use_gpu": False,
+        "use_vad": False
     }
