@@ -17,7 +17,7 @@ class Whisper:
 
         device = "cuda" if use_gpu else "cpu"
 
-        self.model = WhisperModel(model_size, device=device, compute_type="float32" if use_gpu else "float16")
+        self.model = WhisperModel(model_size, device=device, compute_type="float32" if use_gpu else "float32")
 
     def transcribe(self, context: Context):
 
