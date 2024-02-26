@@ -20,16 +20,15 @@ class OpenWeatherMap:
         owm = OWM(api_key)
         mgr = owm.weather_manager()
 
-        self._current_weather = None
-        self._hourly_forecast = None
-        self._daily_forecast = None
-        
-        self._morning_weather = None
-        self._afternoon_weather = None
-        self._evening_weather = None
-
         def _update_weather():
             while True:
+                self._current_weather = None
+                self._hourly_forecast = None
+                self._daily_forecast = None
+                
+                self._morning_weather = None
+                self._afternoon_weather = None
+                self._evening_weather = None
                 if use_one_call:
                     try:
                         oc = mgr.one_call(lat=lat, lon=lon)
