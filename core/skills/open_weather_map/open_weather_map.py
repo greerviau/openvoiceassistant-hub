@@ -35,7 +35,7 @@ class OpenWeatherMap:
         return morning, afternoon, evening
 
     def _right_now(self, command: str):
-        return any(x in command.split() for x in ['right now', 'outside'])
+        return any(x in command for x in ['right now', 'outside'])
 
     def weather_forecast(self, context: typing.Dict):
         command = context['cleaned_command']
