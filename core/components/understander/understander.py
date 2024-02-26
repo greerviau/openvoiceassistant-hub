@@ -17,8 +17,8 @@ class Understander:
     def __init__(self, ova: "OpenVoiceAssistant"):
         self.ova = ova
         augment_data_percent = config.get("settings", "augment_intent_data_percent")
-        if augment_data_percent > 1:
-            augment_data_percent = 1
+        if augment_data_percent > 100:
+            augment_data_percent = 100
             config.set("settings", "augment_intent_data_percent", augment_data_percent)
         elif augment_data_percent < 0:
             augment_data_percent = 0
@@ -90,7 +90,7 @@ class Understander:
         return intents
     
     def augment_data(self, intents: typing.Dict, vocab_list: typing.List[str], augment_data_percent:float):
-        print(f"Augmenting {augment_data_percent*100}% of data")
+        print(f"Augmenting {augment_data_percent}% of data")
         def get_synonyms(word):
             synonyms = set()
             for syn in wordnet.synsets(word):
