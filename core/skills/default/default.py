@@ -163,5 +163,5 @@ class Default:
             return
 
         node_id = context["node_id"]
-        resp = self.ova.node_manager.call_node_api("GET", node_id, "/timer/stop")
+        resp = self.ova.node_manager.call_node_api("POST", node_id, "/timer/stop")
         context['response'] =  "Stopping the timer"
