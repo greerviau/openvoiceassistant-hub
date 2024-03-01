@@ -54,13 +54,6 @@ class IntegrationManager:
                 manifest = self.get_integration_manifest(integration_id)
                 if integration_config:
                     manifest["config"] = integration_config
-                if "requirements" in manifest:
-                    requirements = manifest["requirements"]
-                    command = ["pip", "install"] + requirements
-                    try:
-                        subprocess.check_output(command)
-                    except Exception as e:
-                        raise RuntimeError(f"Failed to install integration requirements | {repr(e)}")
             else:
                 manifest = self.integrations[integration_id]
                 if integration_config:
@@ -126,6 +119,13 @@ class IntegrationManager:
             print('Importing ', integration_id)
             default_manifest = self.get_default_integration_manifest(integration_id)
             manifest = self.check_for_discrepancy(manifest, default_manifest)
+            if "requirements" in manifest:
+                requirements = manifest["requirements"]
+                command = ["pip", "install"] + requirements
+                try:
+                    subprocess.check_output(command)
+                except Exception as e:
+                    raise RuntimeError(f"Failed to install integration requirements | {repr(e)}")
             if "config" in manifest:
                 integration_config = manifest["config"]
                 default_config = self.get_default_integration_config(integration_id)

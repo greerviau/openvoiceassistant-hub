@@ -52,6 +52,8 @@ class SkillManager:
         if self.skill_exists(skill_id):
             if not self.skill_imported(skill_id):
                 manifest = self.get_skill_manifest(skill_id)
+                if skill_config:
+                    manifest["config"] = skill_config
             else:
                 manifest = self.skills[skill_id]
                 if skill_config:
