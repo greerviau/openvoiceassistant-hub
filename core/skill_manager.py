@@ -52,15 +52,6 @@ class SkillManager:
         if self.skill_exists(skill_id):
             if not self.skill_imported(skill_id):
                 manifest = self.get_skill_manifest(skill_id)
-                if skill_config:
-                    manifest["config"] = skill_config
-                if "requirements" in manifest:
-                    requirements = manifest["requirements"]
-                    command = ["pip", "install"] + requirements
-                    try:
-                        subprocess.check_output(command)
-                    except Exception as e:
-                        raise RuntimeError(f"Failed to install skill requirements | {repr(e)}")
             else:
                 manifest = self.skills[skill_id]
                 if skill_config:
@@ -133,6 +124,13 @@ class SkillManager:
             print('Importing ', skill_id)
             default_manifest = self.get_default_skill_manifest(skill_id)
             manifest = self.check_for_discrepancy(manifest, default_manifest)
+            if "requirements" in manifest:
+                requirements = manifest["requirements"]
+                command = ["pip", "install"] + requirements
+                try:
+                    subprocess.check_output(command)
+                except Exception as e:
+                    raise RuntimeError(f"Failed to install skill requirements | {repr(e)}")
             if "config" in manifest:
                 skill_config = manifest["config"]
                 default_config = self.get_default_skill_config(skill_id)
