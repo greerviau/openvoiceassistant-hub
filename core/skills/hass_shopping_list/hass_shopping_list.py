@@ -1,5 +1,7 @@
 import typing
 
+from core.utils.nlp.formatting import format_readable_list
+
 class HASSShoppingList:
 
     def __init__(self, skill_config: typing.Dict, ova: 'OpenVoiceAssistant'):
@@ -56,11 +58,8 @@ class HASSShoppingList:
             
         item_names = [item["name"] for item in items]
         if any(item_names):
-            last_item = item_names.pop(-1)
-            if last_item:
-                response = f"You have {', '.join(item_names)} and {last_item} on your shopping list"
-            elif last_item:
-                response = f"You only have {last_item} on your shopping list"
+            readable_list = format_readable_list(item_names)
+            response = f"You have {readable_list} on your shopping list"
         else:
             response = "You dont have anything on your shopping list"
 

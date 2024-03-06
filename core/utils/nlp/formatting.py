@@ -1,4 +1,5 @@
 import inflect
+import typing
 
 def format_readable_date(dt):
     DAY_OF_MONTH = {
@@ -67,3 +68,12 @@ def format_readable_time(dt, hour_format: str):
         minutes = inf.number_to_words(int(minutes)).replace("-", " ")
 
     return f"{hour} {minutes}"
+
+def format_readable_list(lst: typing.List):
+    if len(lst) == 0:
+        return "Nothing"
+    elif len(lst) == 1:
+        return lst[0]
+    else:
+        last_item = lst.pop(-1)
+        return ', '.join(lst) + f" and {last_item}"
