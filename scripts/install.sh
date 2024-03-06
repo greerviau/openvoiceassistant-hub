@@ -8,7 +8,7 @@ CWD=$(pwd)
 echo $CWD
 
 rm -rf $CWD/env
-python3 -m venv $CWD/env
+python3.11 -m venv $CWD/env
 
 source $CWD/env/bin/activate
 
