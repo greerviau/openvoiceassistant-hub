@@ -119,10 +119,9 @@ class HASSLights:
         context['response'] = response
     
     def find_light_entity_id(self, context: typing.Dict):
-        if context["pos_info"]["COMP"]:
-            light_id = ' '.join(context["pos_info"]["COMP"])
-        elif context['pos_info']["NOUN_CHUNKS"]:
-            light_id = ' '.join(context['pos_info']["NOUN_CHUNKS"])
+        if context["sent_info"]["ROOMS"]:
+            light_description = context["sent_info"]["ROOMS"][0]
+            light_id = light_description
         elif context["node_area"]:
             light_id = context["node_area"]
             light_description = ""
@@ -130,19 +129,9 @@ class HASSLights:
         if not light_id:
             raise RuntimeError("No light specified")
 
-        light_id = replace_punctuation(light_id, " ")
-
-        try:
-            light_id = find_string_match(light_id, self.lights)
-            if not light_id:
-                raise
-        except:
+        light_id = find_string_match(light_id, self.lights)
+        if not light_id:
             raise RuntimeError("Could not find the light specified")
-
-        try:
-            light_description
-        except:
-            light_description = replace_punctuation(light_id.split('.')[-1], " ")
 
         return light_id, light_description
     

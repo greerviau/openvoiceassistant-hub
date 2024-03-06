@@ -863,7 +863,6 @@ if not os.path.exists(false_positives_path):
         file.write("\n".join(FALSE_POSITIVES))
 else:
     with open(false_positives_path, 'r') as file:
-        print(false_positives_path)
         FALSE_POSITIVES = file.readlines()
         print("Loaded false positives")
 

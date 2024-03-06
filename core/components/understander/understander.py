@@ -10,7 +10,7 @@ from core.enums import Components
 from core import config
 from core.schemas import Context
 from core.utils.nlp.preprocessing import clean_text, encode_command
-from core.utils.nlp.information_extraction import extract_information
+from core.utils.nlp.information_extraction import new_extract_information
 from core.utils.nlp.false_positives import FALSE_POSITIVES, add_false_positive
 
 class Understander:
@@ -220,7 +220,7 @@ class Understander:
             context["cleaned_command"] = cleaned_command
             print(f"Cleaned Command: {cleaned_command}")
         
-        context["pos_info"] = extract_information(cleaned_command)
+        context["sent_info"] = new_extract_information(cleaned_command)
 
         encoded_command = encode_command(cleaned_command, self.vocab_list)
         context["encoded_command"] = encoded_command
@@ -245,7 +245,7 @@ class Understander:
             else:
                 # Brute force check intents cuz why not
                 for tag, patterns in self.intents.items():
-                    if encode_command in patterns:
+                    if encoded_command in patterns:
                         skill, action = tag.split('-')
                         conf, pass_threshold = 100, True
 

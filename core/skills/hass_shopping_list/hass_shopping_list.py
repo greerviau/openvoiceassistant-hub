@@ -8,9 +8,9 @@ class HASSShoppingList:
         self.ha_integration = self.ova.integration_manager.get_integration_module('home_assistant')
 
     def add_to_shopping_list(self, context: typing.Dict):
-        pos_info = context["pos_info"]
+        sent_info = context["sent_info"]
         try:
-            item_to_add = pos_info["MOD_OBJECT"][0] if any(pos_info["MOD_OBJECT"]) else pos_info["OBJECT"][0]
+            item_to_add = sent_info["OBJECTS"][0]
         except KeyError:
             context['response'] = "Please provide an item to add to the shopping list"
             return
@@ -28,9 +28,9 @@ class HASSShoppingList:
         context['response'] = response
 
     def remove_from_shopping_list(self, context: typing.Dict):
-        pos_info = context["pos_info"]
+        sent_info = context["sent_info"]
         try:
-            item_to_remove = pos_info["MOD_OBJECT"][0] if any(pos_info["MOD_OBJECT"]) else pos_info["OBJECT"][0]
+            item_to_remove = sent_info["OBJECTS"][0]
         except KeyError:
             context['response'] = "Please provide an item to remove from the shopping list"
             return

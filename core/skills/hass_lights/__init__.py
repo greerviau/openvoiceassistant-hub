@@ -35,9 +35,6 @@ INTENTIONS = [
             "action":"light_toggle",
             "patterns":[
                 "lights",
-                "lights",
-                "lights",
-                "lights"
                 "lights please",
                 "BLANK lights",
                 "toggle the lights",
