@@ -28,11 +28,11 @@ class HASSLights:
         resp = self.ha_integration.post_services('light', 'turn_on', data)
         if resp.status_code == 200:
             if light_description:
-                response = f"Turning on the {light_description}"
+                response = f"Turning on the {light_description} lights."
             else:
                 response = ""
         else:
-            response = f"Failed to turn on the {light_description}"
+            response = f"Failed to turn on the {light_description} lights."
         
         context['response'] = response
 
@@ -51,11 +51,11 @@ class HASSLights:
         resp = self.ha_integration.post_services('light', 'turn_off', data)
         if resp.status_code == 200:
             if light_description:
-                response = f"Turning off the {light_description}"
+                response = f"Turning off the {light_description} lights."
             else:
                 response = ""
         else:
-            response = f"Failed to turn off the {light_description}"
+            response = f"Failed to turn off the {light_description} lights."
 
         context['response'] = response
     
@@ -78,11 +78,11 @@ class HASSLights:
         resp = self.ha_integration.post_services('light', 'toggle', data)
         if resp.status_code == 200:
             if light_description:
-                response = f"Turning {light_mode} the {light_description}"
+                response = f"Turning {light_mode} the {light_description} lights."
             else:
                 response = ""
         else:
-            response =  f"Failed to turn {light_mode} the {light_description}"
+            response =  f"Failed to turn {light_mode} the {light_description} lights."
 
         context['response'] = response
     
@@ -108,13 +108,13 @@ class HASSLights:
             resp = self.ha_integration.post_services('light', 'turn_on', data)
             if resp.status_code == 200:
                 if light_description:
-                    response = f"Setting the {light_description} brightness to {percent} percent"
+                    response = f"Setting the {light_description} lights brightness to {percent} percent."
                 else:
                     response = ""
             
-            response = f"Failed to set the {light_description} brightness"
+            response = f"Failed to set the {light_description} lights brightness."
         else:
-            response = f"Please specify a brighness level"
+            response = f"Please specify a brighness level."
 
         context['response'] = response
     
@@ -127,11 +127,11 @@ class HASSLights:
             light_description = ""
 
         if not light_id:
-            raise RuntimeError("No light specified")
+            raise RuntimeError("No light specified.")
 
         light_id = find_string_match(light_id, self.lights)
         if not light_id:
-            raise RuntimeError("Could not find the light specified")
+            raise RuntimeError("Could not find the light specified.")
 
         return light_id, light_description
     
