@@ -25,19 +25,22 @@ class Understander:
             config.set("settings", "augment_intent_data_percent", augment_data_percent)
 
         imported_skills = list(config.get('skills').keys())
-        intents, n_samples = self.load_intents(imported_skills)
-        self.vocab_list = self.load_vocab(intents.values())
-        intents = self.add_negative_samples(intents, n_samples)
+        self.intents, n_samples = self.load_intents(imported_skills)
+        self.vocab_list = self.load_vocab(self.intents.values())
+        augmented_intents = self.add_negative_samples(self.intents, n_samples)
         if augment_data_percent > 0:
-            intents = self.augment_data(intents, self.vocab_list, augment_data_percent)
+            augmented_intents = self.augment_data(augmented_intents, self.vocab_list, augment_data_percent)
 
-        positive_samples = []
-        negative_samples = []
-        for tag, patterns in intents.items():
-            negative_samples.extend(patterns) if tag == "NO_COMMAND-NO_ACTION" else positive_samples.extend(patterns)
+        positive_samples = 0
+        negative_samples = 0
+        for tag, patterns in augmented_intents.items():
+            if tag == "NO_COMMAND-NO_ACTION":
+                negative_samples += len(patterns)
+            else:
+                positive_samples += len(patterns)
 
-        print(f"Positive Sampels: {len(positive_samples)}")
-        print(f"Negative Sampels: {len(negative_samples)}")
+        print(f"Positive Sampels: {positive_samples}")
+        print(f"Negative Sampels: {negative_samples}")
         
         self.engage_delay = config.get("engage_delay")
     
@@ -46,7 +49,7 @@ class Understander:
 
         self.verify_config()
 
-        self.engine = self.module.build_engine(ova, intents)
+        self.engine = self.module.build_engine(ova, augmented_intents)
 
     def verify_config(self):
         current_config = config.get(Components.Understander.value, 'config')
@@ -223,6 +226,7 @@ class Understander:
         context["encoded_command"] = encoded_command
         print(f"Encoded command: {encoded_command}")
         
+        skill, action, conf, pass_threshold = '', '', 0, False
         if encoded_command in ["", "BLANK"]:
             skill = "NO_COMMAND"
             action = "NO_ACTION"
@@ -239,7 +243,15 @@ class Understander:
                 except:
                     raise RuntimeError("Failed to parse callback")
             else:
-                skill, action, conf, pass_threshold = self.engine.understand(context)
+                # Brute force check intents cuz why not
+                for tag, patterns in self.intents.items():
+                    if encode_command in patterns:
+                        skill, action = tag.split('-')
+                        conf, pass_threshold = 100, True
+
+                if not pass_threshold:
+                    skill, action, conf, pass_threshold = self.engine.understand(context)
+
                 if skill in ['NO_COMMAND'] or action in ['NO_ACTION']:
                     if not pass_threshold:
                         add_false_positive(cleaned_command)
