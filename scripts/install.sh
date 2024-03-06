@@ -1,6 +1,8 @@
 #!/bin/bash
 export DEBIAN_FRONTEND=noninteractive
-apt-get update && apt-get install -y python3-pip python3-dev python3-venv wget git bash systemd ffmpeg espeak libespeak-dev npm
+apt-get update && \
+add-apt-repository -y ppa:deadsnakes/ppa && \
+apt-get install -y python3.11 python3-pip python3.11-dev python3.11-venv wget git bash systemd ffmpeg espeak libespeak-dev npm
 
 CWD=$(pwd)
 echo $CWD
