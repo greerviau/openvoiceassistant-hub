@@ -114,35 +114,11 @@ class Default:
             return
 
         if remaining > 0:
-            hours = 0
-            minutes = 0
-            seconds = 0
             if remaining == 0:
                 context['response'] = "The timer is up"
                 return
-            if remaining % 3600 > 0:
-                hours = remaining // 3600
-                remaining = remaining % 3600
-            if remaining % 60 > 0:
-                minutes = remaining // 60
-                seconds = remaining % 60
-        
-            pieces = []
-            if hours > 0:
-                pieces.append(f"{hours} hours")
-            if minutes > 0:
-                pieces.append(f"{minutes} minutes")
-            if seconds > 0:
-                pieces.append(f"{seconds} seconds")
-
-            response = "There are "
-            if len(pieces) > 1:
-                response += ", ".join(pieces[:2])
-                if len(pieces) > 2:
-                    response += f" and {pieces[-1]}"
-            else:
-                response += f" {pieces[0]}"
-            response += " remaining"
+            
+            response = f"There are {format_seconds(remaining)}"
         else:
             response = "There is no timer currently running"
         context['response'] = response
