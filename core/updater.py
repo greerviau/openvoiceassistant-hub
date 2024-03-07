@@ -19,10 +19,10 @@ class Updater:
         # Get current branch
         try:
             self.current_branch = self.run_cmd(["git", "rev-parse", "--abbrev-ref", "HEAD"])
-            logger.info(f"Current branch: {self.current_branch}")
         except Exception as e:
-            logger.exception("Failed to fetch branch")
+            logger.error("Failed to fetch branch")
             self.current_branch = "undefined"
+        logger.info(f"Current branch: {self.current_branch}")
 
     def run_cmd(self, command: typing.List[str]) -> str:
         return subprocess.check_output(command, encoding="utf8").strip()
@@ -30,7 +30,7 @@ class Updater:
     def check_for_updates(self):
         if not self.updating:
             if self.current_branch not in UPDATE_BRANCHES:
-                logger.warning(f"You are not on an update branch. Skipping update check.")
+                logger.warning(f"You are not on an update branch, skipping update check")
                 return
 
             try:
@@ -51,7 +51,7 @@ class Updater:
                     logger.info("No updates available.")
                     self.update_available = False
             except Exception as e:
-                logger.exception("Failed to check for updates")
+                logger.error("Failed to check for updates")
         else:
             logger.warning("Update in progress, cant check for new updates")
     
