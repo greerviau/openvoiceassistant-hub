@@ -157,4 +157,4 @@ env/
 models/
 files/
 logs/
-core/utils/npl/false_positives.txt
+core/utils/nlp/false_positives.txt
