@@ -2,7 +2,7 @@ import typing
 from datetime import datetime
 
 from core.utils.nlp.preprocessing import extract_numbers
-from core.utils.nlp.formatting import format_readable_date, format_readable_time
+from core.utils.nlp.formatting import format_readable_date, format_readable_time, format_seconds
 
 class Default:
 
@@ -91,9 +91,7 @@ class Default:
                                 durration += int(d) * m
                     if durration > 0:
                         self.ova.node_manager.call_node_api("POST", node_id, "/timer/set", json={"durration": durration})
-                        response = f"Setting a timer for {t}"
-                        if response[-1] != 's': # This is hacky but it works ¯\_(ツ)_/¯
-                            response += 's' 
+                        response = f"Setting a timer for {format_seconds(durration)}"
                     else:
                         raise RuntimeError("No time durration specified")
                 else:

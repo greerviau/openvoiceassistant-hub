@@ -77,3 +77,19 @@ def format_readable_list(lst: typing.List):
     else:
         last_item = lst.pop(-1)
         return ', '.join(lst) + f" and {last_item}"
+
+def format_seconds(seconds):
+    hours = seconds // 3600
+    seconds %= 3600
+    minutes = seconds // 60
+    seconds %= 60
+
+    time_strs = []
+    if hours > 0:
+        time_strs.append(f"{hours} {'hour' if hours == 1 else 'hours'}")
+    if minutes > 0:
+        time_strs.append(f"{minutes} {'minute' if minutes == 1 else 'minutes'}")
+    if seconds > 0:
+        time_strs.append(f"{seconds} {'second' if seconds == 1 else 'seconds'}")
+
+    return format_readable_list(time_strs)
