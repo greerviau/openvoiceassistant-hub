@@ -17,8 +17,12 @@ class Updater:
         self.version = open(os.path.join(BASEDIR, "VERSION")).read()
         self.update_version = ""
         # Get current branch
-        self.current_branch = self.run_cmd(["git", "rev-parse", "--abbrev-ref", "HEAD"])
-        logger.info(f"Current branch: {self.current_branch}")
+        try:
+            self.current_branch = self.run_cmd(["git", "rev-parse", "--abbrev-ref", "HEAD"])
+            logger.info(f"Current branch: {self.current_branch}")
+        except Exception as e:
+            logger.exception("Failed to fetch branch")
+            self.current_branch = "undefined"
 
     def run_cmd(self, command: typing.List[str]) -> str:
         return subprocess.check_output(command, encoding="utf8").strip()
