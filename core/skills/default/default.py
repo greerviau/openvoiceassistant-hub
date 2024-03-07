@@ -65,7 +65,7 @@ class Default:
         context['response'] = response
 
     def set_timer(self, context: typing.Dict):
-        entities = context['pos_info']['ENTITIES']
+        entities = context['sent_info']['ENTITIES']
 
         try:
             node_id = context["node_id"]
