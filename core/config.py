@@ -25,7 +25,6 @@ DEFAULT_CONFIG = {
             "algorithm": "espeak",
             "algorithm_options": [
                 "espeak",
-                "coqui",
                 "piper"
             ]
         },
