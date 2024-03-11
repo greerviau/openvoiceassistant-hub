@@ -7,7 +7,7 @@ from datetime import datetime
 RESPONSE_TEMPLATES = [
     "Right now it's %s",
     "Currently it's %s",
-    "Outside it's' %s",
+    "Outside it's %s",
     "It's currently %s"
 ]
 
