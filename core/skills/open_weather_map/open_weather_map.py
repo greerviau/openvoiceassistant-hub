@@ -73,7 +73,6 @@ class OpenWeatherMap:
                 sky = self.owm_integration.get_sky_conditions(evening)
                 temp = int(evening.temperature(self.unit)["temp"])
                 if not afternoon:
-                    sentences = []
                     sentences.append(f"This evening it will be {temp} degrees and {sky}")
                 elif morning:
                     sentences.append(f"Tonight it will be {temp} degrees and {sky}")
@@ -106,7 +105,6 @@ class OpenWeatherMap:
             if evening:
                 sky = self.owm_integration.get_sky_conditions(evening)
                 if not afternoon:
-                    sentences = []
                     sentences.append(f"This evening it will be {sky}")
                 elif morning:
                     sentences.append(f"Tonight it will be {sky}")
@@ -168,7 +166,6 @@ class OpenWeatherMap:
             if evening:
                 humidity = int(weather.humidity)
                 if not afternoon:
-                    sentences = []
                     sentences.append(f"This evening it will be {humidity} percent humidity")
                 elif morning:
                     sentences.append(f"Tonight it will be {humidity} percent humidity")
@@ -251,7 +248,6 @@ class OpenWeatherMap:
             if evening:
                 temp = int(evening.temperature(self.unit)["temp"])
                 if not afternoon:
-                    sentences = []
                     sentences.append(f"This evening it will be {temp} degrees")
                 elif morning:
                     sentences.append(f"Tonight it will be {temp} degrees")
