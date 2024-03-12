@@ -27,7 +27,7 @@ class HASSPeople:
 
         locations = []
         for person, state in people:
-            if person in command.split():
+            if any(x in command.split() for x in [person, 'everyone']):
                 locations.append(f"{person} is at {state}.")
         if len(locations):
             context['response'] = ' '.join(locations)

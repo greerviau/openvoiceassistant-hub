@@ -8,6 +8,7 @@ INTENTIONS = [
                 "whos at home",
                 "whos at home",
                 "who is at home",
+                "who is home",
                 "is anyone home"
                 "is anyone at home"
             ]
