@@ -6,13 +6,15 @@ class HASSPeople:
 
     def __init__(self, skill_config: typing.Dict, ova: 'OpenVoiceAssistant'):
         self.ova = ova
+
+        self.excluded_users = skill_config["excluded_users"]
         
         self.ha_integration = self.ova.integration_manager.get_integration_module('home_assistant')
 
     def whos_home(self, context: typing.Dict):
         people = self._get_people()
 
-        people_home = [person for person, state in people if state == "home"]
+        people_home = [person for person, state in people if person not in self.excluded_users and state == "home"]
 
         if len(people_home):
             response = f"{format_readable_list(people_home)} are home."
@@ -27,7 +29,7 @@ class HASSPeople:
 
         locations = []
         for person, state in people:
-            if any(x in command.split() for x in [person, 'everyone']):
+            if person not in self.excluded_users and any(x in command.split() for x in [person, 'everyone']):
                 locations.append(f"{person} is at {state}.")
         if len(locations):
             context['response'] = ' '.join(locations)
