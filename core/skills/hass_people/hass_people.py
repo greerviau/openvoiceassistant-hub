@@ -29,8 +29,10 @@ class HASSPeople:
         for person, state in people:
             if person in command.split():
                 locations.append(f"{person} is at {state}.")
-
-        context['response'] = ' '.join(locations)
+        if len(locations):
+            context['response'] = ' '.join(locations)
+        else:
+            context['response'] = "I could not find the person you're looking for."
 
     def _get_people(self):
         return [entity["entity_id"].split('.')[1], entity["state"] for entity in entities if "person" in entity["entity_id"].split('.')[0]]
