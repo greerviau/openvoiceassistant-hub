@@ -4,6 +4,7 @@ INTENTIONS = [
     {
         "action": "weather_forecast",
         "patterns": [
+            "whats the weather",
             "whats the weather right now",
             "whats the weather outside",
             "whats the weather like outside",

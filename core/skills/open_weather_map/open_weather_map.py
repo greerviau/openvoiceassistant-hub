@@ -55,27 +55,32 @@ class OpenWeatherMap:
         sentences.append(sentence)
         
         if not self._right_now(command):
-            morning, afternoon, evening = self.owm_integration.get_full_day_forecast()
+            day_str = "This"
+            if 'tomorrow' in command.split():
+                sentences = []
+                day_str = "Tomorrow"
+                forecast = self.owm_integration.get_tomorrow_forecast()
+            else:
+                forecast = self.owm_integration.get_today_forecast()
+            morning, afternoon, evening = forecast['morning'], forecast['afternoon'], forecast['evening']
             morning, afternoon, evening = self._preprocess_time_of_day(command, morning, afternoon, evening)
                 
             if morning:
                 sky = self.owm_integration.get_sky_conditions(morning)
                 temp = int(morning.temperature(self.unit)["temp"])
-                sentences.append(f"This morning it will be {temp} degrees and {sky}")
+                sentences.append(f"{day_str} morning it will be {temp} degrees and {sky}")
             if afternoon:
                 sky = self.owm_integration.get_sky_conditions(afternoon)
                 temp = int(afternoon.temperature(self.unit)["temp"])
                 if not morning:
-                    sentences.append(f"This afternoon it will be {temp} degrees and {sky}")
+                    sentences.append(f"{day_str} afternoon it will be {temp} degrees and {sky}")
                 else:
                     sentences.append(f"In the afternoon it will be {temp} degrees and {sky}")
             if evening:
                 sky = self.owm_integration.get_sky_conditions(evening)
                 temp = int(evening.temperature(self.unit)["temp"])
                 if not afternoon:
-                    sentences.append(f"This evening it will be {temp} degrees and {sky}")
-                elif morning:
-                    sentences.append(f"Tonight it will be {temp} degrees and {sky}")
+                    sentences.append(f"{day_str} evening it will be {temp} degrees and {sky}")
                 else:
                     sentences.append(f"In the evening it will be {temp} degrees and {sky}")
 
@@ -90,24 +95,29 @@ class OpenWeatherMap:
         sentences.append(random.choice(RESPONSE_TEMPLATES) % (sky))
 
         if not self._right_now(command):
-            morning, afternoon, evening = self.owm_integration.get_full_day_forecast()
+            day_str = "This"
+            if 'tomorrow' in command.split():
+                sentences = []
+                day_str = "Tomorrow"
+                forecast = self.owm_integration.get_tomorrow_forecast()
+            else:
+                forecast = self.owm_integration.get_today_forecast()
+            morning, afternoon, evening = forecast['morning'], forecast['afternoon'], forecast['evening']
             morning, afternoon, evening = self._preprocess_time_of_day(command, morning, afternoon, evening)
 
             if morning:
                 sky = self.owm_integration.get_sky_conditions(morning)
-                sentences.append(f"This morning it will be {sky}")
+                sentences.append(f"{day_str} morning it will be {sky}")
             if afternoon:
                 sky = self.owm_integration.get_sky_conditions(afternoon)
                 if not morning:
-                    sentences.append(f"This afternoon it will be {sky}")
+                    sentences.append(f"{day_str} afternoon it will be {sky}")
                 else:
                     sentences.append(f"In the afternoon it will be {sky}")
             if evening:
                 sky = self.owm_integration.get_sky_conditions(evening)
                 if not afternoon:
-                    sentences.append(f"This evening it will be {sky}")
-                elif morning:
-                    sentences.append(f"Tonight it will be {sky}")
+                    sentences.append(f"{day_str} evening it will be {sky}")
                 else:
                     sentences.append(f"In the evening it will be {sky}")
 
@@ -151,24 +161,29 @@ class OpenWeatherMap:
         sentences.append(random.choice(RESPONSE_TEMPLATES) % (humidity_string))
         
         if not self._right_now(command):
-            morning, afternoon, evening = self.owm_integration.get_full_day_forecast()
+            day_str = "This"
+            if 'tomorrow' in command.split():
+                sentences = []
+                day_str = "Tomorrow"
+                forecast = self.owm_integration.get_tomorrow_forecast()
+            else:
+                forecast = self.owm_integration.get_today_forecast()
+            morning, afternoon, evening = forecast['morning'], forecast['afternoon'], forecast['evening']
             morning, afternoon, evening = self._preprocess_time_of_day(command, morning, afternoon, evening)
 
             if morning:
                 humidity = int(weather.humidity)
-                sentences.append(f"This morning it will be {humidity} percent humidity")
+                sentences.append(f"{day_str} morning it will be {humidity} percent humidity")
             if afternoon:
                 humidity = int(weather.humidity)
                 if not morning:
-                    sentences.append(f"This afternoon it will be {humidity} percent humidity")
+                    sentences.append(f"{day_str} afternoon it will be {humidity} percent humidity")
                 else:
                     sentences.append(f"In the afternoon it will be {humidity} percent humidity")
             if evening:
                 humidity = int(weather.humidity)
                 if not afternoon:
-                    sentences.append(f"This evening it will be {humidity} percent humidity")
-                elif morning:
-                    sentences.append(f"Tonight it will be {humidity} percent humidity")
+                    sentences.append(f"{day_str} evening it will be {humidity} percent humidity")
                 else:
                     sentences.append(f"In the evening it will be {humidity} percent humidity")
 
@@ -233,24 +248,29 @@ class OpenWeatherMap:
         sentences.append(random.choice(RESPONSE_TEMPLATES) % (temperature_string))
 
         if not self._right_now(command):
-            morning, afternoon, evening = self.owm_integration.get_full_day_forecast()
+            day_str = "This"
+            if 'tomorrow' in command.split():
+                sentences = []
+                day_str = "Tomorrow"
+                forecast = self.owm_integration.get_tomorrow_forecast()
+            else:
+                forecast = self.owm_integration.get_today_forecast()
+            morning, afternoon, evening = forecast['morning'], forecast['afternoon'], forecast['evening']
             morning, afternoon, evening = self._preprocess_time_of_day(command, morning, afternoon, evening)
 
             if morning:
                 temp = int(morning.temperature(self.unit)["temp"])
-                sentences.append(f"This morning it will be {temp} degrees")
+                sentences.append(f"{day_str} morning it will be {temp} degrees")
             if afternoon:
                 temp = int(afternoon.temperature(self.unit)["temp"])
                 if not morning:
-                    sentences.append(f"This afternoon it will be {temp} degrees")
+                    sentences.append(f"{day_str} afternoon it will be {temp} degrees")
                 else:
                     sentences.append(f"In the afternoon it will be {temp} degrees")
             if evening:
                 temp = int(evening.temperature(self.unit)["temp"])
                 if not afternoon:
-                    sentences.append(f"This evening it will be {temp} degrees")
-                elif morning:
-                    sentences.append(f"Tonight it will be {temp} degrees")
+                    sentences.append(f"{day_str} evening it will be {temp} degrees")
                 else:
                     sentences.append(f"In the evening it will be {temp} degrees")
 

@@ -233,6 +233,11 @@ def encode_command(command: str, vocab: typing.List[str]):
         else:
             last_blank = False
             words.append(word)
+    if len(words) > 2:
+        if words[0] == 'BLANK':
+            words.pop(0)
+        if words[-1] == 'BLANK':
+            words.pop(-1)
     return ' '.join(words)
 
 def remove_words(self, text: str, words: typing.List[str]):

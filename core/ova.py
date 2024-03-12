@@ -1,6 +1,7 @@
 import os
 import typing
 import time
+import pytz
 
 from core import config
 from core.schemas import Context
@@ -25,8 +26,9 @@ class OpenVoiceAssistant:
         self.restart()  
 
     def restart(self):
-        timezone = config.get("settings", "timezone")
-        os.environ["TZ"] = timezone
+        tz = config.get("settings", "timezone")
+        os.environ["TZ"] = tz
+        self.timezone = pytz.timezone(tz)
         time.tzset()
 
         self.load_managers()

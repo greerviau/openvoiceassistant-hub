@@ -2,54 +2,67 @@ import typing
 import time
 import threading
 import random
-from datetime import datetime
+from datetime import datetime, timedelta
 from pyowm import OWM
 
 class OpenWeatherMap:
 
-    def __init__(self, integration_config: typing.Dict, ova: 'OpenVoiceAssistant'):
+    def __init__(self, integration_config: typing.Dict, ova: "OpenVoiceAssistant"):
         self.ova = ova
 
         api_key = integration_config["api_key"]
         lat = integration_config["latitude"]
         lon = integration_config["longitude"]
         u_i = integration_config["update_interval"]
-        use_one_call = 'onecall' in u_i
-        update_interval = 3600 if 'hourly' in u_i else 86400
+        use_one_call = "onecall" in u_i
+        update_interval = 3600 if "hourly" in u_i else 86400
 
         owm = OWM(api_key)
         mgr = owm.weather_manager()
 
         def _update_weather():
             while True:
-                self._current_weather, self._hourly_forecast, self._daily_forecast = None, None, None
-                self._morning_weather, self._afternoon_weather, self._evening_weather = None, None, None
+                self._weather = {}
                 if use_one_call:
                     try:
                         oc = mgr.one_call(lat=lat, lon=lon)
                     except:
                         raise RuntimeError("Cannot make onecall requests with free API key")
-                    self._current_weather = oc.current
-                    self._hourly_forecast = oc.forecast_hourly
-                    self._daily_forecast = oc.forecast_daily
+                    self._weather["current"] = oc.current
+                    self._weather["hourly_forecast"] = oc.forecast_hourly
+                    self._weather["daily_forecast"] = oc.forecast_daily
                 else:
-                    self._current_weather = mgr.weather_at_coords(lat=lat, lon=lon).weather
-                    self._hourly_forecast = mgr.forecast_at_coords(lat=lat, lon=lon, interval='3h').forecast
+                    self._weather["current"] = mgr.weather_at_coords(lat=lat, lon=lon).weather
+                    self._weather["hourly_forecast"] = mgr.forecast_at_coords(lat=lat, lon=lon, interval="3h").forecast
                     try:
-                        self._daily_forecast = mgr.forecast_at_coords(lat=lat, lon=lon, interval='daily').forecast
+                        self._weather["daily_forecast"] = mgr.forecast_at_coords(lat=lat, lon=lon, interval="daily").forecast
                     except:
                         print("Cannot make daily forecast requests with free API key")
 
-                for weather in self._hourly_forecast:
-                    dt = datetime.fromtimestamp(weather.ref_time)
-                    if dt.day > datetime.today().day:
-                        break
-                    if dt.hour < 12 and dt.hour + 3 > 12:
-                        self._morning_weather = weather
-                    elif dt.hour < 17 and dt.hour + 3 > 17:
-                        self._afternoon_weather = weather
+                today = {"morning": None, "afternoon": None, "evening": None}
+                tomorrow = {"morning": None, "afternoon": None, "evening": None}
+                for weather in self._weather["hourly_forecast"]:
+                    dt = datetime.utcfromtimestamp(weather.ref_time).astimezone(self.ova.timezone)
+                    print(dt)
+                    if dt.day == datetime.today().day:
+                        if dt.hour < 12 and dt.hour + 3 >= 12:
+                            today["morning"]  = weather
+                        elif dt.hour < 17 and dt.hour + 3 >= 17:
+                            today["afternoon"] = weather
+                        else:
+                            today["evening"] = weather
+                    elif dt.day == (datetime.today() + timedelta(days=1)).day:
+                        if dt.hour < 12 and dt.hour + 3 >= 12:
+                            tomorrow["morning"]  = weather
+                        elif dt.hour < 17 and dt.hour + 3 >= 17:
+                            tomorrow["afternoon"] = weather
+                        else:
+                            tomorrow["evening"] = weather
                     else:
-                        self._evening_weather = weather
+                        break
+                self._weather["today"] = today
+                self._weather["tomorrow"] = tomorrow
+                print(self._weather)
                 print("Current Location Weather Updated")
                 time.sleep(update_interval)
 
@@ -57,25 +70,28 @@ class OpenWeatherMap:
         self.weather_thread.start()
 
     def get_current_weather(self):
-        return self._current_weather
+        return self._weather["current"]
 
     def get_hourly_forecast(self):
-        return self._hourly_forecast
+        return self._weather["hourly_forecast"]
     
     def get_daily_forecast(self):
-        return self._daily_forecast
+        return self._weather["daily_forecast"]
 
     def get_morning_weather(self):
-        return self._morning_weather
+        return self._weather["today"]["morning"]
 
     def get_afternoon_weather(self):
-        return self._afternoon_weather
+        return self._weather["today"]["afternoon"]
 
     def get_evening_weather(self):
-        return self._evening_weather
+        return self._weather["today"]["evening"]
 
-    def get_full_day_forecast(self):
-        return self._morning_weather, self._afternoon_weather ,self._evening_weather
+    def get_today_forecast(self):
+        return self._weather["today"]
+
+    def get_tomorrow_forecast(self):
+        return self._weather["tomorrow"]
     
     def get_sky_conditions(self, weather):
         MAIN_STATUS_MAPPING = {
