@@ -67,7 +67,6 @@ All of the algorithms in the pipeline are customizable, including:
 
 ## Voice Synthesis
 * Espeak (default)
-* Coqui TTS
 * Piper TTS
 
 ## v0.1.0

@@ -12,24 +12,27 @@ DEFAULT_CONFIG = {
             "algorithm_options": [
                 "kaldi", 
                 "whisper"
-            ]
+            ],
+            "config": {}
         },
         Components.Understander.value: {
             "algorithm": "rapid_fuzz",
             "algorithm_options": [
                 "rapid_fuzz",
                 "neural_intent"
-            ]
+            ],
+            "config": {},
+            "augment_intent_data_percent": 0
         },
         Components.Synthesizer.value: {
             "algorithm": "espeak",
             "algorithm_options": [
                 "espeak",
                 "piper"
-            ]
+            ],
+            "config": {}
         },
         "settings": {
-            "augment_intent_data_percent": 0,
             "timezone": "US/Eastern",
             "timezone_options": pytz.all_timezones
         },
@@ -99,6 +102,9 @@ def load_config() -> typing.Dict:  # TODO use TypedDict
         config = json.load(open(config_path, 'r'))
         config = verify_config(config, DEFAULT_CONFIG)
         config["settings"] = verify_config(config["settings"], DEFAULT_CONFIG["settings"])
+        config[Components.Transcriber.value] = verify_config(config[Components.Transcriber.value], DEFAULT_CONFIG[Components.Transcriber.value])
+        config[Components.Understander.value] = verify_config(config[Components.Understander.value], DEFAULT_CONFIG[Components.Understander.value])
+        config[Components.Synthesizer.value] = verify_config(config[Components.Synthesizer.value], DEFAULT_CONFIG[Components.Synthesizer.value])
         save_config()
 
 load_config()

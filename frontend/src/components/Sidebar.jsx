@@ -28,12 +28,14 @@ const Sidebar = ({children}) => {
         
         if (confirmRestart) {
             // Call the /restart API or any other action on power off click
+            setInfoNotification(`OVA Restarting...`);
             fetch('/api/restart', {
                 method: 'POST',
                 // Add any required headers or credentials
             })
             .then(response => {
                 // Handle the response if needed
+                setInfoNotification(null);
                 setSuccessNotification(`OVA Restarted`);
                 // Clear the notification after a few seconds
                 setTimeout(() => {

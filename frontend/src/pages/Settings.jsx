@@ -72,6 +72,16 @@ const CollapsibleSection = ({ title, component, config, setConfig, setSuccessNot
     setNewChanges(true);
   };
 
+  const handleComponentConfigInputChange = (fieldName, value) => {
+    // Update the state with the new input value
+    setConfig((prevData) => ({
+      ...prevData,
+      [fieldName]: value
+    }));
+    // Mark changes as unsaved
+    setNewChanges(true);
+  };
+
   const handleSaveChanges = () => {
     fetch(`/api/${component}/config`, {
       method: 'PUT',
@@ -112,6 +122,7 @@ const CollapsibleSection = ({ title, component, config, setConfig, setSuccessNot
 
   const handleReload = () => {
     setIsReloading(true);
+    setInfoNotification(`${capitalizeId(component)} Reloading...`);
     // Call the reload API
     fetch(`/api/${component}/reload`, {
       method: 'POST',
@@ -124,6 +135,7 @@ const CollapsibleSection = ({ title, component, config, setConfig, setSuccessNot
     })
     .then((json) => {
       console.log('Reload successful');
+      setInfoNotification(null);
       setSuccessNotification(`${capitalizeId(component)} Reloaded`);
       setTimeout(() => {
         setSuccessNotification(null);
@@ -145,8 +157,11 @@ const CollapsibleSection = ({ title, component, config, setConfig, setSuccessNot
   };
 
   if (config && config.config) {
-    const componentConfig = config.config;
-    const editableFields = Object.entries(componentConfig).filter(([fieldName]) => fieldName !== 'id');
+    const componentConfig = config;
+    const editableComponentConfig = Object.entries(componentConfig).filter(([fieldName]) => fieldName !== 'config' && fieldName !== 'algorithm' && fieldName !== 'algorithm_options');
+
+    const algorithmConfig = config.config;
+    const editableAlgorithmConfig = Object.entries(algorithmConfig).filter(([fieldName]) => fieldName !== 'id');
 
     return (
       <div className="collapsible-section">
@@ -162,18 +177,19 @@ const CollapsibleSection = ({ title, component, config, setConfig, setSuccessNot
               }}>
               <i className={`fas fa-sync${isReloading ? ' fa-spin' : ''}`}></i>
             </button>
-            <span style={{ marginLeft: '10px' }}>
-          {config && config.algorithm_options && (
-            <DropdownMenu options={config.algorithm_options} initialValue={config.algorithm} component={component} />
-          )}
-          </span>
           </h2>
         </div>
         {isExpanded && (
           <div className="section-content">
-            <form style={{ paddingTop: '20px' }}>
-              {editableFields.map(([fieldName, fieldValue], index) => {
-                const inputField = getFieldInput(fieldName, fieldValue, handleInputChange, editableFields);
+            <span>
+            <label>Algorithm</label>
+            {config && config.algorithm_options && (
+              <DropdownMenu options={config.algorithm_options} initialValue={config.algorithm} component={component} />
+            )}
+            </span>
+            <form style={{ marginLeft: '30px', paddingTop: '20px' }}>
+              {editableAlgorithmConfig.map(([fieldName, fieldValue], index) => {
+                const inputField = getFieldInput(fieldName, fieldValue, handleInputChange, editableAlgorithmConfig);
 
                 // Skip rendering for fields ending with "_options"
                 if (inputField === null) {
@@ -187,7 +203,23 @@ const CollapsibleSection = ({ title, component, config, setConfig, setSuccessNot
                   </div>
                 );
               })}
-              <button
+            </form>
+            {editableComponentConfig.map(([fieldName, fieldValue], index) => {
+                const inputField = getFieldInput(fieldName, fieldValue, handleComponentConfigInputChange, editableComponentConfig);
+
+                // Skip rendering for fields ending with "_options"
+                if (inputField === null) {
+                  return null;
+                }
+
+                return (
+                  <div key={index} className="form-field">
+                    <label htmlFor={fieldName}>{capitalizeId(fieldName)}</label>
+                    {inputField}
+                  </div>
+                );
+              })}
+            <button
                 type="button"
                 className={`submit-button ${!newChanges ? 'disabled' : ''}`}
                 disabled={!newChanges}
@@ -195,7 +227,6 @@ const CollapsibleSection = ({ title, component, config, setConfig, setSuccessNot
               >
                 Save Changes
               </button>
-            </form>
           </div>
         )}
       </div>
@@ -207,14 +238,17 @@ const CollapsibleSection = ({ title, component, config, setConfig, setSuccessNot
 };
 
 function Settings() {
-  const [settingsConfig, setSettingsConfig] = useState({});
   const [newSettingsChanges, setNewSettingsChanges] = useState(false);
+  const [generalSettings, setGeneralSettings] = useState({});
+  const [isSettingsExpanded, setIsSettingsExpanded] = useState(false);
   const [transcriberConfig, setTranscriberConfig] = useState({});
   const [understanderConfig, setUnderstanderConfig] = useState({});
   const [synthesizerConfig, setSynthesizerConfig] = useState({});
   const [successNotification, setSuccessNotification] = useState(null);
   const [infoNotification, setInfoNotification] = useState(null);
   const [errorNotification, setErrorNotification] = useState(null);
+  const [updateStatus, setUpdateStatus] = useState({});
+  const [updating, setUpdating] = useState(false);
 
   useEffect(() => {
     // Initial fetch
@@ -229,13 +263,34 @@ function Settings() {
     })
     .then((json) => {
       console.log(json);
-      setSettingsConfig(json.settings);
       setTranscriberConfig(json.transcriber);
       setUnderstanderConfig(json.understander);
       setSynthesizerConfig(json.synthesizer);
+      setGeneralSettings(json.settings);
     })
     .catch((error) => {
       console.error('Error fetching config:', error);
+      setErrorNotification(`${error.message}`);
+      // Clear the notification after a few seconds
+      setTimeout(() => {
+        setErrorNotification(null);
+      }, 5000);
+    });
+
+    fetch('/api/update/available')
+    .then((response) => {
+      if (!response.ok) {
+        throw new Error(`HTTP error! Status: ${response.status}`);
+      }
+      return response.json();
+    })
+    .then((json) => {
+      console.log(json);
+      setUpdateStatus(json);
+      setUpdating(json.updating);
+    })
+    .catch((error) => {
+      console.error('Error fetching update status:', error);
       setErrorNotification(`${error.message}`);
       // Clear the notification after a few seconds
       setTimeout(() => {
@@ -250,7 +305,7 @@ function Settings() {
       headers: {
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify(settingsConfig),
+      body: JSON.stringify(generalSettings),
     })
     .then((response) => {
       if (!response.ok) {
@@ -284,7 +339,7 @@ function Settings() {
 
   const handleInputSettingsChange = (fieldName, value) => {
     // Update the state with the new input value
-    setSettingsConfig((prevData) => ({
+    setGeneralSettings((prevData) => ({
       ...prevData,
       [fieldName]: value
     }));
@@ -292,12 +347,68 @@ function Settings() {
     setNewSettingsChanges(true);
   };
 
-  const editableSettings = Object.entries(settingsConfig);
+  const handleUpdateClick = (id, name) => {
+    // Set loading state to true for the corresponding item
+    setUpdating(true);
+  
+    // API call to restart node
+    fetch(`/api/update`, {
+      method: 'POST',
+    })
+    .then((response) => {
+      if (!response.ok) {
+        throw new Error(`HTTP error! Status: ${response.status}`);
+      }
+      return response.json();
+    })
+    .then((json) => {
+      console.log(`OVA updating:`, json);
+      setInfoNotification(`Updating...`);
+      // Clear the notification after a few seconds
+      setTimeout(() => {
+        setInfoNotification(null);
+      }, 3000);
+      refreshStatus();
+    })
+    .catch((error) => {
+      console.error(`Error updating node with ID ${id}:`, error);
+      setErrorNotification(`${error.message}`);
+      // Clear the notification after a few seconds
+      setTimeout(() => {
+        setErrorNotification(null);
+      }, 5000);
+    });
+  };
+
+  const toggleSection = () => {
+    setIsSettingsExpanded(!isSettingsExpanded);
+  };
+
+  const editableSettings = Object.entries(generalSettings);
 
   return (
     <div>
       <h1>Settings</h1>
       <div className="page-container">
+        {updateStatus.update_available && (
+          <div className="collapsible-section">
+            <div className="section-header">
+              <h2>{`Update: ${updateStatus.update_version}`}
+                <button
+                  style={{marginLeft: "10px"}}
+                  className={`update-button ${updating ? 'disabled' : ''}`}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    handleUpdateClick(nodeItem.id, nodeItem.name);
+                  }}
+                  disabled={updating}
+                >
+                  {updating ? 'Updating...' : 'Update'}
+                </button>
+              </h2>
+            </div>
+          </div>
+        )};
         <CollapsibleSection 
               title="Transcriber" 
               component="transcriber"
@@ -322,33 +433,40 @@ function Settings() {
               setSuccessNotification={setSuccessNotification}
               setInfoNotification={setInfoNotification}
               setErrorNotification={setErrorNotification}/>
-        <form style={{ paddingTop: "40px"}}>
-          <div>
-            {editableSettings.map(([fieldName, fieldValue], index) => {
-              const inputField = getFieldInput(fieldName, fieldValue, handleInputSettingsChange, editableSettings);
-
-              // Skip rendering for fields ending with "_options"
-              if (inputField === null) {
-                return null;
-              }
-
-              return (
-                <div key={index} className="form-field">
-                  <label htmlFor={fieldName}>{capitalizeId(fieldName)}</label>
-                  {inputField}
-                </div>
-              );
-            })}
+        <div className="collapsible-section">
+          <div className="section-header" onClick={toggleSection}>
+            <h2>General</h2>
           </div>
-          <button
-            type="button"
-            className={`submit-button ${!newSettingsChanges ? 'disabled' : ''}`}
-            disabled={!newSettingsChanges}
-            onClick={handleSaveSettingsChanges}
-          >
-            Save Changes
-          </button>
-        </form>
+          {isSettingsExpanded && (
+            <div className="section-content">
+              <form style={{ paddingTop: '20px' }}>
+                {editableSettings.map(([fieldName, fieldValue], index) => {
+                  const inputField = getFieldInput(fieldName, fieldValue, handleInputSettingsChange, editableSettings);
+
+                  // Skip rendering for fields ending with "_options"
+                  if (inputField === null) {
+                    return null;
+                  }
+
+                  return (
+                    <div key={index} className="form-field">
+                      <label htmlFor={fieldName}>{capitalizeId(fieldName)}</label>
+                      {inputField}
+                    </div>
+                  );
+                })}
+              </form>
+              <button
+                  type="button"
+                  className={`submit-button ${!newSettingsChanges ? 'disabled' : ''}`}
+                  disabled={!newSettingsChanges}
+                  onClick={handleSaveSettingsChanges}
+                >
+                  Save Changes
+                </button>
+            </div>
+          )}
+        </div>
         <div className="notification-container">
           {successNotification && (
             <div className="notification success-notification">{successNotification}</div>

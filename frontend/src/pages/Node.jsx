@@ -352,6 +352,7 @@ function Node() {
         )}
         {initialData.update_available && initialData.status !== 'offline' && (
           <button
+            style={{marginLeft: "10px"}}
             className={`update-button ${isUpdating ? 'disabled' : ''}`}
             onClick={(e) => {
               e.stopPropagation();

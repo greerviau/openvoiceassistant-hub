@@ -50,7 +50,11 @@ def create_app(ova: OpenVoiceAssistant, updater: Updater):
     async def api():
         try:
             updater.check_for_updates()
-            return updater.update_available
+            return {
+                "update_available": updater.update_available,
+                "update_version": updater.update_version,
+                "updating": updater.updating
+            }
         except:
             raise fastapi.HTTPException(
                         status_code=400,

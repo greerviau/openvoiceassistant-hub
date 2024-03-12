@@ -16,13 +16,13 @@ from core.utils.nlp.false_positives import FALSE_POSITIVES, add_false_positive
 class Understander:
     def __init__(self, ova: "OpenVoiceAssistant"):
         self.ova = ova
-        augment_data_percent = config.get("settings", "augment_intent_data_percent")
+        augment_data_percent = config.get(Components.Understander.value, "augment_intent_data_percent")
         if augment_data_percent > 100:
             augment_data_percent = 100
-            config.set("settings", "augment_intent_data_percent", augment_data_percent)
+            config.set(Components.Understander.value, "augment_intent_data_percent", augment_data_percent)
         elif augment_data_percent < 0:
             augment_data_percent = 0
-            config.set("settings", "augment_intent_data_percent", augment_data_percent)
+            config.set(Components.Understander.value, "augment_intent_data_percent", augment_data_percent)
 
         imported_skills = list(config.get('skills').keys())
         self.intents, n_samples = self.load_intents(imported_skills)
