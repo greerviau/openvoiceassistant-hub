@@ -1,6 +1,6 @@
 annotated-types==0.6.0
 anyio==4.3.0
-av==11.0.0
+av==10.0.0
 blis==0.7.11
 catalogue==2.0.10
 certifi==2024.2.2
@@ -10,11 +10,11 @@ click==8.1.7
 cloudpathlib==0.16.0
 coloredlogs==15.0.1
 confection==0.1.4
-ctranslate2==4.0.0
+ctranslate2==3.24.0
 cymem==2.0.8
 en-core-web-sm @ https://github.com/explosion/spacy-models/releases/download/en_core_web_sm-3.7.1/en_core_web_sm-3.7.1-py3-none-any.whl#sha256=86cc141f63942d4b2c5fcee06630fd6f904788d2f0ab005cce45aadb8fb73889
 fastapi==0.110.0
-faster-whisper==1.0.1
+faster-whisper==0.10.1
 filelock==3.13.1
 flatbuffers==24.3.7
 fsspec==2024.2.0
