@@ -15,7 +15,7 @@ class HASSLights:
 
     def light_on(self, context: typing.Dict):
         try:
-            entity_id, light_description = self.find_light_entity_id(context)
+            entity_id, light_description = self._find_light_entity_id(context)
             #print(entity_id)
         except Exception as e:
             context['response'] = str(e)
@@ -38,7 +38,7 @@ class HASSLights:
 
     def light_off(self, context: typing.Dict):    
         try:
-            entity_id, light_description = self.find_light_entity_id(context)
+            entity_id, light_description = self._find_light_entity_id(context)
             #print(entity_id)
         except Exception as e:
             context['response'] = str(e)
@@ -61,7 +61,7 @@ class HASSLights:
     
     def light_toggle(self, context: typing.Dict):
         try:
-            entity_id, light_description = self.find_light_entity_id(context)
+            entity_id, light_description = self._find_light_entity_id(context)
             #print(entity_id)
         except Exception as e:
             context['response'] = str(e)
@@ -88,7 +88,7 @@ class HASSLights:
     
     def light_brightness(self, context: typing.Dict):
         try:
-            entity_id, light_description = self.find_light_entity_id(context)
+            entity_id, light_description = self._find_light_entity_id(context)
             #print(entity_id)
         except Exception as e:
             context['response'] = str(e)
@@ -118,7 +118,7 @@ class HASSLights:
 
         context['response'] = response
     
-    def find_light_entity_id(self, context: typing.Dict):
+    def __find_light_entity_id(self, context: typing.Dict):
         if context["sent_info"]["ROOMS"]:
             light_description = context["sent_info"]["ROOMS"][0]
             light_id = light_description
@@ -134,7 +134,7 @@ class HASSLights:
             raise RuntimeError("Could not find the light specified.")
 
         return light_id, light_description
-    
+
     def _get_lights(self):
         try:
             entities = self.ha_integration.get_states()
