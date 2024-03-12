@@ -35,4 +35,5 @@ class HASSPeople:
             context['response'] = "I could not find the person you're looking for."
 
     def _get_people(self):
-        return [entity["entity_id"].split('.')[1], entity["state"] for entity in entities if "person" in entity["entity_id"].split('.')[0]]
+        entities = self.ha_integration.get_states()
+        return [(entity["entity_id"].split('.')[1], entity["state"]) for entity in entities if "person" in entity["entity_id"].split('.')[0]]
