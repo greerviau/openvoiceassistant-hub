@@ -34,7 +34,7 @@ def manifest():
         "id": "hass_people",
         "category": "people",
         "required_integrations": ["home_assistant"],
-        "condig": {
+        "config": {
             "excluded_users": []
         }
     }
