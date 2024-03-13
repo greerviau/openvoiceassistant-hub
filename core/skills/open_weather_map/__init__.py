@@ -138,9 +138,5 @@ def manifest():
         "name": "Open Weather Map",
         "id": "open_weather_map",
         "category": "weather",
-        "required_integrations": ["open_weather_map"],
-        "config": {
-            "temperature_unit": "fahrenheit",
-            "temperature_unit_options": ["fahrenheit", "celsius", "kelvin"]
-        }
+        "required_integrations": ["open_weather_map"]
     }

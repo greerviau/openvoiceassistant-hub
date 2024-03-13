@@ -409,3 +409,24 @@ input {
   outline: none;
   border-color: #007bff;
 }
+
+/* LOGS */
+
+.text-red-400 {
+  color: red;
+}
+
+.text-orange-300 {
+  color: orange;
+}
+
+.terminal {
+  background-color: #000;
+  color: #fff;
+  font-family: monospace;
+  padding: 10px;
+  border-radius: 5px;
+  border: 1px solid #ccc;
+  overflow-y: auto;
+  height: 500px; /* Adjust the height as needed */
+}

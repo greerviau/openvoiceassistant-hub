@@ -21,7 +21,7 @@ class OpenWeatherMap:
 
         self.owm_integration = self.ova.integration_manager.get_integration_module("open_weather_map")
 
-        self.unit = skill_config["temperature_unit"]
+        self.unit = self.ova.measurement_units["temperature"]
 
     def _preprocess_time_of_day(self, command, morning, afternoon, evening):
         if any(x in command.split() for x in ["morning"]):

@@ -6,6 +6,7 @@ import uuid
 import json
 import threading
 import logging
+import asyncio
 logger = logging.getLogger("web")
 
 from pydantic import BaseModel
@@ -16,7 +17,7 @@ from fastapi.templating import Jinja2Templates
 from fastapi.openapi.utils import get_openapi
 
 from core import config
-from core.dir import FILESDIR
+from core.dir import FILESDIR, LOGFILE
 from core.ova import OpenVoiceAssistant
 from core.updater import Updater
 from core.enums import Components
@@ -39,15 +40,46 @@ class RespondText(BaseModel):
     last_time_engaged: float = 0.0
     command_text: str = ""
 
+async def log_reader(n=5):
+    log_lines = []
+    with open(LOGFILE, "r") as file:
+        for line in file.readlines()[-n:]:
+            if line.__contains__("ERROR"):
+                log_lines.append(f'<span class="text-red-400">{line}</span><br/>')
+            elif line.__contains__("WARNING"):
+                log_lines.append(f'<span class="text-orange-300">{line}</span><br/>')
+            else:
+                log_lines.append(f"{line}<br/>")
+        return log_lines
+
 def create_app(ova: OpenVoiceAssistant, updater: Updater):
 
     app = fastapi.FastAPI()
+
+    @app.websocket("/ws/log")
+    async def websocket_endpoint_log(websocket: fastapi.WebSocket):
+        await websocket.accept()
+
+        try:
+            while True:
+                await asyncio.sleep(1)
+                logs = await log_reader(200)
+                await websocket.send_text(logs)
+        except asyncio.CancelledError:
+            logger.warning("WebSocket connection closed")
+        except Exception as e:
+            logger.error(f"An error occurred in the WebSocket endpoint")
+        finally:
+            try:
+                await websocket.close()
+            except Exception as e:
+                logger.error(f"An error occurred while closing WebSocket connection")
 
     core = fastapi.APIRouter(prefix="/api")
 
     @core.get("", tags=["Core"])
     async def api():
-        return {"is_ova": True}
+        return {"is_ova": True, "version": updater.version}
 
     @core.get("/update/available", tags=["Core"])
     async def api():
