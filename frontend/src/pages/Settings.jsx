@@ -347,7 +347,7 @@ function Settings() {
     setNewSettingsChanges(true);
   };
 
-  const handleUpdateClick = (id, name) => {
+  const handleUpdateClick = () => {
     // Set loading state to true for the corresponding item
     setUpdating(true);
   
@@ -371,7 +371,7 @@ function Settings() {
       refreshStatus();
     })
     .catch((error) => {
-      console.error(`Error updating node with ID ${id}:`, error);
+      console.error(`Error updating:`, error);
       setErrorNotification(`${error.message}`);
       // Clear the notification after a few seconds
       setTimeout(() => {
@@ -399,7 +399,7 @@ function Settings() {
                   className={`update-button ${updating ? 'disabled' : ''}`}
                   onClick={(e) => {
                     e.stopPropagation();
-                    handleUpdateClick(nodeItem.id, nodeItem.name);
+                    handleUpdateClick();
                   }}
                   disabled={updating}
                 >
