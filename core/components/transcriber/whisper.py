@@ -9,13 +9,13 @@ from core.enums import Components
 from core import config
 
 class Whisper:
-    def __init__(self, ova: 'OpenVoiceAssistant'):
+    def __init__(self, ova: "OpenVoiceAssistant"):
         logger.info("Loading Whisper Transcriber")
         self.ova = ova
-        model_size = config.get(Components.Transcriber.value, 'config', 'model_size')
-        use_gpu = config.get(Components.Transcriber.value, 'config', 'use_gpu')
+        model_size = config.get(Components.Transcriber.value, "config", "model_size")
+        use_gpu = config.get(Components.Transcriber.value, "config", "use_gpu")
         use_gpu = torch.cuda.is_available() and use_gpu
-        config.set(Components.Transcriber.value, 'config', 'use_gpu', use_gpu)
+        config.set(Components.Transcriber.value, "config", "use_gpu", use_gpu)
 
         device = "cuda" if use_gpu else "cpu"
 
@@ -23,12 +23,12 @@ class Whisper:
 
     def transcribe(self, context: Context):
 
-        file_path = context['command_audio_file_path']
+        file_path = context["command_audio_file_path"]
         segments, _ = self.model.transcribe(file_path, beam_size=5)
         segments = list(segments)
         return " ".join([segment.text for segment in segments])
 
-def build_engine(ova: 'OpenVoiceAssistant'):
+def build_engine(ova: "OpenVoiceAssistant"):
     return Whisper(ova)
 
 def default_config():

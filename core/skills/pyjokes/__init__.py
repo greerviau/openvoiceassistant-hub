@@ -16,7 +16,7 @@ INTENTIONS = [
         }
     ]
 
-def build_skill(skill_config: typing.Dict, ova: 'OpenVoiceAssistant'):
+def build_skill(skill_config: typing.Dict, ova: "OpenVoiceAssistant"):
     from .pyjokes import PyJokes
     return PyJokes(skill_config, ova)
 

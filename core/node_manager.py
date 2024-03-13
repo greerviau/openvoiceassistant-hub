@@ -8,7 +8,7 @@ from core import config
 class NodeManager:
     def __init__(self, ova):
         self.ova = ova
-        self.nodes = config.get('nodes')
+        self.nodes = config.get("nodes")
 
     def update_node(self, node_id: str):
         resp = self.call_node_api("POST", node_id, "/update")
@@ -22,7 +22,7 @@ class NodeManager:
     
     def get_node_in_area(self, area: str):
         for node_id, conf in self.nodes.items():
-            if area in conf['area']:
+            if area in conf["area"]:
                 return self.nodes[node_id]
         return {}
     
@@ -85,38 +85,38 @@ class NodeManager:
             if resp.status_code == 200 and resp.json()["id"] == node_id:
                 data = resp.json()
                 return {
-                    'id': node_id,
-                    'name': node_config['name'],
-                    'status': data["status"],
-                    'restart_required': node_config['restart_required'],
-                    'update_available': data["update_available"],
-                    'update_version': data["update_version"],
-                    'version': node_config["version"]
+                    "id": node_id,
+                    "name": node_config["name"],
+                    "status": data["status"],
+                    "restart_required": node_config["restart_required"],
+                    "update_available": data["update_available"],
+                    "update_version": data["update_version"],
+                    "version": node_config["version"]
                 }
             else:
                 raise
         except Exception as e:
             return {
-                    'id': node_id,
-                    'name': node_config['name'],
-                    'status': 'offline',
-                    'restart_required': False,
-                    'update_available': False,
-                    'update_version': "",
-                    'version': node_config["version"]
+                    "id": node_id,
+                    "name": node_config["name"],
+                    "status": "offline",
+                    "restart_required": False,
+                    "update_available": False,
+                    "update_version": "",
+                    "version": node_config["version"]
                 }
     
     def remove_node(self, node_id: str):
         if self.node_exists(node_id):
             node_config = self.nodes.pop(node_id)
-            config.set('nodes', self.nodes)
+            config.set("nodes", self.nodes)
             return node_config
         raise RuntimeError("Node does not exist")
 
     def restart_node(self, node_id: str):
         if self.node_exists(node_id):
             node_config = self.nodes[node_id]
-            resp = self.call_node_api('POST', node_id, '/restart')
+            resp = self.call_node_api("POST", node_id, "/restart")
             if resp.status_code != 200:
                 raise RuntimeError(f"Failed to restart node {node_id}")
             node_config["restart_required"] = False
@@ -131,13 +131,13 @@ class NodeManager:
                         data: typing.Dict = None
     ):
         verb = verb.upper()
-        if verb not in ['GET', 'POST', 'PUT', 'DELETE']:
-            raise RuntimeError('Invalid api verb')
+        if verb not in ["GET", "POST", "PUT", "DELETE"]:
+            raise RuntimeError("Invalid api verb")
         try:
             node_config = self.nodes[node_id]
         except:
             raise RuntimeError(f"Node {node_id} does not exist")
-        address = node_config['api_url']
+        address = node_config["api_url"]
         url = address + endpoint
         try:
             resp = requests.request(verb, url, timeout=5, files=files, json=json, data=data)
@@ -147,4 +147,4 @@ class NodeManager:
 
     def __save_config(self, node_id: str, node_config: typing.Dict):
         self.nodes[node_id] = node_config
-        config.set('nodes', node_id, node_config)
+        config.set("nodes", node_id, node_config)

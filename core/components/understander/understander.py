@@ -5,7 +5,7 @@ import random
 import logging
 logger = logging.getLogger("components.understander")
 import nltk
-nltk.download('wordnet')
+nltk.download("wordnet")
 from nltk.corpus import wordnet
 
 from core import config
@@ -18,6 +18,7 @@ from core.utils.nlp.false_positives import FALSE_POSITIVES, add_false_positive
 class Understander:
     def __init__(self, ova: "OpenVoiceAssistant"):
         self.ova = ova
+        self.conf_thresh = config.get(Components.Understander.value, "conf_thresh")
         augment_data_percent = config.get(Components.Understander.value, "augment_intent_data_percent")
         if augment_data_percent > 100:
             augment_data_percent = 100
@@ -26,7 +27,7 @@ class Understander:
             augment_data_percent = 0
             config.set(Components.Understander.value, "augment_intent_data_percent", augment_data_percent)
 
-        imported_skills = list(config.get('skills').keys())
+        imported_skills = list(config.get("skills").keys())
         self.intents, n_samples = self.load_intents(imported_skills)
         self.vocab_list = self.load_vocab(self.intents.values())
         augmented_intents = self.add_negative_samples(self.intents, n_samples)
@@ -54,13 +55,13 @@ class Understander:
         self.engine = self.module.build_engine(ova, augmented_intents)
 
     def verify_config(self):
-        current_config = config.get(Components.Understander.value, 'config')
+        current_config = config.get(Components.Understander.value, "config")
         default_config = self.module.default_config()
         try:
             if not current_config or (current_config.keys() != default_config.keys()) or current_config["id"] != default_config["id"]:
                 raise RuntimeError("Incorrect config")
         except:
-            config.set(Components.Understander.value, 'config', default_config)
+            config.set(Components.Understander.value, "config", default_config)
 
     def load_intents(self, imported_skills: typing.List):
         tagged_intents = {}
@@ -68,10 +69,10 @@ class Understander:
         for skill in imported_skills:
             intents = self.ova.skill_manager.get_skill_intents(skill).copy()
             for intent in intents:
-                tag = intent['action']
-                patterns = intent['patterns'].copy()
+                tag = intent["action"]
+                patterns = intent["patterns"].copy()
                 pattern_count += len(patterns)
-                label = f'{skill}-{tag}'
+                label = f"{skill}-{tag}"
                 tagged_intents[label] = patterns
         
         return tagged_intents, pattern_count
@@ -154,7 +155,7 @@ class Understander:
                         augmented_patterns.append(pattern)
             
             # Random Word Insertion
-            '''
+            """
             for pattern in patterns:
                 words = pattern.split()
                 num_words = len(words)
@@ -164,7 +165,7 @@ class Understander:
                     inserted_word = random.choice(vocab_list)
                     words.insert(index, inserted_word)
                 augmented_patterns.append(" ".join(words))
-            '''
+            """
 
             # Random Swap
             for pattern in patterns:
@@ -199,10 +200,10 @@ class Understander:
     
     def get_algorithm_default_config(self, algorithm_id: str) -> typing.Dict:
         try:
-            module = importlib.import_module(f'core.components.understander.{algorithm_id}')
+            module = importlib.import_module(f"core.components.understander.{algorithm_id}")
             return module.default_config()
         except Exception as e:
-            raise RuntimeError('Understander algorithm does not exist')
+            raise RuntimeError("Understander algorithm does not exist")
 
     def run_stage(self, context: Context):
         logger.info("Understanding Stage")
@@ -228,7 +229,7 @@ class Understander:
         context["encoded_command"] = encoded_command
         logger.info(f"Encoded command: {encoded_command}")
         
-        skill, action, conf, pass_threshold = '', '', 0, False
+        skill, action, conf, pass_threshold = "", "", 0, False
         if encoded_command in ["", "BLANK"]:
             skill = "NO_COMMAND"
             action = "NO_ACTION"
@@ -238,9 +239,9 @@ class Understander:
             hub_callback = context["hub_callback"] if "hub_callback" in context else None
             if hub_callback:
                 try:
-                    skill, action = hub_callback.split('.')
+                    skill, action = hub_callback.split(".")
                     conf = 100
-                    context["hub_callback"] = ''
+                    context["hub_callback"] = ""
                     pass_threshold = True
                 except:
                     raise RuntimeError("Failed to parse callback")
@@ -248,21 +249,23 @@ class Understander:
                 # Brute force check intents cuz why not
                 for tag, patterns in self.intents.items():
                     if encoded_command in patterns:
-                        skill, action = tag.split('-')
+                        skill, action = tag.split("-")
                         conf, pass_threshold = 100, True
 
                 if not pass_threshold:
-                    skill, action, conf, pass_threshold = self.engine.understand(context)
+                    skill, action, conf = self.engine.understand(context)
+                    if conf > self.conf_thresh:
+                        pass_threshold = True
 
-                if skill in ['NO_COMMAND'] or action in ['NO_ACTION']:
+                if skill in ["NO_COMMAND"] or action in ["NO_ACTION"]:
                     if not pass_threshold:
                         add_false_positive(cleaned_command)
                     else:
                         pass_threshold = False
         
-        logger.info(f'Skill: {skill}')
-        logger.info(f'Action: {action}')
-        logger.info(f'Conf: {conf}')
+        logger.info(f"Skill: {skill}")
+        logger.info(f"Action: {action}")
+        logger.info(f"Conf: {conf}")
         context["skill"] = skill
         context["action"] = action
         context["conf"] = conf
@@ -270,5 +273,5 @@ class Understander:
 
         dt = time.time() - start
         context["time_to_understand"] = dt
-        logger.info("Time to understand: ", dt)
+        logger.info(f"Time to understand: {dt}")
 

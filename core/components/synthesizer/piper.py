@@ -13,13 +13,13 @@ from core.dir import MODELDIR
 from core.enums import Components
 
 class Piper:
-    def __init__(self, ova: 'OpenVoiceAssistant'):
+    def __init__(self, ova: "OpenVoiceAssistant"):
         logger.info("Loading Piper Synthesizer")
         self.ova = ova
-        model_name = config.get(Components.Synthesizer.value, 'config', 'model')
-        use_gpu = config.get(Components.Synthesizer.value, 'config', 'use_gpu')
+        model_name = config.get(Components.Synthesizer.value, "config", "model")
+        use_gpu = config.get(Components.Synthesizer.value, "config", "use_gpu")
         use_gpu = torch.cuda.is_available() and use_gpu
-        config.set(Components.Synthesizer.value, 'config', 'use_gpu', use_gpu)
+        config.set(Components.Synthesizer.value, "config", "use_gpu", use_gpu)
 
         data_dir = [MODELDIR]
         download_dir = data_dir[0]
@@ -38,7 +38,7 @@ class Piper:
         with wave.open(file_path, "wb") as wav_file:
             self.voice.synthesize(text, wav_file)
 
-def build_engine(ova: 'OpenVoiceAssistant') -> Piper:
+def build_engine(ova: "OpenVoiceAssistant") -> Piper:
     return Piper(ova)
 
 def default_config() -> typing.Dict:
@@ -46,5 +46,5 @@ def default_config() -> typing.Dict:
         "id": "piper",
         "model": "en_US-lessac-medium",
         "use_gpu": False,
-        "model_options": list(get_voices('./').keys())
+        "model_options": list(get_voices("./").keys())
     }

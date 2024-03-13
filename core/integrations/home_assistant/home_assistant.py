@@ -5,7 +5,7 @@ import logging
 logger = logging.getLogger("integration.home_assistant")
 
 class HomeAssistant:
-    def __init__(self, integration_config: typing.Dict, ova: 'OpenVoiceAssistant'):
+    def __init__(self, integration_config: typing.Dict, ova: "OpenVoiceAssistant"):
         self.ova = ova
         
         host = integration_config["host"]
@@ -16,9 +16,9 @@ class HomeAssistant:
 
         try:
             self.get_api()
-            logger.info('Home Assistant integration started')
+            logger.info("Home Assistant integration started")
         except:
-            logger.error('Failed to start Homeassistant integration')
+            logger.error("Failed to start Homeassistant integration")
 
     # GET ENDPOINTS
 
@@ -72,7 +72,7 @@ class HomeAssistant:
     
     def get_logbook(self, 
                     timestamp: datetime.datetime = None,
-                    entity_id: str = '',
+                    entity_id: str = "",
                     end_time:  datetime.datetime = None
     ):
         ts = timestamp.strftime("%Y-%m-%dT%H:%M:%S%z") if timestamp else ""
@@ -114,7 +114,7 @@ class HomeAssistant:
         return resp.content
     
     def get_calendars(self, 
-                      calendar_entity_id: str = ''
+                      calendar_entity_id: str = ""
     ):
         ext = f"/{calendar_entity_id}" if calendar_entity_id else ""
 

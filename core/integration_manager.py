@@ -18,15 +18,15 @@ class IntegrationManager:
         self.available_integrations = [submodule.name for submodule in iter_modules(integrations.__path__)]
         self.available_integrations = {integration: self.get_integration_manifest(integration) for integration in self.available_integrations}
 
-        self.integrations = config.get('integrations')
+        self.integrations = config.get("integrations")
 
-        logger.info('Importing Integrations...')
+        logger.info("Importing Integrations...")
         for integration_id, manifest in self.integrations.items():
             if self.integration_exists(integration_id):
                 self.__import_integration(integration_id, manifest)
             else:
                 self.integrations.pop(integration_id)
-                config.set('integrations', self.integrations)
+                config.set("integrations", self.integrations)
                 logger.info(f"Removing {integration_id}")
 
     @property
@@ -84,7 +84,7 @@ class IntegrationManager:
             else:
                 return self.get_default_integration_config(integration_id)
         else:
-            raise RuntimeError('Integration does not exist')
+            raise RuntimeError("Integration does not exist")
 
     def get_default_integration_config(self, integration_id: str) -> typing.Dict:
         if self.integration_exists(integration_id):
@@ -93,7 +93,7 @@ class IntegrationManager:
                 return manifest["config"]
             return {}
         else:
-            raise RuntimeError('Integration does not exist')
+            raise RuntimeError("Integration does not exist")
         
     def get_integration_manifest(self, integration_id: str) -> typing.Dict:
         if self.integration_exists(integration_id):
@@ -102,14 +102,14 @@ class IntegrationManager:
             else:
                 return self.get_default_integration_manifest(integration_id)
         else:
-            raise RuntimeError('Integration does not exist')
+            raise RuntimeError("Integration does not exist")
 
     def get_default_integration_manifest(self, integration_id: str) -> typing.Dict:
         if self.integration_exists(integration_id):
-            module = importlib.import_module(f'core.integrations.{integration_id}')
+            module = importlib.import_module(f"core.integrations.{integration_id}")
             return module.manifest()
         else:
-            raise RuntimeError('Integration does not exist')
+            raise RuntimeError("Integration does not exist")
     
     def get_integration_module(self, integration_id: str):
         if self.integration_imported(integration_id):
@@ -140,16 +140,16 @@ class IntegrationManager:
             else:
                 integration_config = {}
             self.integrations[integration_id] = manifest
-            config.set('integrations', self.integrations)
+            config.set("integrations", self.integrations)
             try:
-                module = importlib.import_module(f'core.integrations.{integration_id}')
+                module = importlib.import_module(f"core.integrations.{integration_id}")
                 self.imported_integration_modules[integration_id] = module.build_integration(integration_config, self.ova)
             except Exception as e:
-                logger.info(f'Failed to load {integration_id} | Exception {repr(e)}')
+                logger.info(f"Failed to load {integration_id} | Exception {repr(e)}")
                 # TODO
                 # custom exception for this
                 # in the future use it to extablish that integration is crashed
                 # update flag in config and display on FE
                 # can do same thing for integrations and even components
         else:
-            raise RuntimeError('Integration does not exist')
+            raise RuntimeError("Integration does not exist")

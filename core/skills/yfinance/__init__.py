@@ -20,7 +20,7 @@ INTENTIONS = [
         }
     ]
 
-def build_skill(skill_config: typing.Dict, ova: 'OpenVoiceAssistant'):
+def build_skill(skill_config: typing.Dict, ova: "OpenVoiceAssistant"):
     from .yfinance import YFinance
     return YFinance(skill_config, ova)
 

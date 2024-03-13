@@ -3,7 +3,7 @@ from spacy.matcher import DependencyMatcher
 import logging
 logger = logging.getLogger("utils.nlp.information_extraction")
 
-nlp = spacy.load('en_core_web_sm')
+nlp = spacy.load("en_core_web_sm")
 
 ROOMS = [
     "Living Room",
@@ -61,20 +61,20 @@ def extract_information(sentence: str):
     parsed["SUBJECT"], parsed["OBJECT"], parsed["COMP"] = [], [], []
 
     for token in doc:
-        if (token.dep_=='nsubj'):
+        if (token.dep_=="nsubj"):
             parsed["SUBJECT"].append(token.text)
 
-        elif (token.dep_=='dobj'):
+        elif (token.dep_=="dobj"):
             parsed["OBJECT"].append(token.text)
 
-        elif (token.dep_=='compound'):
+        elif (token.dep_=="compound"):
             parsed["COMP"].append(token.text)
 
     parsed["ENTITIES"] = dict([(ent.label_, ent.text) for ent in doc.ents])
 
-    parsed['NOUN_CHUNKS'] = []
+    parsed["NOUN_CHUNKS"] = []
     for chunk in doc.noun_chunks:
-        parsed['NOUN_CHUNKS'].append(chunk.text)
+        parsed["NOUN_CHUNKS"].append(chunk.text)
 
     object_pattern = [
         {
@@ -95,7 +95,7 @@ def extract_information(sentence: str):
 
     parsed["MOD_OBJECT"] = []
     for match_id, (modifier, target) in matcher(doc):
-        parsed["MOD_OBJECT"].append(' '.join([doc[modifier].text, doc[target].text]))
+        parsed["MOD_OBJECT"].append(" ".join([doc[modifier].text, doc[target].text]))
 
     return parsed
 
@@ -126,7 +126,7 @@ def new_extract_information(sentence: str):
     for match_id, token_ids in matches:
         objects.append(" ".join([doc[token_id].text for token_id in token_ids]))
     for token in doc:
-        if (token.dep_=='dobj'):
+        if (token.dep_=="dobj"):
             objects.append(token.text)
     parsed["OBJECTS"] = objects
 

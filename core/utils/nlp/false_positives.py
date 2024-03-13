@@ -858,19 +858,19 @@ FALSE_POSITIVES = [
     "we should plan a hike in the mountains this weekend"
 ]
 
-false_positives_path = os.path.join(os.path.realpath(os.path.dirname(__file__)), 'false_positives.txt')
+false_positives_path = os.path.join(os.path.realpath(os.path.dirname(__file__)), "false_positives.txt")
 
 if not os.path.exists(false_positives_path):
-    with open(false_positives_path, 'w') as file:
+    with open(false_positives_path, "w") as file:
         file.write("\n".join(FALSE_POSITIVES))
 else:
-    with open(false_positives_path, 'r') as file:
+    with open(false_positives_path, "r") as file:
         FALSE_POSITIVES = file.readlines()
         logger.info("Loaded false positives")
 
 def add_false_positive(text: str):
     logger.info("False positive saved")
-    with open(false_positives_path, 'a') as file:
+    with open(false_positives_path, "a") as file:
         file.write(f"\n{text}")
 
 if __name__ == "__main__":

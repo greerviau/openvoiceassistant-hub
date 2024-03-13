@@ -1,6 +1,6 @@
 import typing
 
-def build_integration(integration_config: typing.Dict, ova: 'OpenVoiceAssistant'):
+def build_integration(integration_config: typing.Dict, ova: "OpenVoiceAssistant"):
     from .home_assistant import HomeAssistant
     return HomeAssistant(integration_config, ova)
 

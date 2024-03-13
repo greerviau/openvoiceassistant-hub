@@ -22,8 +22,8 @@ const Overview = () => {
 
       mediaRecorder.onstop = async () => {
         const audioBlob = new Blob(audioChunks, { type: 'audio/wav' });
-        const audioUrl = URL.createObjectURL(audioBlob);
-        setAudioUrl(audioUrl);
+        console.log(audioBlob.size);
+        console.log(audioBlob.type);
         sendAudioData(audioBlob);
       };
 
@@ -40,7 +40,7 @@ const Overview = () => {
 
   const sendAudioData = async (audioBlob) => {
     const formData = new FormData();
-    formData.append('audio_file', audioBlob);
+    formData.append('audio_file', audioBlob, 'frontend_audio.wav');
     try {
         const response = await fetch('/api/respond/audio_file', {
             method: 'POST',

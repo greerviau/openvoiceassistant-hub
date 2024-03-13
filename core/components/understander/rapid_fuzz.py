@@ -10,17 +10,16 @@ from core import config
 
 class Rapidfuzz:
 
-    def __init__(self, ova: 'OpenVoiceAssistant', intents: typing.Dict):
+    def __init__(self, ova: "OpenVoiceAssistant", intents: typing.Dict):
         logger.info("Loading Rapid Fuzz Classifier")
         self.ova = ova
         self.intents = intents
-        self.conf_thresh = config.get(Components.Understander.value, 'config', 'conf_thresh')
-        self.ratio = config.get(Components.Understander.value, 'config', 'ratio')
-        self.ratio_options = config.get(Components.Understander.value, 'config', 'ratio_options')
+        self.ratio = config.get(Components.Understander.value, "config", "ratio")
+        self.ratio_options = config.get(Components.Understander.value, "config", "ratio_options")
         assert self.ratio in self.ratio_options
 
     def understand(self, context: Context):
-        encoded_command = context['encoded_command']
+        encoded_command = context["encoded_command"]
 
         conf = 0
         intent = None
@@ -31,21 +30,16 @@ class Rapidfuzz:
                     conf = r
                     intent = label
         
-        skill, action = intent.split('-')
-
-        pass_threshold = True
-        if conf < self.conf_thresh:
-            pass_threshold = False
+        skill, action = intent.split("-")
     
-        return skill, action, conf, pass_threshold
+        return skill, action, conf
 
-def build_engine(ova: 'OpenVoiceAssistant', intents: typing.Dict) -> Rapidfuzz:
+def build_engine(ova: "OpenVoiceAssistant", intents: typing.Dict) -> Rapidfuzz:
     return Rapidfuzz(ova, intents)
 
 def default_config() -> typing.Dict:
     return {
         "id": "rapid_fuzz",
-        "conf_thresh": 80,
         "ratio": "ratio",
         "ratio_options": [
             "ratio",

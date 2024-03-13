@@ -24,7 +24,7 @@ INTENTIONS = [
         }
     ]
 
-def build_skill(skill_config: typing.Dict, ova: 'OpenVoiceAssistant'):
+def build_skill(skill_config: typing.Dict, ova: "OpenVoiceAssistant"):
     from .hass_people import HASSPeople
     return HASSPeople(skill_config, ova)
 

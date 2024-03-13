@@ -64,4 +64,4 @@ class OpenVoiceAssistant:
         for stage in stages:
             self.get_component(stage).run_stage(context)
 
-        context['time_to_run_pipeline'] = time.time() - start
+        context["time_to_run_pipeline"] = time.time() - start

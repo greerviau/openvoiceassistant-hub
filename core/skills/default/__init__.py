@@ -121,7 +121,7 @@ INTENTIONS = [
         }
     ]
 
-def build_skill(skill_config: typing.Dict, ova: 'OpenVoiceAssistant'):
+def build_skill(skill_config: typing.Dict, ova: "OpenVoiceAssistant"):
     from .default import Default
     return Default(skill_config, ova)
 

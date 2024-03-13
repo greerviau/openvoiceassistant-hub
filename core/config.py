@@ -24,6 +24,7 @@ DEFAULT_CONFIG = {
                 "neural_intent"
             ],
             "config": {},
+            "conf_thresh": 80,
             "augment_intent_data_percent": 0
         },
         Components.Synthesizer.value: {
@@ -46,7 +47,7 @@ DEFAULT_CONFIG = {
     }
 
 loc = os.path.realpath(os.path.dirname(__file__))
-config_path = f'{loc}/config.json'
+config_path = f"{loc}/config.json"
 config = {}
 
 def get(*keys: typing.List[str]):
@@ -76,8 +77,8 @@ def config_exists():
 
 def save_config():
     global config, config_path
-    #logger.info('Config saved')
-    with open(config_path, 'w') as config_file:
+    #logger.info("Config saved")
+    with open(config_path, "w") as config_file:
         config_file.write(json.dumps(config, indent=4))
 
 def verify_config(config: typing.Dict, default:typing.Dict):
@@ -94,14 +95,14 @@ def verify_config(config: typing.Dict, default:typing.Dict):
 
 def load_config() -> typing.Dict:  # TODO use TypedDict
     global config, config_path
-    logger.info(f'Loading config: {config_path}')
+    logger.info(f"Loading config: {config_path}")
     if not os.path.exists(config_path):
-        logger.info('Loading default config')
+        logger.info("Loading default config")
         config = DEFAULT_CONFIG
         save_config()
     else:
-        logger.info('Loading existing config')
-        config = json.load(open(config_path, 'r'))
+        logger.info("Loading existing config")
+        config = json.load(open(config_path, "r"))
         config = verify_config(config, DEFAULT_CONFIG)
         config["settings"] = verify_config(config["settings"], DEFAULT_CONFIG["settings"])
         config[Components.Transcriber.value] = verify_config(config[Components.Transcriber.value], DEFAULT_CONFIG[Components.Transcriber.value])

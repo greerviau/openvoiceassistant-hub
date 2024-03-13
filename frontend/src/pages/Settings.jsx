@@ -364,11 +364,6 @@ function Settings() {
     .then((json) => {
       console.log(`OVA updating:`, json);
       setInfoNotification(`Updating...`);
-      // Clear the notification after a few seconds
-      setTimeout(() => {
-        setInfoNotification(null);
-      }, 3000);
-      refreshStatus();
     })
     .catch((error) => {
       console.error(`Error updating:`, error);

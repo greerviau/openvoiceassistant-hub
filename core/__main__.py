@@ -18,7 +18,7 @@ def main(debug, port):
     logger.setLevel(log_level)
 
     # Create a file handler and set its level to DEBUG or INFO
-    file_handler = TimedRotatingFileHandler(LOGFILE, when='midnight', interval=1, backupCount=10)
+    file_handler = TimedRotatingFileHandler(LOGFILE, when="midnight", interval=1, backupCount=10)
     file_handler.suffix = "%Y-%m-%d.log"  # Append date to log file name
     file_handler.setLevel(log_level)
 
@@ -27,7 +27,7 @@ def main(debug, port):
     console_handler.setLevel(log_level)
 
     # Create a formatter
-    formatter = logging.Formatter('%(asctime)s - %(name)-36s - %(levelname)-8s: %(message)s')
+    formatter = logging.Formatter("%(asctime)s - %(name)-36s - %(levelname)-8s: %(message)s")
     file_handler.setFormatter(formatter)
     console_handler.setFormatter(formatter)
 
@@ -44,7 +44,7 @@ def main(debug, port):
     updater.start()
 
     app = create_app(ova, updater)
-    uvicorn.run(app, host='0.0.0.0', port=port)
+    uvicorn.run(app, host="0.0.0.0", port=port)
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()

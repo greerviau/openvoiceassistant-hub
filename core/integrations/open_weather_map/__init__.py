@@ -1,6 +1,6 @@
 import typing
 
-def build_integration(skill_config: typing.Dict, ova: 'OpenVoiceAssistant'):
+def build_integration(skill_config: typing.Dict, ova: "OpenVoiceAssistant"):
     from .open_weather_map import OpenWeatherMap
     return OpenWeatherMap(skill_config, ova)
 

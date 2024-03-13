@@ -49,15 +49,14 @@ class IntentClassifier(nn.Module):
 
 class NeuralIntent:
 
-    def __init__(self, ova: 'OpenVoiceAssistant', intents: typing.Dict):
+    def __init__(self, ova: "OpenVoiceAssistant", intents: typing.Dict):
         print("Loading Neural Intent Classifier")
         self.ova = ova
 
-        retrain = config.get(Components.Understander.value, 'config', 'retrain')
-        use_gpu = config.get(Components.Transcriber.value, 'config', 'use_gpu')
-        self.conf_thresh = config.get(Components.Understander.value, 'config', 'conf_thresh')
+        retrain = config.get(Components.Understander.value, "config", "retrain")
+        use_gpu = config.get(Components.Transcriber.value, "config", "use_gpu")
         use_gpu = torch.cuda.is_available() and use_gpu
-        config.set(Components.Transcriber.value, 'config', 'use_gpu', use_gpu)
+        config.set(Components.Transcriber.value, "config", "use_gpu", use_gpu)
 
         self.device = torch.device("cuda" if use_gpu else "cpu")
         print(f"Using device: {self.device}")
@@ -66,15 +65,15 @@ class NeuralIntent:
         hidden_dim_1 = 64
         hidden_dim_2 = 32
 
-        model_file = os.path.join(MODELDIR, 'neural_intent_model.pt')
-        vocab_file = os.path.join(MODELDIR, 'neural_intent_vocab.p')
+        model_file = os.path.join(MODELDIR, "neural_intent_model.pt")
+        vocab_file = os.path.join(MODELDIR, "neural_intent_vocab.p")
 
         x, y, self.max_length = load_training_data(intents)
         labels = list(set(y))
         print(f"Intents : {labels}")
  
         if os.path.exists(vocab_file):
-            self.word_to_int, int_to_word, label_to_int, self.int_to_label, n_vocab, n_labels, loaded_labels, self.max_length = pickle.load(open(vocab_file, 'rb'))
+            self.word_to_int, int_to_word, label_to_int, self.int_to_label, n_vocab, n_labels, loaded_labels, self.max_length = pickle.load(open(vocab_file, "rb"))
 
         if retrain or not os.path.exists(vocab_file) or not os.path.exists(model_file) or sorted(labels) != sorted(loaded_labels):
             print("Retraining Neural Intent Model")
@@ -85,10 +84,10 @@ class NeuralIntent:
             except: pass
 
             label_to_int, self.int_to_label, self.word_to_int, int_to_word, n_vocab, n_labels = build_vocab(x, y)
-            pickle.dump([self.word_to_int, int_to_word, label_to_int, self.int_to_label, n_vocab, n_labels, labels, self.max_length], open(vocab_file, 'wb'))
+            pickle.dump([self.word_to_int, int_to_word, label_to_int, self.int_to_label, n_vocab, n_labels, labels, self.max_length], open(vocab_file, "wb"))
             X, Y = preprocess_data(x, y, self.word_to_int, self.max_length, label_to_int)
             train_classifier(X, Y, n_vocab, embedding_dim, hidden_dim_1, hidden_dim_2, n_labels, model_file, self.device)
-            config.set(Components.Understander.value, 'config', 'retrain', False)
+            config.set(Components.Understander.value, "config", "retrain", False)
             
         self.intent_model = IntentClassifier(n_vocab, embedding_dim, hidden_dim_1, hidden_dim_2, n_labels).to(self.device)
         self.intent_model.load_state_dict(torch.load(model_file, map_location=self.device))
@@ -102,18 +101,12 @@ class NeuralIntent:
             prediction = self.intent_model(inputs)
             conf, idx = torch.max(prediction, dim=1)
             label = self.int_to_label[idx.item()]
-            skill, action = label.split('-')
+            skill, action = label.split("-")
             return skill, action, round(float(conf.item()) * 100, 3)
 
     def understand(self, context: Context) -> typing.Tuple[str, str, float]:
-        encoded_command = context['encoded_command']
-        skill, action, conf = self.predict_intent(encoded_command)
-        
-        pass_threshold = True
-        if conf < self.conf_thresh:
-            pass_threshold = False
-    
-        return skill, action, conf, pass_threshold
+        encoded_command = context["encoded_command"]
+        return self.predict_intent(encoded_command)
 
 def encode_word_vec(text, vocab):
     encoded = np.zeros(len(text.split()))
@@ -152,18 +145,18 @@ def build_vocab(X: np.array, y: np.array):
     label_to_int = dict((l, i) for i, l in enumerate(labels))
     int_to_label = dict((i, l) for i, l in enumerate(labels))
 
-    raw_text = ' '.join(X)
+    raw_text = " ".join(X)
     words = sorted(list(set(raw_text.split())))
     word_to_int = dict((c, i+1) for i, c in enumerate(words))
     int_to_word = dict((i+1, c) for i, c in enumerate(words))
-    word_to_int['BLANK'] = 0
-    int_to_word[0] = 'BLANK'
+    word_to_int["BLANK"] = 0
+    int_to_word[0] = "BLANK"
 
     n_vocab = len(word_to_int)
     n_labels = len(labels)
 
-    print(f'N vocab: {n_vocab}')
-    print(f'N labels: {n_labels}')
+    print(f"N vocab: {n_vocab}")
+    print(f"N labels: {n_labels}")
 
     return label_to_int, int_to_label, word_to_int, int_to_word, n_vocab, n_labels
 
@@ -196,7 +189,7 @@ def train_classifier(X, Y, n_vocab, embedding_dim, hidden_dim_1, hidden_dim_2, n
     X_tensor = torch.tensor(X).to(device)
     Y_tensor = torch.tensor(Y).to(device)
 
-    print('Training classifier')
+    print("Training classifier")
     # Training parameters
     batch_size = 16
     learning_rate = 0.001
@@ -257,13 +250,12 @@ def train_classifier(X, Y, n_vocab, embedding_dim, hidden_dim_1, hidden_dim_2, n
         except RuntimeError:
             print("Failed to train neural intent model, retrying...")
         
-def build_engine(ova: 'OpenVoiceAssistant', intents: typing.Dict) -> NeuralIntent:
+def build_engine(ova: "OpenVoiceAssistant", intents: typing.Dict) -> NeuralIntent:
     return NeuralIntent(ova, intents)
 
 def default_config() -> typing.Dict:
     return {
         "id": "neural_intent",
-        "conf_thresh": 80,
         "use_gpu": False,
         "retrain": False
     }
