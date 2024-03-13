@@ -408,7 +408,7 @@ function Settings() {
               </h2>
             </div>
           </div>
-        )};
+        )}
         <CollapsibleSection 
               title="Transcriber" 
               component="transcriber"
