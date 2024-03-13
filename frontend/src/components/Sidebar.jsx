@@ -79,13 +79,13 @@ const Sidebar = ({children}) => {
             name:"Settings",
             icon:<FiSettings/>
         },
-        /*
+        
         {
             path:"/logs",
             name:"Logs",
             icon:<FaCode/>
         }
-        */
+        
     ]
     return (
         <div className="sidebar-container">
