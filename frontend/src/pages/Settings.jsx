@@ -390,7 +390,7 @@ function Settings() {
     <div>
       <h1>Settings</h1>
       <div className="page-container">
-        {updateStatus.update_available && (
+        {(updateStatus.update_available || updateStatus.updating) && (
           <div className="collapsible-section">
             <div className="section-header">
               <h2>{`Update: ${updateStatus.update_version}`}
