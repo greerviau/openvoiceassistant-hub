@@ -2,6 +2,9 @@ import typing
 import time
 import threading
 import random
+import logging
+logger = logging.getLogger("skill.open_weather_map")
+
 from datetime import datetime
 
 RESPONSE_TEMPLATES = [

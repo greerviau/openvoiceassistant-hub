@@ -1,4 +1,6 @@
 import typing
+import logging
+logger = logging.getLogger("skill.hass_shopping_list")
 
 from core.utils.nlp.formatting import format_readable_list
 

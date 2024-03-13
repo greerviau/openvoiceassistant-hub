@@ -3,6 +3,8 @@ import os
 import typing
 import time
 import uuid
+import logging
+logger = logging.getLogger("components.synthesizer")
 
 from core import config
 from core.dir import FILESDIR
@@ -34,11 +36,10 @@ class Synthesizer:
             module = importlib.import_module(f'core.components.synthesizer.{algorithm_id}')
             return module.default_config()
         except Exception as e:
-            print(repr(e))
             raise RuntimeError('Synthesizer algorithm does not exist')
     
     def run_stage(self, context: Context):
-        print('Synthesizer Stage')
+        logger.info('Synthesizer Stage')
         start = time.time()
         
         _id = context['node_id'] if 'node_id' in context else ""
@@ -49,7 +50,7 @@ class Synthesizer:
         context['response_audio_file_path'] = response_file_path
 
         response = context['synth_response']
-        print('Response: ', response)
+        logger.info('Response: ', response)
         if response:
             try:
                 self.engine.synthesize(response, response_file_path)
@@ -62,5 +63,5 @@ class Synthesizer:
             context['response_audio_data'] = ""
             
         dt = time.time() - start
-        print("Time to synthesize: ", dt)
+        logger.info("Time to synthesize: ", dt)
         context['time_to_synthesize'] = dt

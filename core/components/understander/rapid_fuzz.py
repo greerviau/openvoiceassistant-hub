@@ -1,4 +1,7 @@
 import typing
+import logging
+logger = logging.getLogger("components.understander.rapid_fuzz")
+
 from rapidfuzz import fuzz
 
 from core.enums import Components
@@ -8,7 +11,7 @@ from core import config
 class Rapidfuzz:
 
     def __init__(self, ova: 'OpenVoiceAssistant', intents: typing.Dict):
-        print("Loading Rapid Fuzz Classifier")
+        logger.info("Loading Rapid Fuzz Classifier")
         self.ova = ova
         self.intents = intents
         self.conf_thresh = config.get(Components.Understander.value, 'config', 'conf_thresh')

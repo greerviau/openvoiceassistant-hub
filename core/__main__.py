@@ -27,7 +27,7 @@ def main(debug, port):
     console_handler.setLevel(log_level)
 
     # Create a formatter
-    formatter = logging.Formatter('%(asctime)s - %(name)-12s - %(levelname)-8s: %(message)s')
+    formatter = logging.Formatter('%(asctime)s - %(name)-36s - %(levelname)-8s: %(message)s')
     file_handler.setFormatter(formatter)
     console_handler.setFormatter(formatter)
 

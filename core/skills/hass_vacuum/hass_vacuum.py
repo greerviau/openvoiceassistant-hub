@@ -1,4 +1,6 @@
 import typing
+import logging
+logger = logging.getLogger("skill.hass_vacuum")
 
 class HASSVacuum:
 

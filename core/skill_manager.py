@@ -1,6 +1,9 @@
 import importlib
 import typing
 import subprocess
+import logging
+logger = logging.getLogger("skill_manager")
+
 from pkgutil import iter_modules
 
 from core import config
@@ -15,16 +18,16 @@ class SkillManager:
         self.available_skills = [submodule.name for submodule in iter_modules(skills.__path__)]
         self.available_skills = {skill: self.get_skill_manifest(skill) for skill in self.available_skills}
 
-        self.skills = config.get('skills')
+        self.skills = config.get("skills")
 
-        print('Importing Skills...')
+        logger.info("Importing skills...")
         for skill_id, manifest in self.skills.items():
             if self.skill_exists(skill_id):
                 self.__import_skill(skill_id, manifest)
             else:
                 self.skills.pop(skill_id)
-                config.set('skills', self.skills)
-                print(f"Removing {skill_id}")
+                config.set("skills", self.skills)
+                logger.info(f"Removing {skill_id}")
 
     @property
     def imported_skills(self):
@@ -81,7 +84,7 @@ class SkillManager:
             else:
                 return self.get_default_skill_config(skill_id)
         else:
-            raise RuntimeError('Skill does not exist')
+            raise RuntimeError("Skill does not exist")
 
     def get_default_skill_config(self, skill_id: str) -> typing.Dict:
         if self.skill_exists(skill_id):
@@ -90,7 +93,7 @@ class SkillManager:
                 return manifest["config"]
             return {}
         else:
-            raise RuntimeError('Skill does not exist')
+            raise RuntimeError("Skill does not exist")
         
     def get_skill_manifest(self, skill_id: str) -> typing.Dict:
         if self.skill_exists(skill_id):
@@ -99,14 +102,14 @@ class SkillManager:
             else:
                 return self.get_default_skill_manifest(skill_id)
         else:
-            raise RuntimeError('Skill does not exist')
+            raise RuntimeError("Skill does not exist")
 
     def get_default_skill_manifest(self, skill_id: str) -> typing.Dict:
         if self.skill_exists(skill_id):
-            module = importlib.import_module(f'core.skills.{skill_id}')
+            module = importlib.import_module(f"core.skills.{skill_id}")
             return module.manifest()
         else:
-            raise RuntimeError('Skill does not exist')
+            raise RuntimeError("Skill does not exist")
     
     def get_skill_module(self, skill_id: str):
         if self.skill_imported(skill_id):
@@ -116,14 +119,14 @@ class SkillManager:
         
     def get_skill_intents(self, skill_id: str):
         if self.skill_exists(skill_id):
-            module = importlib.import_module(f'core.skills.{skill_id}')
+            module = importlib.import_module(f"core.skills.{skill_id}")
             return module.INTENTIONS
         else:
-            raise RuntimeError('Skill does not exist')
+            raise RuntimeError("Skill does not exist")
 
     def __import_skill(self, skill_id: str, manifest: typing.Dict):
         if self.skill_exists(skill_id):
-            print('Importing ', skill_id)
+            logger.info(f"Importing {skill_id}")
             default_manifest = self.get_default_skill_manifest(skill_id)
             manifest = self.check_for_discrepancy(manifest, default_manifest)
             if "requirements" in manifest:
@@ -144,16 +147,16 @@ class SkillManager:
             else:
                 skill_config = {}
             self.skills[skill_id] = manifest
-            config.set('skills', self.skills)
+            config.set("skills", self.skills)
             try:
-                module = importlib.import_module(f'core.skills.{skill_id}')
+                module = importlib.import_module(f"core.skills.{skill_id}")
                 self.imported_skill_modules[skill_id] = module.build_skill(skill_config, self.ova)
             except Exception as e:
-                print(f'Failed to load {skill_id} | Exception {repr(e)}')
+                logger.info(f"Failed to load {skill_id} | Exception {repr(e)}")
                 # TODO
                 # custom exception for this
                 # in the future use it to extablish that skill is crashed
                 # update flag in config and display on FE
                 # can do same thing for integrations and even components
         else:
-            raise RuntimeError('Skill does not exist')
+            raise RuntimeError("Skill does not exist")

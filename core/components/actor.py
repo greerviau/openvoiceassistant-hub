@@ -1,4 +1,6 @@
 import time
+import logging
+logger = logging.getLogger("components.actor")
 
 from core.schemas import Context
 
@@ -18,7 +20,7 @@ class Actor:
         return text
 
     def run_stage(self, context: Context):
-        print('Action Stage')
+        logger.info('Action Stage')
         start = time.time()
 
         skill = context['skill']
@@ -48,5 +50,5 @@ class Actor:
         context["synth_response"] = self.process_response(context["synth_response"])
 
         dt = time.time() - start
-        print("Time to run action: ", dt)
+        logger.info("Time to run action: ", dt)
         context['time_to_action'] = dt

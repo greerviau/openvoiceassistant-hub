@@ -1,4 +1,6 @@
 import typing
+import logging
+logger = logging.getLogger("skill.what_to_wear")
 
 class WhatToWear:
     def __init__(self, skill_config: typing.Dict, ova: 'OpenVoiceAssistant'):

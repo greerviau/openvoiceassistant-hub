@@ -1,6 +1,8 @@
 import typing
 import requests
 import datetime
+import logging
+logger = logging.getLogger("integration.home_assistant")
 
 class HomeAssistant:
     def __init__(self, integration_config: typing.Dict, ova: 'OpenVoiceAssistant'):
@@ -14,9 +16,9 @@ class HomeAssistant:
 
         try:
             self.get_api()
-            print('Homassistant integration started')
+            logger.info('Home Assistant integration started')
         except:
-            print('Failed to start Homeassistant integration')
+            logger.error('Failed to start Homeassistant integration')
 
     # GET ENDPOINTS
 

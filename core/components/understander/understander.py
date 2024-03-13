@@ -2,12 +2,14 @@ import time
 import importlib
 import typing
 import random
+import logging
+logger = logging.getLogger("components.understander")
 import nltk
 nltk.download('wordnet')
 from nltk.corpus import wordnet
 
-from core.enums import Components
 from core import config
+from core.enums import Components
 from core.schemas import Context
 from core.utils.nlp.preprocessing import clean_text, encode_command
 from core.utils.nlp.information_extraction import new_extract_information
@@ -39,8 +41,8 @@ class Understander:
             else:
                 positive_samples += len(patterns)
 
-        print(f"Positive Sampels: {positive_samples}")
-        print(f"Negative Sampels: {negative_samples}")
+        logger.info(f"Positive Sampels: {positive_samples}")
+        logger.info(f"Negative Sampels: {negative_samples}")
         
         self.engage_delay = config.get("engage_delay")
     
@@ -93,7 +95,7 @@ class Understander:
         return intents
     
     def augment_data(self, intents: typing.Dict, vocab_list: typing.List[str], augment_data_percent:float):
-        print(f"Augmenting {augment_data_percent}% of data")
+        logger.info(f"Augmenting {augment_data_percent}% of data")
         def get_synonyms(word):
             synonyms = set()
             for syn in wordnet.synsets(word):
@@ -203,7 +205,7 @@ class Understander:
             raise RuntimeError('Understander algorithm does not exist')
 
     def run_stage(self, context: Context):
-        print("Understanding Stage")
+        logger.info("Understanding Stage")
         start = time.time()
 
         time_sent = context["time_sent"]
@@ -218,13 +220,13 @@ class Understander:
         except KeyError:
             cleaned_command = clean_text(command)
             context["cleaned_command"] = cleaned_command
-            print(f"Cleaned Command: {cleaned_command}")
+            logger.info(f"Cleaned Command: {cleaned_command}")
         
         context["sent_info"] = new_extract_information(cleaned_command)
 
         encoded_command = encode_command(cleaned_command, self.vocab_list)
         context["encoded_command"] = encoded_command
-        print(f"Encoded command: {encoded_command}")
+        logger.info(f"Encoded command: {encoded_command}")
         
         skill, action, conf, pass_threshold = '', '', 0, False
         if encoded_command in ["", "BLANK"]:
@@ -258,9 +260,9 @@ class Understander:
                     else:
                         pass_threshold = False
         
-        print(f'Skill: {skill}')
-        print(f'Action: {action}')
-        print(f'Conf: {conf}')
+        logger.info(f'Skill: {skill}')
+        logger.info(f'Action: {action}')
+        logger.info(f'Conf: {conf}')
         context["skill"] = skill
         context["action"] = action
         context["conf"] = conf
@@ -268,5 +270,5 @@ class Understander:
 
         dt = time.time() - start
         context["time_to_understand"] = dt
-        print("Time to understand: ", dt)
+        logger.info("Time to understand: ", dt)
 

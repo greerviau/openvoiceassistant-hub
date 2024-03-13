@@ -1,4 +1,7 @@
 import torch
+import logging
+logger = logging.getLogger("components.understander.whisper")
+
 from faster_whisper import WhisperModel
 
 from core.schemas import Context
@@ -7,7 +10,7 @@ from core import config
 
 class Whisper:
     def __init__(self, ova: 'OpenVoiceAssistant'):
-        print("Loading Whisper Transcriber")
+        logger.info("Loading Whisper Transcriber")
         self.ova = ova
         model_size = config.get(Components.Transcriber.value, 'config', 'model_size')
         use_gpu = config.get(Components.Transcriber.value, 'config', 'use_gpu')
@@ -23,7 +26,6 @@ class Whisper:
         file_path = context['command_audio_file_path']
         segments, _ = self.model.transcribe(file_path, beam_size=5)
         segments = list(segments)
-        #print(segments)
         return " ".join([segment.text for segment in segments])
 
 def build_engine(ova: 'OpenVoiceAssistant'):

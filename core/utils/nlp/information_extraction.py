@@ -1,5 +1,7 @@
 import spacy
 from spacy.matcher import DependencyMatcher
+import logging
+logger = logging.getLogger("utils.nlp.information_extraction")
 
 nlp = spacy.load('en_core_web_sm')
 
@@ -59,7 +61,6 @@ def extract_information(sentence: str):
     parsed["SUBJECT"], parsed["OBJECT"], parsed["COMP"] = [], [], []
 
     for token in doc:
-        #print(f"{token.text} -> {token.dep_}")
         if (token.dep_=='nsubj'):
             parsed["SUBJECT"].append(token.text)
 
@@ -128,8 +129,6 @@ def new_extract_information(sentence: str):
         if (token.dep_=='dobj'):
             objects.append(token.text)
     parsed["OBJECTS"] = objects
-
-    print(parsed)
 
     return parsed
 

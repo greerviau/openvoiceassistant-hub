@@ -1,16 +1,19 @@
-from vosk import Model, KaldiRecognizer, SetLogLevel
 import json
 import wave
+import logging
+logger = logging.getLogger("components.transcriber.kaldi")
+
+from vosk import Model, KaldiRecognizer, SetLogLevel
 
 from core.schemas import Context
 from core.enums import Components
 from core import config
 
-SetLogLevel(0)
+SetLogLevel(-1)
 
 class Kaldi:
     def __init__(self, ova: 'OpenVoiceAssistant'):
-        print("Loading Kaldi Transcriber")
+        logger.info("Loading Kaldi Transcriber")
         self.ova = ova
         model_lang = config.get(Components.Transcriber.value, 'config', 'model_lang')
         self.vosk_model = Model(lang=model_lang)

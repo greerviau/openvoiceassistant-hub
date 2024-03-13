@@ -2,6 +2,9 @@ import typing
 import time
 import threading
 import random
+import logging
+logger = logging.getLogger("integration.open_weather_map")
+
 from datetime import datetime, timedelta
 from pyowm import OWM
 
@@ -37,13 +40,13 @@ class OpenWeatherMap:
                     try:
                         self._weather["daily_forecast"] = mgr.forecast_at_coords(lat=lat, lon=lon, interval="daily").forecast
                     except:
-                        print("Cannot make daily forecast requests with free API key")
+                        logger.warning("Cannot make daily forecast requests with free API key")
 
                 today = {"morning": None, "afternoon": None, "evening": None}
                 tomorrow = {"morning": None, "afternoon": None, "evening": None}
                 for weather in self._weather["hourly_forecast"]:
                     dt = datetime.utcfromtimestamp(weather.ref_time).astimezone(self.ova.timezone)
-                    print(dt)
+                    logger.debug(dt)
                     if dt.day == datetime.today().day:
                         if dt.hour < 12 and dt.hour + 3 >= 12:
                             today["morning"]  = weather
@@ -62,8 +65,8 @@ class OpenWeatherMap:
                         break
                 self._weather["today"] = today
                 self._weather["tomorrow"] = tomorrow
-                print(self._weather)
-                print("Current Location Weather Updated")
+                logger.debug(self._weather)
+                logger.info("Current Location Weather Updated")
                 time.sleep(update_interval)
 
         self.weather_thread = threading.Thread(target=_update_weather, daemon=True)

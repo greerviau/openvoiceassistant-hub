@@ -2,6 +2,8 @@ import os
 import pickle
 import typing
 import math
+import logging
+logger = logging.getLogger("components.understander.neural_intent")
 
 import numpy as np
 

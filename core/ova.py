@@ -2,6 +2,8 @@ import os
 import typing
 import time
 import pytz
+import logging
+logger = logging.getLogger("ova")
 
 from core import config
 from core.schemas import Context

@@ -1,4 +1,6 @@
 import typing
+import logging
+logger = logging.getLogger("skill.hass_lights")
 
 from core.utils.nlp.preprocessing import extract_numbers, find_string_match, replace_punctuation
 
@@ -10,13 +12,13 @@ class HASSLights:
         self.ha_integration = self.ova.integration_manager.get_integration_module('home_assistant')
 
         self.lights = self._get_lights()
-        #print('Detected lights')
-        print(f"Lights : {self.lights}")
+        logger.debug('Detected lights')
+        logger.debug(f"Lights : {self.lights}")
 
     def light_on(self, context: typing.Dict):
         try:
             entity_id, light_description = self._find_light_entity_id(context)
-            #print(entity_id)
+            #logger.info(entity_id)
         except Exception as e:
             context['response'] = str(e)
             return
@@ -39,7 +41,7 @@ class HASSLights:
     def light_off(self, context: typing.Dict):    
         try:
             entity_id, light_description = self._find_light_entity_id(context)
-            #print(entity_id)
+            #logger.info(entity_id)
         except Exception as e:
             context['response'] = str(e)
             return
@@ -62,7 +64,7 @@ class HASSLights:
     def light_toggle(self, context: typing.Dict):
         try:
             entity_id, light_description = self._find_light_entity_id(context)
-            #print(entity_id)
+            #logger.info(entity_id)
         except Exception as e:
             context['response'] = str(e)
             return
@@ -89,7 +91,7 @@ class HASSLights:
     def light_brightness(self, context: typing.Dict):
         try:
             entity_id, light_description = self._find_light_entity_id(context)
-            #print(entity_id)
+            logger.debug(entity_id)
         except Exception as e:
             context['response'] = str(e)
             return

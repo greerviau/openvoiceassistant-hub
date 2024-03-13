@@ -2,11 +2,13 @@ import pyttsx3
 import os
 import time
 import typing
+import logging
+logger = logging.getLogger("components.synthesizer.espeak")
 
 class Espeak:
 
     def __init__(self, ova: 'OpenVoiceAssistant'):
-        print("Loading Espeak Synthesizer")
+        logger.info("Loading Espeak Synthesizer")
         self.ova = ova
 
     def synthesize(self, text: str, file_path: str):

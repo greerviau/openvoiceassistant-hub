@@ -1,5 +1,7 @@
 import typing
 import yfinance as yf
+import logging
+logger = logging.getLogger("skill.yfinance")
 
 class YFinance:
     def __init__(self, skill_config: typing.Dict, ova: 'OpenVoiceAssistant'):

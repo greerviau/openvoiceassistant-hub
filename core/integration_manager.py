@@ -1,6 +1,9 @@
 import importlib
 import typing
 import subprocess
+import logging
+logger = logging.getLogger("integration_manager")
+
 from pkgutil import iter_modules
 
 from core import config
@@ -17,14 +20,14 @@ class IntegrationManager:
 
         self.integrations = config.get('integrations')
 
-        print('Importing Integrations...')
+        logger.info('Importing Integrations...')
         for integration_id, manifest in self.integrations.items():
             if self.integration_exists(integration_id):
                 self.__import_integration(integration_id, manifest)
             else:
                 self.integrations.pop(integration_id)
                 config.set('integrations', self.integrations)
-                print(f"Removing {integration_id}")
+                logger.info(f"Removing {integration_id}")
 
     @property
     def imported_integrations(self):
@@ -116,7 +119,7 @@ class IntegrationManager:
 
     def __import_integration(self, integration_id: str, manifest: typing.Dict):
         if self.integration_exists(integration_id):
-            print('Importing ', integration_id)
+            logger.info(f"Importing {integration_id}")
             default_manifest = self.get_default_integration_manifest(integration_id)
             manifest = self.check_for_discrepancy(manifest, default_manifest)
             if "requirements" in manifest:
@@ -142,7 +145,7 @@ class IntegrationManager:
                 module = importlib.import_module(f'core.integrations.{integration_id}')
                 self.imported_integration_modules[integration_id] = module.build_integration(integration_config, self.ova)
             except Exception as e:
-                print(f'Failed to load {integration_id} | Exception {repr(e)}')
+                logger.info(f'Failed to load {integration_id} | Exception {repr(e)}')
                 # TODO
                 # custom exception for this
                 # in the future use it to extablish that integration is crashed

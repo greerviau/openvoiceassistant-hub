@@ -2,6 +2,9 @@ import string
 import datetime
 import typing
 import re
+import logging
+logger = logging.getLogger("preprocessing")
+
 from word2number import w2n
 from nltk.corpus import stopwords
 from rapidfuzz import fuzz
@@ -199,7 +202,6 @@ def find_string_match(guess: str, possibilities: typing.List[str]):
         if r > conf:
             conf = r
             answer = p
-    print(conf)
     return answer
 
 def replace_punctuation(text: str, replace_with: str = ""):
@@ -244,9 +246,7 @@ def remove_words(self, text: str, words: typing.List[str]):
     return text
 
 if __name__ == '__main__':
-    #print(STOPWORDS)
     while True:
         c = input("-> ")
         if c in ['stop']: break
         parsed = information_extraction(c)
-        print(parsed)

@@ -1,5 +1,7 @@
 import requests
 import typing
+import logging
+logger = logging.getLogger("node_manager")
 
 from core import config
 

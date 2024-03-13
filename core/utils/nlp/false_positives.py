@@ -1,4 +1,6 @@
 import os
+import logging
+logger = logging.getLogger("utils.nlp.false_positives")
 
 FALSE_POSITIVES = [
     "greeting",
@@ -137,7 +139,7 @@ FALSE_POSITIVES = [
     "ill get the mail",
     "the dogs begging",
     "im thinking of joining a book club",
-    "printer ink order more",
+    "logger.infoer ink order more",
     "pet",
     "back",
     "not",
@@ -560,7 +562,7 @@ FALSE_POSITIVES = [
     "im going to fix that leaky faucet",
     "now time",
     "the tvs remotes missing",
-    "the printer is out of ink again",
+    "the logger.infoer is out of ink again",
     "messages check",
     "im thinking of learning to play a musical instrument",
     "did you hear about the new exhibit at the museum",
@@ -864,10 +866,10 @@ if not os.path.exists(false_positives_path):
 else:
     with open(false_positives_path, 'r') as file:
         FALSE_POSITIVES = file.readlines()
-        print("Loaded false positives")
+        logger.info("Loaded false positives")
 
 def add_false_positive(text: str):
-    print("False positive saved")
+    logger.info("False positive saved")
     with open(false_positives_path, 'a') as file:
         file.write(f"\n{text}")
 

@@ -1,6 +1,8 @@
 import importlib
 import typing
 import time
+import logging
+logger = logging.getLogger("components.transcriber")
 
 from core.enums import Components
 from core import config
@@ -32,11 +34,10 @@ class Transcriber:
             module = importlib.import_module(f'core.components.transcriber.{algorithm_id}')
             return module.default_config()
         except Exception as e:
-            print(repr(e))
             raise RuntimeError('Transcriber algorithm does not exist')
 
     def run_stage(self, context: Context):
-        print('Transcribing Stage')
+        logger.info('Transcribing Stage')
         start = time.time()
 
         command = self.engine.transcribe(context).strip()
@@ -45,13 +46,13 @@ class Transcriber:
             context['command'] = ""
         
         context['command'] = command
-        print(f'Command: {command}')
+        logger.info(f'Command: {command}')
 
         cleaned_command = clean_text(command)
         context['cleaned_command'] = cleaned_command
-        print(f'Cleaned Command: {cleaned_command}')
+        logger.info(f'Cleaned Command: {cleaned_command}')
 
         dt = time.time() - start        
-        print("Time to transcribe: ", dt)
+        logger.info("Time to transcribe: ", dt)
         context['time_to_transcribe'] = dt
         

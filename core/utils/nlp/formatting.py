@@ -1,5 +1,7 @@
 import inflect
 import typing
+import logging
+logger = logging.getLogger("utils.nlp.formatting")
 
 def format_readable_date(dt):
     DAY_OF_MONTH = {

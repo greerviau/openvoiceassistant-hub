@@ -3,6 +3,8 @@ import os
 import numpy as np
 import librosa
 import io
+import logging
+logger = logging.getLogger("utils.audio")
 
 def save_wave(wave_file: str, audio_data: bytes, sample_rate: int, sample_width: int, channels: int):
 
@@ -38,5 +40,5 @@ def create_numpy_waveform(audio_data: bytes):
     return np.frombuffer(audio_data, dtype=np.int16).flatten().astype(np.float32) / 32768.0
 
 def resample_waveform(y: np.ndarray, sr_native: int, sr_resample: int) -> np.ndarray:
-    print('Re-sampling waveform')
+    logger.info('Re-sampling waveform')
     return librosa.resample(y, orig_sr=sr_native, target_sr=sr_resample)

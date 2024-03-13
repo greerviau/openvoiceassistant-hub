@@ -2,6 +2,8 @@ import os
 import json
 import typing
 import pytz
+import logging
+logger = logging.getLogger("config")
 
 from core.enums import Components
 from core.skills import default
@@ -74,7 +76,7 @@ def config_exists():
 
 def save_config():
     global config, config_path
-    #print('Config saved')
+    #logger.info('Config saved')
     with open(config_path, 'w') as config_file:
         config_file.write(json.dumps(config, indent=4))
 
@@ -92,13 +94,13 @@ def verify_config(config: typing.Dict, default:typing.Dict):
 
 def load_config() -> typing.Dict:  # TODO use TypedDict
     global config, config_path
-    print(f'Loading config: {config_path}')
+    logger.info(f'Loading config: {config_path}')
     if not os.path.exists(config_path):
-        print('Loading default config')
+        logger.info('Loading default config')
         config = DEFAULT_CONFIG
         save_config()
     else:
-        print('Loading existing config')
+        logger.info('Loading existing config')
         config = json.load(open(config_path, 'r'))
         config = verify_config(config, DEFAULT_CONFIG)
         config["settings"] = verify_config(config["settings"], DEFAULT_CONFIG["settings"])

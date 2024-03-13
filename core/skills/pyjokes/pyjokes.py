@@ -1,5 +1,7 @@
 import typing
 import pyjokes
+import logging
+logger = logging.getLogger("skill.pyjokes")
 
 class PyJokes:
 

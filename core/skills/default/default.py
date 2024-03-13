@@ -1,4 +1,7 @@
 import typing
+import logging
+logger = logging.getLogger("skill.default")
+
 from datetime import datetime
 
 from core.utils.nlp.preprocessing import extract_numbers
@@ -79,7 +82,6 @@ class Default:
             try:
                 if 'TIME' in entities:
                     t = entities['TIME']
-                    #print(t)
                     t_split = t.split()
                     if t_split[0] in ['a', 'an']:
                         t_split[0] = 1

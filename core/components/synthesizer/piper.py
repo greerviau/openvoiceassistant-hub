@@ -2,6 +2,8 @@ import wave
 import os
 import typing
 import torch
+import logging
+logger = logging.getLogger("components.synthesizer.piper")
 
 from piper.download import ensure_voice_exists, find_voice, get_voices
 from piper import PiperVoice
@@ -12,7 +14,7 @@ from core.enums import Components
 
 class Piper:
     def __init__(self, ova: 'OpenVoiceAssistant'):
-        print("Loading Piper Synthesizer")
+        logger.info("Loading Piper Synthesizer")
         self.ova = ova
         model_name = config.get(Components.Synthesizer.value, 'config', 'model')
         use_gpu = config.get(Components.Synthesizer.value, 'config', 'use_gpu')
@@ -23,7 +25,6 @@ class Piper:
         download_dir = data_dir[0]
 
         voices_info = get_voices(download_dir)
-        #print(voices_info.keys())
 
         ensure_voice_exists(model_name, data_dir, download_dir, voices_info)
         model, model_config = find_voice(model_name, data_dir)
