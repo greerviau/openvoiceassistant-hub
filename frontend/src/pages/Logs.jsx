@@ -6,7 +6,7 @@ const Logs = () => {
   const [isScrolledToBottom, setIsScrolledToBottom] = useState(true);
 
   useEffect(() => {
-    const ws = new WebSocket(`ws://localhost:7123/ws/log`);
+    const ws = new WebSocket(`ws:127.0.0.1:7123/ws/log`);
 
     ws.onmessage = (event) => {
       setLogs([event.data]); // Append new log to existing logs
@@ -43,7 +43,7 @@ const Logs = () => {
 
   return (
     <div>
-        <h1>Logs:</h1>
+        <h1>Logs</h1>
         <div className="page-container">
             <div className="terminal" ref={terminalRef} onScroll={handleScroll}>
             {logs.map((log, index) => (
