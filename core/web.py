@@ -4,6 +4,7 @@ import os
 import fastapi
 import uuid
 import json
+import threading
 
 from pydantic import BaseModel
 
@@ -66,7 +67,7 @@ def create_app(ova: OpenVoiceAssistant, updater: Updater):
         try:
             updater.check_for_updates()
             if updater.update_available:
-                updater.update()
+                threading.Thread(target=updater.update, daemon=True).start()
                 return {"success": True}
             else:
                 raise fastapi.HTTPException(
