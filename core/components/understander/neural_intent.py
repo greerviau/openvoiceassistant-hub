@@ -102,12 +102,15 @@ class NeuralIntent:
         if self.network_size == "small":
             hidden_dim = 32
             n_layers = 1
-        if self.network_size == "medium":
+        elif self.network_size == "medium":
             hidden_dim = 64
             n_layers = 1
         else:
             hidden_dim = 64
             n_layers = 2
+
+        logger.info(f"Hidden dim size: {hidden_dim}")
+        logger.info(f"N layers: {n_layers}")
         
         retrain = algo_config["retrain"]
         if os.path.exists(vocab_file):
@@ -246,7 +249,7 @@ def train_classifier(X, Y, minimum_training_accuracy, batch_size, model, model_f
     
     trained = False
     while not trained:
-        num_epochs = 40
+        num_epochs = 20
         try:
             model.apply(weight_reset)
             optimizer = torch.optim.Adam(model.parameters(), lr=learning_rate)
@@ -254,7 +257,7 @@ def train_classifier(X, Y, minimum_training_accuracy, batch_size, model, model_f
             epoch = 0
             accuracy = 0
             while accuracy < minimum_training_accuracy:
-                if num_epochs > 200:
+                if num_epochs > 50:
                     raise RuntimeError("Failed to train Neural Intent model")
                     
                 while epoch <= num_epochs:
