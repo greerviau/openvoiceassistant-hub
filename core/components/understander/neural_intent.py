@@ -30,7 +30,7 @@ class IntentDataset(Dataset):
     
 class SmallIntentClassifier(nn.Module):
     def __init__(self, vocab_size, num_classes):
-        super(IntentClassifier, self).__init__()
+        super(SmallIntentClassifier, self).__init__()
         self.embedding = nn.Embedding(vocab_size, 100)
         self.lstm1 = nn.LSTM(100, 32, batch_first=True)
         self.fc = nn.Linear(32, num_classes)
@@ -47,7 +47,7 @@ class SmallIntentClassifier(nn.Module):
 
 class MediumIntentClassifier(nn.Module):
     def __init__(self, vocab_size, num_classes):
-        super(IntentClassifier, self).__init__()
+        super(MediumIntentClassifier, self).__init__()
         self.embedding = nn.Embedding(vocab_size, 100)
         self.lstm1 = nn.LSTM(100, 64, batch_first=True)
         self.fc = nn.Linear(64, num_classes)
@@ -64,7 +64,7 @@ class MediumIntentClassifier(nn.Module):
 
 class LargeIntentClassifier(nn.Module):
     def __init__(self, vocab_size, num_classes):
-        super(IntentClassifier, self).__init__()
+        super(LargeIntentClassifier, self).__init__()
         self.embedding = nn.Embedding(vocab_size, 100)
         self.lstm1 = nn.LSTM(100, 64, batch_first=True)
         self.lstm2 = nn.LSTM(64, 32, batch_first=True)
@@ -84,7 +84,7 @@ class LargeIntentClassifier(nn.Module):
 class NeuralIntent:
 
     def __init__(self, algo_config: typing.Dict, intents: typing.Dict, ova: "OpenVoiceAssistant"):
-        print("Loading Neural Intent Classifier")
+        logger.info("Loading Neural Intent Classifier")
         self.ova = ova
 
         minimum_training_accuracy = algo_config["minimum_training_accuracy"]
@@ -100,14 +100,14 @@ class NeuralIntent:
         config.set(Components.Transcriber.value, "config", "use_gpu", use_gpu)
 
         self.device = torch.device("cuda" if use_gpu else "cpu")
-        print(f"Using device: {self.device}")
+        logger.info(f"Using device: {self.device}")
 
         model_file = os.path.join(MODELDIR, "neural_intent_model.pt")
         vocab_file = os.path.join(MODELDIR, "neural_intent_vocab.p")
 
         x, y, self.max_length = load_training_data(intents)
         labels = list(set(y))
-        print(f"Intents : {labels}")
+        logger.info(f"Intents : {labels}")
  
         if os.path.exists(vocab_file):
             self.word_to_int, int_to_word, label_to_int, self.int_to_label, n_vocab, n_labels, loaded_labels, self.max_length = pickle.load(open(vocab_file, "rb"))
@@ -122,7 +122,7 @@ class NeuralIntent:
         
         retrain = algo_config["retrain"]
         if retrain or not os.path.exists(vocab_file) or not os.path.exists(model_file) or sorted(labels) != sorted(loaded_labels):
-            print("Retraining Neural Intent Model")
+            logger.info("Retraining Neural Intent Model")
 
             try: os.remove(model_file)
             except: pass
@@ -179,11 +179,11 @@ def load_training_data(intents: typing.Dict):
     compiled_data = np.array(compiled_data)
     x = compiled_data[:,0]
     y = compiled_data[:,1]
-    print("Max sequence length: ", max_length)
+    logger.info("Max sequence length: ", max_length)
     return x, y, max_length
 
 def build_vocab(X: np.array, y: np.array):
-    print("Building vocab")
+    logger.info("Building vocab")
 
     labels = list(set(y))
     label_to_int = dict((l, i) for i, l in enumerate(labels))
@@ -199,13 +199,13 @@ def build_vocab(X: np.array, y: np.array):
     n_vocab = len(word_to_int)
     n_labels = len(labels)
 
-    print(f"N vocab: {n_vocab}")
-    print(f"N labels: {n_labels}")
+    logger.info(f"N vocab: {n_vocab}")
+    logger.info(f"N labels: {n_labels}")
 
     return label_to_int, int_to_label, word_to_int, int_to_word, n_vocab, n_labels
 
 def preprocess_data(x, y, word_to_int, max_length, label_to_int):
-    print("Preprocessing data")
+    logger.info("Preprocessing data")
     data_x = []
     data_y = []
     for text, label in zip(x, y):
@@ -217,9 +217,9 @@ def preprocess_data(x, y, word_to_int, max_length, label_to_int):
     X = np.array(data_x)
     Y = np.array(data_y, dtype=np.int64)
 
-    print(f"N Samples: {len(X)}")
-    print(f"X shape: {X.shape}")
-    print(f"Y shape: {Y.shape}")
+    logger.info(f"N Samples: {len(X)}")
+    logger.info(f"X shape: {X.shape}")
+    logger.info(f"Y shape: {Y.shape}")
 
     return X, Y
     
@@ -233,7 +233,7 @@ def train_classifier(X, Y, minimum_training_accuracy, model, model_file, device)
     X_tensor = torch.tensor(X).to(device)
     Y_tensor = torch.tensor(Y).to(device)
 
-    print("Training classifier")
+    logger.info("Training classifier")
     # Training parameters
     batch_size = 16
     learning_rate = 0.001
@@ -247,11 +247,10 @@ def train_classifier(X, Y, minimum_training_accuracy, model, model_file, device)
     optimizer = torch.optim.Adam(model.parameters(), lr=learning_rate)
 
     trained = False
-    while not trained:
+    for not trained:
         num_epochs = 40
         try:
             model.apply(weight_reset)
-
             # Iterate over the training data for the specified number of epochs
             epoch = 0
             accuracy = 0
@@ -282,7 +281,7 @@ def train_classifier(X, Y, minimum_training_accuracy, model, model_file, device)
                     avg_loss = total_loss / total_samples
                     accuracy = 100 * correct / total_samples
 
-                    print(f"Epoch {epoch}/{num_epochs} | Train Loss: {avg_loss:.4f} | Accuracy: {accuracy:.2f}%")
+                    logger.info(f"Epoch {epoch}/{num_epochs} | Train Loss: {avg_loss:.4f} | Accuracy: {accuracy:.2f}%")
                 
                 if num_epochs >= 200:
                     raise RuntimeError("Failed to train Neural Intent model")
@@ -291,7 +290,7 @@ def train_classifier(X, Y, minimum_training_accuracy, model, model_file, device)
             torch.save(model.state_dict(), model_file)
             trained = True
         except RuntimeError:
-            print("Failed to train neural intent model, retrying...")
+            logger.error("Failed to train neural intent model, retrying...")
         
 def build_engine(algo_config: typing.Dict, intents: typing.Dict, ova: "OpenVoiceAssistant") -> NeuralIntent:
     return NeuralIntent(algo_config, intents, ova)
