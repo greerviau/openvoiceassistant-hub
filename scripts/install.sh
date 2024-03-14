@@ -4,6 +4,9 @@ apt-get update && \
 add-apt-repository -y ppa:deadsnakes/ppa && \
 apt-get install -y python3.11 python3-pip python3.11-dev python3.11-venv wget git bash systemd ffmpeg espeak libespeak-dev npm
 
+sudo chgrp -R $(id -gn) ..
+sudo chmod -R g+rw ..
+
 CWD=$(pwd)
 echo $CWD
 
@@ -44,3 +47,5 @@ EOF
 
 systemctl enable ova_hub.service
 systemctl restart ova_hub.service
+
+echo "Installation completed successfully."
