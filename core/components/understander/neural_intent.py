@@ -87,15 +87,15 @@ class NeuralIntent:
         logger.info("Loading Neural Intent Classifier")
         self.ova = ova
 
-        minimum_training_accuracy = algo_config["minimum_training_accuracy"]
-        if minimum_training_accuracy > 100:
-            minimum_training_accuracy = 100
-            config.set(Components.Understander.value, "config", "minimum_training_accuracy", minimum_training_accuracy)
-        elif minimum_training_accuracy < 0:
-            minimum_training_accuracy = 0
-            config.set(Components.Understander.value, "config", "minimum_training_accuracy", minimum_training_accuracy)
+        self.minimum_training_accuracy = algo_config["minimum_training_accuracy"]
+        if self.minimum_training_accuracy > 100:
+            self.minimum_training_accuracy = 100
+            config.set(Components.Understander.value, "config", "minimum_training_accuracy", self.minimum_training_accuracy)
+        elif self.minimum_training_accuracy < 0:
+            self.minimum_training_accuracy = 0
+            config.set(Components.Understander.value, "config", "minimum_training_accuracy", self.minimum_training_accuracy)
 
-        logger.info(f"Minimum training accuracy: {minimum_training_accuracy}")
+        logger.info(f"Minimum training accuracy: {self.minimum_training_accuracy}")
 
         use_gpu = algo_config["use_gpu"]
         use_gpu = torch.cuda.is_available() and use_gpu
@@ -110,21 +110,12 @@ class NeuralIntent:
         x, y, self.max_length = load_training_data(intents)
         labels = list(set(y))
         logger.info(f"Intents : {labels}")
- 
-        if os.path.exists(vocab_file):
-            self.word_to_int, int_to_word, label_to_int, self.int_to_label, n_vocab, n_labels, loaded_labels, self.max_length = pickle.load(open(vocab_file, "rb"))
 
-        network_size = algo_config["network_size"]
-        if network_size == "small":
-            self.intent_model = SmallIntentClassifier(n_vocab, n_labels).to(self.device)
-        if network_size == "medium":
-            self.intent_model = MediumIntentClassifier(n_vocab, n_labels).to(self.device)
-        else:
-            self.intent_model = LargeIntentClassifier(n_vocab, n_labels).to(self.device)
+        self.network_size = algo_config["network_size"]
         
         retrain = algo_config["retrain"]
         if retrain or not os.path.exists(vocab_file) or not os.path.exists(model_file) or sorted(labels) != sorted(loaded_labels):
-            logger.info("Retraining Neural Intent Model")
+            logger.info("Training Neural Intent Model")
 
             try: os.remove(model_file)
             except: pass
@@ -134,10 +125,22 @@ class NeuralIntent:
             label_to_int, self.int_to_label, self.word_to_int, int_to_word, n_vocab, n_labels = build_vocab(x, y)
             pickle.dump([self.word_to_int, int_to_word, label_to_int, self.int_to_label, n_vocab, n_labels, labels, self.max_length], open(vocab_file, "wb"))
             X, Y = preprocess_data(x, y, self.word_to_int, self.max_length, label_to_int)
-            train_classifier(X, Y, minimum_training_accuracy, self.intent_model, model_file, self.device)
+            model = self.select_model()(n_vocab, n_labels).to(self.device)
+            train_classifier(X, Y, self.minimum_training_accuracy, model, model_file, self.device)
             config.set(Components.Understander.value, "config", "retrain", False)
-            
+        else:
+            self.word_to_int, int_to_word, label_to_int, self.int_to_label, n_vocab, n_labels, loaded_labels, self.max_length = pickle.load(open(vocab_file, "rb"))
+            model = self.select_model()(n_vocab, n_labels).to(self.device)
+
         self.intent_model.eval()
+
+    def select_model(self):
+        if self.network_size == "small":
+            return SmallIntentClassifier
+        if self.network_size == "medium":
+            return MediumIntentClassifier
+        else:
+            return LargeIntentClassifier
 
     def predict_intent(self, text: str) -> typing.Tuple[str, str, float]:
         encoded = encode_word_vec(text, self.word_to_int)
