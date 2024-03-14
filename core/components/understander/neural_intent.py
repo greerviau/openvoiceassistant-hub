@@ -30,7 +30,7 @@ class IntentDataset(Dataset):
         
 class IntentClassifier(nn.Module):
     def __init__(self, dropout, hidden_dim, n_layers, vocab_size, num_classes):
-        super(LargeIntentClassifier, self).__init__()
+        super(IntentClassifier, self).__init__()
         self.hidden_dim = hidden_dim
         self.embedding = nn.Embedding(vocab_size, 100)
         self.lstm1 = nn.LSTM(100, hidden_dim, n_layers, batch_first=True, bidirectional=True)
