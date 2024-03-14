@@ -260,13 +260,13 @@ def train_classifier(X, Y, minimum_training_accuracy, model, model_file, device)
 
     # Define the loss function and optimizer
     criterion = nn.CrossEntropyLoss()
-    optimizer = torch.optim.Adam(model.parameters(), lr=learning_rate)
 
     trained = False
     while not trained:
         num_epochs = 40
         try:
             model.apply(weight_reset)
+            optimizer = torch.optim.Adam(model.parameters(), lr=learning_rate)
             # Iterate over the training data for the specified number of epochs
             epoch = 0
             accuracy = 0
