@@ -257,6 +257,9 @@ def train_classifier(X, Y, minimum_training_accuracy, model, model_file, device)
             epoch = 0
             accuracy = 0
             while accuracy < minimum_training_accuracy:
+                if num_epochs >= 200:
+                    raise RuntimeError("Failed to train Neural Intent model")
+                    
                 while epoch <= num_epochs:
                     epoch += 1
                     model.train()
@@ -285,8 +288,6 @@ def train_classifier(X, Y, minimum_training_accuracy, model, model_file, device)
 
                     logger.info(f"Epoch {epoch}/{num_epochs} | Train Loss: {avg_loss:.4f} | Accuracy: {accuracy:.2f}%")
                 
-                if num_epochs >= 200:
-                    raise RuntimeError("Failed to train Neural Intent model")
                 num_epochs += 20
 
             torch.save(model.state_dict(), model_file)
