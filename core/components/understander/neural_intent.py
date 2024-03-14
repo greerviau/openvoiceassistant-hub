@@ -43,7 +43,7 @@ class SmallIntentClassifier(nn.Module):
         out = out[:, -1, :]
         out = self.drop(out)
         out = self.fc(out)
-        return torch.nn.functional.softmax(out, dim=1)
+        return out
 
 class MediumIntentClassifier(nn.Module):
     def __init__(self, dropout, vocab_size, num_classes):
@@ -60,7 +60,7 @@ class MediumIntentClassifier(nn.Module):
         out = out[:, -1, :]
         out = self.drop(out)
         out = self.fc(out)
-        return torch.nn.functional.softmax(out, dim=1)
+        return out
 
 class LargeIntentClassifier(nn.Module):
     def __init__(self, dropout, vocab_size, num_classes):
@@ -79,7 +79,7 @@ class LargeIntentClassifier(nn.Module):
         out = out[:, -1, :]
         out = self.drop(out)
         out = self.fc(out)
-        return torch.nn.functional.softmax(out, dim=1)
+        return out
 
 class NeuralIntent:
 
