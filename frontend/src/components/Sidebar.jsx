@@ -8,6 +8,7 @@ const Sidebar = ({ children }) => {
     const [isOpen, setIsOpen] = useState(false);
     const toggle = () => setIsOpen(!isOpen);
     const [successNotification, setSuccessNotification] = useState(null);
+    const [infoNotification, setInfoNotification] = useState(null);
     const [errorNotification, setErrorNotification] = useState(null);
     const [version, setVersion] = useState('');
 
@@ -113,6 +114,9 @@ const Sidebar = ({ children }) => {
             <div className="notification-container">
                 {errorNotification && (
                     <div className="notification error-notification">{errorNotification}</div>
+                )}
+                {infoNotification && (
+                  <div className="notification info-notification">{infoNotification}</div>
                 )}
                 {successNotification && (
                     <div className="notification success-notification">{successNotification}</div>
