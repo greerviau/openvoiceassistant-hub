@@ -59,17 +59,17 @@ class WhatToWear:
             elif morning_temp - afternoon_temp > 8: # ~15F cooloff
                 afternoon_cooloff = True
                 if morning_temp >= 10 and morning_temp <= 24:   # 50F - ~75F
-                    response += f" This afternoon it"s going to cool off, so maybe bring a coat aswell."
+                    response += f" This afternoon it's going to cool off, so maybe bring a coat aswell."
                 elif morning_temp > 24:
-                    response += f" It"s going to get a little chilly this afternoon, so maybe grab a sweater."
+                    response += f" It's going to get a little chilly this afternoon, so maybe grab a sweater."
                 else:
-                    response += f" It"s going to get even colder this afternoon."
+                    response += f" It's going to get even colder this afternoon."
             elif afternoon_temp - morning_temp > 8: # ~15F warmup
                 afternoon_warmup = True
                 if morning_temp >= 10 and morning_temp <= 24:   # 50F - ~75F
-                    response += f" This afternoon it"s going to get warmer."
+                    response += f" This afternoon it's going to get warmer."
                 elif morning_temp > 24:
-                    response += f" This afternoon it"s going to get even warmer."
+                    response += f" This afternoon it's going to get even warmer."
                 elif morning_temp < 10 and morning_temp > 5:
                     response += f" But this afternoon its going to warm up."
         if evening:
@@ -82,17 +82,17 @@ class WhatToWear:
             elif afternoon_temp - evening_temp > 8: # ~15F cooloff
                 if not afternoon_cooloff:
                     if afternoon_temp >= 10 and afternoon_temp <= 24:   # 50F - ~75F
-                        response += f" Tonight it"s going to cool off, so maybe bring a coat aswell."
+                        response += f" Tonight it's going to cool off, so maybe bring a coat aswell."
                     elif afternoon_temp > 24:
-                        response += f" Tonight it"s going to get a little chilly, so maybe grab a sweater."
+                        response += f" Tonight it's going to get a little chilly, so maybe grab a sweater."
                     else:
-                        response += f" It"s going to get even colder tonight."
+                        response += f" It's going to get even colder tonight."
             elif evening_temp - afternoon_temp > 8: # ~15F warmup
                 if not afternoon_warmup:
                     if afternoon_temp >= 10 and afternoon_temp <= 24:   # 50F - ~75F
-                        response += f" This evening it"s going to get warmer."
+                        response += f" This evening it's going to get warmer."
                     elif afternoon_temp > 24:
-                        response += f" This evening it"s going to get even warmer."
+                        response += f" This evening it's going to get even warmer."
                     elif afternoon_temp < 10 and afternoon_temp > 5:
                         response += f" But this evening its going to warm up."
         
