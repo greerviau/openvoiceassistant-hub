@@ -32,35 +32,35 @@ class SmallIntentClassifier(nn.Module):
     def __init__(self, dropout, vocab_size, num_classes):
         super(SmallIntentClassifier, self).__init__()
         self.embedding = nn.Embedding(vocab_size, 100)
-        self.lstm1 = nn.LSTM(100, 32, batch_first=True)
+        self.lstm = nn.LSTM(100, 32, batch_first=True)
         self.fc = nn.Linear(32, num_classes)
         self.drop = nn.Dropout(p=dropout)
         
     def forward(self, x):
         x = x.long()
         embed = self.embedding(x)
-        out, _ = self.lstm1(embed)
+        out, _ = self.lstm(embed)
         out = out[:, -1, :]
         out = self.drop(out)
         out = self.fc(out)
-        return torch.nn.functional.softmax(out, dim=1)
+        return out
 
 class MediumIntentClassifier(nn.Module):
     def __init__(self, dropout, vocab_size, num_classes):
         super(MediumIntentClassifier, self).__init__()
         self.embedding = nn.Embedding(vocab_size, 100)
-        self.lstm1 = nn.LSTM(100, 64, batch_first=True)
+        self.lstm = nn.LSTM(100, 64, batch_first=True)
         self.fc = nn.Linear(64, num_classes)
         self.drop = nn.Dropout(p=dropout)
         
     def forward(self, x):
         x = x.long()
         embed = self.embedding(x)
-        out, _ = self.lstm1(embed)
+        out, _ = self.lstm(embed)
         out = out[:, -1, :]
         out = self.drop(out)
         out = self.fc(out)
-        return torch.nn.functional.softmax(out, dim=1)
+        return out
 
 class LargeIntentClassifier(nn.Module):
     def __init__(self, dropout, vocab_size, num_classes):
@@ -79,7 +79,7 @@ class LargeIntentClassifier(nn.Module):
         out = out[:, -1, :]
         out = self.drop(out)
         out = self.fc(out)
-        return torch.nn.functional.softmax(out, dim=1)
+        return out
 
 class NeuralIntent:
 
@@ -261,7 +261,7 @@ def train_classifier(X, Y, minimum_training_accuracy, batch_size, model, model_f
     Y_tensor = torch.tensor(Y).to(device)
 
     logger.info("Training classifier")
-    
+
     # Training parameters
     learning_rate = 0.001
 
@@ -273,13 +273,13 @@ def train_classifier(X, Y, minimum_training_accuracy, batch_size, model, model_f
 
     # Define the loss function and optimizer
     criterion = nn.CrossEntropyLoss()
-    optimizer = torch.optim.Adam(model.parameters(), lr=learning_rate)
-
+    
     trained = False
     while not trained:
         num_epochs = 40
         try:
-            #model.apply(weight_reset)
+            model.apply(weight_reset)
+            optimizer = torch.optim.Adam(model.parameters(), lr=learning_rate)
             # Iterate over the training data for the specified number of epochs
             epoch = 0
             accuracy = 0
