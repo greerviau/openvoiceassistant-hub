@@ -18,8 +18,9 @@ from core.utils.nlp.false_positives import FALSE_POSITIVES, add_false_positive
 class Understander:
     def __init__(self, ova: "OpenVoiceAssistant"):
         self.ova = ova
-        self.conf_thresh = config.get(Components.Understander.value, "conf_thresh")
-        augment_data_percent = config.get(Components.Understander.value, "augment_intent_data_percent")
+        understander_config = config.get(Components.Understander.value)
+        self.conf_thresh = understander_config["conf_thresh"]
+        augment_data_percent = understander_config["augment_intent_data_percent"]
         if augment_data_percent > 100:
             augment_data_percent = 100
             config.set(Components.Understander.value, "augment_intent_data_percent", augment_data_percent)
@@ -47,14 +48,16 @@ class Understander:
         
         self.engage_delay = config.get("engage_delay")
     
-        self.algo = config.get(Components.Understander.value, "algorithm").lower().replace(" ", "_")
+        self.algo = understander_config["algorithm"].lower().replace(" ", "_")
         self.module = importlib.import_module(f"core.components.understander.{self.algo}")
 
-        self.verify_config()
+        self.verify_algo_config()
 
-        self.engine = self.module.build_engine(ova, augmented_intents)
+        algo_config = config.get(Components.Understander.value, "config")
 
-    def verify_config(self):
+        self.engine = self.module.build_engine(algo_config, augmented_intents, ova)
+
+    def verify_algo_config(self):
         current_config = config.get(Components.Understander.value, "config")
         default_config = self.module.default_config()
         try:

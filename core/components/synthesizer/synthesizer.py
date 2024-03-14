@@ -18,11 +18,13 @@ class Synthesizer:
         self.algo = config.get(Components.Synthesizer.value, "algorithm").lower().replace(" ", "_")
         self.module = importlib.import_module(f"core.components.synthesizer.{self.algo}")
 
-        self.verify_config()
+        self.verify_algo_config()
 
-        self.engine = self.module.build_engine(ova)
+        algo_config = config.get(Components.Synthesizer.value, "config")
 
-    def verify_config(self):
+        self.engine = self.module.build_engine(algo_config, ova)
+
+    def verify_algo_config(self):
         current_config = config.get(Components.Synthesizer.value, "config")
         default_config = self.module.default_config()
         try:

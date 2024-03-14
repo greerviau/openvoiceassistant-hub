@@ -28,13 +28,47 @@ class IntentDataset(Dataset):
     def __getitem__(self, idx):
         return self.x[idx], self.y[idx]   
     
-class IntentClassifier(nn.Module):
-    def __init__(self, vocab_size, embedding_dim, hidden_dim_1, hidden_dim_2, num_classes):
+class SmallIntentClassifier(nn.Module):
+    def __init__(self, vocab_size, num_classes):
         super(IntentClassifier, self).__init__()
-        self.embedding = nn.Embedding(vocab_size, embedding_dim)
-        self.lstm1 = nn.LSTM(embedding_dim, hidden_dim_1, batch_first=True)
-        self.lstm2 = nn.LSTM(hidden_dim_1, hidden_dim_2, batch_first=True)
-        self.fc = nn.Linear(hidden_dim_2, num_classes)
+        self.embedding = nn.Embedding(vocab_size, 100)
+        self.lstm1 = nn.LSTM(100, 32, batch_first=True)
+        self.fc = nn.Linear(32, num_classes)
+        self.drop = nn.Dropout(p=0.5)
+        
+    def forward(self, x):
+        x = x.long()
+        embed = self.embedding(x)
+        out, _ = self.lstm1(embed)
+        out = out[:, -1, :]
+        out = self.drop(out)
+        out = self.fc(out)
+        return torch.nn.functional.softmax(out, dim=1)
+
+class MediumIntentClassifier(nn.Module):
+    def __init__(self, vocab_size, num_classes):
+        super(IntentClassifier, self).__init__()
+        self.embedding = nn.Embedding(vocab_size, 100)
+        self.lstm1 = nn.LSTM(100, 64, batch_first=True)
+        self.fc = nn.Linear(64, num_classes)
+        self.drop = nn.Dropout(p=0.5)
+        
+    def forward(self, x):
+        x = x.long()
+        embed = self.embedding(x)
+        out, _ = self.lstm1(embed)
+        out = out[:, -1, :]
+        out = self.drop(out)
+        out = self.fc(out)
+        return torch.nn.functional.softmax(out, dim=1)
+
+class LargeIntentClassifier(nn.Module):
+    def __init__(self, vocab_size, num_classes):
+        super(IntentClassifier, self).__init__()
+        self.embedding = nn.Embedding(vocab_size, 100)
+        self.lstm1 = nn.LSTM(100, 64, batch_first=True)
+        self.lstm2 = nn.LSTM(64, 32, batch_first=True)
+        self.fc = nn.Linear(32, num_classes)
         self.drop = nn.Dropout(p=0.5)
         
     def forward(self, x):
@@ -49,21 +83,24 @@ class IntentClassifier(nn.Module):
 
 class NeuralIntent:
 
-    def __init__(self, ova: "OpenVoiceAssistant", intents: typing.Dict):
+    def __init__(self, algo_config: typing.Dict, intents: typing.Dict, ova: "OpenVoiceAssistant"):
         print("Loading Neural Intent Classifier")
         self.ova = ova
 
-        retrain = config.get(Components.Understander.value, "config", "retrain")
-        use_gpu = config.get(Components.Transcriber.value, "config", "use_gpu")
+        minimum_training_accuracy = algo_config["minimum_training_accuracy"]
+        if minimum_training_accuracy > 100:
+            minimum_training_accuracy = 100
+            config.set(Components.Understander.value, "config", "minimum_training_accuracy", minimum_training_accuracy)
+        elif minimum_training_accuracy < 0:
+            minimum_training_accuracy = 0
+            config.set(Components.Understander.value, "config", "minimum_training_accuracy", minimum_training_accuracy)
+
+        use_gpu = algo_config["use_gpu"]
         use_gpu = torch.cuda.is_available() and use_gpu
         config.set(Components.Transcriber.value, "config", "use_gpu", use_gpu)
 
         self.device = torch.device("cuda" if use_gpu else "cpu")
         print(f"Using device: {self.device}")
-
-        embedding_dim = 100
-        hidden_dim_1 = 64
-        hidden_dim_2 = 32
 
         model_file = os.path.join(MODELDIR, "neural_intent_model.pt")
         vocab_file = os.path.join(MODELDIR, "neural_intent_vocab.p")
@@ -75,6 +112,15 @@ class NeuralIntent:
         if os.path.exists(vocab_file):
             self.word_to_int, int_to_word, label_to_int, self.int_to_label, n_vocab, n_labels, loaded_labels, self.max_length = pickle.load(open(vocab_file, "rb"))
 
+        network_size = algo_config["network_size"]
+        if network_size == "small":
+            self.intent_model = SmallIntentClassifier(n_vocab, n_labels).to(self.device)
+        if network_size == "medium":
+            self.intent_model = MediumIntentClassifier(n_vocab, n_labels).to(self.device)
+        else:
+            self.intent_model = LargeIntentClassifier(n_vocab, n_labels).to(self.device)
+        
+        retrain = algo_config["retrain"]
         if retrain or not os.path.exists(vocab_file) or not os.path.exists(model_file) or sorted(labels) != sorted(loaded_labels):
             print("Retraining Neural Intent Model")
 
@@ -86,11 +132,9 @@ class NeuralIntent:
             label_to_int, self.int_to_label, self.word_to_int, int_to_word, n_vocab, n_labels = build_vocab(x, y)
             pickle.dump([self.word_to_int, int_to_word, label_to_int, self.int_to_label, n_vocab, n_labels, labels, self.max_length], open(vocab_file, "wb"))
             X, Y = preprocess_data(x, y, self.word_to_int, self.max_length, label_to_int)
-            train_classifier(X, Y, n_vocab, embedding_dim, hidden_dim_1, hidden_dim_2, n_labels, model_file, self.device)
+            train_classifier(X, Y, minimum_training_accuracy, self.intent_model, model_file, self.device)
             config.set(Components.Understander.value, "config", "retrain", False)
             
-        self.intent_model = IntentClassifier(n_vocab, embedding_dim, hidden_dim_1, hidden_dim_2, n_labels).to(self.device)
-        self.intent_model.load_state_dict(torch.load(model_file, map_location=self.device))
         self.intent_model.eval()
 
     def predict_intent(self, text: str) -> typing.Tuple[str, str, float]:
@@ -179,7 +223,7 @@ def preprocess_data(x, y, word_to_int, max_length, label_to_int):
 
     return X, Y
     
-def train_classifier(X, Y, n_vocab, embedding_dim, hidden_dim_1, hidden_dim_2, n_labels, model_file, device):
+def train_classifier(X, Y, minimum_training_accuracy, model, model_file, device):
 
     def weight_reset(m):
         if isinstance(m, nn.LSTM) or isinstance(m, nn.Linear):
@@ -198,7 +242,6 @@ def train_classifier(X, Y, n_vocab, embedding_dim, hidden_dim_1, hidden_dim_2, n
     train_dataset = IntentDataset(X_tensor, Y_tensor)
     train_loader = DataLoader(train_dataset, batch_size=batch_size, shuffle=True)
 
-    model = IntentClassifier(n_vocab, embedding_dim, hidden_dim_1, hidden_dim_2, n_labels).to(device)
     # Define the loss function and optimizer
     criterion = nn.CrossEntropyLoss()
     optimizer = torch.optim.Adam(model.parameters(), lr=learning_rate)
@@ -212,7 +255,7 @@ def train_classifier(X, Y, n_vocab, embedding_dim, hidden_dim_1, hidden_dim_2, n
             # Iterate over the training data for the specified number of epochs
             epoch = 0
             accuracy = 0
-            while accuracy < 95:
+            while accuracy < minimum_training_accuracy:
                 while epoch <= num_epochs:
                     epoch += 1
                     model.train()
@@ -250,12 +293,19 @@ def train_classifier(X, Y, n_vocab, embedding_dim, hidden_dim_1, hidden_dim_2, n
         except RuntimeError:
             print("Failed to train neural intent model, retrying...")
         
-def build_engine(ova: "OpenVoiceAssistant", intents: typing.Dict) -> NeuralIntent:
-    return NeuralIntent(ova, intents)
+def build_engine(algo_config: typing.Dict, intents: typing.Dict, ova: "OpenVoiceAssistant") -> NeuralIntent:
+    return NeuralIntent(algo_config, intents, ova)
 
 def default_config() -> typing.Dict:
     return {
         "id": "neural_intent",
         "use_gpu": False,
-        "retrain": False
+        "retrain": False,
+        "minimum_training_accuracy": 80,
+        "network_size": "small",
+        "network_size_options": [
+            "small",
+            "medium",
+            "large"
+        ]
     }

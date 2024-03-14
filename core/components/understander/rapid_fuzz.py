@@ -10,12 +10,12 @@ from core import config
 
 class Rapidfuzz:
 
-    def __init__(self, ova: "OpenVoiceAssistant", intents: typing.Dict):
+    def __init__(self, algo_config: typing.Dict, intents: typing.Dict, ova: "OpenVoiceAssistant"):
         logger.info("Loading Rapid Fuzz Classifier")
         self.ova = ova
         self.intents = intents
-        self.ratio = config.get(Components.Understander.value, "config", "ratio")
-        self.ratio_options = config.get(Components.Understander.value, "config", "ratio_options")
+        self.ratio = algo_config["ratio"]
+        self.ratio_options = algo_config["ratio_options"]
         assert self.ratio in self.ratio_options
 
     def understand(self, context: Context):
@@ -34,8 +34,8 @@ class Rapidfuzz:
     
         return skill, action, conf
 
-def build_engine(ova: "OpenVoiceAssistant", intents: typing.Dict) -> Rapidfuzz:
-    return Rapidfuzz(ova, intents)
+def build_engine(algo_config: typing.Dict, intents: typing.Dict, ova: "OpenVoiceAssistant") -> Rapidfuzz:
+    return Rapidfuzz(algo_config, intents, ova)
 
 def default_config() -> typing.Dict:
     return {

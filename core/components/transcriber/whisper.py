@@ -1,4 +1,5 @@
 import torch
+import typing
 import logging
 logger = logging.getLogger("components.understander.whisper")
 
@@ -9,11 +10,11 @@ from core.enums import Components
 from core import config
 
 class Whisper:
-    def __init__(self, ova: "OpenVoiceAssistant"):
+    def __init__(self, algo_config: typing.Dict, ova: "OpenVoiceAssistant"):
         logger.info("Loading Whisper Transcriber")
         self.ova = ova
-        model_size = config.get(Components.Transcriber.value, "config", "model_size")
-        use_gpu = config.get(Components.Transcriber.value, "config", "use_gpu")
+        model_size = algo_config["model_size"]
+        use_gpu = algo_config["use_gpu"]
         use_gpu = torch.cuda.is_available() and use_gpu
         config.set(Components.Transcriber.value, "config", "use_gpu", use_gpu)
 
@@ -28,8 +29,8 @@ class Whisper:
         segments = list(segments)
         return " ".join([segment.text for segment in segments])
 
-def build_engine(ova: "OpenVoiceAssistant"):
-    return Whisper(ova)
+def build_engine(algo_config: typing.Dict, ova: "OpenVoiceAssistant"):
+    return Whisper(algo_config, ova)
 
 def default_config():
     return {

@@ -16,11 +16,13 @@ class Transcriber:
         self.algo = config.get(Components.Transcriber.value, "algorithm").lower().replace(" ", "_")
         self.module = importlib.import_module(f"core.components.transcriber.{self.algo}")
 
-        self.verify_config()
+        self.verify_algo_config()
 
-        self.engine = self.module.build_engine(ova)
+        algo_config = config.get(Components.Transcriber.value, "config")
 
-    def verify_config(self):
+        self.engine = self.module.build_engine(algo_config, ova)
+
+    def verify_algo_config(self):
         current_config = config.get(Components.Transcriber.value, "config")
         default_config = self.module.default_config()
         try:

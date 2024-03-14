@@ -1,5 +1,6 @@
 import json
 import wave
+import typing
 import logging
 logger = logging.getLogger("components.transcriber.kaldi")
 
@@ -12,10 +13,10 @@ from core import config
 SetLogLevel(-1)
 
 class Kaldi:
-    def __init__(self, ova: "OpenVoiceAssistant"):
+    def __init__(self, algo_config: typing.Dict, ova: "OpenVoiceAssistant"):
         logger.info("Loading Kaldi Transcriber")
         self.ova = ova
-        model_lang = config.get(Components.Transcriber.value, "config", "model_lang")
+        model_lang = algo_config["model_lang"]
         self.vosk_model = Model(lang=model_lang)
 
     def transcribe(self, context: Context):
@@ -40,8 +41,8 @@ class Kaldi:
 
         return command
 
-def build_engine(ova: "OpenVoiceAssistant"):
-    return Kaldi(ova)
+def build_engine(algo_config: typing.Dict, ova: "OpenVoiceAssistant"):
+    return Kaldi(algo_config, ova)
 
 def default_config():
     return {
