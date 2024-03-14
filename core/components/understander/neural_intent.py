@@ -27,59 +27,24 @@ class IntentDataset(Dataset):
     
     def __getitem__(self, idx):
         return self.x[idx], self.y[idx]   
-    
-class SmallIntentClassifier(nn.Module):
-    def __init__(self, dropout, vocab_size, num_classes):
-        super(SmallIntentClassifier, self).__init__()
-        self.embedding = nn.Embedding(vocab_size, 100)
-        self.lstm = nn.LSTM(100, 32, batch_first=True)
-        self.fc = nn.Linear(32, num_classes)
-        self.drop = nn.Dropout(p=dropout)
         
-    def forward(self, x):
-        x = x.long()
-        embed = self.embedding(x)
-        out, _ = self.lstm(embed)
-        out = out[:, -1, :]
-        out = self.drop(out)
-        out = self.fc(out)
-        return out
-
-class MediumIntentClassifier(nn.Module):
-    def __init__(self, dropout, vocab_size, num_classes):
-        super(MediumIntentClassifier, self).__init__()
-        self.embedding = nn.Embedding(vocab_size, 100)
-        self.lstm = nn.LSTM(100, 64, batch_first=True)
-        self.fc = nn.Linear(64, num_classes)
-        self.drop = nn.Dropout(p=dropout)
-        
-    def forward(self, x):
-        x = x.long()
-        embed = self.embedding(x)
-        out, _ = self.lstm(embed)
-        out = out[:, -1, :]
-        out = self.drop(out)
-        out = self.fc(out)
-        return out
-
-class LargeIntentClassifier(nn.Module):
-    def __init__(self, dropout, vocab_size, num_classes):
+class IntentClassifier(nn.Module):
+    def __init__(self, dropout, hidden_dim, n_layers, vocab_size, num_classes):
         super(LargeIntentClassifier, self).__init__()
+        self.hidden_dim = hidden_dim
         self.embedding = nn.Embedding(vocab_size, 100)
-        self.lstm1 = nn.LSTM(100, 64, batch_first=True)
-        self.lstm2 = nn.LSTM(64, 32, batch_first=True)
-        self.fc = nn.Linear(32, num_classes)
+        self.lstm1 = nn.LSTM(100, hidden_dim, n_layers, batch_first=True, bidirectional=True)
+        self.fc = nn.Linear(hidden_dim*2, num_classes)
         self.drop = nn.Dropout(p=dropout)
         
     def forward(self, x):
         x = x.long()
         embed = self.embedding(x)
-        out, _ = self.lstm1(embed)
-        out, _ = self.lstm2(out)
-        out = out[:, -1, :]
+        out, _ = self.lstm(embed)
+        out = torch.cat((out[:, -1, :self.hidden_dim], out[:, 0, self.hidden_dim:]), dim=1)
         out = self.drop(out)
         out = self.fc(out)
-        return out
+        return torch.nn.functional.softmax(out, dim=1)
 
 class NeuralIntent:
 
@@ -133,6 +98,16 @@ class NeuralIntent:
 
         self.network_size = algo_config["network_size"]
         logger.info(f"Using {self.network_size} network")
+
+        if self.network_size == "small":
+            hidden_dim = 32
+            n_layers = 1
+        if self.network_size == "medium":
+            hidden_dim = 64
+            n_layers = 1
+        else:
+            hidden_dim = 64
+            n_layers = 2
         
         retrain = algo_config["retrain"]
         if os.path.exists(vocab_file):
@@ -150,21 +125,13 @@ class NeuralIntent:
             pickle.dump([self.word_to_int, int_to_word, label_to_int, self.int_to_label, n_vocab, n_labels, labels, self.max_length], open(vocab_file, "wb"))
             X, Y = preprocess_data(x, y, self.word_to_int, self.max_length, label_to_int)
 
-            self.intent_model = self.select_model()(dropout, n_vocab, n_labels).to(self.device)
+            self.intent_model = IntentClassifier(dropout, hidden_dum, n_layers, n_vocab, n_labels).to(self.device)
             train_classifier(X, Y, minimum_training_accuracy, batch_size, self.intent_model, model_file, self.device)
             config.set(Components.Understander.value, "config", "retrain", False)
         else:
-            self.intent_model = self.select_model()(dropout, n_vocab, n_labels).to(self.device)
+            self.intent_model = IntentClassifier(dropout, hidden_dum, n_layers, n_vocab, n_labels).to(self.device)
 
         self.intent_model.eval()
-
-    def select_model(self):
-        if self.network_size == "small":
-            return SmallIntentClassifier
-        if self.network_size == "medium":
-            return MediumIntentClassifier
-        else:
-            return LargeIntentClassifier
 
     def predict_intent(self, text: str) -> typing.Tuple[str, str, float]:
         encoded = encode_word_vec(text, self.word_to_int)
