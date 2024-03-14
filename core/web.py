@@ -44,12 +44,12 @@ async def log_reader(n=5):
     log_lines = []
     with open(LOGFILE, "r") as file:
         for line in file.readlines()[-n:]:
-            if line.__contains__("ERROR"):
-                log_lines.append(f'<span class="text-red-400">{line}</span><br/>')
-            elif line.__contains__("WARNING"):
-                log_lines.append(f'<span class="text-orange-300">{line}</span><br/>')
+            if "ERROR" in line:
+                log_lines.append(f'<pre><span class="text-red-400">{line}</span></pre>')
+            elif "WARNING" in line:
+                log_lines.append(f'<pre><span class="text-orange-300">{line}</span></pre>')
             else:
-                log_lines.append(f"{line}<br/>")
+                log_lines.append(f'<pre>{line}</pre>')
         return log_lines
 
 def create_app(ova: OpenVoiceAssistant, updater: Updater):
