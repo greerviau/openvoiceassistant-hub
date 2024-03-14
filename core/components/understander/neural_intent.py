@@ -115,7 +115,7 @@ class NeuralIntent:
         
         retrain = algo_config["retrain"]
         if retrain or not os.path.exists(vocab_file) or not os.path.exists(model_file) or sorted(labels) != sorted(loaded_labels):
-            logger.info("Training Neural Intent Model")
+            logger.info("Retraining Neural Intent Model")
 
             try: os.remove(model_file)
             except: pass
@@ -125,12 +125,13 @@ class NeuralIntent:
             label_to_int, self.int_to_label, self.word_to_int, int_to_word, n_vocab, n_labels = build_vocab(x, y)
             pickle.dump([self.word_to_int, int_to_word, label_to_int, self.int_to_label, n_vocab, n_labels, labels, self.max_length], open(vocab_file, "wb"))
             X, Y = preprocess_data(x, y, self.word_to_int, self.max_length, label_to_int)
-            model = self.select_model()(n_vocab, n_labels).to(self.device)
-            train_classifier(X, Y, self.minimum_training_accuracy, model, model_file, self.device)
+
+            self.intent_model = self.select_model()(n_vocab, n_labels).to(self.device)
+            train_classifier(X, Y, self.minimum_training_accuracy, self.intent_model, model_file, self.device)
             config.set(Components.Understander.value, "config", "retrain", False)
         else:
             self.word_to_int, int_to_word, label_to_int, self.int_to_label, n_vocab, n_labels, loaded_labels, self.max_length = pickle.load(open(vocab_file, "rb"))
-            model = self.select_model()(n_vocab, n_labels).to(self.device)
+            self.intent_model = self.select_model()(n_vocab, n_labels).to(self.device)
 
         self.intent_model.eval()
 
@@ -260,9 +261,7 @@ def train_classifier(X, Y, minimum_training_accuracy, model, model_file, device)
             epoch = 0
             accuracy = 0
             while accuracy < minimum_training_accuracy:
-                if num_epochs > 200:
-                    raise RuntimeError("Failed to train Neural Intent model")
-                if accuracy <= 60 and num_epochs > 100:
+                if num_epochs > 200 or (accuracy <= 60 and num_epochs > 100):
                     raise RuntimeError("Failed to train Neural Intent model")
                     
                 while epoch <= num_epochs:
