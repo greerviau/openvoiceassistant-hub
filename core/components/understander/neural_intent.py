@@ -247,7 +247,7 @@ def train_classifier(X, Y, minimum_training_accuracy, model, model_file, device)
     optimizer = torch.optim.Adam(model.parameters(), lr=learning_rate)
 
     trained = False
-    for not trained:
+    while not trained:
         num_epochs = 40
         try:
             model.apply(weight_reset)
