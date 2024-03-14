@@ -135,6 +135,9 @@ class NeuralIntent:
         logger.info(f"Using {self.network_size} network")
         
         retrain = algo_config["retrain"]
+        if os.path.exists(vocab_file):
+            self.word_to_int, int_to_word, label_to_int, self.int_to_label, n_vocab, n_labels, loaded_labels, self.max_length = pickle.load(open(vocab_file, 'rb'))
+            
         if retrain or not os.path.exists(vocab_file) or not os.path.exists(model_file) or sorted(labels) != sorted(loaded_labels):
             logger.info("Retraining Neural Intent Model")
 
