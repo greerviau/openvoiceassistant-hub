@@ -6,7 +6,7 @@ const Logs = () => {
   const [isScrolledToBottom, setIsScrolledToBottom] = useState(true);
 
   useEffect(() => {
-    const ws = new WebSocket(`/ws/log`);
+    const ws = new WebSocket(`ws:127.0.0.1:7123/ws/log`);
 
     ws.onmessage = (event) => {
       setLogs([event.data]); // Append new log to existing logs

@@ -1,6 +1,5 @@
 {
   "name": "frontend",
-  "version": "0.1.0",
   "description": "Frontend for openvoiceassistant-hub",
   "private": true,
   "proxy": "http://localhost:7123",
