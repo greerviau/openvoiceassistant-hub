@@ -47,6 +47,7 @@ class Understander:
         logger.info(f"Negative Sampels: {negative_samples}")
         
         self.use_keyword_matching = config.get("use_keyword_matching")
+        logger.info(f"Use keyword matching: {self.use_keyword_matching}")
     
         self.algo = understander_config["algorithm"].lower().replace(" ", "_")
         self.module = importlib.import_module(f"core.components.understander.{self.algo}")

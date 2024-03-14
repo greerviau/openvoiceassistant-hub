@@ -94,7 +94,7 @@ class NeuralIntent:
 
         x, y, self.max_length = load_training_data(intents)
         labels = list(set(y))
-        logger.info(f"Intents : {labels}")
+        logger.debug(f"Intents : {labels}")
 
         self.network_size = algo_config["network_size"]
         logger.info(f"Using {self.network_size} network")
