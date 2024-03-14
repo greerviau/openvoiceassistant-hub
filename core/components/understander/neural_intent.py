@@ -44,7 +44,7 @@ class IntentClassifier(nn.Module):
         out = torch.cat((out[:, -1, :self.hidden_dim], out[:, 0, self.hidden_dim:]), dim=1)
         out = self.drop(out)
         out = self.fc(out)
-        return torch.nn.functional.softmax(out, dim=1)
+        return out
 
 class NeuralIntent:
 
@@ -138,8 +138,9 @@ class NeuralIntent:
         padded = pad_sequence(encoded, self.max_length)
         with torch.no_grad():
             inputs = torch.LongTensor(np.array([padded])).to(self.device)
-            prediction = self.intent_model(inputs)
-            conf, idx = torch.max(prediction, dim=1)
+            logits = self.intent_model(inputs)
+            probabilities = torch.nn.functional.softmax(logits, dim=1)
+            conf, idx = torch.max(probabilities, dim=1)
             label = self.int_to_label[idx.item()]
             skill, action = label.split("-")
             return skill, action, round(float(conf.item()) * 100, 3)
@@ -273,6 +274,8 @@ def train_classifier(X, Y, minimum_training_accuracy, batch_size, model, model_f
 
                         total_loss += loss.item() * len(x)
                         total_samples += len(x)
+
+                        y_pred = torch.nn.functional.softmax(y_pred, dim=1)
 
                         # Calculate accuracy
                         _, predicted = torch.max(y_pred, 1)
