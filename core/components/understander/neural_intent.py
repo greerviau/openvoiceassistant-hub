@@ -107,6 +107,16 @@ class NeuralIntent:
 
         logger.info(f"Model dropout: {dropout}")
 
+        batch_size = algo_config["batch_size"]
+        if batch_size > 64:
+            batch_size = 64
+            config.set(Components.Understander.value, "config", "batch_size", batch_size)
+        elif batch_size < 8:
+            batch_size = 8
+            config.set(Components.Understander.value, "config", "batch_size", batch_size)
+
+        logger.info(f"Batch size: {batch_size}")
+
         use_gpu = algo_config["use_gpu"]
         use_gpu = torch.cuda.is_available() and use_gpu
         config.set(Components.Transcriber.value, "config", "use_gpu", use_gpu)
@@ -138,7 +148,7 @@ class NeuralIntent:
             X, Y = preprocess_data(x, y, self.word_to_int, self.max_length, label_to_int)
 
             self.intent_model = self.select_model()(dropout, n_vocab, n_labels).to(self.device)
-            train_classifier(X, Y, minimum_training_accuracy, self.intent_model, model_file, self.device)
+            train_classifier(X, Y, minimum_training_accuracy, batch_size, self.intent_model, model_file, self.device)
             config.set(Components.Understander.value, "config", "retrain", False)
         else:
             self.word_to_int, int_to_word, label_to_int, self.int_to_label, n_vocab, n_labels, loaded_labels, self.max_length = pickle.load(open(vocab_file, "rb"))
@@ -240,7 +250,7 @@ def preprocess_data(x, y, word_to_int, max_length, label_to_int):
 
     return X, Y
     
-def train_classifier(X, Y, minimum_training_accuracy, model, model_file, device):
+def train_classifier(X, Y, minimum_training_accuracy, batch_size, model, model_file, device):
 
     def weight_reset(m):
         if isinstance(m, nn.LSTM) or isinstance(m, nn.Linear):
@@ -251,13 +261,15 @@ def train_classifier(X, Y, minimum_training_accuracy, model, model_file, device)
     Y_tensor = torch.tensor(Y).to(device)
 
     logger.info("Training classifier")
+    
     # Training parameters
-    batch_size = 16
     learning_rate = 0.001
 
     # Create data loaders for the training and validation sets
     train_dataset = IntentDataset(X_tensor, Y_tensor)
     train_loader = DataLoader(train_dataset, batch_size=batch_size, shuffle=True)
+
+    model.train()
 
     # Define the loss function and optimizer
     criterion = nn.CrossEntropyLoss()
@@ -272,11 +284,10 @@ def train_classifier(X, Y, minimum_training_accuracy, model, model_file, device)
             epoch = 0
             accuracy = 0
             while accuracy < minimum_training_accuracy:
-                if num_epochs > 200 or (accuracy <= 60 and num_epochs > 100):
+                if num_epochs > 200:
                     raise RuntimeError("Failed to train Neural Intent model")
                     
                 while epoch <= num_epochs:
-                    model.train()
                     epoch += 1
                     total_loss = 0.0
                     total_samples = 0
@@ -326,5 +337,6 @@ def default_config() -> typing.Dict:
             "medium",
             "large"
         ],
-        "dropout": 0.5
+        "dropout": 0.5,
+        "batch_size": 8
     }
