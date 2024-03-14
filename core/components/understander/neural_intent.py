@@ -33,7 +33,7 @@ class IntentClassifier(nn.Module):
         super(IntentClassifier, self).__init__()
         self.hidden_dim = hidden_dim
         self.embedding = nn.Embedding(vocab_size, 100)
-        self.lstm1 = nn.LSTM(100, hidden_dim, n_layers, batch_first=True, bidirectional=True)
+        self.lstm = nn.LSTM(100, hidden_dim, n_layers, batch_first=True, bidirectional=True)
         self.fc = nn.Linear(hidden_dim*2, num_classes)
         self.drop = nn.Dropout(p=dropout)
         
