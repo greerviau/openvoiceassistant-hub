@@ -136,8 +136,8 @@ class NeuralIntent:
         
         retrain = algo_config["retrain"]
         if os.path.exists(vocab_file):
-            self.word_to_int, int_to_word, label_to_int, self.int_to_label, n_vocab, n_labels, loaded_labels, self.max_length = pickle.load(open(vocab_file, 'rb'))
-            
+            self.word_to_int, int_to_word, label_to_int, self.int_to_label, n_vocab, n_labels, loaded_labels, self.max_length = pickle.load(open(vocab_file, "rb"))
+
         if retrain or not os.path.exists(vocab_file) or not os.path.exists(model_file) or sorted(labels) != sorted(loaded_labels):
             logger.info("Retraining Neural Intent Model")
 
@@ -154,7 +154,6 @@ class NeuralIntent:
             train_classifier(X, Y, minimum_training_accuracy, batch_size, self.intent_model, model_file, self.device)
             config.set(Components.Understander.value, "config", "retrain", False)
         else:
-            self.word_to_int, int_to_word, label_to_int, self.int_to_label, n_vocab, n_labels, loaded_labels, self.max_length = pickle.load(open(vocab_file, "rb"))
             self.intent_model = self.select_model()(dropout, n_vocab, n_labels).to(self.device)
 
         self.intent_model.eval()
