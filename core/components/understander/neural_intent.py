@@ -119,8 +119,6 @@ class NeuralIntent:
         if retrain or not os.path.exists(vocab_file) or not os.path.exists(model_file) or sorted(labels) != sorted(loaded_labels):
             logger.info("Retraining Neural Intent Model")
 
-            try: os.remove(model_file)
-            except: pass
             try: os.remove(vocab_file)
             except: pass
 
@@ -134,6 +132,11 @@ class NeuralIntent:
         else:
             self.intent_model = IntentClassifier(dropout, hidden_dim, n_layers, n_vocab, n_labels).to(self.device)
 
+        try:
+            self.intent_model.load_state_dict(torch.load(model_file, map_location=self.device))
+        except:
+            train_classifier(X, Y, minimum_training_accuracy, batch_size, self.intent_model, model_file, self.device)
+            
         self.intent_model.eval()
 
     def predict_intent(self, text: str) -> typing.Tuple[str, str, float]:
@@ -224,6 +227,9 @@ def preprocess_data(x, y, word_to_int, max_length, label_to_int):
     return X, Y
     
 def train_classifier(X, Y, minimum_training_accuracy, batch_size, model, model_file, device):
+
+    try: os.remove(model_file)
+    except: pass
 
     def weight_reset(m):
         if isinstance(m, nn.LSTM) or isinstance(m, nn.Linear):
