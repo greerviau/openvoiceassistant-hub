@@ -135,8 +135,9 @@ class NeuralIntent:
         try:
             self.intent_model.load_state_dict(torch.load(model_file, map_location=self.device))
         except:
+            X, Y = preprocess_data(x, y, self.word_to_int, self.max_length, label_to_int)
             train_classifier(X, Y, minimum_training_accuracy, batch_size, self.intent_model, model_file, self.device)
-            
+
         self.intent_model.eval()
 
     def predict_intent(self, text: str) -> typing.Tuple[str, str, float]:
