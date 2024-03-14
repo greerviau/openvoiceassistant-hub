@@ -7,6 +7,8 @@ apt-get install -y python3.11 python3-pip python3.11-dev python3.11-venv wget gi
 CWD=$(pwd)
 echo $CWD
 
+git config --global --add safe.directory $CWD
+
 rm -rf $CWD/env
 python3.11 -m venv $CWD/env
 
