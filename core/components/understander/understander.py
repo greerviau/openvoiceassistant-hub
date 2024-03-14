@@ -46,7 +46,7 @@ class Understander:
         logger.info(f"Positive Sampels: {positive_samples}")
         logger.info(f"Negative Sampels: {negative_samples}")
         
-        self.engage_delay = config.get("engage_delay")
+        self.use_keyword_matching = config.get("use_keyword_matching")
     
         self.algo = understander_config["algorithm"].lower().replace(" ", "_")
         self.module = importlib.import_module(f"core.components.understander.{self.algo}")
@@ -250,10 +250,11 @@ class Understander:
                     raise RuntimeError("Failed to parse callback")
             else:
                 # Brute force check intents cuz why not
-                for tag, patterns in self.intents.items():
-                    if encoded_command in patterns:
-                        skill, action = tag.split("-")
-                        conf, pass_threshold = 100, True
+                if self.use_keyword_matching:
+                    for tag, patterns in self.intents.items():
+                        if encoded_command in patterns:
+                            skill, action = tag.split("-")
+                            conf, pass_threshold = 100, True
 
                 if not pass_threshold:
                     skill, action, conf = self.engine.understand(context)

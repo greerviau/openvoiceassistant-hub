@@ -25,7 +25,8 @@ DEFAULT_CONFIG = {
             ],
             "config": {},
             "conf_thresh": 80,
-            "augment_intent_data_percent": 0
+            "augment_intent_data_percent": 0,
+            "use_keyword_matching": True
         },
         Components.Synthesizer.value: {
             "algorithm": "espeak",
