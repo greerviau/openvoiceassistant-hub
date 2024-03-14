@@ -122,6 +122,7 @@ class NeuralIntent:
         logger.info(f"Intents : {labels}")
 
         self.network_size = algo_config["network_size"]
+        logger.info(f"Using {self.network_size} network")
         
         retrain = algo_config["retrain"]
         if retrain or not os.path.exists(vocab_file) or not os.path.exists(model_file) or sorted(labels) != sorted(loaded_labels):
@@ -275,20 +276,20 @@ def train_classifier(X, Y, minimum_training_accuracy, model, model_file, device)
                     raise RuntimeError("Failed to train Neural Intent model")
                     
                 while epoch <= num_epochs:
-                    epoch += 1
                     model.train()
+                    epoch += 1
                     total_loss = 0.0
                     total_samples = 0
                     correct = 0
 
                     for x_batch, y_batch in train_loader:
+                        optimizer.zero_grad()
                         x = x_batch.to(device)
                         y = y_batch.to(device)  # Move data to GPU
                         y_pred = model(x)
                         loss = criterion(y_pred, y)
                         loss.backward()
                         optimizer.step()
-                        optimizer.zero_grad()
 
                         total_loss += loss.item() * len(x)
                         total_samples += len(x)
