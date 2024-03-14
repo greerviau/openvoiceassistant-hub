@@ -95,6 +95,8 @@ class NeuralIntent:
             minimum_training_accuracy = 0
             config.set(Components.Understander.value, "config", "minimum_training_accuracy", minimum_training_accuracy)
 
+        logger.info(f"Minimum training accuracy: {minimum_training_accuracy}")
+
         use_gpu = algo_config["use_gpu"]
         use_gpu = torch.cuda.is_available() and use_gpu
         config.set(Components.Transcriber.value, "config", "use_gpu", use_gpu)
