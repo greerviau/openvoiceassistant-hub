@@ -29,12 +29,12 @@ class IntentDataset(Dataset):
         return self.x[idx], self.y[idx]   
     
 class SmallIntentClassifier(nn.Module):
-    def __init__(self, vocab_size, num_classes):
+    def __init__(self, dropout, vocab_size, num_classes):
         super(SmallIntentClassifier, self).__init__()
         self.embedding = nn.Embedding(vocab_size, 100)
         self.lstm1 = nn.LSTM(100, 32, batch_first=True)
         self.fc = nn.Linear(32, num_classes)
-        self.drop = nn.Dropout(p=0.5)
+        self.drop = nn.Dropout(p=dropout)
         
     def forward(self, x):
         x = x.long()
@@ -46,12 +46,12 @@ class SmallIntentClassifier(nn.Module):
         return torch.nn.functional.softmax(out, dim=1)
 
 class MediumIntentClassifier(nn.Module):
-    def __init__(self, vocab_size, num_classes):
+    def __init__(self, dropout, vocab_size, num_classes):
         super(MediumIntentClassifier, self).__init__()
         self.embedding = nn.Embedding(vocab_size, 100)
         self.lstm1 = nn.LSTM(100, 64, batch_first=True)
         self.fc = nn.Linear(64, num_classes)
-        self.drop = nn.Dropout(p=0.5)
+        self.drop = nn.Dropout(p=dropout)
         
     def forward(self, x):
         x = x.long()
@@ -63,13 +63,13 @@ class MediumIntentClassifier(nn.Module):
         return torch.nn.functional.softmax(out, dim=1)
 
 class LargeIntentClassifier(nn.Module):
-    def __init__(self, vocab_size, num_classes):
+    def __init__(self, dropout, vocab_size, num_classes):
         super(LargeIntentClassifier, self).__init__()
         self.embedding = nn.Embedding(vocab_size, 100)
         self.lstm1 = nn.LSTM(100, 64, batch_first=True)
         self.lstm2 = nn.LSTM(64, 32, batch_first=True)
         self.fc = nn.Linear(32, num_classes)
-        self.drop = nn.Dropout(p=0.5)
+        self.drop = nn.Dropout(p=dropout)
         
     def forward(self, x):
         x = x.long()
@@ -87,15 +87,25 @@ class NeuralIntent:
         logger.info("Loading Neural Intent Classifier")
         self.ova = ova
 
-        self.minimum_training_accuracy = algo_config["minimum_training_accuracy"]
-        if self.minimum_training_accuracy > 100:
-            self.minimum_training_accuracy = 100
-            config.set(Components.Understander.value, "config", "minimum_training_accuracy", self.minimum_training_accuracy)
-        elif self.minimum_training_accuracy < 0:
-            self.minimum_training_accuracy = 0
-            config.set(Components.Understander.value, "config", "minimum_training_accuracy", self.minimum_training_accuracy)
+        minimum_training_accuracy = algo_config["minimum_training_accuracy"]
+        if minimum_training_accuracy > 100:
+            minimum_training_accuracy = 100
+            config.set(Components.Understander.value, "config", "minimum_training_accuracy", minimum_training_accuracy)
+        elif minimum_training_accuracy < 0:
+            minimum_training_accuracy = 0
+            config.set(Components.Understander.value, "config", "minimum_training_accuracy", minimum_training_accuracy)
 
-        logger.info(f"Minimum training accuracy: {self.minimum_training_accuracy}")
+        logger.info(f"Minimum training accuracy: {minimum_training_accuracy}")
+
+        dropout = algo_config["dropout"]
+        if dropout > 1:
+            dropout = 1
+            config.set(Components.Understander.value, "config", "dropout", dropout)
+        elif dropout < 0:
+            dropout = 0
+            config.set(Components.Understander.value, "config", "dropout", dropout)
+
+        logger.info(f"Model dropout: {dropout}")
 
         use_gpu = algo_config["use_gpu"]
         use_gpu = torch.cuda.is_available() and use_gpu
@@ -126,12 +136,12 @@ class NeuralIntent:
             pickle.dump([self.word_to_int, int_to_word, label_to_int, self.int_to_label, n_vocab, n_labels, labels, self.max_length], open(vocab_file, "wb"))
             X, Y = preprocess_data(x, y, self.word_to_int, self.max_length, label_to_int)
 
-            self.intent_model = self.select_model()(n_vocab, n_labels).to(self.device)
-            train_classifier(X, Y, self.minimum_training_accuracy, self.intent_model, model_file, self.device)
+            self.intent_model = self.select_model()(dropout, n_vocab, n_labels).to(self.device)
+            train_classifier(X, Y, minimum_training_accuracy, self.intent_model, model_file, self.device)
             config.set(Components.Understander.value, "config", "retrain", False)
         else:
             self.word_to_int, int_to_word, label_to_int, self.int_to_label, n_vocab, n_labels, loaded_labels, self.max_length = pickle.load(open(vocab_file, "rb"))
-            self.intent_model = self.select_model()(n_vocab, n_labels).to(self.device)
+            self.intent_model = self.select_model()(dropout, n_vocab, n_labels).to(self.device)
 
         self.intent_model.eval()
 
@@ -313,5 +323,6 @@ def default_config() -> typing.Dict:
             "small",
             "medium",
             "large"
-        ]
+        ],
+        "dropout": 0.5
     }
