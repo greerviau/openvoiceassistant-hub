@@ -125,11 +125,11 @@ class NeuralIntent:
             pickle.dump([self.word_to_int, int_to_word, label_to_int, self.int_to_label, n_vocab, n_labels, labels, self.max_length], open(vocab_file, "wb"))
             X, Y = preprocess_data(x, y, self.word_to_int, self.max_length, label_to_int)
 
-            self.intent_model = IntentClassifier(dropout, hidden_dum, n_layers, n_vocab, n_labels).to(self.device)
+            self.intent_model = IntentClassifier(dropout, hidden_dim, n_layers, n_vocab, n_labels).to(self.device)
             train_classifier(X, Y, minimum_training_accuracy, batch_size, self.intent_model, model_file, self.device)
             config.set(Components.Understander.value, "config", "retrain", False)
         else:
-            self.intent_model = IntentClassifier(dropout, hidden_dum, n_layers, n_vocab, n_labels).to(self.device)
+            self.intent_model = IntentClassifier(dropout, hidden_dim, n_layers, n_vocab, n_labels).to(self.device)
 
         self.intent_model.eval()
 
