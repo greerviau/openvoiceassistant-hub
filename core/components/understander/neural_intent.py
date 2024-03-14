@@ -135,6 +135,7 @@ class NeuralIntent:
         try:
             self.intent_model.load_state_dict(torch.load(model_file, map_location=self.device))
         except:
+            logger.warning("Model change detected, retraining...")
             X, Y = preprocess_data(x, y, self.word_to_int, self.max_length, label_to_int)
             train_classifier(X, Y, minimum_training_accuracy, batch_size, self.intent_model, model_file, self.device)
 
@@ -267,7 +268,7 @@ def train_classifier(X, Y, minimum_training_accuracy, batch_size, model, model_f
                 if num_epochs > 60:
                     raise RuntimeError("Failed to train Neural Intent model")
                     
-                while epoch <= num_epochs:
+                while epoch < num_epochs:
                     epoch += 1
                     total_loss = 0.0
                     total_samples = 0
