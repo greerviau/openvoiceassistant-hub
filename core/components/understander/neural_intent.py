@@ -257,7 +257,7 @@ def train_classifier(X, Y, minimum_training_accuracy, batch_size, model, model_f
             epoch = 0
             accuracy = 0
             while accuracy < minimum_training_accuracy:
-                if num_epochs > 50:
+                if num_epochs > 60:
                     raise RuntimeError("Failed to train Neural Intent model")
                     
                 while epoch <= num_epochs:
@@ -287,8 +287,7 @@ def train_classifier(X, Y, minimum_training_accuracy, batch_size, model, model_f
                     avg_loss = total_loss / total_samples
                     accuracy = 100 * correct / total_samples
                     
-                    if epoch % 10 == 0:
-                        logger.info(f"Epoch {epoch}/{num_epochs} | Train Loss: {avg_loss:.4f} | Accuracy: {accuracy:.2f}%")
+                    logger.info(f"Epoch {epoch}/{num_epochs} | Train Loss: {avg_loss:.4f} | Accuracy: {accuracy:.2f}%")
                 
                 num_epochs += 20
 
