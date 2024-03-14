@@ -195,7 +195,7 @@ def load_training_data(intents: typing.Dict):
     compiled_data = np.array(compiled_data)
     x = compiled_data[:,0]
     y = compiled_data[:,1]
-    logger.info("Max sequence length: ", max_length)
+    logger.info(f"Max sequence length: {max_length}")
     return x, y, max_length
 
 def build_vocab(X: np.array, y: np.array):
