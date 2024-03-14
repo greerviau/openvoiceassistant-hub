@@ -262,6 +262,8 @@ def train_classifier(X, Y, minimum_training_accuracy, model, model_file, device)
             while accuracy < minimum_training_accuracy:
                 if num_epochs >= 200:
                     raise RuntimeError("Failed to train Neural Intent model")
+                if accuracy <= 60 and num_epochs >= 100:
+                    raise RuntimeError("Failed to train Neural Intent model")
                     
                 while epoch <= num_epochs:
                     epoch += 1
