@@ -17,11 +17,8 @@ RESPONSE_TEMPLATES = [
 class OpenWeatherMap:
 
     def __init__(self, skill_config: typing.Dict, ova: "OpenVoiceAssistant"):
-        self.ova = ova
-
-        self.owm_integration = self.ova.integration_manager.get_integration_module("open_weather_map")
-
-        self.unit = self.ova.measurement_units["temperature"]
+        self.owm_integration = ova.integration_manager.get_integration_module("open_weather_map")
+        self.temp_unit = ova.settings["temperature_unit"]
 
     def _preprocess_time_of_day(self, command, morning, afternoon, evening):
         if any(x in command.split() for x in ["morning"]):
@@ -48,7 +45,7 @@ class OpenWeatherMap:
         sky = self.owm_integration.get_sky_conditions(weather)
         sentence = random.choice(RESPONSE_TEMPLATES) % (sky)
 
-        temp_data = weather.temperature(self.unit)
+        temp_data = weather.temperature(self.temp_unit)
         temp = int(temp_data["temp"]) 
         feels_like = int(temp_data["feels_like"])
         if abs(temp - feels_like) > 10:
@@ -70,18 +67,18 @@ class OpenWeatherMap:
                 
             if morning:
                 sky = self.owm_integration.get_sky_conditions(morning)
-                temp = int(morning.temperature(self.unit)["temp"])
+                temp = int(morning.temperature(self.temp_unit)["temp"])
                 sentences.append(f"{day_str} morning it will be {temp} degrees and {sky}")
             if afternoon:
                 sky = self.owm_integration.get_sky_conditions(afternoon)
-                temp = int(afternoon.temperature(self.unit)["temp"])
+                temp = int(afternoon.temperature(self.temp_unit)["temp"])
                 if not morning:
                     sentences.append(f"{day_str} afternoon it will be {temp} degrees and {sky}")
                 else:
                     sentences.append(f"In the afternoon it will be {temp} degrees and {sky}")
             if evening:
                 sky = self.owm_integration.get_sky_conditions(evening)
-                temp = int(evening.temperature(self.unit)["temp"])
+                temp = int(evening.temperature(self.temp_unit)["temp"])
                 if not afternoon:
                     sentences.append(f"{day_str} evening it will be {temp} degrees and {sky}")
                 else:
@@ -197,7 +194,7 @@ class OpenWeatherMap:
         sentences = []
 
         weather = self.owm_integration.get_current_weather()
-        temp_data = weather.temperature(self.unit)
+        temp_data = weather.temperature(self.temp_unit)
         temp = int(temp_data["temp"]) 
         feels_like = int(temp_data["feels_like"])
 
@@ -262,16 +259,16 @@ class OpenWeatherMap:
             morning, afternoon, evening = self._preprocess_time_of_day(command, morning, afternoon, evening)
 
             if morning:
-                temp = int(morning.temperature(self.unit)["temp"])
+                temp = int(morning.temperature(self.temp_unit)["temp"])
                 sentences.append(f"{day_str} morning it will be {temp} degrees")
             if afternoon:
-                temp = int(afternoon.temperature(self.unit)["temp"])
+                temp = int(afternoon.temperature(self.temp_unit)["temp"])
                 if not morning:
                     sentences.append(f"{day_str} afternoon it will be {temp} degrees")
                 else:
                     sentences.append(f"In the afternoon it will be {temp} degrees")
             if evening:
-                temp = int(evening.temperature(self.unit)["temp"])
+                temp = int(evening.temperature(self.temp_unit)["temp"])
                 if not afternoon:
                     sentences.append(f"{day_str} evening it will be {temp} degrees")
                 else:
