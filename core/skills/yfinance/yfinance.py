@@ -17,7 +17,7 @@ class YFinance:
                 name = info.info["shortName"]
                 reports.append(f"the {name} opened at {open_price}")
             except Exception as e:
-                logger.exception("Exception fetching stock price")
+                logger.error(f"Exception fetching stock price | {repr(e)}")
                 pass
         if reports:
             response = "Today "
