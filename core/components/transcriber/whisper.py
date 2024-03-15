@@ -1,7 +1,7 @@
 import torch
 import typing
 import logging
-logger = logging.getLogger("components.understander.whisper")
+logger = logging.getLogger("components.transcriber.whisper")
 
 from faster_whisper import WhisperModel
 
