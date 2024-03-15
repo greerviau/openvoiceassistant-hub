@@ -1,6 +1,6 @@
 // Integrations.jsx
 import React, { useState, useEffect } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { capitalizeId } from '../Utils';
 
 function Integrations() {
@@ -91,15 +91,18 @@ function Integrations() {
     <div>
       <h1>Integrations</h1>
       <div className="page-container">
-      <Link to="/import-integration" className="big-info-button">
-          + Import Integration
-      </Link>
-      <div style={{ marginTop: '20px' }}>
+      <button 
+          className="big-info-button"
+          onClick={() => navigate('/import-integration')}
+        >
+            + Import Integration
+        </button>
+      <div style={{ marginTop: '10px' }}>
+        <h2 style={{ marginBottom: '10px' }}>Imported</h2>
         {loading ? (
           <p>Loading...</p>
         ) : (
           <div>
-            <h2 style={{ marginBottom: '10px' }}>Imported</h2>
             <ul className="item-list" style={{ paddingTop: '10px' }}>
               {data.map((item, index) => (
                 <li key={index} className="list-item" onClick={() => handleItemClick(item)}>

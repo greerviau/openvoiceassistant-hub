@@ -1,6 +1,6 @@
 // Integration.jsx
 import React, { useState, useEffect } from 'react';
-import { Link, useParams, useLocation } from 'react-router-dom';
+import { useNavigate, useParams, useLocation } from 'react-router-dom';
 import { capitalizeId, getFieldInput} from '../Utils';
 
 function Integration() {
@@ -15,6 +15,7 @@ function Integration() {
   const [errorNotification, setErrorNotification] = useState(null);
   const [jsonData, setJsonData] = useState([]);
   const [importMode, setImportMode] = useState(false);
+  const navigate = useNavigate();
 
   useEffect(() => {
     // Fetch configuration data from the API endpoint
@@ -115,10 +116,13 @@ function Integration() {
     <div>
       <h1>Configure {manifestData.name}</h1>
       <div className="page-container" >
-        <Link to={importMode ? "/import-integration" : "/integrations"} className="big-info-button">
-          Back
-        </Link>
-        <form style={{ paddingTop: "40px"}}>
+        <button 
+          className="big-info-button"
+          onClick={() => importMode ? navigate('/import-integration') : navigate('/integrations')}
+        >
+            Back
+        </button>
+        <form style={{ marginTop: '10px' }}>
         {editableFields.length === 0 ? (
             <p style={{ paddingBottom: "30px"}}>No Configuration Needed</p>
           ) : (

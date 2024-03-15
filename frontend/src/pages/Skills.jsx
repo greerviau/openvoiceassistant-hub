@@ -1,6 +1,6 @@
 // Skills.jsx
 import React, { useState, useEffect } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { capitalizeId } from '../Utils';
 
 function Skills() {
@@ -91,16 +91,19 @@ function Skills() {
     <div>
       <h1>Skills</h1>
       <div className="page-container">
-      <Link to="/import-skill" className="big-info-button">
-          + Import Skill
-      </Link>
-      <div style={{ marginTop: '20px' }}>
-        {loading ? (
-          <p>Loading...</p>
-        ) : (
+        <button 
+          className="big-info-button"
+          onClick={() => navigate('/import-skill')}
+        >
+            + Import Skill
+        </button>
+        <div style={{ paddingTop: '10px' }}>
+          <h2 style={{ paddingBottom: '10px' }}>Imported</h2>
+          {loading ? (
+            <p>Loading...</p>
+          ) : (
           <div>
-            <h2 style={{ marginBottom: '10px' }}>Imported</h2>
-            <ul className="item-list" style={{ paddingTop: '10px' }}>
+            <ul className="item-list">
               {data.map((item, index) => (
                 <li key={index} className="list-item" onClick={() => handleItemClick(item)}>
                   <span><strong>{item.name}</strong></span>

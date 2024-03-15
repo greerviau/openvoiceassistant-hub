@@ -1,7 +1,6 @@
 // ImportSkill.jsx
 import React, { useState, useEffect } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
-import { capitalizeId } from '../Utils';
+import { useNavigate } from 'react-router-dom';
 
 function ImportSkill() {
   const [data, setData] = useState([]);
@@ -43,28 +42,31 @@ function ImportSkill() {
     <div>
       <h1>Import Skill</h1>
       <div className="page-container">
-        <Link to="/skills" className="big-info-button">
-          Back
-        </Link>
-        <h2 style={{ marginTop: '20px' }}>Available Skills</h2>
-        <div style={{ marginTop: '20px' }}>
-        {loading ? (
-          <p>Loading...</p>
-        ) : (
-          <div>
-          {data.length === 0 ? (
-            <p>No Available Skills</p>
+      <button 
+          className="big-info-button"
+          onClick={() => navigate('/skills')}
+        >
+            Back
+        </button>
+        <div style={{ marginTop: '10px' }}>
+          <h2 style={{ paddingBottom: '10px' }}>Available Skills</h2>
+          {loading ? (
+            <p>Loading...</p>
           ) : (
-          <ul className="item-list" style={{ paddingTop: '10px' }}>
-            {data.map((item, index) => (
-              <li className="list-item" key={index} onClick={() => handleItemClick(item)}>
-                <strong>{item.name}</strong>
-              </li>
-            ))}
-          </ul>
+            <div>
+            {data.length === 0 ? (
+              <p>No Available Skills</p>
+            ) : (
+            <ul className="item-list">
+              {data.map((item, index) => (
+                <li className="list-item" key={index} onClick={() => handleItemClick(item)}>
+                  <strong>{item.name}</strong>
+                </li>
+              ))}
+            </ul>
+            )}
+            </div>
           )}
-          </div>
-        )}
         </div>
         <div className="notification-container">
           {errorNotification && (
