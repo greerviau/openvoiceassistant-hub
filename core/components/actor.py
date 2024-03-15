@@ -3,6 +3,7 @@ import logging
 logger = logging.getLogger("components.actor")
 
 from core.schemas import Context
+from core.utils.nlp.formatting import format_sentences
 
 class Actor:
     def __init__(self, ova: "OpenVoiceAssistant"):
@@ -16,7 +17,7 @@ class Actor:
         text = text.replace(" i ", " I ")
         text = text.strip()
         if text[0] == "i": text[0] = "I"
-        if text[-1] != ".": text += "."
+        if text[-1] not in  [".", "!", "?" "%"]: text += "."
         return text
 
     def run_stage(self, context: Context):
@@ -46,8 +47,8 @@ class Actor:
         if "synth_response" not in context:
             context["synth_response"] = context["response"]
 
-        context["response"] = self.process_response(context["response"])
-        context["synth_response"] = self.process_response(context["synth_response"])
+        context["response"] = format_sentences(context["response"])
+        context["synth_response"] = format_sentences(context["synth_response"])
 
         dt = time.time() - start
         logger.info(f"Time to run action: {dt}")

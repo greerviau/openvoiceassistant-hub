@@ -1,5 +1,6 @@
 import inflect
 import typing
+import re
 import logging
 logger = logging.getLogger("utils.nlp.formatting")
 
@@ -95,3 +96,29 @@ def format_seconds(seconds):
         time_strs.append(f"{seconds} {'second' if seconds == 1 else 'seconds'}")
 
     return format_readable_list(time_strs)
+
+def format_sentences(text):
+    # Split the text into sentences using regex
+    sentences = re.split(r'(?<=[.!?])\s+', text)
+    
+    formatted_sentences = []
+    for sentence in sentences:
+        # Remove leading and trailing whitespace
+        sentence = sentence.strip()
+        
+        # Capitalize the first letter
+        sentence = sentence.capitalize()
+        
+        # Ensure punctuation at the end of the sentence
+        if not sentence.endswith(('.', '!', '?')):
+            sentence += '.'
+        
+        # Capitalize the word "I" if it appears in the sentence
+        sentence = re.sub(r'\bi\b', 'I', sentence)
+        
+        formatted_sentences.append(sentence)
+    
+    # Join the formatted sentences back into a single string
+    formatted_text = ' '.join(formatted_sentences)
+    
+    return formatted_text
