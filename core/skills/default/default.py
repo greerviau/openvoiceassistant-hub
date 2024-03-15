@@ -11,8 +11,7 @@ class Default:
 
     def __init__(self, skill_config: typing.Dict, ova: "OpenVoiceAssistant"):
         self.ova = ova
-
-        self.hour_format = "%H" if skill_config["24_hour_format"] else "%I"
+        self.hour_format = "%H" if ova.settings["24_hour_format"] else "%I"
 
     def introduction(self, context: typing.Dict):
         context["response"] = "Hello. My name is ova. I am an opensource and locally controlled voice assistant. I am designed to be an offline alternative to popular voice assistants like Alexa and Google home."

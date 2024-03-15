@@ -12,8 +12,6 @@ def manifest():
         "requirements": ["pyowm==3.3.0"],
         "config": {
             "api_key": "",
-            "latitude": 0,
-            "longitude": 0,
             "update_interval": "hourly",
             "update_interval_options": ["hourly", "daily", "onecall_hourly", "onecall_daily"]
         }

@@ -40,7 +40,10 @@ DEFAULT_CONFIG = {
             "timezone": "US/Eastern",
             "timezone_options": pytz.all_timezones,
             "measurement_units": "fahrenheit, pounds",
-            "measurement_units_options": ["fahrenheit, pounds", "celsius, kilograms"]
+            "measurement_units_options": ["fahrenheit, pounds", "celsius, kilograms"],
+            "latitude": 0,
+            "longitude": 0,
+            "24_hour_format": False
         },
         "nodes": {},
         "integrations":{},

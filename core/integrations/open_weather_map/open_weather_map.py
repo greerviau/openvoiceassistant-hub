@@ -11,11 +11,9 @@ from pyowm import OWM
 class OpenWeatherMap:
 
     def __init__(self, integration_config: typing.Dict, ova: "OpenVoiceAssistant"):
-        self.ova = ova
-
         api_key = integration_config["api_key"]
-        lat = integration_config["latitude"]
-        lon = integration_config["longitude"]
+        lat = ova.settings["latitude"]
+        lon = ova.settings["longitude"]
         u_i = integration_config["update_interval"]
         use_one_call = "onecall" in u_i
         update_interval = 3600 if "hourly" in u_i else 86400
@@ -45,7 +43,7 @@ class OpenWeatherMap:
                 today = {"morning": None, "afternoon": None, "evening": None}
                 tomorrow = {"morning": None, "afternoon": None, "evening": None}
                 for weather in self._weather["hourly_forecast"]:
-                    dt = datetime.utcfromtimestamp(weather.ref_time).astimezone(self.ova.timezone)
+                    dt = datetime.utcfromtimestamp(weather.ref_time).astimezone(ova.timezone)
                     logger.debug(dt)
                     if dt.day == datetime.today().day:
                         if dt.hour < 12 and dt.hour + 3 >= 12:

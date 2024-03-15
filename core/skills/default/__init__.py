@@ -129,8 +129,5 @@ def manifest():
     return {
         "name": "Default",
         "id": "default",
-        "category": "default",
-        "config": {
-            "24_hour_format": False
-        }
+        "category": "default"
     }

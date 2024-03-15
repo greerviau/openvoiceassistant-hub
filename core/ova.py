@@ -28,12 +28,13 @@ class OpenVoiceAssistant:
         self.restart()  
 
     def restart(self):
-        tz = config.get("settings", "timezone")
+        self.settings = config.get("settings")
+        tz = self.settings["timezone"]
         os.environ["TZ"] = tz
         time.tzset()
         self.timezone = pytz.timezone(tz)
 
-        m_units = config.get("settings", "measurement_units")
+        m_units = self.settings["measurement_units"]
         self.measurement_units = {"temperature": "fahrenheit", "weight": "pounds"}
         if m_units == "celsius, kilograms":
             self.measurement_units = {"temperature": "celsius", "weight": "kilograms"}

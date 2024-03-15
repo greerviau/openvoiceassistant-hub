@@ -120,7 +120,7 @@ class HASSLights:
 
         context["response"] = response
     
-    def __find_light_entity_id(self, context: typing.Dict):
+    def _find_light_entity_id(self, context: typing.Dict):
         if context["sent_info"]["ROOMS"]:
             light_description = context["sent_info"]["ROOMS"][0]
             light_id = light_description

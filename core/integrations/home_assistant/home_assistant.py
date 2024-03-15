@@ -6,8 +6,6 @@ logger = logging.getLogger("integration.home_assistant")
 
 class HomeAssistant:
     def __init__(self, integration_config: typing.Dict, ova: "OpenVoiceAssistant"):
-        self.ova = ova
-        
         host = integration_config["host"]
         port = integration_config["port"]
         acccess_token = integration_config["acccess_token"]
