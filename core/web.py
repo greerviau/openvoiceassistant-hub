@@ -514,7 +514,7 @@ def create_app(ova: OpenVoiceAssistant, updater: Updater):
                 "audio_data": context["response_audio_data"]
             }
             
-            response = ova.node_manager.call_node_api("POST", node_id, f"/play/audio", json=data)
+            response = ova.node_manager.call_node_api("POST", node_id, "/play/audio", json=data)
             response.raise_for_status()
         
         except Exception as err:
@@ -528,7 +528,7 @@ def create_app(ova: OpenVoiceAssistant, updater: Updater):
     async def upload_wake_word_model(node_id: str, wake_word_model: fastapi.UploadFile = fastapi.File(...)):
         try:
             files = {"file": (wake_word_model.filename, wake_word_model.file.read(), wake_word_model.content_type)}
-            response = ova.node_manager.call_node_api("POST", node_id, "/wake_word_models/upload/", files=files)
+            response = ova.node_manager.call_node_api("POST", node_id, "/upload/wake_word_model", files=files)
             response.raise_for_status()
         except Exception as err:
             #logger.info(repr(err))

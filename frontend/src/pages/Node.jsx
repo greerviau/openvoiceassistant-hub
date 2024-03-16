@@ -193,7 +193,7 @@ function Node() {
     if (wakeWordFile) {
       const formData = new FormData();
       formData.append('wake_word_model', wakeWordFile);
-      fetch(`/node/${initialData.id}/upload/wake_word_model`, {
+      fetch(`/api/node/${initialData.id}/upload/wake_word_model`, {
         method: 'POST',
         body: formData,
       })
