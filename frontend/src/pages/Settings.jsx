@@ -5,6 +5,14 @@ const CollapsibleSection = ({ title, component, config, setConfig, setSuccessNot
   const [newChanges, setNewChanges] = useState(false);
   const [isExpanded, setIsExpanded] = useState(false);
   const [isReloading, setIsReloading] = useState(false);
+  const [infoTimeout, setInfoTimeout] = useState(null);
+
+  const setInfoTimeoutHandler = () => {
+    const timeout = setTimeout(() => {
+      setInfoNotification(null);
+    }, 3000);
+    setInfoTimeout(timeout);
+  };
 
   const DropdownMenu = ({ options, initialValue, component }) => {
     const [selectedOption, setSelectedOption] = useState(initialValue || '');
@@ -106,9 +114,7 @@ const CollapsibleSection = ({ title, component, config, setConfig, setSuccessNot
       }, 3000);
 
       setInfoNotification(`${capitalizeId(component)} Reload Required`);
-      setTimeout(() => {
-        setInfoNotification(null);
-      }, 3000);
+      setInfoTimeoutHandler();
     })
     .catch((error) => {
       console.error(`Error updating ${component} configuration:`, error);
@@ -121,6 +127,7 @@ const CollapsibleSection = ({ title, component, config, setConfig, setSuccessNot
   };
 
   const handleReload = () => {
+    clearTimeout(infoTimeout);
     setIsReloading(true);
     setInfoNotification(`${capitalizeId(component)} Reloading...`);
     // Call the reload API
