@@ -1,5 +1,5 @@
 // Node.js
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { capitalizeId } from '../Utils';
 
@@ -23,8 +23,12 @@ function Node() {
   const [wakeWords, setWakeWords] = useState([]);
   const [selectedWakeWord, setSelectedWakeWord] = useState(null);
   const [wakeWordFile, setWakeWordFile] = useState(null);
+  const [logs, setLogs] = useState([]);
+  const [isRefreshing, setIsRefreshing] = useState(false);
+  const terminalRef = useRef(null);
 
   useEffect(() => {
+    handleLogRefresh();
     if (initialData) {
       fetch(`/api/node/${initialData.id}/config`)
       .then((response) => {
@@ -322,6 +326,35 @@ function Node() {
     setNewChanges(true);
   };
 
+  const handleLogRefresh = () => {
+    setIsRefreshing(true);
+
+    fetch(`/api/node/${initialData.id}/logs`, {
+      method: 'GET',
+    })
+    .then((response) => {
+      if (!response.ok) {
+        throw new Error(`HTTP error! Status: ${response.status}`);
+      }
+      return response.json();
+    })
+    .then((json) => {
+      console.log('Node logs:', json);
+      setLogs(json);
+      terminalRef.current.scrollTop = terminalRef.current.scrollHeight;
+    })
+    .catch((error) => {
+      console.error('Error updating node:', error);
+      setErrorNotification(`${error.message}`);
+      setTimeout(() => {
+        setErrorNotification(null);
+      }, 5000);
+    })
+    .finally(() => {
+      setIsRefreshing(false);
+    });
+  };
+
   if (!initialData) {
     return <div>No data found for this node.</div>;
   }
@@ -371,143 +404,162 @@ function Node() {
         {loading ? (
           <p style={{ paddingTop: "30px" }}>Loading data...</p>
         ) : (
-          <div style={{ paddingTop: "20px" }}>
-            <h2>Configuration</h2>
-            
-            <form style={{ paddingTop: "20px"}}>
-              <div className="form-field">
-                <label>Name</label>
+          <div style={{ paddingTop: "20px", display: 'flex' }}>
+            <div style={{ flex: 1, width: "300px"}}>
+              <h2>Configuration</h2>
+              
+              <form style={{ paddingTop: "20px"}}>
+                <div className="form-field">
+                  <label>Name</label>
+                  <input
+                    type="text"
+                    value={editedData.name}
+                    onChange={(e) => handleInputChange('name', e.target.value)}
+                  />
+                </div>
+                <div className="form-field">
+                  <label>Area</label>
+                  <input
+                    type="text"
+                    value={editedData.area}
+                    onChange={(e) => handleInputChange('area', e.target.value)}
+                  />
+                </div>
+                <div className="form-field">
+                  <label>Wake Word</label>
+                  <select
+                    className="dropdown"
+                    value={selectedWakeWord}
+                    onChange={handleWakeWordOptionChange}
+                  >
+                    {wakeWords.map((wakeWord, index) => (
+                      <option key={index} value={wakeWord}>
+                        {capitalizeId(wakeWord)}
+                      </option>
+                    ))}
+                    <option value="file-upload">Upload Wake Word</option>
+                  </select>
+                </div>
                 <input
-                  type="text"
-                  value={editedData.name}
-                  onChange={(e) => handleInputChange('name', e.target.value)}
+                  id="file-upload-input"
+                  type="file"
+                  accept=".onnx"
+                  onChange={(e) => handleWakeWordUploadSelection(e.target.files[0])}
+                  style={{ display: 'none' }}
                 />
-              </div>
-              <div className="form-field">
-                <label>Area</label>
-                <input
-                  type="text"
-                  value={editedData.area}
-                  onChange={(e) => handleInputChange('area', e.target.value)}
-                />
-              </div>
-              <div className="form-field">
-                <label>Wake Word</label>
-                <select
-                  className="dropdown"
-                  value={selectedWakeWord}
-                  onChange={handleWakeWordOptionChange}
+                <div className="form-field">
+                  <label>Wake Word Confidence</label>
+                  <input
+                    type="number"
+                    value={editedData.wake_word_conf_threshold}
+                    onChange={(e) => handleInputChange('wake_word_conf_threshold', e.target.value)}
+                  />
+                </div>
+                <div className="form-field">
+                  <label>Wakeup Sound</label>
+                  <input
+                    type="checkbox"
+                    checked={editedData.wakeup_sound}
+                    onChange={(e) => handleCheckboxChange('wakeup_sound')}
+                  />
+                </div>
+                <div className="form-field">
+                  <label>VAD Sensitivity</label>
+                  <input
+                    type="number"
+                    value={editedData.vad_sensitivity}
+                    onChange={(e) => handleInputChange('vad_sensitivity', e.target.value)}
+                  />
+                </div>
+                <div className="form-field">
+                  <label>VAD Threshold</label>
+                  <input
+                    type="number"
+                    value={editedData.vad_threshold}
+                    onChange={(e) => handleInputChange('vad_threshold', e.target.value)}
+                  />
+                </div>
+                <div className="form-field">
+                  <label>Speex Noise Suppression</label>
+                  <input
+                    type="checkbox"
+                    checked={editedData.speex_noise_suppression}
+                    onChange={(e) => handleCheckboxChange('speex_noise_suppression')}
+                    disabled={!configData.speex_available}
+                  />
+                </div>
+                <div className="form-field">
+                  <label>Microphone</label>
+                  <select
+                    className="dropdown"
+                    value={editedData.mic_index}
+                    onChange={(e) => handleInputChange('mic_index', e.target.value)}
+                  >
+                    {microphones.map((mic, index) => (
+                      <option key={index} value={mic.idx}>
+                        {mic.name}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+                <div className="form-field">
+                  <label>Speaker</label>
+                  <select
+                    className="dropdown"
+                    value={editedData.speaker_index}
+                    onChange={(e) => handleInputChange('speaker_index', e.target.value)}
+                  >
+                    {speakers.map((speaker, index) => (
+                      <option key={index} value={speaker.idx}>
+                        {speaker.name}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+                <div className="form-field">
+                  <label>Volume</label>
+                  <input
+                    type="number"
+                    value={editedData.volume}
+                    onChange={(e) => handleInputChange('volume', e.target.value)}
+                  />
+                </div>
+                <button type="button" 
+                    className={`submit-button ${(!newChanges || saving) ? 'disabled' : ''}`} 
+                    disabled={(!newChanges || saving)} 
+                    onClick={handleSaveChanges}>
+                      {saving ? 'Saving...' : 'Save Changes'}
+                    </button>
+                <div className="notification-container">
+                  {errorNotification && (
+                    <div className="notification error-notification">{errorNotification}</div>
+                  )}
+                  {infoNotification && (
+                    <div className="notification info-notification">{infoNotification}</div>
+                  )}
+                  {successNotification && (
+                    <div className="notification success-notification">{successNotification}</div>
+                  )}
+                </div>
+              </form>
+            </div>
+            <div style={{ flex: 2, width: "600px"}}>
+              <div className="node-header">
+                <h2 style={{paddingRight: "10px"}}>Logs</h2>
+                <button 
+                  className={`info-button ${isRefreshing ? 'disabled' : ''}`}
+                  onClick={handleLogRefresh}
+                  disabled={isRefreshing}
                 >
-                  {wakeWords.map((wakeWord, index) => (
-                    <option key={index} value={wakeWord}>
-                      {capitalizeId(wakeWord)}
-                    </option>
-                  ))}
-                  <option value="file-upload">Upload Wake Word</option>
-                </select>
+                  Refresh
+                </button>
               </div>
-              <input
-                id="file-upload-input"
-                type="file"
-                accept=".onnx"
-                onChange={(e) => handleWakeWordUploadSelection(e.target.files[0])}
-                style={{ display: 'none' }}
-              />
-              <div className="form-field">
-                <label>Wake Word Confidence</label>
-                <input
-                  type="number"
-                  value={editedData.wake_word_conf_threshold}
-                  onChange={(e) => handleInputChange('wake_word_conf_threshold', e.target.value)}
-                />
+              <div className="terminal" ref={terminalRef}>
+                {logs.map((log, index) => (
+                    <p key={index} dangerouslySetInnerHTML={{ __html: log }} />
+                ))}
               </div>
-              <div className="form-field">
-                <label>Wakeup Sound</label>
-                <input
-                  type="checkbox"
-                  checked={editedData.wakeup_sound}
-                  onChange={(e) => handleCheckboxChange('wakeup_sound')}
-                />
-              </div>
-              <div className="form-field">
-                <label>VAD Sensitivity</label>
-                <input
-                  type="number"
-                  value={editedData.vad_sensitivity}
-                  onChange={(e) => handleInputChange('vad_sensitivity', e.target.value)}
-                />
-              </div>
-              <div className="form-field">
-                <label>VAD Threshold</label>
-                <input
-                  type="number"
-                  value={editedData.vad_threshold}
-                  onChange={(e) => handleInputChange('vad_threshold', e.target.value)}
-                />
-              </div>
-              <div className="form-field">
-                <label>Speex Noise Suppression</label>
-                <input
-                  type="checkbox"
-                  checked={editedData.speex_noise_suppression}
-                  onChange={(e) => handleCheckboxChange('speex_noise_suppression')}
-                  disabled={!configData.speex_available}
-                />
-              </div>
-              <div className="form-field">
-                <label>Microphone</label>
-                <select
-                  className="dropdown"
-                  value={editedData.mic_index}
-                  onChange={(e) => handleInputChange('mic_index', e.target.value)}
-                >
-                  {microphones.map((mic, index) => (
-                    <option key={index} value={mic.idx}>
-                      {mic.name}
-                    </option>
-                  ))}
-                </select>
-              </div>
-              <div className="form-field">
-                <label>Speaker</label>
-                <select
-                  className="dropdown"
-                  value={editedData.speaker_index}
-                  onChange={(e) => handleInputChange('speaker_index', e.target.value)}
-                >
-                  {speakers.map((speaker, index) => (
-                    <option key={index} value={speaker.idx}>
-                      {speaker.name}
-                    </option>
-                  ))}
-                </select>
-              </div>
-              <div className="form-field">
-                <label>Volume</label>
-                <input
-                  type="number"
-                  value={editedData.volume}
-                  onChange={(e) => handleInputChange('volume', e.target.value)}
-                />
-              </div>
-              <button type="button" 
-                  className={`submit-button ${(!newChanges || saving) ? 'disabled' : ''}`} 
-                  disabled={(!newChanges || saving)} 
-                  onClick={handleSaveChanges}>
-                    {saving ? 'Saving...' : 'Save Changes'}
-                  </button>
-              <div className="notification-container">
-                {errorNotification && (
-                  <div className="notification error-notification">{errorNotification}</div>
-                )}
-                {infoNotification && (
-                  <div className="notification info-notification">{infoNotification}</div>
-                )}
-                {successNotification && (
-                  <div className="notification success-notification">{successNotification}</div>
-                )}
-              </div>
-            </form>
+            </div>
           </div>
         )}
       </div>

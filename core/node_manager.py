@@ -137,8 +137,8 @@ class NodeManager:
             node_config = self.nodes[node_id]
         except:
             raise RuntimeError(f"Node {node_id} does not exist")
-        address = node_config["api_url"]
-        url = address + endpoint
+        address = node_config["address"]
+        url = f"http://{address}/api" + endpoint
         try:
             resp = requests.request(verb, url, timeout=5, files=files, json=json, data=data)
         except:

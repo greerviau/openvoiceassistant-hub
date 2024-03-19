@@ -1,14 +1,17 @@
 import typing
 import time
 import os
-import fastapi
 import uuid
 import json
 import threading
-import logging
 import asyncio
+import socketio
+import logging
 logger = logging.getLogger("web")
 
+from fastapi import FastAPI, APIRouter, WebSocket, HTTPException, UploadFile, File, Request
+from fastapi.responses import StreamingResponse
+from fastapi_socketio import SocketManager
 from pydantic import BaseModel
 
 from fastapi.responses import Response
@@ -54,10 +57,10 @@ async def log_reader(n=5):
 
 def create_app(ova: OpenVoiceAssistant, updater: Updater):
 
-    app = fastapi.FastAPI()
+    app = FastAPI()
 
     @app.websocket("/ws/log")
-    async def websocket_endpoint_log(websocket: fastapi.WebSocket):
+    async def logs_websocket(websocket: WebSocket):
         await websocket.accept()
 
         try:
@@ -74,8 +77,32 @@ def create_app(ova: OpenVoiceAssistant, updater: Updater):
                 await websocket.close()
             except Exception as e:
                 logger.error(f"An error occurred while closing WebSocket connection")
+    
+    # SAVE THIS FOR LATER (TODO)
+    """@app.websocket("/ws/node/{node_id}/log")
+    async def node_logs_websocket(node_id: str, websocket: WebSocket):
+        await websocket.accept()
+        logger.info("Opened node logs websocket")
+        address = ova.node_manager.get_node_config(node_id)["address"]
+        try:
+            async with socketio.AsyncSimpleClient() as sio:
+                await sio.connect(f"http://{address}/ws/log", transports=['websocket'])
+                logger.info(f"Socket connection made to {address}")
+                while True:
+                    logs = await sio.receive()
+                    logger.info(logs)
+                    await websocket.send_text(logs)
+        except asyncio.CancelledError:
+            logger.warning("WebSocket connection closed")
+        except Exception as e:
+            logger.error(f"An error occurred in the WebSocket endpoint: {e}")
+        finally:
+            try:
+                await websocket.close()
+            except Exception as e:
+                logger.error(f"An error occurred while closing WebSocket connection: {e}")"""
 
-    core = fastapi.APIRouter(prefix="/api")
+    core = APIRouter(prefix="/api")
 
     @core.get("", tags=["Core"])
     async def api():
@@ -91,7 +118,7 @@ def create_app(ova: OpenVoiceAssistant, updater: Updater):
                 "updating": updater.updating
             }
         except:
-            raise fastapi.HTTPException(
+            raise HTTPException(
                         status_code=400,
                         detail="Failed to check for update",
                         headers={"X-Error": "Failed to check for update"})
@@ -104,12 +131,12 @@ def create_app(ova: OpenVoiceAssistant, updater: Updater):
                 threading.Thread(target=updater.update, daemon=True).start()
                 return {"success": True}
             else:
-                raise fastapi.HTTPException(
+                raise HTTPException(
                         status_code=400,
                         detail="No update available",
                         headers={"X-Error": "No update available"})
         except:
-            raise fastapi.HTTPException(
+            raise HTTPException(
                         status_code=400,
                         detail="Failed to update",
                         headers={"X-Error": "Failed to update"})
@@ -120,7 +147,7 @@ def create_app(ova: OpenVoiceAssistant, updater: Updater):
         if c:
             return c
         else:
-            raise fastapi.HTTPException(
+            raise HTTPException(
                         status_code=400,
                         detail="Could not find OVA config",
                         headers={"X-Error": "Could not find OVA config"})
@@ -131,7 +158,7 @@ def create_app(ova: OpenVoiceAssistant, updater: Updater):
         if c:
             return c
         else:
-            raise fastapi.HTTPException(
+            raise HTTPException(
                         status_code=400,
                         detail="Could not find OVA default config",
                         headers={"X-Error": "Could not find OVA default config"})            
@@ -141,7 +168,7 @@ def create_app(ova: OpenVoiceAssistant, updater: Updater):
         try:
             return config.set("settings", settings)
         except Exception as err:
-            raise fastapi.HTTPException(
+            raise HTTPException(
                         status_code=400,
                         detail="Failed to set OVA settings",
                         headers={"X-Error": "Failed to set OVA settings"})
@@ -151,7 +178,7 @@ def create_app(ova: OpenVoiceAssistant, updater: Updater):
         if ova:
             ova.restart()
         else:
-            raise fastapi.HTTPException(
+            raise HTTPException(
                         status_code=400,
                         detail="OVA not initialized",
                         headers={"X-Error": "OVA not initialized"})               
@@ -163,7 +190,7 @@ def create_app(ova: OpenVoiceAssistant, updater: Updater):
         if ova:
             ova.launch_component(Components.Transcriber)
         else:
-            raise fastapi.HTTPException(
+            raise HTTPException(
                         status_code=400,
                         detail="Failed to reload Transcriber",
                         headers={"X-Error": "Failed to reload Transcriber"})
@@ -174,7 +201,7 @@ def create_app(ova: OpenVoiceAssistant, updater: Updater):
         if component_config:
             return component_config
         else:
-            raise fastapi.HTTPException(
+            raise HTTPException(
                         status_code=400,
                         detail="Could not find transcriber config",
                         headers={"X-Error": "Could not find transcriber config"})
@@ -185,7 +212,7 @@ def create_app(ova: OpenVoiceAssistant, updater: Updater):
             return config.set("transcriber", component_config)
         except Exception as err:
             #logger.info(repr(err))
-            raise fastapi.HTTPException(
+            raise HTTPException(
                         status_code=400,
                         detail=repr(err),
                         headers={"X-Error": "Failed to put transcriber config"})
@@ -196,7 +223,7 @@ def create_app(ova: OpenVoiceAssistant, updater: Updater):
             return ova.get_component(Components.Transcriber).get_algorithm_default_config(algorithm_id)
         except Exception as err:
             #logger.info(repr(err))
-            raise fastapi.HTTPException(
+            raise HTTPException(
                         status_code=400,
                         detail="Transcriber algorithm default config does not exist",
                         headers={"X-Error": "Transcriber algorithm default config does not exist"})
@@ -208,7 +235,7 @@ def create_app(ova: OpenVoiceAssistant, updater: Updater):
         if ova:
             ova.launch_component(Components.Understander)
         else:
-            raise fastapi.HTTPException(
+            raise HTTPException(
                         status_code=400,
                         detail="Failed to reload Understander",
                         headers={"X-Error": "Failed to reload Understander"})
@@ -219,7 +246,7 @@ def create_app(ova: OpenVoiceAssistant, updater: Updater):
         if component_config:
             return component_config
         else:
-            raise fastapi.HTTPException(
+            raise HTTPException(
                         status_code=400,
                         detail="Could not find understander config",
                         headers={"X-Error": "Could not find understander config"})
@@ -230,7 +257,7 @@ def create_app(ova: OpenVoiceAssistant, updater: Updater):
             return config.set("understander", component_config)
         except Exception as err:
             #logger.info(repr(err))
-            raise fastapi.HTTPException(
+            raise HTTPException(
                         status_code=400,
                         detail=repr(err),
                         headers={"X-Error": "Failed to put understander config"})
@@ -241,7 +268,7 @@ def create_app(ova: OpenVoiceAssistant, updater: Updater):
             return ova.get_component(Components.Understander).get_algorithm_default_config(algorithm_id)
         except Exception as err:
             #logger.info(repr(err))
-            raise fastapi.HTTPException(
+            raise HTTPException(
                         status_code=400,
                         detail="Transcriber algorithm default config does not exist",
                         headers={"X-Error": "Transcriber algorithm default config does not exist"})
@@ -257,7 +284,7 @@ def create_app(ova: OpenVoiceAssistant, updater: Updater):
             ova.run_pipeline(Components.Understander, context=context)
         except Exception as err:
             #logger.info(repr(err))
-            raise fastapi.HTTPException(
+            raise HTTPException(
                         status_code=400,
                         detail=repr(err),
                         headers={"X-Error": str(err)})
@@ -271,7 +298,7 @@ def create_app(ova: OpenVoiceAssistant, updater: Updater):
         if ova:
             ova.launch_component(Components.Synthesizer)
         else:
-            raise fastapi.HTTPException(
+            raise HTTPException(
                         status_code=400,
                         detail="Failed to reload Synthesizer",
                         headers={"X-Error": "Failed to reload Synthesizer"})
@@ -282,7 +309,7 @@ def create_app(ova: OpenVoiceAssistant, updater: Updater):
         if component_config:
             return component_config
         else:
-            raise fastapi.HTTPException(
+            raise HTTPException(
                         status_code=400,
                         detail="Could not find synthesizer config",
                         headers={"X-Error": "Could not find synthesizer config"})
@@ -293,7 +320,7 @@ def create_app(ova: OpenVoiceAssistant, updater: Updater):
             return config.set("synthesizer", component_config)
         except Exception as err:
             #logger.info(repr(err))
-            raise fastapi.HTTPException(
+            raise HTTPException(
                         status_code=400,
                         detail=repr(err),
                         headers={"X-Error": "Failed to put synthesizer config"})
@@ -304,7 +331,7 @@ def create_app(ova: OpenVoiceAssistant, updater: Updater):
             return ova.get_component(Components.Synthesizer).get_algorithm_default_config(algorithm_id)
         except Exception as err:
             #logger.info(repr(err))
-            raise fastapi.HTTPException(
+            raise HTTPException(
                         status_code=400,
                         detail="Synthesizer algorithm default config does not exist",
                         headers={"X-Error": "Synthesizer algorithm default config does not exist"}) 
@@ -318,7 +345,7 @@ def create_app(ova: OpenVoiceAssistant, updater: Updater):
             ova.run_pipeline(Components.Synthesizer, context=context)
         except Exception as err:
             #logger.info(repr(err))
-            raise fastapi.HTTPException(
+            raise HTTPException(
                         status_code=400,
                         detail=repr(err),
                         headers={"X-Error": str(err)})
@@ -334,7 +361,7 @@ def create_app(ova: OpenVoiceAssistant, updater: Updater):
             ova.run_pipeline(Components.Synthesizer, context=context)
         except Exception as err:
             #logger.info(repr(err))
-            raise fastapi.HTTPException(
+            raise HTTPException(
                         status_code=400,
                         detail=repr(err),
                         headers={"X-Error": str(err)})
@@ -345,7 +372,7 @@ def create_app(ova: OpenVoiceAssistant, updater: Updater):
             with open(response_file_path, mode="rb") as file_like: 
                 yield from file_like 
 
-        return fastapi.responses.StreamingResponse(iterfile(), media_type="audio/wav")
+        return StreamingResponse(iterfile(), media_type="audio/wav")
 
     # NODES
 
@@ -355,7 +382,7 @@ def create_app(ova: OpenVoiceAssistant, updater: Updater):
             return ova.node_manager.get_all_node_status()
         except RuntimeError as err:
             #logger.info(repr(err))
-            raise fastapi.HTTPException(
+            raise HTTPException(
                         status_code=400,
                         detail=repr(err),
                         headers={"X-Error": str(err)})
@@ -366,7 +393,7 @@ def create_app(ova: OpenVoiceAssistant, updater: Updater):
             return ova.node_manager.get_node_status(node_id)
         except RuntimeError as err:
             #logger.info(repr(err))
-            raise fastapi.HTTPException(
+            raise HTTPException(
                         status_code=400,
                         detail=repr(err),
                         headers={"X-Error": str(err)})
@@ -377,7 +404,7 @@ def create_app(ova: OpenVoiceAssistant, updater: Updater):
             return ova.node_manager.update_node(node_id)
         except RuntimeError as err:
             #logger.info(repr(err))
-            raise fastapi.HTTPException(
+            raise HTTPException(
                         status_code=400,
                         detail=repr(err),
                         headers={"X-Error": str(err)})
@@ -388,7 +415,7 @@ def create_app(ova: OpenVoiceAssistant, updater: Updater):
             return ova.node_manager.get_node_config(node_id)
         except RuntimeError as err:
             #logger.info(repr(err))
-            raise fastapi.HTTPException(
+            raise HTTPException(
                         status_code=400,
                         detail=repr(err),
                         headers={"X-Error": str(err)})
@@ -396,7 +423,7 @@ def create_app(ova: OpenVoiceAssistant, updater: Updater):
     @core.put("/node/{node_id}/config", tags=["Nodes"])
     async def put_node_config(node_id: str, node_config: typing.Dict):
         if not node_config:
-            raise fastapi.HTTPException(
+            raise HTTPException(
                         status_code=400,
                         detail="No config provided",
                         headers={"X-Error": "No config provided"})
@@ -404,7 +431,7 @@ def create_app(ova: OpenVoiceAssistant, updater: Updater):
             return ova.node_manager.update_node_config(node_id, node_config)
         except Exception as err:
             #logger.info(repr(err))
-            raise fastapi.HTTPException(
+            raise HTTPException(
                         status_code=400,
                         detail=repr(err),
                         headers={"X-Error": str(err)})
@@ -412,7 +439,7 @@ def create_app(ova: OpenVoiceAssistant, updater: Updater):
     @core.put("/node/{node_id}/sync_up", tags=["Nodes"])
     async def node_sync_up(node_id: str, node_config: typing.Dict):
         if not node_config:
-            raise fastapi.HTTPException(
+            raise HTTPException(
                         status_code=400,
                         detail="No config provided",
                         headers={"X-Error": "No config provided"})
@@ -421,7 +448,7 @@ def create_app(ova: OpenVoiceAssistant, updater: Updater):
         
         except Exception as err:
             #logger.info(repr(err))
-            raise fastapi.HTTPException(
+            raise HTTPException(
                         status_code=400,
                         detail=repr(err),
                         headers={"X-Error": str(err)})
@@ -429,7 +456,7 @@ def create_app(ova: OpenVoiceAssistant, updater: Updater):
     @core.put("/node/{node_id}/sync_down", tags=["Nodes"])
     async def node_sync_down(node_id: str, node_config: typing.Dict):
         if not node_config:
-            raise fastapi.HTTPException(
+            raise HTTPException(
                         status_code=400,
                         detail="No config provided",
                         headers={"X-Error": "No config provided"})
@@ -439,13 +466,13 @@ def create_app(ova: OpenVoiceAssistant, updater: Updater):
             else:
                 sync_node_config = ova.node_manager.check_for_config_discrepancy(node_id, node_config)
                 sync_node_config["restart_required"] = False
-                sync_node_config["api_url"] = node_config["api_url"]
+                sync_node_config["address"] = node_config["address"]
                 sync_node_config["version"] = node_config["version"]
                 return ova.node_manager.update_node_config(node_id, sync_node_config)
         
         except Exception as err:
             #logger.info(repr(err))
-            raise fastapi.HTTPException(
+            raise HTTPException(
                         status_code=400,
                         detail=repr(err),
                         headers={"X-Error": str(err)})
@@ -456,7 +483,7 @@ def create_app(ova: OpenVoiceAssistant, updater: Updater):
             return ova.node_manager.get_node_hardware(node_id)
         except RuntimeError as err:
             #logger.info(repr(err))
-            raise fastapi.HTTPException(
+            raise HTTPException(
                         status_code=400,
                         detail=repr(err),
                         headers={"X-Error": str(err)})
@@ -467,7 +494,7 @@ def create_app(ova: OpenVoiceAssistant, updater: Updater):
             return ova.node_manager.get_node_wake_words(node_id)
         except RuntimeError as err:
             #logger.info(repr(err))
-            raise fastapi.HTTPException(
+            raise HTTPException(
                         status_code=400,
                         detail=repr(err),
                         headers={"X-Error": str(err)})
@@ -478,7 +505,7 @@ def create_app(ova: OpenVoiceAssistant, updater: Updater):
             return ova.node_manager.remove_node(node_id)
         except RuntimeError as err:
             #logger.info(repr(err))
-            raise fastapi.HTTPException(
+            raise HTTPException(
                         status_code=400,
                         detail=repr(err),
                         headers={"X-Error": str(err)})
@@ -489,7 +516,7 @@ def create_app(ova: OpenVoiceAssistant, updater: Updater):
             ova.node_manager.restart_node(node_id)
         except RuntimeError as err:
             #logger.info(repr(err))
-            raise fastapi.HTTPException(
+            raise HTTPException(
                         status_code=400,
                         detail=repr(err),
                         headers={"X-Error": str(err)})
@@ -519,23 +546,36 @@ def create_app(ova: OpenVoiceAssistant, updater: Updater):
         
         except Exception as err:
             #logger.info(repr(err))
-            raise fastapi.HTTPException(
+            raise HTTPException(
                         status_code=400,
                         detail=repr(err),
                         headers={"X-Error": str(err)})
 
     @core.post("/node/{node_id}/upload/wake_word_model", tags=["Nodes"])
-    async def upload_wake_word_model(node_id: str, wake_word_model: fastapi.UploadFile = fastapi.File(...)):
+    async def upload_wake_word_model(node_id: str, wake_word_model: UploadFile = File(...)):
         try:
             files = {"file": (wake_word_model.filename, wake_word_model.file.read(), wake_word_model.content_type)}
             response = ova.node_manager.call_node_api("POST", node_id, "/upload/wake_word_model", files=files)
             response.raise_for_status()
         except Exception as err:
             #logger.info(repr(err))
-            raise fastapi.HTTPException(
+            raise HTTPException(
                         status_code=400,
                         detail=repr(err),
-                        headers={"X-Error": str(err)})              
+                        headers={"X-Error": str(err)})   
+
+    @core.get("/node/{node_id}/logs", tags=["Nodes"])
+    async def get_logs(node_id: str):
+        try:
+            resp = ova.node_manager.call_node_api("GET", node_id, "/logs/200")
+            resp.raise_for_status()
+            return resp.json()
+        except RuntimeError as err:
+            #logger.info(repr(err))
+            raise HTTPException(
+                        status_code=400,
+                        detail=repr(err),
+                        headers={"X-Error": str(err)})          
         
     # SKILLS
 
@@ -545,7 +585,7 @@ def create_app(ova: OpenVoiceAssistant, updater: Updater):
             return sorted(ova.skill_manager.available_skills, key=lambda x: x["name"])
         except RuntimeError as err:
                 #logger.info(repr(err))
-                raise fastapi.HTTPException(
+                raise HTTPException(
                             status_code=400,
                             detail=repr(err),
                             headers={"X-Error": f"{err}"})
@@ -556,7 +596,7 @@ def create_app(ova: OpenVoiceAssistant, updater: Updater):
             return sorted(ova.skill_manager.imported_skills, key=lambda x: x["name"])
         except RuntimeError as err:
             #logger.info(repr(err))
-            raise fastapi.HTTPException(
+            raise HTTPException(
                         status_code=400,
                         detail=repr(err),
                         headers={"X-Error": str(err)})
@@ -567,7 +607,7 @@ def create_app(ova: OpenVoiceAssistant, updater: Updater):
             return sorted(ova.skill_manager.not_imported_skills, key=lambda x: x["name"])
         except RuntimeError as err:
             #logger.info(repr(err))
-            raise fastapi.HTTPException(
+            raise HTTPException(
                         status_code=400,
                         detail=repr(err),
                         headers={"X-Error": str(err)})
@@ -578,7 +618,7 @@ def create_app(ova: OpenVoiceAssistant, updater: Updater):
             return ova.skill_manager.get_skill_config(skill_id)
         except RuntimeError as err:
             #logger.info(repr(err))
-            raise fastapi.HTTPException(
+            raise HTTPException(
                         status_code=400,
                         detail=repr(err),
                         headers={"X-Error": str(err)})
@@ -589,7 +629,7 @@ def create_app(ova: OpenVoiceAssistant, updater: Updater):
             return ova.skill_manager.get_default_skill_config(skill_id)
         except RuntimeError as err:
             #logger.info(repr(err))
-            raise fastapi.HTTPException(
+            raise HTTPException(
                         status_code=400,
                         detail=repr(err),
                         headers={"X-Error": str(err)})
@@ -600,7 +640,7 @@ def create_app(ova: OpenVoiceAssistant, updater: Updater):
             return ova.skill_manager.update_skill(skill_id, None)
         except RuntimeError as err:
             #logger.info(repr(err))
-            raise fastapi.HTTPException(
+            raise HTTPException(
                         status_code=400,
                         detail=repr(err),
                         headers={"X-Error": str(err)})
@@ -611,7 +651,7 @@ def create_app(ova: OpenVoiceAssistant, updater: Updater):
             return ova.skill_manager.remove_skill(skill_id)
         except RuntimeError as err:
             #logger.info(repr(err))
-            raise fastapi.HTTPException(
+            raise HTTPException(
                         status_code=400,
                         detail=repr(err),
                         headers={"X-Error": str(err)})
@@ -622,7 +662,7 @@ def create_app(ova: OpenVoiceAssistant, updater: Updater):
             return ova.skill_manager.update_skill(skill_id, skill_config)
         except RuntimeError as err:
             #logger.info(repr(err))
-            raise fastapi.HTTPException(
+            raise HTTPException(
                         status_code=400,
                         detail=repr(err),
                         headers={"X-Error": str(err)})
@@ -635,7 +675,7 @@ def create_app(ova: OpenVoiceAssistant, updater: Updater):
             return sorted(ova.integration_manager.available_integrations, key=lambda x: x["name"])
         except RuntimeError as err:
                 #logger.info(repr(err))
-                raise fastapi.HTTPException(
+                raise HTTPException(
                             status_code=400,
                             detail=repr(err),
                             headers={"X-Error": f"{err}"})
@@ -646,7 +686,7 @@ def create_app(ova: OpenVoiceAssistant, updater: Updater):
             return sorted(ova.integration_manager.imported_integrations, key=lambda x: x["name"])
         except RuntimeError as err:
             #logger.info(repr(err))
-            raise fastapi.HTTPException(
+            raise HTTPException(
                         status_code=400,
                         detail=repr(err),
                         headers={"X-Error": str(err)})
@@ -657,7 +697,7 @@ def create_app(ova: OpenVoiceAssistant, updater: Updater):
             return sorted(ova.integration_manager.not_imported_integrations, key=lambda x: x["name"])
         except RuntimeError as err:
             #logger.info(repr(err))
-            raise fastapi.HTTPException(
+            raise HTTPException(
                         status_code=400,
                         detail=repr(err),
                         headers={"X-Error": str(err)})
@@ -668,7 +708,7 @@ def create_app(ova: OpenVoiceAssistant, updater: Updater):
             return ova.integration_manager.get_integration_config(integration_id)
         except RuntimeError as err:
             #logger.info(repr(err))
-            raise fastapi.HTTPException(
+            raise HTTPException(
                         status_code=400,
                         detail=repr(err),
                         headers={"X-Error": str(err)})
@@ -679,7 +719,7 @@ def create_app(ova: OpenVoiceAssistant, updater: Updater):
             return ova.integration_manager.get_default_integration_config(integration_id)
         except RuntimeError as err:
             #logger.info(repr(err))
-            raise fastapi.HTTPException(
+            raise HTTPException(
                         status_code=400,
                         detail=repr(err),
                         headers={"X-Error": str(err)})
@@ -690,7 +730,7 @@ def create_app(ova: OpenVoiceAssistant, updater: Updater):
             return ova.integration_manager.update_integration(integration_id, None)
         except RuntimeError as err:
             #logger.info(repr(err))
-            raise fastapi.HTTPException(
+            raise HTTPException(
                         status_code=400,
                         detail=repr(err),
                         headers={"X-Error": str(err)})
@@ -701,7 +741,7 @@ def create_app(ova: OpenVoiceAssistant, updater: Updater):
             return ova.integration_manager.remove_integration(integration_id)
         except RuntimeError as err:
             #logger.info(repr(err))
-            raise fastapi.HTTPException(
+            raise HTTPException(
                         status_code=400,
                         detail=repr(err),
                         headers={"X-Error": str(err)})
@@ -712,7 +752,7 @@ def create_app(ova: OpenVoiceAssistant, updater: Updater):
             return ova.integration_manager.update_integration(integration_id, integration_config)
         except RuntimeError as err:
             #logger.info(repr(err))
-            raise fastapi.HTTPException(
+            raise HTTPException(
                         status_code=400,
                         detail=repr(err),
                         headers={"X-Error": str(err)})
@@ -759,13 +799,13 @@ def create_app(ova: OpenVoiceAssistant, updater: Updater):
         
         except Exception as err:
             logger.info(repr(err))
-            raise fastapi.HTTPException(
+            raise HTTPException(
                         status_code=400,
                         detail=repr(err),
                         headers={"X-Error": str(err)})
 
     @core.post("/respond/audio_file", tags=["Pipeline"])
-    async def respond_to_audio_file(audio_file: fastapi.UploadFile = fastapi.File(...)):
+    async def respond_to_audio_file(audio_file: UploadFile = File(...)):
 
         context = {}
         try:
@@ -808,7 +848,7 @@ def create_app(ova: OpenVoiceAssistant, updater: Updater):
         
         except Exception as err:
             logger.info(repr(err))
-            raise fastapi.HTTPException(
+            raise HTTPException(
                         status_code=400,
                         detail=repr(err),
                         headers={"X-Error": str(err)})
@@ -854,7 +894,7 @@ def create_app(ova: OpenVoiceAssistant, updater: Updater):
             return Response(content=wav_data , headers=response_headers, media_type="audio/wav")
         except Exception as err:
             logger.info(repr(err))
-            raise fastapi.HTTPException(
+            raise HTTPException(
                         status_code=400,
                         detail=repr(err),
                         headers={"X-Error": str(err)})
@@ -866,7 +906,7 @@ def create_app(ova: OpenVoiceAssistant, updater: Updater):
     templates = Jinja2Templates(directory="./frontend/build")
 
     @app.get("/{path:path}")
-    async def serve_static_files(path: str, request: fastapi.Request):
+    async def serve_static_files(path: str, request: Request):
         return templates.TemplateResponse("index.html", {"request": request})
 
     def custom_openapi():
