@@ -8,7 +8,7 @@ import asyncio
 import logging
 logger = logging.getLogger("web")
 
-from fastapi import FastAPI, APIRouter, HTTPException, UploadFile, File, Request
+from fastapi import FastAPI, APIRouter, WebSocket, HTTPException, UploadFile, File, Request
 from fastapi.responses import StreamingResponse
 from pydantic import BaseModel
 
