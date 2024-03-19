@@ -404,7 +404,7 @@ function Node() {
         {loading ? (
           <p style={{ paddingTop: "30px" }}>Loading data...</p>
         ) : (
-          <div style={{ paddingTop: "20px", display: 'flex' }}>
+          <div style={{ paddingTop: "30px", display: 'flex' }}>
             <div style={{ flex: 1, width: "300px"}}>
               <h2>Configuration</h2>
               
