@@ -489,6 +489,14 @@ function Node() {
                   />
                 </div>
                 <div className="form-field">
+                  <label>Omni Directional Wake Word</label>
+                  <input
+                    type="checkbox"
+                    checked={editedData.omni_directional_wake_word}
+                    onChange={(e) => handleCheckboxChange('omni_directional_wake_word')}
+                  />
+                </div>
+                <div className="form-field">
                   <label>Microphone</label>
                   <select
                     className="dropdown"
