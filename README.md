@@ -9,11 +9,11 @@ Deploy on a single server on your LAN. OVA-hub can be deployed on anything from 
 To utilize some of the more advanced AI features, deploy on a GPU capable machine with CUDA support.
 
 ## Installation
-openvoiceassistant-hub is tested on Ubuntu 20.04 with **python >= 3.10**
+openvoiceassistant-hub is tested on Ubuntu 20.04 with **python >= 3.11**
 
 ```
 sudo apt install -y git && \
-sudo git clone https://github.com/greerviau/openvoiceassistant-hub.git && \
+git clone https://github.com/greerviau/openvoiceassistant-hub.git && \
 cd openvoiceassistant-hub && \
 sudo ./scripts/install.sh
 ```
@@ -33,16 +33,16 @@ Navigate to ```<ova_hub_ip>:7123/docs``` to access the swagger UI for the REST A
 # Integrations
 Integrations are an augmentation for skills that might need similar capabilities. Ex. Home Assistant api that multiple skills need to utilize
 
-Check out the [list of available integrations](https://github.com/greerviau/openvoiceassistant-hub/blob/develop/core/integrations/README.md)
+Check out the [list of available integrations](core/integrations)
 
-If you want to write your own integration, follow the [documentation](https://github.com/greerviau/openvoiceassistant-hub/blob/develop/core/integrations/README.md#writing-a-custom-integration) for a guideline. 
+If you want to write your own integration, follow the [documentation](core/integrations/README.md#writing-a-custom-integration) for a guideline. 
 
 # Skills
 Skills are available out of the box, no programming required. Simply import them from the frontend UI and configure them appropriatley.
 
-Check out the [list of available skills](https://github.com/greerviau/openvoiceassistant-hub/blob/develop/core/skills/README.md) openvoiceassistant has to offer!
+Check out the [list of available skills](core/skills) openvoiceassistant has to offer!
 
-If you want to write your own skills, follow the [documentation](https://github.com/greerviau/openvoiceassistant-hub/blob/develop/core/skills/README.md#writing-a-custom-skill) for a guideline. 
+If you want to write your own skills, follow the [documentation](core/skills/README.md#writing-a-custom-skill) for a guideline. 
 
 Users are encouraged to create their own skills and contribute them so others may use them!
 
