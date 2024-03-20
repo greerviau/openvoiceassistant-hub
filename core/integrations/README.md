@@ -42,14 +42,12 @@ def manifest():
 
 ### manifest
 
-```manifest``` contains the contains information about the integration. There are 3 required fields for any integration ```name```, ```id``` and ```category```. 
-
+```manifest``` contains the contains information about the integration. There are 3 required fields:<br>
 ```name``` is a friendly display name for the integration.<br>
 ```id``` should be the name of the actual integration file.<br>
 ```category``` describes what the integration does generaly (this is used to indicate overlapping integrations).
 
-There are a few more fields that are not required unless your integration requires them ```requirements``` and ```config```. 
-
+There are a few more fields that are not required unless your integration requires them:<br>
 ```requirements``` is a list of pip packages that are required for your integration to operate. Ex. our integration requires ```"requests==2.31.0"```. If you require multiple pip packages they must be comma separated.<br>
 ```config``` is a dictionary that will be imported into the integration as ```integration_config```. In this example, our integration has a config for ```host```, ```port``` and ```api_key```.<br>
 Within the ```config```, datatypes will be automatically recognized on the frontend for configuration. It is important to mention that if you want your integration to be configurable with a dropdown menu, you can achieve this by adding a field that appends ```_options``` to the field name. Ex:

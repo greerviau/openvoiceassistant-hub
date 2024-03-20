@@ -27,7 +27,7 @@ You should then be able to start core:
 ```
 python -m core
 ```
-When developing you can utilize some of the aditional flags such as ```--debug``` and ```--port```<br>
+When developing you can utilize some of the aditional flags:<br>
 ```--debug``` will give you more log info.<br>
 ```--port``` will change the port that the core api runs on. It is recomended not to change this unless you have a specific use case.
 

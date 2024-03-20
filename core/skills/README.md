@@ -103,14 +103,12 @@ Dont go too overboard with duplication for situations like this, just enough to 
 
 ### manifest
 
-```manifest``` contains the contains information about the skill. There are 3 required fields for any skill ```name```, ```id``` and ```category```. 
-
+```manifest``` contains the contains information about the skill. There are 3 required fields:<br>
 ```name``` is a friendly display name for the skill.<br>
 ```id``` should be the name of the actual skill file.<br>
 ```category``` describes what the skill does generaly (this is used to indicate overlapping skills).
 
-There are a few more fields that are not required unless your skill requires them ```requirements```, ```config``` and ```required_integrations```. 
-
+There are a few more fields that are not required unless your skill requires them:<br>
 ```requirements``` is a list of pip packages that are required for your skill to operate. Ex. pyjoes requires ```pyjokes==0.6.0```. If you require multiple pip packages they must be comma separated.<br>
 ```config``` is a dictionary that will be imported into the skill as ```skill_config```. Ex. Yahoo Finance has a ```config```<br>
 ```
