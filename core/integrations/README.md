@@ -5,7 +5,7 @@
 # Writing a Custom Integration
 Integrations are designed as python modules that are imported by the Integration Manager. The main purpose of integrations is to augment an api that needs to be used my multiple integrations and consolidating the configuration for the api to a single module.
 
-Integrations are located in [core/integrations](integrations). Take a look at the available integrations. The file structure is as follows:
+Integrations are located in [core/integrations](../integrations). Take a look at the available integrations. The file structure is as follows:
 ```
 - <integration>
     - __init__.py

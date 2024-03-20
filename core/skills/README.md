@@ -16,7 +16,7 @@
 # Writing a Custom Skill
 Skills are designed as python modules that are imported by the Skill Manager.
 
-Skills are located in [core/skills](skills). Take a look at the available skills. The file structure is as follows:
+Skills are located in [core/skills](../skills). Take a look at the available skills. The file structure is as follows:
 ```
 - <skill>
     - __init__.py
