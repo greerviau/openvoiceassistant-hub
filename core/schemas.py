@@ -1,0 +1,29 @@
+import typing
+
+class Context(typing.TypedDict):
+    node_id: str
+    node_name: str
+    node_area: str
+    time_sent: float
+    time_received: float
+    time_returned: float
+    engaged: bool
+    last_time_engaged: float
+    command_audio_file_path: str
+    command: str
+    synth_command: str
+    cleaned_command: str
+    encoded_command: str
+    pos_info: typing.Dict
+    skill: str
+    action: str
+    conf: float
+    pass_threshold: bool
+    time_to_transcribe: float
+    time_to_understand: float
+    time_to_action: float
+    time_to_synthesize: float
+    time_to_run_pipeline: float
+    response: str
+    response_audio_file_path: str
+    response_audio_data: bytes
