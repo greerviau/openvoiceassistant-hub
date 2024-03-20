@@ -13,7 +13,7 @@ openvoiceassistant-hub is tested on Ubuntu 20.04 with **python >= 3.11**
 
 ```
 sudo apt install -y git && \
-git clone https://github.com/greerviau/openvoiceassistant-hub.git && \
+git clone -b release https://github.com/greerviau/openvoiceassistant-hub.git && \
 cd openvoiceassistant-hub && \
 sudo ./scripts/install.sh
 ```
