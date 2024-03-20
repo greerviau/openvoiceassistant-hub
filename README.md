@@ -68,3 +68,5 @@ All of the algorithms in the pipeline are customizable, including:
 ## Voice Synthesis
 * Espeak (default)
 * Piper TTS
+
+# [Release Notes](RELEASES.md)
