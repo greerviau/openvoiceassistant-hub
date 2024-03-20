@@ -98,6 +98,8 @@ def format_seconds(seconds):
     return format_readable_list(time_strs)
 
 def format_sentences(text):
+    if not text:
+        return text
     # Split the text into sentences using regex
     sentences = re.split(r'(?<=[.!?])\s+', text)
     
