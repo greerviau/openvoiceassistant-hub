@@ -68,8 +68,3 @@ All of the algorithms in the pipeline are customizable, including:
 ## Voice Synthesis
 * Espeak (default)
 * Piper TTS
-
-## v0.1.0
-- [x] Fix neural intent (use pytorch)
-- [x] Optimize and improve inference speed
-- [x] Basic frontend
