@@ -341,7 +341,9 @@ function Node() {
     .then((json) => {
       console.log('Node logs:', json);
       setLogs(json);
-      terminalRef.current.scrollTop = terminalRef.current.scrollHeight;
+      if (terminalRef.current) {
+        terminalRef.current.scrollTop = terminalRef.current.scrollHeight;
+      }
     })
     .catch((error) => {
       console.error('Error updating node:', error);
@@ -537,18 +539,7 @@ function Node() {
                     disabled={(!newChanges || saving)} 
                     onClick={handleSaveChanges}>
                       {saving ? 'Saving...' : 'Save Changes'}
-                    </button>
-                <div className="notification-container">
-                  {errorNotification && (
-                    <div className="notification error-notification">{errorNotification}</div>
-                  )}
-                  {infoNotification && (
-                    <div className="notification info-notification">{infoNotification}</div>
-                  )}
-                  {successNotification && (
-                    <div className="notification success-notification">{successNotification}</div>
-                  )}
-                </div>
+                </button>
               </form>
             </div>
             <div style={{ flex: 2, width: "600px"}}>
@@ -569,6 +560,17 @@ function Node() {
               </div>
             </div>
           </div>
+        )}
+      </div>
+      <div className="notification-container">
+        {errorNotification && (
+          <div className="notification error-notification">{errorNotification}</div>
+        )}
+        {infoNotification && (
+          <div className="notification info-notification">{infoNotification}</div>
+        )}
+        {successNotification && (
+          <div className="notification success-notification">{successNotification}</div>
         )}
       </div>
     </div>

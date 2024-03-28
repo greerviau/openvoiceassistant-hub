@@ -14,7 +14,7 @@ class HASSShoppingList:
     def add_to_shopping_list(self, context: typing.Dict):
         sent_info = context["sent_info"]
         try:
-            item_to_add = sent_info["OBJECTS"][0]
+            item_to_add = sent_info["ITEMS"][0]
         except KeyError:
             context["response"] = "Please provide an item to add to the shopping list"
             return
@@ -34,7 +34,7 @@ class HASSShoppingList:
     def remove_from_shopping_list(self, context: typing.Dict):
         sent_info = context["sent_info"]
         try:
-            item_to_remove = sent_info["OBJECTS"][0]
+            item_to_remove = sent_info["ITEMS"][0]
         except KeyError:
             context["response"] = "Please provide an item to remove from the shopping list"
             return
