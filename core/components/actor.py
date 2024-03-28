@@ -26,9 +26,9 @@ class Actor:
 
         skill = context["skill"]
         action = context["action"]
-        pass_threshold = context["pass_threshold"]
+        run_action = context["run_action"]
 
-        if not pass_threshold:
+        if not run_action:
             context["response"] = ""
         else:
             if self.ova.skill_manager.skill_imported(skill):

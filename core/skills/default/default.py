@@ -14,7 +14,7 @@ class Default:
         self.hour_format = "%H" if ova.settings["24_hour_format"] else "%I"
 
     def introduction(self, context: typing.Dict):
-        context["response"] = "Hello. My name is ova. I am an opensource and locally controlled voice assistant. I am designed to be an offline alternative to popular voice assistants like Alexa and Google home."
+        context["response"] = "Hello. My name is ova. I am an open-source and locally controlled voice assistant. I am designed to be an offline alternative to popular voice assistants like Alexa and Google home."
 
     def volume(self, context: typing.Dict):
         node_id = context["node_id"]
@@ -24,14 +24,14 @@ class Default:
         try:
             value = int(numbers[0])
         except:
-            context["response"] = "No volume percentage specified"
+            context["response"] = "No volume percentage specified."
             return
 
         if "percent" in command or value > 10:
-            response = f"Setting the volume to {value} percent"
+            response = f"Setting the volume to {value} percent."
             volume_percent = value
         else:
-            response = f"Setting the volume to {value}"
+            response = f"Setting the volume to {value}."
             volume_percent = value * 10
 
         node_config = self.ova.node_manager.get_node_config(node_id)
@@ -42,7 +42,7 @@ class Default:
         try:
             resp.raise_for_status()
         except:
-            response = "Failed to set timer"
+            response = "Failed to set timer."
 
         context["response"] = response
     
@@ -50,15 +50,15 @@ class Default:
         date = datetime.now().strftime("%B %d, %Y")
         readable_date = format_readable_date(datetime.now())
         
-        context["synth_response"] = f"Today is {readable_date}"
-        context["response"] = f"Today is {date}"
+        context["synth_response"] = f"Today is {readable_date}."
+        context["response"] = f"Today is {date}."
 
     def time(self, context: typing.Dict):
         time = datetime.now().strftime(f"{self.hour_format}:%M").lstrip("0")
         readable_time = format_readable_time(datetime.now(), self.hour_format)
 
-        context["synth_response"] = f"It is {readable_time}"
-        context["response"] = f"It is {time}"
+        context["synth_response"] = f"It is {readable_time}."
+        context["response"] = f"It is {time}."
 
     def day_of_week(self, context: typing.Dict):
         dow = datetime.now().strftime("%A")
@@ -92,7 +92,7 @@ class Default:
                                 durration += int(d) * m
                     if durration > 0:
                         self.ova.node_manager.call_node_api("POST", node_id, "/timer/set", json={"durration": durration})
-                        response = f"Setting a timer for {format_seconds(durration)}"
+                        response = f"Setting a timer for {format_seconds(durration)}."
                     else:
                         raise RuntimeError("No time durration specified")
                 else:
@@ -101,7 +101,7 @@ class Default:
                 context["hub_callback"] = "default.set_timer"
                 response = "How long should I set a timer for?"
         else:
-            response = "There is already a timer running"
+            response = "There is already a timer running."
 
         context["response"] = response 
 
@@ -116,12 +116,12 @@ class Default:
 
         if remaining > 0:
             if remaining == 0:
-                context["response"] = "The timer is up"
+                context["response"] = "The timer is up."
                 return
             
-            response = f"There are {format_seconds(remaining)}"
+            response = f"There are {format_seconds(remaining)} remaining."
         else:
-            response = "There is no timer currently running"
+            response = "There is no timer currently running."
         context["response"] = response
     
     def stop_timer(self, context: typing.Dict):
@@ -134,9 +134,9 @@ class Default:
             return
 
         if remaining == 0:
-            context["response"] = "There is no timer currently running"
+            context["response"] = "There is no timer currently running."
             return
 
         node_id = context["node_id"]
         resp = self.ova.node_manager.call_node_api("POST", node_id, "/timer/stop")
-        context["response"] =  "Stopping the timer"
+        context["response"] =  "Stopping the timer."
