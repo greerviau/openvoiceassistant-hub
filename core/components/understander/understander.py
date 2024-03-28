@@ -12,8 +12,10 @@ from core import config
 from core.enums import Components
 from core.schemas import Context
 from core.utils.nlp.preprocessing import clean_text, encode_command
-from core.utils.nlp.information_extraction import new_extract_information
+from core.utils.nlp.information_extraction import extract_information
 from core.utils.nlp.false_positives import FALSE_POSITIVES, add_false_positive
+
+CANCEL_WORDS = ["stop", "cancel", "nevermind", "quiet", "shut up"]
 
 class Understander:
     def __init__(self, ova: "OpenVoiceAssistant"):
@@ -83,6 +85,7 @@ class Understander:
 
     def load_vocab(self, all_patterns: typing.List[typing.List[str]]):
         words = []
+        words.extend(CANCEL_WORDS)
         for patterns in all_patterns:
             for pattern in patterns:
                 words.extend([clean_text(word) for word in pattern.split()])
@@ -220,25 +223,30 @@ class Understander:
         
         command = context["command"]
 
+        context["sent_info"] = extract_information(command)
+
         try:
             cleaned_command = context["cleaned_command"]
         except KeyError:
             cleaned_command = clean_text(command)
             context["cleaned_command"] = cleaned_command
             logger.info(f"Cleaned Command: {cleaned_command}")
-        
-        context["sent_info"] = new_extract_information(cleaned_command)
 
         encoded_command = encode_command(cleaned_command, self.vocab_list)
         context["encoded_command"] = encoded_command
         logger.info(f"Encoded command: {encoded_command}")
         
-        skill, action, conf, pass_threshold = "", "", 0, False
+        skill, action, conf, run_action = "", "", 0, False
         if encoded_command in ["", "BLANK"]:
             skill = "NO_COMMAND"
             action = "NO_ACTION"
             conf = 100
-            pass_threshold = False
+            run_action = False
+        elif encoded_command in CANCEL_WORDS:
+            skill = "STOP"
+            action = "CANCEL"
+            conf = 100
+            run_action = False
         else:
             hub_callback = context["hub_callback"] if "hub_callback" in context else None
             if hub_callback:
@@ -246,7 +254,7 @@ class Understander:
                     skill, action = hub_callback.split(".")
                     conf = 100
                     context["hub_callback"] = ""
-                    pass_threshold = True
+                    run_action = True
                 except:
                     raise RuntimeError("Failed to parse callback")
             else:
@@ -255,18 +263,18 @@ class Understander:
                     for tag, patterns in self.intents.items():
                         if encoded_command in patterns:
                             skill, action = tag.split("-")
-                            conf, pass_threshold = 100, True
+                            conf, run_action = 100, True
 
-                if not pass_threshold:
+                if not run_action:
                     skill, action, conf = self.engine.understand(context)
                     if conf > self.conf_thresh:
-                        pass_threshold = True
+                        run_action = True
 
                 if skill in ["NO_COMMAND"] or action in ["NO_ACTION"]:
-                    if not pass_threshold:
+                    if not run_action:
                         add_false_positive(cleaned_command)
                     else:
-                        pass_threshold = False
+                        run_action = False
         
         logger.info(f"Skill: {skill}")
         logger.info(f"Action: {action}")
@@ -274,7 +282,7 @@ class Understander:
         context["skill"] = skill
         context["action"] = action
         context["conf"] = conf
-        context["pass_threshold"] = pass_threshold
+        context["run_action"] = run_action
 
         dt = time.time() - start
         context["time_to_understand"] = dt

@@ -1,3 +1,4 @@
+import re
 import spacy
 from spacy.matcher import DependencyMatcher
 import logging
@@ -24,7 +25,9 @@ ROOMS = [
     "Exercise Room",
     "Laundry Room",
     "Mudroom",
+    "Closet",
     "Walk-in Closet",
+    "Back Stairs",
     "Storage Room",
     "Attic Room",
     "Basement",
@@ -54,81 +57,67 @@ ROOMS = [
     "Playhouse"
 ]
 
+# Combine common prefix with different specific patterns
+music_patterns = [
+    r"\b(play|start playing|put on)\b\s+(?P<song>[A-Za-z0-9\s'-]+?)?(?:\s+by\s+(?P<artist>[A-Za-z0-9\s'-]+?))?(?:\s+on\s+(?P<platform>[A-Za-z0-9\s'-]+?))?$"
+]
+
+def extract_music_info(sentence):
+    music_info = {}
+
+    for pattern in music_patterns:
+        match = re.match(pattern, sentence, re.IGNORECASE)
+        if match:
+            # Extract information using named groups
+            info = {key: value.strip() for key, value in match.groupdict().items() if value is not None}
+            music_info.update(info)
+
+    return music_info
+
+def find_compounds(token):
+    compounds = []
+    for child in token.children:
+        if child.dep_ == "compound":
+            compounds.insert(0, child.text)
+            compounds = find_compounds(child) + compounds
+        elif child.dep_ == "amod":  # Handle adjectives modifying the object
+            compounds.insert(0, child.text)
+            compounds = find_compounds(child) + compounds
+    return compounds
+
 def extract_information(sentence: str):
+    sentence = sentence.lower()
     doc = nlp(sentence)
-
     parsed = {}
-    parsed["SUBJECT"], parsed["OBJECT"], parsed["COMP"] = [], [], []
 
-    for token in doc:
-        if (token.dep_=="nsubj"):
-            parsed["SUBJECT"].append(token.text)
-
-        elif (token.dep_=="dobj"):
-            parsed["OBJECT"].append(token.text)
-
-        elif (token.dep_=="compound"):
-            parsed["COMP"].append(token.text)
-
-    parsed["ENTITIES"] = dict([(ent.label_, ent.text) for ent in doc.ents])
-
-    parsed["NOUN_CHUNKS"] = []
-    for chunk in doc.noun_chunks:
-        parsed["NOUN_CHUNKS"].append(chunk.text)
-
-    object_pattern = [
-        {
-            "RIGHT_ID": "target",
-            "RIGHT_ATTRS": {"POS": "NOUN"}
-        },
-        # founded -> subject
-        {
-            "LEFT_ID": "target",
-            "REL_OP": ">",
-            "RIGHT_ID": "modifier",
-            "RIGHT_ATTRS": {"DEP": {"IN": ["amod", "nummod"]}}
-        }
-    ]
-
-    matcher = DependencyMatcher(nlp.vocab)
-    matcher.add("OBJ", [object_pattern])   
-
-    parsed["MOD_OBJECT"] = []
-    for match_id, (modifier, target) in matcher(doc):
-        parsed["MOD_OBJECT"].append(" ".join([doc[modifier].text, doc[target].text]))
-
-    return parsed
-
-def new_extract_information(sentence: str):
-    doc = nlp(sentence)
+    parsed["POS_TAGGING"] = [(token.text, token.dep_) for token in doc]
 
     # NAMED ENTITIES
-    parsed = {}
     parsed["ENTITIES"] = dict([(ent.label_, ent.text) for ent in doc.ents])
 
     # ROOMS
-    rooms = []
-    for room in ROOMS:
-        room = room.lower()
-        if room in sentence.lower():
-            rooms.append(room)
-    parsed["ROOMS"] = rooms
+    parsed["ROOMS"] = [room.lower() for room in ROOMS if room.lower() in sentence.lower()]
+
+    #MUSIC
+    parsed["MUSIC"] = extract_music_info(sentence)
 
     # ITEMS
-    objects = []
-    mod_objects_patterns = [
-        {"RIGHT_ID": "target", "RIGHT_ATTRS": {"POS": "NOUN"}},
-        {"LEFT_ID": "target", "REL_OP": ">", "RIGHT_ID": "modifier", "RIGHT_ATTRS": {"DEP": {"IN": ["amod", "nummod"]}}}
-    ]
-    matcher = spacy.matcher.DependencyMatcher(nlp.vocab)
-    matcher.add("MODOBJECT", [mod_objects_patterns])
-    matches = matcher(doc)
-    for match_id, token_ids in matches:
-        objects.append(" ".join([doc[token_id].text for token_id in token_ids]))
+    items = []
     for token in doc:
-        if (token.dep_=="dobj"):
-            objects.append(token.text)
-    parsed["OBJECTS"] = objects
+        if token.dep_ == "dobj" or token.dep_ == "conj":
+            compound_object = find_compounds(token) + [token.text]
+            items.append(" ".join(compound_object))
+
+    parsed["ITEMS"] = list(set(items))
+
+    # OBJECTS
+    objects = []
+    for token in doc:
+        if token.dep_ == "pobj":
+            compound_object = find_compounds(token) + [token.text]
+            objects.append(" ".join(compound_object))
+
+    parsed["OBJECTS"] = list(set(objects))
 
     return parsed
 
