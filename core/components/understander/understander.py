@@ -11,7 +11,7 @@ from nltk.corpus import wordnet
 from core import config
 from core.enums import Components
 from core.schemas import Context
-from core.utils.nlp.preprocessing import clean_text, encode_command
+from core.utils.nlp.preprocessing import preprocess_text, clean_text, encode_command
 from core.utils.nlp.information_extraction import extract_information
 from core.utils.nlp.false_positives import FALSE_POSITIVES, add_false_positive
 
@@ -223,14 +223,15 @@ class Understander:
         
         command = context["command"]
 
-        context["sent_info"] = extract_information(command)
+        preprocessed_command = preprocess_text(command)
+        context["preprocessed_command"] = preprocessed_command
+        logger.info(f"Preprocessed Command: {preprocessed_command}")
 
-        try:
-            cleaned_command = context["cleaned_command"]
-        except KeyError:
-            cleaned_command = clean_text(command)
-            context["cleaned_command"] = cleaned_command
-            logger.info(f"Cleaned Command: {cleaned_command}")
+        context["sent_info"] = extract_information(preprocessed_command)
+
+        cleaned_command = clean_text(preprocessed_command)
+        context["cleaned_command"] = cleaned_command
+        logger.info(f"Cleaned Command: {cleaned_command}")
 
         encoded_command = encode_command(cleaned_command, self.vocab_list)
         context["encoded_command"] = encoded_command

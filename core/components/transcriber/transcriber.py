@@ -50,10 +50,6 @@ class Transcriber:
         context["command"] = command
         logger.info(f"Command: {command}")
 
-        cleaned_command = clean_text(command)
-        context["cleaned_command"] = cleaned_command
-        logger.info(f"Cleaned Command: {cleaned_command}")
-
         dt = time.time() - start        
         logger.info(f"Time to transcribe: {dt}")
         context["time_to_transcribe"] = dt

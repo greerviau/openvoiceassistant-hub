@@ -184,15 +184,15 @@ def parse_date(text: str):
 
     return None, None
 
-def remove_stop_words(phrase: str):
+def remove_stop_words(phrase: str) -> str:
     for word in STOPWORDS:
         phrase = phrase.replace(word, "")
     return phrase.strip()
 
-def extract_numbers(sentence: str):
+def extract_numbers(sentence: str) -> str:
     return re.findall(r"\d+", sentence)
 
-def find_string_match(guess: str, possibilities: typing.List[str]):
+def find_string_match(guess: str, possibilities: typing.List[str]) -> str:
     if not possibilities:
         return None
     conf = 0
@@ -204,27 +204,26 @@ def find_string_match(guess: str, possibilities: typing.List[str]):
             answer = p
     return answer
 
-def replace_punctuation(text: str, replace_with: str = ""):
+def replace_punctuation(text: str, replace_with: str = "") -> str:
     return re.sub("[^a-zA-Z0-9 \n\.]", replace_with, text)
 
-def get_after(text: str, split_token: str):
+def get_after(text: str, split_token: str) -> str:
     return text.split(split_token)[-1]
 
-"""
-RELATED TO INTENT CLASSIFICATION
-"""
-
-def clean_text(text: str):
+def clean_text(text: str) -> str:
     text = text.lower()
     text = text.replace("%", " percent")
     text = text.replace("-", " ")
-    text = " ".join([try_parse_word_number(word) for word in text.split()])
     table = str.maketrans("", "", string.punctuation)
     text = " ".join([w.translate(table) for w in text.split()])
     text = text.strip()
     return text
 
-def encode_command(command: str, vocab: typing.List[str]):
+def preprocess_text(text: str) -> str:
+    text = " ".join([try_parse_word_number(word) for word in text.split()])
+    return text
+
+def encode_command(command: str, vocab: typing.List[str]) -> str:
     last_blank = False
     words = []
     for word in command.split():
@@ -240,7 +239,7 @@ def encode_command(command: str, vocab: typing.List[str]):
             words.pop(0)
     return " ".join(words)
 
-def remove_words(self, text: str, words: typing.List[str]):
+def remove_words(self, text: str, words: typing.List[str]) -> str:
     for word in words:
         text = text.replace(word, "").strip()
     return text

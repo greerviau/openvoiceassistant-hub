@@ -12,6 +12,7 @@ class Context(typing.TypedDict):
     command_audio_file_path: str
     command: str
     synth_command: str
+    preprocessed_command: str
     cleaned_command: str
     encoded_command: str
     pos_info: typing.Dict
