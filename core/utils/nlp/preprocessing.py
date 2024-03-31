@@ -184,10 +184,10 @@ def parse_date(text: str):
 
     return None, None
 
-def remove_stop_words(phrase: str) -> str:
+def remove_stop_words(text: str) -> str:
     for word in STOPWORDS:
-        phrase = phrase.replace(word, "")
-    return phrase.strip()
+        text = text.replace(word, "")
+    return text.strip()
 
 def extract_numbers(sentence: str) -> str:
     return re.findall(r"\d+", sentence)
@@ -212,14 +212,15 @@ def get_after(text: str, split_token: str) -> str:
 
 def clean_text(text: str) -> str:
     text = text.lower()
-    text = text.replace("%", " percent")
-    text = text.replace("-", " ")
     table = str.maketrans("", "", string.punctuation)
     text = " ".join([w.translate(table) for w in text.split()])
     text = text.strip()
     return text
 
 def preprocess_text(text: str) -> str:
+    text = text.lower()
+    text = text.replace("%", " percent")
+    text = text.replace("-", " ")
     text = " ".join([try_parse_word_number(word) for word in text.split()])
     return text
 
