@@ -118,6 +118,14 @@ INTENTIONS = [
                 "forget the timer",
                 "forget that timer"
             ]
+        },
+        {
+            "action":"flip_a_coin",
+            "patterns":[
+                "flip a coin",
+                "flip over a coin",
+                "toss a coin"
+            ]
         }
     ]
 

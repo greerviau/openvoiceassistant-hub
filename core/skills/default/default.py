@@ -1,6 +1,7 @@
 import typing
 import logging
 logger = logging.getLogger("skill.default")
+import random
 
 from datetime import datetime
 
@@ -140,3 +141,9 @@ class Default:
         node_id = context["node_id"]
         resp = self.ova.node_manager.call_node_api("POST", node_id, "/timer/stop")
         context["response"] =  "Stopping the timer."
+
+    def flip_a_coin(self, context: typing.Dict):
+        if round(random.uniform(0, 1)):
+            context["response"] = "It's heads."
+        else:
+            context["response"] = "It's tails."
