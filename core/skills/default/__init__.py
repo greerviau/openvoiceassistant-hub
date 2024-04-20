@@ -84,6 +84,7 @@ INTENTIONS = [
             "patterns":[
                 "set a timer for",
                 "set a timer",
+                "set an BLANK minute timer",
                 "set a BLANK timer",
                 "set a BLANK minute timer",
                 "set a BLANK hour timer",

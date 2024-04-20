@@ -6,6 +6,7 @@ import random
 from datetime import datetime
 
 from core.utils.nlp.preprocessing import extract_numbers
+from core.utils.nlp.information_extraction import text_to_seconds
 from core.utils.nlp.formatting import format_readable_date, format_readable_time, format_seconds
 
 class Default:
@@ -82,15 +83,7 @@ class Default:
             try:
                 if "TIME" in entities:
                     t = entities["TIME"]
-                    t_split = t.split()
-                    if t_split[0] in ["a", "an"]:
-                        t_split[0] = 1
-                    durration = 0
-                    for inc, m in {"second": 1, "minute": 60, "hour": 3600}.items():
-                        for inc_idx, sec in enumerate(t_split):
-                            if inc in sec:
-                                d = t_split[inc_idx - 1]
-                                durration += int(d) * m
+                    durration = text_to_seconds(t)
                     if durration > 0:
                         self.ova.node_manager.call_node_api("POST", node_id, "/timer/set", json={"durration": durration})
                         response = f"Setting a timer for {format_seconds(durration)}."

@@ -13,43 +13,41 @@ class HASSShoppingList:
 
     def add_to_shopping_list(self, context: typing.Dict):
         sent_info = context["sent_info"]
-        try:
-            item_to_add = sent_info["ITEMS"][0]
-        except KeyError:
-            context["response"] = "Please provide an item to add to the shopping list"
-            return
-        
-        data = {
-            "name": item_to_add
-        }
-        
-        resp = self.ha_integration.post_services("shopping_list", "add_item", data)
-        if resp.status_code == 200:
-            response = f"Adding {item_to_add} to your shopping list"
+        items = sent_info["ITEMS"]
+        if any(items):
+            for item in items:
+                data = {
+                    "name": item
+                }
+                
+                resp = self.ha_integration.post_services("shopping_list", "add_item", data)
+                if resp.status_code != 200:
+                    context["response"] = f"Failed to add {item} to your shopping list"
+                    return
+                    
+            items_readable_list = format_readable_list(items)
+            context["response"] = f"Adding {items_readable_list} to your shopping list"
         else:
-            response = f"Failed to add {item_to_add} to your shopping list"
-
-        context["response"] = response
+            context["response"] = "Please provide an item to add to the shopping list"
 
     def remove_from_shopping_list(self, context: typing.Dict):
         sent_info = context["sent_info"]
-        try:
-            item_to_remove = sent_info["ITEMS"][0]
-        except KeyError:
-            context["response"] = "Please provide an item to remove from the shopping list"
-            return
-        
-        data = {
-            "name": item_to_remove
-        }
-        
-        resp = self.ha_integration.post_services("shopping_list", "remove_item", data)
-        if resp.status_code == 200:
-            response = f"Removing {item_to_remove} from your shopping list"
+        items = sent_info["ITEMS"]
+        if any(items):
+            for item in items:
+                data = {
+                    "name": item
+                }
+                
+                resp = self.ha_integration.post_services("shopping_list", "remove_item", data)
+                if resp.status_code != 200:
+                    context["response"] = f"Failed to remove {item} from your shopping list"
+                    return
+                    
+            items_readable_list = format_readable_list(items)
+            context["response"] = f"Removing {items_readable_list} from your shopping list"
         else:
-            response = f"Failed to remove {item_to_remove} from your shopping list"
-
-        context["response"] = response
+            context["response"] = "Please provide an item to remove from the shopping list"
 
     def read_shopping_list(self, context: typing.Dict):
         try:
