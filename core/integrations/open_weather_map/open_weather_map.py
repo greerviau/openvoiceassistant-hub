@@ -42,33 +42,35 @@ class OpenWeatherMap:
                         new_weather["daily_forecast"] = mgr.forecast_at_coords(lat=lat, lon=lon, interval="daily").forecast
                     except:
                         logger.warning("Cannot make daily forecast requests with free API key")
-
-                today = {"morning": None, "afternoon": None, "evening": None}
-                tomorrow = {"morning": None, "afternoon": None, "evening": None}
-                for weather in new_weather["hourly_forecast"]:
-                    dt = datetime.utcfromtimestamp(weather.ref_time).astimezone(ova.timezone)
-                    logger.debug(dt)
-                    if dt.day == datetime.today().day:
-                        if dt.hour < 12 and dt.hour + 3 >= 12:
-                            today["morning"]  = weather
-                        elif dt.hour < 17 and dt.hour + 3 >= 17:
-                            today["afternoon"] = weather
+                if all(key in new_weather for key in ["current", "hourly_forecast"]):
+                    today = {"morning": None, "afternoon": None, "evening": None}
+                    tomorrow = {"morning": None, "afternoon": None, "evening": None}
+                    for weather in new_weather["hourly_forecast"]:
+                        dt = datetime.utcfromtimestamp(weather.ref_time).astimezone(ova.timezone)
+                        logger.debug(dt)
+                        if dt.day == datetime.today().day:
+                            if dt.hour < 12 and dt.hour + 3 >= 12:
+                                today["morning"]  = weather
+                            elif dt.hour < 17 and dt.hour + 3 >= 17:
+                                today["afternoon"] = weather
+                            else:
+                                today["evening"] = weather
+                        elif dt.day == (datetime.today() + timedelta(days=1)).day:
+                            if dt.hour < 12 and dt.hour + 3 >= 12:
+                                tomorrow["morning"]  = weather
+                            elif dt.hour < 17 and dt.hour + 3 >= 17:
+                                tomorrow["afternoon"] = weather
+                            else:
+                                tomorrow["evening"] = weather
                         else:
-                            today["evening"] = weather
-                    elif dt.day == (datetime.today() + timedelta(days=1)).day:
-                        if dt.hour < 12 and dt.hour + 3 >= 12:
-                            tomorrow["morning"]  = weather
-                        elif dt.hour < 17 and dt.hour + 3 >= 17:
-                            tomorrow["afternoon"] = weather
-                        else:
-                            tomorrow["evening"] = weather
-                    else:
-                        break
-                new_weather["today"] = today
-                new_weather["tomorrow"] = tomorrow
-                self._weather = new_weather
-                logger.debug(new_weather)
-                logger.info("Current Location Weather Updated")
+                            break
+                    new_weather["today"] = today
+                    new_weather["tomorrow"] = tomorrow
+                    self._weather = new_weather
+                    logger.debug(new_weather)
+                    logger.info("Current Location Weather Updated")
+                else:
+                    logger.warning("Current Location Weather Failed to Update")
                 time.sleep(update_interval)
 
         self.weather_thread = threading.Thread(target=_update_weather, daemon=True)
