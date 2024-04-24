@@ -23,26 +23,29 @@ class OpenWeatherMap:
 
         def _update_weather():
             while True:
-                self._weather = {}
+                new_weather = {}
                 if use_one_call:
                     try:
                         oc = mgr.one_call(lat=lat, lon=lon)
                     except:
                         raise RuntimeError("Cannot make onecall requests with free API key")
-                    self._weather["current"] = oc.current
-                    self._weather["hourly_forecast"] = oc.forecast_hourly
-                    self._weather["daily_forecast"] = oc.forecast_daily
+                    new_weather["current"] = oc.current
+                    new_weather["hourly_forecast"] = oc.forecast_hourly
+                    new_weather["daily_forecast"] = oc.forecast_daily
                 else:
-                    self._weather["current"] = mgr.weather_at_coords(lat=lat, lon=lon).weather
-                    self._weather["hourly_forecast"] = mgr.forecast_at_coords(lat=lat, lon=lon, interval="3h").forecast
                     try:
-                        self._weather["daily_forecast"] = mgr.forecast_at_coords(lat=lat, lon=lon, interval="daily").forecast
+                        new_weather["current"] = mgr.weather_at_coords(lat=lat, lon=lon).weather
+                        new_weather["hourly_forecast"] = mgr.forecast_at_coords(lat=lat, lon=lon, interval="3h").forecast
+                    except:
+                        logger.warning("Failed to fetch latest weather")
+                    try:
+                        new_weather["daily_forecast"] = mgr.forecast_at_coords(lat=lat, lon=lon, interval="daily").forecast
                     except:
                         logger.warning("Cannot make daily forecast requests with free API key")
 
                 today = {"morning": None, "afternoon": None, "evening": None}
                 tomorrow = {"morning": None, "afternoon": None, "evening": None}
-                for weather in self._weather["hourly_forecast"]:
+                for weather in new_weather["hourly_forecast"]:
                     dt = datetime.utcfromtimestamp(weather.ref_time).astimezone(ova.timezone)
                     logger.debug(dt)
                     if dt.day == datetime.today().day:
@@ -61,9 +64,10 @@ class OpenWeatherMap:
                             tomorrow["evening"] = weather
                     else:
                         break
-                self._weather["today"] = today
-                self._weather["tomorrow"] = tomorrow
-                logger.debug(self._weather)
+                new_weather["today"] = today
+                new_weather["tomorrow"] = tomorrow
+                self._weather = new_weather
+                logger.debug(new_weather)
                 logger.info("Current Location Weather Updated")
                 time.sleep(update_interval)
 
