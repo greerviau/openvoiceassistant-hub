@@ -1,6 +1,10 @@
 # v0.1.1
 
-- Formatting changes for python and removing release branch, main branch is now used for releases
+- Fixing some bugs with the timer (not sure if I finished these, 7 months ago :/)
+- Adding flip a coin skill
+- Fixing failed weather call
+- Formatting changes for python, using Ruff formatter
+- The main branch will now act as the release branch
 
 # v0.1.0
 
