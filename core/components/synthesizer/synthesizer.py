@@ -1,9 +1,10 @@
 import importlib
-import os
-import typing
-import time
-import uuid
 import logging
+import os
+import time
+import typing
+import uuid
+
 logger = logging.getLogger("components.synthesizer")
 
 from core import config
@@ -11,12 +12,19 @@ from core.dir import FILESDIR
 from core.enums import Components
 from core.schemas import Context
 
+
 class Synthesizer:
-    def __init__(self, ova: "OpenVoiceAssistant"):
+    def __init__(self, ova: "OpenVoiceAssistant"):  # noqa: F821
         self.ova = ova
 
-        self.algo = config.get(Components.Synthesizer.value, "algorithm").lower().replace(" ", "_")
-        self.module = importlib.import_module(f"core.components.synthesizer.{self.algo}")
+        self.algo = (
+            config.get(Components.Synthesizer.value, "algorithm")
+            .lower()
+            .replace(" ", "_")
+        )
+        self.module = importlib.import_module(
+            f"core.components.synthesizer.{self.algo}"
+        )
 
         self.verify_algo_config()
 
@@ -28,26 +36,32 @@ class Synthesizer:
         current_config = config.get(Components.Synthesizer.value, "config")
         default_config = self.module.default_config()
         try:
-            if not current_config or (current_config.keys() != default_config.keys()) or current_config["id"] != default_config["id"]:
+            if (
+                not current_config
+                or (current_config.keys() != default_config.keys())
+                or current_config["id"] != default_config["id"]
+            ):
                 raise Exception("Incorrect config")
-        except:
+        except Exception:
             config.set(Components.Synthesizer.value, "config", default_config)
 
     def get_algorithm_default_config(self, algorithm_id: str) -> typing.Dict:
         try:
-            module = importlib.import_module(f"core.components.synthesizer.{algorithm_id}")
+            module = importlib.import_module(
+                f"core.components.synthesizer.{algorithm_id}"
+            )
             return module.default_config()
-        except Exception as e:
+        except Exception:
             raise RuntimeError("Synthesizer algorithm does not exist")
-    
+
     def run_stage(self, context: Context):
         logger.info("Synthesizer Stage")
         start = time.time()
-        
+
         _id = context["node_id"] if "node_id" in context else ""
         if not _id:
             _id = uuid.uuid4().hex
-        
+
         response_file_path = os.path.join(FILESDIR, f"response_{_id}.wav")
         context["response_audio_file_path"] = response_file_path
 
@@ -63,7 +77,7 @@ class Synthesizer:
 
         else:
             context["response_audio_data"] = ""
-            
+
         dt = time.time() - start
         logger.info(f"Time to synthesize: {dt}")
         context["time_to_synthesize"] = dt

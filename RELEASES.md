@@ -1,39 +1,50 @@
+# v0.1.1
+
+- Formatting changes for python and removing release branch, main branch is now used for releases
+
 # v0.1.0
+
 ## Skills
-* Default
-    * Volume Control
-    * Date / Time
-    * Timer
-* Home Assistant
-    * Light Control
-    * Shopping List
-    * Vacuum
-    * People
-* PyJokes
-* Open Weather Map
-* What to Wear
-* Yahoo Finance
+
+- Default
+  - Volume Control
+  - Date / Time
+  - Timer
+- Home Assistant
+  - Light Control
+  - Shopping List
+  - Vacuum
+  - People
+- PyJokes
+- Open Weather Map
+- What to Wear
+- Yahoo Finance
 
 ## Integrations
-* Home Assistant
-* Open Weather Map
+
+- Home Assistant
+- Open Weather Map
 
 ## Frontend UI
-* Overview
-* Nodes
-* Skills
-* Integrations
-* Settings
-* Logs
+
+- Overview
+- Nodes
+- Skills
+- Integrations
+- Settings
+- Logs
 
 ## Audio Transcription
-* Kaldi (default)
-* Whisper
+
+- Kaldi (default)
+- Whisper
 
 ## NLU
-* Rapidfuzz (default)
-* Neural Intent
+
+- Rapidfuzz (default)
+- Neural Intent
 
 ## Voice Synthesis
-* Espeak (default)
-* Piper TTS
+
+- Espeak (default)
+- Piper TTS

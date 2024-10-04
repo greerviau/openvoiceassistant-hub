@@ -1,31 +1,34 @@
-import os
-import typing
-import time
-import pytz
 import logging
+import os
+import time
+import typing
+
+import pytz
+
 logger = logging.getLogger("ova")
 
 from core import config
-from core.schemas import Context
-from core.enums import Components
-from core.node_manager import NodeManager
-from core.skill_manager import SkillManager
-from core.integration_manager import IntegrationManager
 from core.components.actor import Actor
-from core.components.understander import Understander
-from core.components.transcriber import Transcriber
 from core.components.synthesizer import Synthesizer
+from core.components.transcriber import Transcriber
+from core.components.understander import Understander
+from core.enums import Components
+from core.integration_manager import IntegrationManager
+from core.node_manager import NodeManager
+from core.schemas import Context
+from core.skill_manager import SkillManager
 
 COMPONENTS = {
     Components.Transcriber: Transcriber,
     Components.Understander: Understander,
     Components.Actor: Actor,
-    Components.Synthesizer: Synthesizer
+    Components.Synthesizer: Synthesizer,
 }
+
 
 class OpenVoiceAssistant:
     def __init__(self):
-        self.restart()  
+        self.restart()
 
     def restart(self):
         self.settings = config.get("settings")
@@ -61,7 +64,7 @@ class OpenVoiceAssistant:
 
     def run_pipeline(self, *stages: typing.List[Components], context: Context = {}):
         start = time.time()
-        
+
         for stage in stages:
             self.get_component(stage).run_stage(context)
 

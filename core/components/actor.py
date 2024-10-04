@@ -1,23 +1,29 @@
-import time
 import logging
+import time
+
 logger = logging.getLogger("components.actor")
 
 from core.schemas import Context
 from core.utils.nlp.formatting import format_sentences
 
+
 class Actor:
-    def __init__(self, ova: "OpenVoiceAssistant"):
+    def __init__(self, ova: "OpenVoiceAssistant"):  # noqa: F821
         self.ova = ova
 
     def process_response(self, text: str):
         if not text:
             return text
         text = text.strip()
-        text = ". ".join([sentence.strip().capitalize() for sentence in text.split(".")])
+        text = ". ".join(
+            [sentence.strip().capitalize() for sentence in text.split(".")]
+        )
         text = text.replace(" i ", " I ")
         text = text.strip()
-        if text[0] == "i": text[0] = "I"
-        if text[-1] not in  [".", "!", "?" "%"]: text += "."
+        if text[0] == "i":
+            text[0] = "I"
+        if text[-1] not in [".", "!", "?" "%"]:
+            text += "."
         return text
 
     def run_stage(self, context: Context):
@@ -33,9 +39,13 @@ class Actor:
         else:
             if self.ova.skill_manager.skill_imported(skill):
                 try:
-                    getattr(self.ova.skill_manager.get_skill_module(skill), action)(context)
+                    getattr(self.ova.skill_manager.get_skill_module(skill), action)(
+                        context
+                    )
                 except Exception as e:
-                    context["response"] = f"Sorry. While executing that action, I encountered the following problem. {str(e)}"
+                    context["response"] = (
+                        f"Sorry. While executing that action, I encountered the following problem. {str(e)}"
+                    )
             else:
                 context["response"] = "Skill is not imported."
 

@@ -1,13 +1,14 @@
 import importlib
-import typing
-import subprocess
 import logging
+import subprocess
+import typing
+
 logger = logging.getLogger("skill_manager")
 
 from pkgutil import iter_modules
 
-from core import config
-from core import skills
+from core import config, skills
+
 
 class SkillManager:
     def __init__(self, ova):
@@ -15,8 +16,12 @@ class SkillManager:
 
         self.imported_skill_modules = {}
 
-        self.available_skills = [submodule.name for submodule in iter_modules(skills.__path__)]
-        self.available_skills = {skill: self.get_skill_manifest(skill) for skill in self.available_skills}
+        self.available_skills = [
+            submodule.name for submodule in iter_modules(skills.__path__)
+        ]
+        self.available_skills = {
+            skill: self.get_skill_manifest(skill) for skill in self.available_skills
+        }
 
         self.skills = config.get("skills")
 
@@ -35,7 +40,11 @@ class SkillManager:
 
     @property
     def not_imported_skills(self):
-        return [manifest for _id, manifest in self.available_skills.items() if _id not in self.skills]
+        return [
+            manifest
+            for _id, manifest in self.available_skills.items()
+            if _id not in self.skills
+        ]
 
     def skill_imported(self, skill_id: str):
         return skill_id in self.imported_skill_modules
@@ -76,7 +85,7 @@ class SkillManager:
             if key not in default:
                 new_clone.pop(key)
         return new_clone
-        
+
     def get_skill_config(self, skill_id: str) -> typing.Dict:
         if self.skill_exists(skill_id):
             if self.skill_imported(skill_id) and "config" in self.skills[skill_id]:
@@ -94,7 +103,7 @@ class SkillManager:
             return {}
         else:
             raise RuntimeError("Skill does not exist")
-        
+
     def get_skill_manifest(self, skill_id: str) -> typing.Dict:
         if self.skill_exists(skill_id):
             if self.skill_imported(skill_id):
@@ -110,13 +119,13 @@ class SkillManager:
             return module.manifest()
         else:
             raise RuntimeError("Skill does not exist")
-    
+
     def get_skill_module(self, skill_id: str):
         if self.skill_imported(skill_id):
             return self.imported_skill_modules[skill_id]
         else:
             raise RuntimeError("Skill is not imported")
-        
+
     def get_skill_intents(self, skill_id: str):
         if self.skill_exists(skill_id):
             module = importlib.import_module(f"core.skills.{skill_id}")
@@ -135,14 +144,18 @@ class SkillManager:
                 try:
                     subprocess.check_output(command)
                 except Exception as e:
-                    raise RuntimeError(f"Failed to install skill requirements | {repr(e)}")
+                    raise RuntimeError(
+                        f"Failed to install skill requirements | {repr(e)}"
+                    )
             if "config" in manifest:
                 skill_config = manifest["config"]
                 default_config = self.get_default_skill_config(skill_id)
                 if not skill_config:
                     skill_config = default_config
                 else:
-                    skill_config = self.check_for_discrepancy(skill_config, default_config)
+                    skill_config = self.check_for_discrepancy(
+                        skill_config, default_config
+                    )
                 manifest["config"] = skill_config
             else:
                 skill_config = {}
@@ -150,7 +163,9 @@ class SkillManager:
             config.set("skills", self.skills)
             try:
                 module = importlib.import_module(f"core.skills.{skill_id}")
-                self.imported_skill_modules[skill_id] = module.build_skill(skill_config, self.ova)
+                self.imported_skill_modules[skill_id] = module.build_skill(
+                    skill_config, self.ova
+                )
             except Exception as e:
                 logger.info(f"Failed to load {skill_id} | Exception {repr(e)}")
                 # TODO

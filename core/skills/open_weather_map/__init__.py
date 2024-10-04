@@ -32,8 +32,8 @@ INTENTIONS = [
             "tell me the weather",
             "give me the weather",
             "can i get the weather",
-            "can you get me the weather"
-        ]
+            "can you get me the weather",
+        ],
     },
     {
         "action": "sky_conditions",
@@ -60,8 +60,8 @@ INTENTIONS = [
             "whats the sky look like today",
             "will it clear up later",
             "are the skies expected to clear",
-            "how will the skies be today"
-        ]
+            "how will the skies be today",
+        ],
     },
     {
         "action": "humidity",
@@ -90,8 +90,8 @@ INTENTIONS = [
             "how dry will it be today",
             "how humid is it outside",
             "how muggy is it right now",
-            "whats the forecast for humidity today"
-        ]
+            "whats the forecast for humidity today",
+        ],
     },
     {
         "action": "temperature",
@@ -123,20 +123,22 @@ INTENTIONS = [
             "how hot will it be today",
             "hows the temp today",
             "whats the temperature today",
-            "whats the forecast for temperature today"
-        ]
-    }
+            "whats the forecast for temperature today",
+        ],
+    },
 ]
 
 
-def build_skill(skill_config: typing.Dict, ova: "OpenVoiceAssistant"):
+def build_skill(skill_config: typing.Dict, ova: "OpenVoiceAssistant"):  # noqa: F821
     from .open_weather_map import OpenWeatherMap
+
     return OpenWeatherMap(skill_config, ova)
+
 
 def manifest():
     return {
         "name": "Open Weather Map",
         "id": "open_weather_map",
         "category": "weather",
-        "required_integrations": ["open_weather_map"]
+        "required_integrations": ["open_weather_map"],
     }

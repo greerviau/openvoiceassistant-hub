@@ -1,13 +1,15 @@
-import pyttsx3
+import logging
 import os
 import time
 import typing
-import logging
+
+import pyttsx3
+
 logger = logging.getLogger("components.synthesizer.espeak")
 
-class Espeak:
 
-    def __init__(self, algo_config: typing.Dict, ova: "OpenVoiceAssistant"):
+class Espeak:
+    def __init__(self, algo_config: typing.Dict, ova: "OpenVoiceAssistant"):  # noqa: F821
         logger.info("Loading Espeak Synthesizer")
         self.ova = ova
 
@@ -21,10 +23,10 @@ class Espeak:
         while not os.path.exists(file_path):
             time.sleep(0.1)
 
-def build_engine(algo_config: typing.Dict, ova: "OpenVoiceAssistant") -> Espeak:
+
+def build_engine(algo_config: typing.Dict, ova: "OpenVoiceAssistant") -> Espeak:  # noqa: F821
     return Espeak(algo_config, ova)
 
+
 def default_config() -> typing.Dict:
-    return {
-        "id": "espeak"
-    }
+    return {"id": "espeak"}

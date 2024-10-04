@@ -1,10 +1,13 @@
-import typing
-import yfinance as yf
 import logging
+import typing
+
+import yfinance as yf
+
 logger = logging.getLogger("skill.yfinance")
 
+
 class YFinance:
-    def __init__(self, skill_config: typing.Dict, ova: "OpenVoiceAssistant"):
+    def __init__(self, skill_config: typing.Dict, ova: "OpenVoiceAssistant"):  # noqa: F821
         self.ova = ova
         self.watch_list = skill_config["watch_list"]
 

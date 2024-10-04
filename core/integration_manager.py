@@ -1,13 +1,14 @@
 import importlib
-import typing
-import subprocess
 import logging
+import subprocess
+import typing
+
 logger = logging.getLogger("integration_manager")
 
 from pkgutil import iter_modules
 
-from core import config
-from core import integrations
+from core import config, integrations
+
 
 class IntegrationManager:
     def __init__(self, ova):
@@ -15,8 +16,13 @@ class IntegrationManager:
 
         self.imported_integration_modules = {}
 
-        self.available_integrations = [submodule.name for submodule in iter_modules(integrations.__path__)]
-        self.available_integrations = {integration: self.get_integration_manifest(integration) for integration in self.available_integrations}
+        self.available_integrations = [
+            submodule.name for submodule in iter_modules(integrations.__path__)
+        ]
+        self.available_integrations = {
+            integration: self.get_integration_manifest(integration)
+            for integration in self.available_integrations
+        }
 
         self.integrations = config.get("integrations")
 
@@ -35,7 +41,11 @@ class IntegrationManager:
 
     @property
     def not_imported_integrations(self):
-        return [manifest for _id, manifest in self.available_integrations.items() if _id not in self.integrations]
+        return [
+            manifest
+            for _id, manifest in self.available_integrations.items()
+            if _id not in self.integrations
+        ]
 
     def integration_imported(self, integration_id: str):
         return integration_id in self.imported_integration_modules
@@ -76,10 +86,13 @@ class IntegrationManager:
             if key not in default:
                 new_clone.pop(key)
         return new_clone
-        
+
     def get_integration_config(self, integration_id: str) -> typing.Dict:
         if self.integration_exists(integration_id):
-            if self.integration_imported(integration_id) and "config" in self.integrations[integration_id]:
+            if (
+                self.integration_imported(integration_id)
+                and "config" in self.integrations[integration_id]
+            ):
                 return self.integrations[integration_id]["config"]
             else:
                 return self.get_default_integration_config(integration_id)
@@ -94,7 +107,7 @@ class IntegrationManager:
             return {}
         else:
             raise RuntimeError("Integration does not exist")
-        
+
     def get_integration_manifest(self, integration_id: str) -> typing.Dict:
         if self.integration_exists(integration_id):
             if self.integration_imported(integration_id):
@@ -110,7 +123,7 @@ class IntegrationManager:
             return module.manifest()
         else:
             raise RuntimeError("Integration does not exist")
-    
+
     def get_integration_module(self, integration_id: str):
         if self.integration_imported(integration_id):
             return self.imported_integration_modules[integration_id]
@@ -128,14 +141,18 @@ class IntegrationManager:
                 try:
                     subprocess.check_output(command)
                 except Exception as e:
-                    raise RuntimeError(f"Failed to install integration requirements | {repr(e)}")
+                    raise RuntimeError(
+                        f"Failed to install integration requirements | {repr(e)}"
+                    )
             if "config" in manifest:
                 integration_config = manifest["config"]
                 default_config = self.get_default_integration_config(integration_id)
                 if not integration_config:
                     integration_config = default_config
                 else:
-                    integration_config = self.check_for_discrepancy(integration_config, default_config)
+                    integration_config = self.check_for_discrepancy(
+                        integration_config, default_config
+                    )
                 manifest["config"] = integration_config
             else:
                 integration_config = {}
@@ -143,7 +160,9 @@ class IntegrationManager:
             config.set("integrations", self.integrations)
             try:
                 module = importlib.import_module(f"core.integrations.{integration_id}")
-                self.imported_integration_modules[integration_id] = module.build_integration(integration_config, self.ova)
+                self.imported_integration_modules[integration_id] = (
+                    module.build_integration(integration_config, self.ova)
+                )
             except Exception as e:
                 logger.info(f"Failed to load {integration_id} | Exception {repr(e)}")
                 # TODO

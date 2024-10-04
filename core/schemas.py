@@ -1,5 +1,6 @@
 import typing
 
+
 class Context(typing.TypedDict):
     node_id: str
     node_name: str

@@ -1,0 +1,18 @@
+{
+    "editor.formatOnSave": true,
+    "[html][javascript][json][jsonc][markdown][typescript][yaml][javascriptreact][typescriptreact]": {
+      "editor.codeActionsOnSave": {
+        "source.fixAll": "always",
+        "source.organizeImports": "always"
+      },
+      "editor.defaultFormatter": "esbenp.prettier-vscode"
+    },
+    "[python]": {
+      "editor.codeActionsOnSave": {
+        "source.fixAll": "always",
+        "source.organizeImports": "always"
+      },
+      "editor.defaultFormatter": "charliermarsh.ruff"
+    },
+    "ruff.lint.args": ["--extend-select=I"]
+  }
