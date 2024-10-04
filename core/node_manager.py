@@ -1,9 +1,12 @@
-import requests
-import typing
 import logging
+import typing
+
+import requests
+
 logger = logging.getLogger("node_manager")
 
 from core import config
+
 
 class NodeManager:
     def __init__(self, ova):
@@ -11,21 +14,21 @@ class NodeManager:
         self.nodes = config.get("nodes")
 
     def update_node(self, node_id: str):
-        resp = self.call_node_api("POST", node_id, "/update")
+        self.call_node_api("POST", node_id, "/update")
 
     def update_node_config(self, node_id: str, node_config: typing.Dict):
         self.__save_config(node_id, node_config)
         return node_config
-        
+
     def node_exists(self, node_id: str):
         return node_id in self.nodes
-    
+
     def get_node_in_area(self, area: str):
         for node_id, conf in self.nodes.items():
             if area in conf["area"]:
                 return self.nodes[node_id]
         return {}
-    
+
     def get_node_ids(self):
         return list(self.nodes.keys())
 
@@ -49,14 +52,14 @@ class NodeManager:
         if update_needed:
             self.__save_config(node_id, existing_node_config)
         return existing_node_config
-        
+
     def get_all_node_status(self):
         node_status = []
         for node_id in self.get_node_ids():
             node_status.append(self.get_node_status(node_id))
 
         return node_status
-    
+
     def get_node_hardware(self, node_id: str):
         hardware = {}
         resp = self.call_node_api("GET", node_id, "/hardware/microphones")
@@ -78,7 +81,7 @@ class NodeManager:
     def get_node_status(self, node_id: str):
         try:
             node_config = self.nodes[node_id]
-        except:
+        except Exception:
             raise RuntimeError(f"Node {node_id} does not exist")
         try:
             resp = self.call_node_api("GET", node_id)
@@ -91,21 +94,21 @@ class NodeManager:
                     "restart_required": node_config["restart_required"],
                     "update_available": data["update_available"],
                     "update_version": data["update_version"],
-                    "version": node_config["version"]
+                    "version": node_config["version"],
                 }
             else:
                 raise
-        except Exception as e:
+        except Exception:
             return {
-                    "id": node_id,
-                    "name": node_config["name"],
-                    "status": "offline",
-                    "restart_required": False,
-                    "update_available": False,
-                    "update_version": "",
-                    "version": node_config["version"]
-                }
-    
+                "id": node_id,
+                "name": node_config["name"],
+                "status": "offline",
+                "restart_required": False,
+                "update_available": False,
+                "update_version": "",
+                "version": node_config["version"],
+            }
+
     def remove_node(self, node_id: str):
         if self.node_exists(node_id):
             node_config = self.nodes.pop(node_id)
@@ -121,28 +124,33 @@ class NodeManager:
                 raise RuntimeError(f"Failed to restart node {node_id}")
             node_config["restart_required"] = False
             self.__save_config(node_id, node_config)
-    
-    def call_node_api(self, 
-                        verb: str, 
-                        node_id: str, 
-                        endpoint: str = "", 
-                        files: typing.Dict = None, 
-                        json: typing.Dict = None, 
-                        data: typing.Dict = None
+
+    def call_node_api(
+        self,
+        verb: str,
+        node_id: str,
+        endpoint: str = "",
+        files: typing.Dict = None,
+        json: typing.Dict = None,
+        data: typing.Dict = None,
     ):
         verb = verb.upper()
         if verb not in ["GET", "POST", "PUT", "DELETE"]:
             raise RuntimeError("Invalid api verb")
         try:
             node_config = self.nodes[node_id]
-        except:
+        except Exception:
             raise RuntimeError(f"Node {node_id} does not exist")
         address = node_config["address"]
         url = f"http://{address}/api" + endpoint
         try:
-            resp = requests.request(verb, url, timeout=5, files=files, json=json, data=data)
-        except:
-            raise RuntimeError(f"Failed to make request to {endpoint} on node {node_id} | Timed out")
+            resp = requests.request(
+                verb, url, timeout=5, files=files, json=json, data=data
+            )
+        except Exception:
+            raise RuntimeError(
+                f"Failed to make request to {endpoint} on node {node_id} | Timed out"
+            )
         return resp
 
     def __save_config(self, node_id: str, node_config: typing.Dict):

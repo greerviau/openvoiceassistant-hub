@@ -1,23 +1,23 @@
-import typing
-import time
-import threading
-import random
 import logging
+import random
+import typing
+
 logger = logging.getLogger("skill.open_weather_map")
 
-from datetime import datetime
 
 RESPONSE_TEMPLATES = [
     "Right now it's %s",
     "Currently it's %s",
     "Outside it's %s",
-    "It's currently %s"
+    "It's currently %s",
 ]
 
-class OpenWeatherMap:
 
-    def __init__(self, skill_config: typing.Dict, ova: "OpenVoiceAssistant"):
-        self.owm_integration = ova.integration_manager.get_integration_module("open_weather_map")
+class OpenWeatherMap:
+    def __init__(self, skill_config: typing.Dict, ova: "OpenVoiceAssistant"):  # noqa: F821
+        self.owm_integration = ova.integration_manager.get_integration_module(
+            "open_weather_map"
+        )
         self.temp_unit = ova.settings["temperature_unit"]
 
     def _preprocess_time_of_day(self, command, morning, afternoon, evening):
@@ -46,14 +46,14 @@ class OpenWeatherMap:
         sentence = random.choice(RESPONSE_TEMPLATES) % (sky)
 
         temp_data = weather.temperature(self.temp_unit)
-        temp = int(temp_data["temp"]) 
+        temp = int(temp_data["temp"])
         feels_like = int(temp_data["feels_like"])
         if abs(temp - feels_like) > 10:
             sentence += f" and {temp} degrees, but it feels like {feels_like}"
         else:
             sentence += f" and {temp} degrees"
         sentences.append(sentence)
-        
+
         if not self._right_now(command):
             day_str = "This"
             if "tomorrow" in command.split():
@@ -62,27 +62,43 @@ class OpenWeatherMap:
                 forecast = self.owm_integration.get_tomorrow_forecast()
             else:
                 forecast = self.owm_integration.get_today_forecast()
-            morning, afternoon, evening = forecast["morning"], forecast["afternoon"], forecast["evening"]
-            morning, afternoon, evening = self._preprocess_time_of_day(command, morning, afternoon, evening)
-                
+            morning, afternoon, evening = (
+                forecast["morning"],
+                forecast["afternoon"],
+                forecast["evening"],
+            )
+            morning, afternoon, evening = self._preprocess_time_of_day(
+                command, morning, afternoon, evening
+            )
+
             if morning:
                 sky = self.owm_integration.get_sky_conditions(morning)
                 temp = int(morning.temperature(self.temp_unit)["temp"])
-                sentences.append(f"{day_str} morning it will be {temp} degrees and {sky}")
+                sentences.append(
+                    f"{day_str} morning it will be {temp} degrees and {sky}"
+                )
             if afternoon:
                 sky = self.owm_integration.get_sky_conditions(afternoon)
                 temp = int(afternoon.temperature(self.temp_unit)["temp"])
                 if not morning:
-                    sentences.append(f"{day_str} afternoon it will be {temp} degrees and {sky}")
+                    sentences.append(
+                        f"{day_str} afternoon it will be {temp} degrees and {sky}"
+                    )
                 else:
-                    sentences.append(f"In the afternoon it will be {temp} degrees and {sky}")
+                    sentences.append(
+                        f"In the afternoon it will be {temp} degrees and {sky}"
+                    )
             if evening:
                 sky = self.owm_integration.get_sky_conditions(evening)
                 temp = int(evening.temperature(self.temp_unit)["temp"])
                 if not afternoon:
-                    sentences.append(f"{day_str} evening it will be {temp} degrees and {sky}")
+                    sentences.append(
+                        f"{day_str} evening it will be {temp} degrees and {sky}"
+                    )
                 else:
-                    sentences.append(f"In the evening it will be {temp} degrees and {sky}")
+                    sentences.append(
+                        f"In the evening it will be {temp} degrees and {sky}"
+                    )
 
         context["response"] = ". ".join(sentences) + "."
 
@@ -102,8 +118,14 @@ class OpenWeatherMap:
                 forecast = self.owm_integration.get_tomorrow_forecast()
             else:
                 forecast = self.owm_integration.get_today_forecast()
-            morning, afternoon, evening = forecast["morning"], forecast["afternoon"], forecast["evening"]
-            morning, afternoon, evening = self._preprocess_time_of_day(command, morning, afternoon, evening)
+            morning, afternoon, evening = (
+                forecast["morning"],
+                forecast["afternoon"],
+                forecast["evening"],
+            )
+            morning, afternoon, evening = self._preprocess_time_of_day(
+                command, morning, afternoon, evening
+            )
 
             if morning:
                 sky = self.owm_integration.get_sky_conditions(morning)
@@ -122,7 +144,7 @@ class OpenWeatherMap:
                     sentences.append(f"In the evening it will be {sky}")
 
         context["response"] = ". ".join(sentences) + "."
-    
+
     def humidity(self, context: typing.Dict):
         command = context["cleaned_command"]
         sentences = []
@@ -153,13 +175,13 @@ class OpenWeatherMap:
                     yes_no_string = "Yes"
                 else:
                     yes_no_string = "No"
-        else:  
+        else:
             humidity_string = f"{humidity} percent humidity"
 
         if yes_no_string:
             sentences.append(yes_no_string)
         sentences.append(random.choice(RESPONSE_TEMPLATES) % (humidity_string))
-        
+
         if not self._right_now(command):
             day_str = "This"
             if "tomorrow" in command.split():
@@ -168,24 +190,40 @@ class OpenWeatherMap:
                 forecast = self.owm_integration.get_tomorrow_forecast()
             else:
                 forecast = self.owm_integration.get_today_forecast()
-            morning, afternoon, evening = forecast["morning"], forecast["afternoon"], forecast["evening"]
-            morning, afternoon, evening = self._preprocess_time_of_day(command, morning, afternoon, evening)
+            morning, afternoon, evening = (
+                forecast["morning"],
+                forecast["afternoon"],
+                forecast["evening"],
+            )
+            morning, afternoon, evening = self._preprocess_time_of_day(
+                command, morning, afternoon, evening
+            )
 
             if morning:
                 humidity = int(weather.humidity)
-                sentences.append(f"{day_str} morning it will be {humidity} percent humidity")
+                sentences.append(
+                    f"{day_str} morning it will be {humidity} percent humidity"
+                )
             if afternoon:
                 humidity = int(weather.humidity)
                 if not morning:
-                    sentences.append(f"{day_str} afternoon it will be {humidity} percent humidity")
+                    sentences.append(
+                        f"{day_str} afternoon it will be {humidity} percent humidity"
+                    )
                 else:
-                    sentences.append(f"In the afternoon it will be {humidity} percent humidity")
+                    sentences.append(
+                        f"In the afternoon it will be {humidity} percent humidity"
+                    )
             if evening:
                 humidity = int(weather.humidity)
                 if not afternoon:
-                    sentences.append(f"{day_str} evening it will be {humidity} percent humidity")
+                    sentences.append(
+                        f"{day_str} evening it will be {humidity} percent humidity"
+                    )
                 else:
-                    sentences.append(f"In the evening it will be {humidity} percent humidity")
+                    sentences.append(
+                        f"In the evening it will be {humidity} percent humidity"
+                    )
 
         context["response"] = ". ".join(sentences) + "."
 
@@ -195,14 +233,17 @@ class OpenWeatherMap:
 
         weather = self.owm_integration.get_current_weather()
         temp_data = weather.temperature(self.temp_unit)
-        temp = int(temp_data["temp"]) 
+        temp = int(temp_data["temp"])
         feels_like = int(temp_data["feels_like"])
 
         temperature_string = ""
         yes_no_string = ""
-        if any(x in command.split() for x in ["hot", "warm", "comfortable", "cold", "chilly"]):
+        if any(
+            x in command.split()
+            for x in ["hot", "warm", "comfortable", "cold", "chilly"]
+        ):
             measure_temp = int(weather.temperature("celsius")["temp"])
-            if measure_temp < -7:   # ~20F
+            if measure_temp < -7:  # ~20F
                 temperature_string = "very cold"
                 if any(x in command.split() for x in ["hot", "warm", "comfortable"]):
                     yes_no_string = "No"
@@ -214,13 +255,13 @@ class OpenWeatherMap:
                     yes_no_string = "No"
                 else:
                     yes_no_string = "Yes"
-            elif measure_temp < 10: # 50F
+            elif measure_temp < 10:  # 50F
                 temperature_string = "fairly cold"
                 if any(x in command.split() for x in ["hot", "warm", "comfortable"]):
                     yes_no_string = "No"
                 else:
                     yes_no_string = "Yes"
-            elif measure_temp >= 10 and measure_temp <= 24: # 50F - ~75F
+            elif measure_temp >= 10 and measure_temp <= 24:  # 50F - ~75F
                 temperature_string = "quite comfortable"
                 if any(x in command.split() for x in ["hot", "chilly", "cold"]):
                     yes_no_string = "No"
@@ -233,11 +274,14 @@ class OpenWeatherMap:
                 else:
                     yes_no_string = "Yes"
             else:
-                if any(x in command.split() for x in ["warm", "comfortable", "chilly", "cold"]):
+                if any(
+                    x in command.split()
+                    for x in ["warm", "comfortable", "chilly", "cold"]
+                ):
                     yes_no_string = "No"
                 else:
                     yes_no_string = "Yes"
-                temperature_string = "very hot" 
+                temperature_string = "very hot"
         else:
             temperature_string = f"{temp} degrees"
             if abs(temp - feels_like) > 10:
@@ -255,8 +299,14 @@ class OpenWeatherMap:
                 forecast = self.owm_integration.get_tomorrow_forecast()
             else:
                 forecast = self.owm_integration.get_today_forecast()
-            morning, afternoon, evening = forecast["morning"], forecast["afternoon"], forecast["evening"]
-            morning, afternoon, evening = self._preprocess_time_of_day(command, morning, afternoon, evening)
+            morning, afternoon, evening = (
+                forecast["morning"],
+                forecast["afternoon"],
+                forecast["evening"],
+            )
+            morning, afternoon, evening = self._preprocess_time_of_day(
+                command, morning, afternoon, evening
+            )
 
             if morning:
                 temp = int(morning.temperature(self.temp_unit)["temp"])

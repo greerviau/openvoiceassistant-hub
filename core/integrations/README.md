@@ -90,4 +90,4 @@ The Integration class takes a config dictionary and an instance of ```OpenVoiceA
 
 The functions implemented in the integration are meant to be used by any integrations that use the integration.
 
-It is HIGHLY encouraged to look at other skills to see how they work when creating a custom skill.
+It is HIGHLY encouraged to look at other integrations to see how they work when creating a custom integration.

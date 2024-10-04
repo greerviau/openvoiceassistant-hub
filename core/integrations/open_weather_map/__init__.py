@@ -1,8 +1,11 @@
 import typing
 
-def build_integration(skill_config: typing.Dict, ova: "OpenVoiceAssistant"):
+
+def build_integration(skill_config: typing.Dict, ova: "OpenVoiceAssistant"):  # noqa: F821
     from .open_weather_map import OpenWeatherMap
+
     return OpenWeatherMap(skill_config, ova)
+
 
 def manifest():
     return {
@@ -13,6 +16,11 @@ def manifest():
         "config": {
             "api_key": "",
             "update_interval": "hourly",
-            "update_interval_options": ["hourly", "daily", "onecall_hourly", "onecall_daily"]
-        }
+            "update_interval_options": [
+                "hourly",
+                "daily",
+                "onecall_hourly",
+                "onecall_daily",
+            ],
+        },
     }

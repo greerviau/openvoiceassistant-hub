@@ -1,16 +1,20 @@
-import typing
 import logging
+import typing
+
 logger = logging.getLogger("components.understander.rapid_fuzz")
 
 from rapidfuzz import fuzz
 
-from core.enums import Components
 from core.schemas import Context
-from core import config
+
 
 class Rapidfuzz:
-
-    def __init__(self, algo_config: typing.Dict, intents: typing.Dict, ova: "OpenVoiceAssistant"):
+    def __init__(
+        self,
+        algo_config: typing.Dict,
+        intents: typing.Dict,
+        ova: "OpenVoiceAssistant",  # noqa: F821
+    ):
         logger.info("Loading Rapid Fuzz Classifier")
         self.ova = ova
         self.intents = intents
@@ -29,13 +33,19 @@ class Rapidfuzz:
                 if r > conf:
                     conf = r
                     intent = label
-        
+
         skill, action = intent.split("-")
-    
+
         return skill, action, conf
 
-def build_engine(algo_config: typing.Dict, intents: typing.Dict, ova: "OpenVoiceAssistant") -> Rapidfuzz:
+
+def build_engine(
+    algo_config: typing.Dict,
+    intents: typing.Dict,
+    ova: "OpenVoiceAssistant",  # noqa: F821
+) -> Rapidfuzz:
     return Rapidfuzz(algo_config, intents, ova)
+
 
 def default_config() -> typing.Dict:
     return {
@@ -47,6 +57,6 @@ def default_config() -> typing.Dict:
             "token_sort_ratio",
             "token_set_ratio",
             "weighted_ratio",
-            "quick_ratio"
-        ]
+            "quick_ratio",
+        ],
     }

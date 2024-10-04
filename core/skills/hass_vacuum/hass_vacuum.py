@@ -1,19 +1,20 @@
-import typing
 import logging
+import typing
+
 logger = logging.getLogger("skill.hass_vacuum")
 
-class HASSVacuum:
 
-    def __init__(self, skill_config: typing.Dict, ova: "OpenVoiceAssistant"):
+class HASSVacuum:
+    def __init__(self, skill_config: typing.Dict, ova: "OpenVoiceAssistant"):  # noqa: F821
         self.ova = ova
-        
-        self.ha_integration = self.ova.integration_manager.get_integration_module("home_assistant")
+
+        self.ha_integration = self.ova.integration_manager.get_integration_module(
+            "home_assistant"
+        )
 
     def start_vacuum(self, context: typing.Dict):
-        data = {
-            "entity_id": "all"
-        }
-        
+        data = {"entity_id": "all"}
+
         resp = self.ha_integration.post_services("vacuum", "start", data)
         if resp.status_code == 200:
             response = "Starting the vacuum"
@@ -23,10 +24,8 @@ class HASSVacuum:
         context["response"] = response
 
     def pause_vacuum(self, context: typing.Dict):
-        data = {
-            "entity_id": "all"
-        }
-        
+        data = {"entity_id": "all"}
+
         resp = self.ha_integration.post_services("vacuum", "stop", data)
         if resp.status_code == 200:
             response = "Pausing the vacuum"
@@ -36,10 +35,8 @@ class HASSVacuum:
         context["response"] = response
 
     def stop_vacuum(self, context: typing.Dict):
-        data = {
-            "entity_id": "all"
-        }
-        
+        data = {"entity_id": "all"}
+
         resp = self.ha_integration.post_services("vacuum", "return_to_base", data)
         if resp.status_code == 200:
             response = "Sending the vacuum back home"

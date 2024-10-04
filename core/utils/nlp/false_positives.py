@@ -1,5 +1,6 @@
-import os
 import logging
+import os
+
 logger = logging.getLogger("utils.nlp.false_positives")
 
 FALSE_POSITIVES = [
@@ -855,10 +856,12 @@ FALSE_POSITIVES = [
     "can you help me with this",
     "im thinking of starting a knitting project",
     "reminder set",
-    "we should plan a hike in the mountains this weekend"
+    "we should plan a hike in the mountains this weekend",
 ]
 
-false_positives_path = os.path.join(os.path.realpath(os.path.dirname(__file__)), "false_positives.txt")
+false_positives_path = os.path.join(
+    os.path.realpath(os.path.dirname(__file__)), "false_positives.txt"
+)
 
 if not os.path.exists(false_positives_path):
     with open(false_positives_path, "w") as file:
@@ -868,12 +871,17 @@ else:
         FALSE_POSITIVES = file.readlines()
         logger.info("Loaded false positives")
 
+
 def add_false_positive(text: str):
     logger.info("False positive saved")
     with open(false_positives_path, "a") as file:
         file.write(f"\n{text}")
 
+
 if __name__ == "__main__":
     from preprocessing import clean_text
-    filtered = "\n".join(list(set([f"\"{clean_text(phrase)}\"," for phrase in FALSE_POSITIVES])))
+
+    filtered = "\n".join(
+        list(set([f'"{clean_text(phrase)}",' for phrase in FALSE_POSITIVES]))
+    )
     print(filtered)

@@ -1,19 +1,22 @@
-import wave
+import logging
 import os
 import typing
+import wave
+
 import torch
-import logging
+
 logger = logging.getLogger("components.synthesizer.piper")
 
-from piper.download import ensure_voice_exists, find_voice, get_voices
 from piper import PiperVoice
+from piper.download import ensure_voice_exists, find_voice, get_voices
 
 from core import config
 from core.dir import MODELDIR
 from core.enums import Components
 
+
 class Piper:
-    def __init__(self, algo_config: typing.Dict, ova: "OpenVoiceAssistant"):
+    def __init__(self, algo_config: typing.Dict, ova: "OpenVoiceAssistant"):  # noqa: F821
         logger.info("Loading Piper Synthesizer")
         self.ova = ova
         model_name = algo_config["model"]
@@ -38,13 +41,15 @@ class Piper:
         with wave.open(file_path, "wb") as wav_file:
             self.voice.synthesize(text, wav_file)
 
-def build_engine(algo_config: typing.Dict, ova: "OpenVoiceAssistant") -> Piper:
+
+def build_engine(algo_config: typing.Dict, ova: "OpenVoiceAssistant") -> Piper:  # noqa: F821
     return Piper(algo_config, ova)
+
 
 def default_config() -> typing.Dict:
     return {
         "id": "piper",
         "model": "en_US-lessac-medium",
         "use_gpu": False,
-        "model_options": list(get_voices("./").keys())
+        "model_options": list(get_voices("./").keys()),
     }
